@@ -1,0 +1,71 @@
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+
+const STATUS_MESSAGES = [
+  'ESTABLISHING_SIGNAL',
+  'COMPILING_MODULES',
+  'LOADING_ASSETS',
+  'SYSTEM_READY',
+] as const
+
+const MESSAGE_DURATION = 600
+
+interface LoadingScreenProps {
+  onComplete: () => void
+}
+
+export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
+  const [messageIndex, setMessageIndex] = useState(0)
+
+  useEffect(() => {
+    const isLast = messageIndex === STATUS_MESSAGES.length - 1
+    const timer = setTimeout(
+      () => {
+        if (isLast) {
+          onComplete()
+        } else {
+          setMessageIndex((i) => i + 1)
+        }
+      },
+      MESSAGE_DURATION,
+    )
+    return () => clearTimeout(timer)
+  }, [messageIndex, onComplete])
+
+  const progress = ((messageIndex + 1) / STATUS_MESSAGES.length) * 100
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-mint-cream"
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <p
+        className="mb-4 font-display text-xs text-atomic-tangerine"
+        style={{ fontFamily: 'var(--font-display)' }}
+      >
+        SYSTEM_INIT...
+      </p>
+      <h1
+        className="mb-8 text-2xl text-black"
+        style={{ fontFamily: 'var(--font-display)' }}
+      >
+        FARHAN MOHAMMED
+      </h1>
+      <div className="mb-4 h-2 w-64 overflow-hidden rounded-none bg-graphite/20">
+        <motion.div
+          className="h-full bg-atomic-tangerine"
+          initial={{ width: '25%' }}
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+        />
+      </div>
+      <p
+        className="text-xs text-graphite"
+        style={{ fontFamily: 'var(--font-body)' }}
+      >
+        {STATUS_MESSAGES[messageIndex]}
+      </p>
+    </motion.div>
+  )
+}
