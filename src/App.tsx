@@ -1,4 +1,5 @@
 import './index.css'
+import ContactSection from './components/ContactSection'
 
 function App() {
   return (
@@ -7,7 +8,7 @@ function App() {
       <section id="projects" />
       <section id="skills" />
       <section id="timeline" />
-      <section id="contact" />
+      <ContactSection />
     </main>
   )
 }
