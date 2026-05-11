@@ -40,16 +40,10 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <p
-        className="mb-4 font-display text-xs text-atomic-tangerine"
-        style={{ fontFamily: 'var(--font-display)' }}
-      >
+      <p className="mb-4 font-display text-xs text-atomic-tangerine">
         SYSTEM_INIT...
       </p>
-      <h1
-        className="mb-8 text-2xl text-black"
-        style={{ fontFamily: 'var(--font-display)' }}
-      >
+      <h1 className="mb-8 font-display text-2xl text-black">
         FARHAN MOHAMMED
       </h1>
       <div className="mb-4 h-2 w-64 overflow-hidden rounded-none bg-graphite/20">
@@ -60,10 +54,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
           transition={{ duration: 0.3, ease: 'easeOut' }}
         />
       </div>
-      <p
-        className="text-xs text-graphite"
-        style={{ fontFamily: 'var(--font-body)' }}
-      >
+      <p className="font-body text-xs text-graphite">
         {STATUS_MESSAGES[messageIndex]}
       </p>
     </motion.div>
