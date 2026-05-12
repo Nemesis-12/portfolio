@@ -1,0 +1,93 @@
+import { describe, it, expect } from 'vitest'
+import { render, screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import Navbar from './Navbar'
+
+describe('Navbar', () => {
+  it('renders FM_ logo that links to page top', () => {
+    render(<Navbar />)
+    const logo = screen.getByText('FM_')
+    expect(logo).toBeInTheDocument()
+    expect(logo.closest('a')).toHaveAttribute('href', '#')
+  })
+
+  it('renders all five nav links in the desktop nav', () => {
+    render(<Navbar />)
+    const nav = screen.getByRole('navigation')
+    const links = within(nav).getAllByRole('link')
+    const hrefs = links.map((l) => l.getAttribute('href'))
+    expect(hrefs).toContain('#hero')
+    expect(hrefs).toContain('#projects')
+    expect(hrefs).toContain('#skills')
+    expect(hrefs).toContain('#timeline')
+    expect(hrefs).toContain('#contact')
+  })
+
+  it('shows label text for all five nav links', () => {
+    render(<Navbar />)
+    for (const label of ['HERO', 'PROJECTS', 'SKILLS', 'TIMELINE', 'CONTACT']) {
+      expect(screen.getByText(label)).toBeInTheDocument()
+    }
+  })
+
+  it('renders hamburger button', () => {
+    render(<Navbar />)
+    expect(screen.getByRole('button', { name: /open menu/i })).toBeInTheDocument()
+  })
+
+  it('mobile menu is not visible on initial render', () => {
+    render(<Navbar />)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('clicking hamburger opens mobile menu with all nav links', async () => {
+    const user = userEvent.setup()
+    render(<Navbar />)
+
+    await user.click(screen.getByRole('button', { name: /open menu/i }))
+
+    const dialog = screen.getByRole('dialog')
+    expect(dialog).toBeInTheDocument()
+
+    const links = within(dialog).getAllByRole('link')
+    const hrefs = links.map((l) => l.getAttribute('href'))
+    expect(hrefs).toContain('#hero')
+    expect(hrefs).toContain('#projects')
+    expect(hrefs).toContain('#skills')
+    expect(hrefs).toContain('#timeline')
+    expect(hrefs).toContain('#contact')
+  })
+
+  it('clicking close button dismisses mobile menu', async () => {
+    const user = userEvent.setup()
+    render(<Navbar />)
+
+    await user.click(screen.getByRole('button', { name: /open menu/i }))
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /close menu/i }))
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+  })
+
+  it('clicking a nav link inside mobile menu closes the menu', async () => {
+    const user = userEvent.setup()
+    render(<Navbar />)
+
+    await user.click(screen.getByRole('button', { name: /open menu/i }))
+    const dialog = screen.getByRole('dialog')
+
+    const heroLink = within(dialog).getByRole('link', { name: 'HERO' })
+    await user.click(heroLink)
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+  })
+
+  it('sets up IntersectionObserver to watch sections on mount', () => {
+    render(<Navbar />)
+    expect(IntersectionObserver).toHaveBeenCalled()
+  })
+})

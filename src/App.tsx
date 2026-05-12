@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import './index.css'
 import LoadingScreen from './components/LoadingScreen'
+import Navbar from './components/Navbar'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -11,6 +12,7 @@ function App() {
       <AnimatePresence>
         {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
       </AnimatePresence>
+      <Navbar />
       <main>
         <section id="hero" />
         <section id="projects" />
