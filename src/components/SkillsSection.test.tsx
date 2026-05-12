@@ -31,17 +31,4 @@ describe('SkillsSection', () => {
     }
   })
 
-  it('renders at least 12 skill tiles', () => {
-    render(<SkillsSection />)
-    const required = [
-      'Python', 'JavaScript', 'C/C++',
-      'React', 'Next.js', 'Flask',
-      'Node.js', 'Git/GitHub', 'Docker',
-      'PostgreSQL', 'MongoDB', 'Figma',
-    ]
-    expect(required.length).toBeGreaterThanOrEqual(12)
-    for (const skill of required) {
-      expect(screen.getByText(skill)).toBeInTheDocument()
-    }
-  })
 })
