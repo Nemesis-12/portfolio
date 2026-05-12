@@ -4,6 +4,7 @@ import './index.css'
 import LoadingScreen from './components/LoadingScreen'
 import Navbar from './components/Navbar'
 import { SkillsSection } from './components/SkillsSection'
+import ContactSection from './components/ContactSection'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -19,7 +20,7 @@ function App() {
         <section id="projects" />
         <SkillsSection />
         <section id="timeline" />
-        <section id="contact" />
+        <ContactSection />
       </main>
     </>
   )
