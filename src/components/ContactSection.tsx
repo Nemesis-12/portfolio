@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { fadeUpVariant, hoverVariant } from '../animations/variants'
+import { fadeUp, hoverEase } from '../animations/variants'
 
 const EMAIL = 'farhan@example.com'
 
@@ -14,7 +14,7 @@ export default function ContactSection() {
   return (
     <section id="contact" className="px-6 py-24 md:px-16 lg:px-32">
       <motion.div
-        variants={fadeUpVariant}
+        variants={fadeUp}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -27,7 +27,7 @@ export default function ContactSection() {
 
         <motion.a
           href={`mailto:${EMAIL}`}
-          variants={hoverVariant}
+          variants={hoverEase}
           initial="idle"
           whileHover="hover"
           className="inline-block font-body text-sm border-2 border-black text-black px-8 py-4 mb-24 hover:bg-black hover:text-mint-cream transition-colors"
@@ -42,7 +42,7 @@ export default function ContactSection() {
               href={href}
               target={target}
               rel={target === '_blank' ? 'noopener noreferrer' : undefined}
-              variants={hoverVariant}
+              variants={hoverEase}
               initial="idle"
               whileHover="hover"
               className="font-body text-sm text-graphite hover:text-atomic-tangerine transition-colors"

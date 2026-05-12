@@ -14,6 +14,3 @@ export const hoverEase = {
     transition: { duration: 0.25, ease: 'easeInOut' },
   },
 } as const
-
-export const fadeUp = fadeUpVariant
-export const hoverEase = hoverVariant

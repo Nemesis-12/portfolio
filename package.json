@@ -10,9 +10,11 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "sandcastle": "npx tsx .sandcastle/main.ts"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "framer-motion": "^12.38.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"

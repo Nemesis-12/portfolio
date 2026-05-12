@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { hoverVariant } from '../animations/variants'
+import { hoverEase } from '../animations/variants'
 import MobileMenu from './MobileMenu'
 
 const NAV_LINKS = [
@@ -45,7 +45,7 @@ export default function Navbar() {
               <li key={label}>
                 <motion.a
                   href={href}
-                  variants={hoverVariant}
+                  variants={hoverEase}
                   initial="idle"
                   whileHover="hover"
                   className={`font-body text-sm text-graphite no-underline pb-0.5${isActive ? ' border-b-2 border-atomic-tangerine' : ''}`}
@@ -60,7 +60,7 @@ export default function Navbar() {
         <motion.button
           className="flex md:hidden text-graphite"
           onClick={() => setMenuOpen(true)}
-          variants={hoverVariant}
+          variants={hoverEase}
           initial="idle"
           whileHover="hover"
           aria-label="Open menu"

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { hoverVariant } from '../animations/variants'
+import { hoverEase } from '../animations/variants'
 
 interface NavLink {
   label: string
@@ -29,7 +29,7 @@ export default function MobileMenu({ isOpen, onClose, links }: MobileMenuProps) 
           <motion.button
             onClick={onClose}
             aria-label="Close menu"
-            variants={hoverVariant}
+            variants={hoverEase}
             initial="idle"
             whileHover="hover"
             className="absolute top-5 right-6 text-graphite"
@@ -46,7 +46,7 @@ export default function MobileMenu({ isOpen, onClose, links }: MobileMenuProps) 
                 <motion.a
                   href={href}
                   onClick={onClose}
-                  variants={hoverVariant}
+                  variants={hoverEase}
                   initial="idle"
                   whileHover="hover"
                   className="font-body text-2xl text-graphite no-underline"

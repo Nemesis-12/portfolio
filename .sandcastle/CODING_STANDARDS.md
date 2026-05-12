@@ -44,12 +44,6 @@ Optional parameters passed to functions should be scrutinised extremely carefull
 
 ---
 
-When modifying any packages, do not remove any mention of the script below
-
-"sandcastle": "npx tsx .sandcastle/main.ts"
-
----
-
 If you need to provide an override to a function or modules' behavior during tests, don't use an `@internal` property, like so:
 
 ```ts
