@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion'
 import { fadeUp, hoverEase } from '../animations/variants'
 
-const EMAIL = 'farhan@example.com'
+const EMAIL = 'mfa200312@gmail.com'
 
 const footerLinks = [
-  { label: '// GITHUB', href: 'https://github.com/farhanmohammed' },
-  { label: '// LINKEDIN', href: 'https://linkedin.com/in/farhanmohammed' },
+  { label: '// GITHUB', href: 'https://github.com/Nemesis-12' },
+  { label: '// LINKEDIN', href: 'https://linkedin.com/in/fa-mohammed' },
   { label: '// EMAIL', href: `mailto:${EMAIL}` },
   { label: '// RESUME', href: '/resume.pdf', target: '_blank' as const },
 ]
