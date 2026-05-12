@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { fadeUpVariant, hoverVariant } from '../animations/variants'
+import { fadeUp, hoverEase } from '../animations/variants'
 
 type Category = 'LANGUAGE' | 'FRAMEWORK' | 'TOOL' | 'RUNTIME' | 'DATABASE' | 'DESIGN'
 
@@ -30,7 +30,7 @@ export function SkillsSection() {
   return (
     <motion.section
       id="skills"
-      variants={fadeUpVariant}
+      variants={fadeUp}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
@@ -45,7 +45,7 @@ export function SkillsSection() {
         {tiles.map((tile) => (
           <motion.div
             key={tile.name}
-            variants={hoverVariant}
+            variants={hoverEase}
             initial="idle"
             whileHover="hover"
             className={`${tile.colSpan} min-h-24 p-5 rounded-lg flex flex-col justify-between cursor-default`}
