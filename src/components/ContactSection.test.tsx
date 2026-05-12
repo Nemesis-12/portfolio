@@ -8,7 +8,7 @@ describe('ContactSection', () => {
     expect(screen.getByText('// 04 CONTACT')).toBeInTheDocument()
   })
 
-  it('renders LET\'S CONNECT. heading in Press Start 2P', () => {
+  it('renders LET\'S CONNECT. as an h2 heading', () => {
     render(<ContactSection />)
     const heading = screen.getByRole('heading', { name: /LET'S CONNECT\./i })
     expect(heading).toBeInTheDocument()

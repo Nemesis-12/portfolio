@@ -4,10 +4,10 @@ import { fadeUpVariant, hoverVariant } from '../animations/variants'
 const EMAIL = 'farhan@example.com'
 
 const footerLinks = [
-  { label: '// GITHUB', href: 'https://github.com/farhanmohammed', target: '_self' },
-  { label: '// LINKEDIN', href: 'https://linkedin.com/in/farhanmohammed', target: '_self' },
-  { label: '// EMAIL', href: `mailto:${EMAIL}`, target: '_self' },
-  { label: '// RESUME', href: '/resume.pdf', target: '_blank' },
+  { label: '// GITHUB', href: 'https://github.com/farhanmohammed' },
+  { label: '// LINKEDIN', href: 'https://linkedin.com/in/farhanmohammed' },
+  { label: '// EMAIL', href: `mailto:${EMAIL}` },
+  { label: '// RESUME', href: '/resume.pdf', target: '_blank' as const },
 ]
 
 export default function ContactSection() {
