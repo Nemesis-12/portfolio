@@ -3,10 +3,14 @@ import { fadeUp, hoverEase } from './variants'
 
 describe('fadeUp', () => {
   it('defines hidden and visible states for scroll-triggered entry', () => {
-    expect(fadeUp.hidden.opacity).toBe(0)
+    expect(fadeUp).toHaveProperty('hidden')
+    expect(fadeUp).toHaveProperty('visible')
+    expect(fadeUp.hidden).toHaveProperty('opacity', 0)
+    expect(fadeUp.hidden).toHaveProperty('y')
+    expect(typeof fadeUp.hidden.y).toBe('number')
     expect(fadeUp.hidden.y).toBeGreaterThan(0)
-    expect(fadeUp.visible.opacity).toBe(1)
-    expect(fadeUp.visible.y).toBe(0)
+    expect(fadeUp.visible).toHaveProperty('opacity', 1)
+    expect(fadeUp.visible).toHaveProperty('y', 0)
   })
 
   it('includes a transition on the visible state', () => {
@@ -16,7 +20,11 @@ describe('fadeUp', () => {
 
 describe('hoverEase', () => {
   it('defines idle and hover states for interactive elements', () => {
+    expect(hoverEase).toHaveProperty('idle')
+    expect(hoverEase).toHaveProperty('hover')
     expect(hoverEase.idle.scale).toBe(1)
+    expect(hoverEase.hover).toHaveProperty('scale')
+    expect(typeof hoverEase.hover.scale).toBe('number')
     expect(hoverEase.hover.scale).toBe(1.05)
   })
 
