@@ -34,33 +34,27 @@ export default function Navbar() {
   return (
     <>
       <nav className="sticky top-0 z-40 w-full flex items-center justify-between px-6 py-4 bg-mint-cream/90 backdrop-blur-sm">
-        <a
-          href="#"
-          className="font-display text-black text-lg no-underline"
-          style={{ fontFamily: 'var(--font-display)' }}
-        >
+        <a href="#" className="font-display text-black text-lg no-underline">
           FM_
         </a>
 
         <ul className="hidden md:flex gap-8 list-none m-0 p-0">
-          {NAV_LINKS.map(({ label, href }) => (
-            <li key={label}>
-              <motion.a
-                href={href}
-                variants={hoverVariant}
-                initial="idle"
-                whileHover="hover"
-                className={[
-                  'font-body text-sm text-graphite no-underline pb-0.5',
-                  activeSection === href.slice(1)
-                    ? 'border-b-2 border-atomic-tangerine'
-                    : '',
-                ].join(' ')}
-              >
-                {label}
-              </motion.a>
-            </li>
-          ))}
+          {NAV_LINKS.map(({ label, href }) => {
+            const isActive = activeSection === href.slice(1)
+            return (
+              <li key={label}>
+                <motion.a
+                  href={href}
+                  variants={hoverVariant}
+                  initial="idle"
+                  whileHover="hover"
+                  className={`font-body text-sm text-graphite no-underline pb-0.5${isActive ? ' border-b-2 border-atomic-tangerine' : ''}`}
+                >
+                  {label}
+                </motion.a>
+              </li>
+            )
+          })}
         </ul>
 
         <motion.button
