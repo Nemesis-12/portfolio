@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion'
 import './index.css'
 import LoadingScreen from './components/LoadingScreen'
 import Navbar from './components/Navbar'
+import { SkillsSection } from './components/SkillsSection'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -16,7 +17,7 @@ function App() {
       <main>
         <section id="hero" />
         <section id="projects" />
-        <section id="skills" />
+        <SkillsSection />
         <section id="timeline" />
         <section id="contact" />
       </main>
