@@ -1,14 +1,18 @@
 import './index.css'
+import Navbar from './components/Navbar'
 
 function App() {
   return (
-    <main>
-      <section id="hero" />
-      <section id="projects" />
-      <section id="skills" />
-      <section id="timeline" />
-      <section id="contact" />
-    </main>
+    <>
+      <Navbar />
+      <main>
+        <section id="hero" />
+        <section id="projects" />
+        <section id="skills" />
+        <section id="timeline" />
+        <section id="contact" />
+      </main>
+    </>
   )
 }
 
