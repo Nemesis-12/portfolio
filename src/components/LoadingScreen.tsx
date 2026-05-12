@@ -46,10 +46,16 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       <h1 className="mb-8 font-display text-2xl text-black">
         FARHAN MOHAMMED
       </h1>
-      <div className="mb-4 h-2 w-64 overflow-hidden rounded-none bg-graphite/20">
+      <div
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress}
+        className="mb-4 h-2 w-64 overflow-hidden rounded-none bg-graphite/20"
+      >
         <motion.div
           className="h-full bg-atomic-tangerine"
-          initial={{ width: '25%' }}
+          initial={{ width: '0%' }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
         />

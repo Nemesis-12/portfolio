@@ -56,4 +56,20 @@ describe('LoadingScreen', () => {
 
     expect(onComplete).not.toHaveBeenCalled()
   })
+
+  it('progress bar steps from 25% to 100% across all messages', async () => {
+    const { getByRole } = render(<LoadingScreen onComplete={vi.fn()} />)
+    const bar = getByRole('progressbar')
+
+    expect(bar).toHaveAttribute('aria-valuenow', '25')
+
+    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
+    expect(bar).toHaveAttribute('aria-valuenow', '50')
+
+    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
+    expect(bar).toHaveAttribute('aria-valuenow', '75')
+
+    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
+    expect(bar).toHaveAttribute('aria-valuenow', '100')
+  })
 })
