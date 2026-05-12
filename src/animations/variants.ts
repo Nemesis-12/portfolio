@@ -1,4 +1,4 @@
-export const fadeUpVariant = {
+export const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: {
     opacity: 1,
@@ -7,7 +7,7 @@ export const fadeUpVariant = {
   },
 } as const
 
-export const hoverVariant = {
+export const hoverEase = {
   idle: { scale: 1 },
   hover: {
     scale: 1.05,
