@@ -130,8 +130,8 @@ interface Project {
 
 ### Animation System
 - Shared Framer Motion variants object exported from a single module:
-  - `fadeUpVariant` — used on every section and major element for scroll-triggered entry (`whileInView`, `once: true`)
-  - `hoverVariant` — ease-in/out scale/brightness on interactive elements (project rows, skill tiles, nav links, CTA buttons)
+  - `fadeUp` — used on every section and major element for scroll-triggered entry (`whileInView`, `once: true`)
+  - `hoverEase` — ease-in/out scale/brightness on interactive elements (project rows, skill tiles, nav links, CTA buttons)
 - Accordion expansion uses Framer Motion `AnimatePresence` + `motion.div` with `height: auto` layout animation.
 
 ### Mobile Responsiveness
