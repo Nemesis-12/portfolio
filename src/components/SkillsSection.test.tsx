@@ -30,5 +30,4 @@ describe('SkillsSection', () => {
       expect(screen.getAllByText(category).length).toBeGreaterThan(0)
     }
   })
-
 })
