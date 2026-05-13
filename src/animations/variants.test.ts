@@ -7,7 +7,6 @@ describe('fadeUp', () => {
     expect(fadeUp).toHaveProperty('visible')
     expect(fadeUp.hidden).toHaveProperty('opacity', 0)
     expect(fadeUp.hidden).toHaveProperty('y')
-    expect(typeof fadeUp.hidden.y).toBe('number')
     expect(fadeUp.hidden.y).toBeGreaterThan(0)
     expect(fadeUp.visible).toHaveProperty('opacity', 1)
     expect(fadeUp.visible).toHaveProperty('y', 0)
@@ -24,7 +23,6 @@ describe('hoverEase', () => {
     expect(hoverEase).toHaveProperty('hover')
     expect(hoverEase.idle.scale).toBe(1)
     expect(hoverEase.hover).toHaveProperty('scale')
-    expect(typeof hoverEase.hover.scale).toBe('number')
     expect(hoverEase.hover.scale).toBe(1.05)
   })
 
