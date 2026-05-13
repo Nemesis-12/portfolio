@@ -18,10 +18,10 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
   const [messageIndex, setMessageIndex] = useState(0)
 
   useEffect(() => {
-    const isLast = messageIndex === STATUS_MESSAGES.length - 1
+    const isFinalMessage = messageIndex >= STATUS_MESSAGES.length - 1
     const timer = setTimeout(
       () => {
-        if (isLast) {
+        if (isFinalMessage) {
           onComplete()
         } else {
           setMessageIndex((i) => i + 1)
