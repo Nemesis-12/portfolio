@@ -22,8 +22,9 @@ describe('hoverEase', () => {
   it('defines idle and hover states for interactive elements', () => {
     expect(hoverEase).toHaveProperty('idle')
     expect(hoverEase).toHaveProperty('hover')
+    expect(hoverEase.idle).toHaveProperty('scale', 1)
     expect(hoverEase.hover).toHaveProperty('scale')
-    expect(typeof hoverEase.hover.scale).toBe('number')
+    expect(hoverEase.hover.scale).toBeGreaterThan(1)
   })
 
   it('includes a transition on the hover state', () => {
