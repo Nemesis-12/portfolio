@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, waitFor, within, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Navbar from './Navbar'
 
@@ -89,5 +89,42 @@ describe('Navbar', () => {
   it('sets up IntersectionObserver to watch sections on mount', () => {
     render(<Navbar />)
     expect(IntersectionObserver).toHaveBeenCalled()
+  })
+
+  describe('active section highlighting', () => {
+    let section: HTMLElement
+    let observerCallback!: IntersectionObserverCallback
+
+    beforeEach(() => {
+      section = document.createElement('section')
+      section.id = 'skills'
+      document.body.appendChild(section)
+
+      vi.stubGlobal('IntersectionObserver', vi.fn(function (cb: IntersectionObserverCallback) {
+        observerCallback = cb
+        return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() }
+      }))
+    })
+
+    afterEach(() => {
+      vi.unstubAllGlobals()
+      document.body.removeChild(section)
+    })
+
+    it('applies active underline class to link matching the intersecting section', () => {
+      render(<Navbar />)
+
+      act(() => {
+        observerCallback(
+          [{ target: section, isIntersecting: true } as unknown as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        )
+      })
+
+      const skillsLink = screen.getByText('SKILLS').closest('a')
+      expect(skillsLink).not.toBeNull()
+      expect(skillsLink!.className).toContain('border-b-2')
+      expect(skillsLink!.className).toContain('border-atomic-tangerine')
+    })
   })
 })
