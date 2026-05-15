@@ -31,4 +31,29 @@ describe('SkillsSection', () => {
       expect(screen.getAllByText(category).length).toBeGreaterThan(0)
     }
   })
+
+  it('renders 15 skill tiles (no decorative stripe row with 4 vertical divs)', () => {
+    render(<SkillsSection />)
+
+    const categoryLabels = screen.getAllByText(/^(LANGUAGE|FRAMEWORK|TOOL|ML \/ DL|DATA)$/)
+    expect(categoryLabels).toHaveLength(15)
+
+    const gridContainer = document.querySelector('.grid')
+    const children = gridContainer?.children || []
+    expect(children.length).toBe(16)
+  })
+
+  it('accent tile renders without category or skill name (colored fill only)', () => {
+    render(<SkillsSection />)
+
+    const gridContainer = document.querySelector('.grid')
+    const children = Array.from(gridContainer?.children || [])
+    const accentTile = children[children.length - 1]
+
+    expect(accentTile).not.toHaveTextContent(/LANGUAGE|FRAMEWORK|TOOL|ML \/ DL|DATA/)
+    expect(accentTile).not.toHaveTextContent(/Python|TypeScript|JavaScript|C \/ C\+\+|SQL/)
+
+    const styles = window.getComputedStyle(accentTile)
+    expect(styles.backgroundColor).not.toBe('rgba(0, 0, 0, 0)')
+  })
 })
