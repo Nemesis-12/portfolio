@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import ProjectsSection from './ProjectsSection'
 
 // Mock project data
@@ -9,15 +9,13 @@ const mockProjects = [
     title: 'Project One',
     description: 'Description for project one',
     tags: ['React', 'TypeScript'],
-    image: '/image1.jpg'
   },
   {
     id: '2',
     title: 'Project Two',
     description: 'Description for project two',
     tags: ['Node.js', 'Express'],
-    image: '/image2.jpg'
-  }
+  },
 ]
 
 describe('ProjectsSection', () => {
@@ -51,34 +49,32 @@ describe('ProjectsSection', () => {
     expect(screen.queryByText('Description for project two')).not.toBeInTheDocument()
   })
 
-  it('collapses an already expanded project when clicked again', () => {
+  it('collapses an already expanded project when clicked again', async () => {
     render(<ProjectsSection projects={mockProjects} />)
-    
-    // Expand first project
+
     const projectOneHeader = screen.getByText('Project One')
     fireEvent.click(projectOneHeader)
     expect(screen.getByText('Description for project one')).toBeInTheDocument()
-    
-    // Click again to collapse
+
     fireEvent.click(projectOneHeader)
-    expect(screen.queryByText('Description for project one')).not.toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.queryByText('Description for project one')).not.toBeInTheDocument()
+    })
   })
 
-  it('expanding a second project collapses the first', () => {
+  it('expanding a second project collapses the first', async () => {
     render(<ProjectsSection projects={mockProjects} />)
-    
-    // Expand first project
+
     const projectOneHeader = screen.getByText('Project One')
     fireEvent.click(projectOneHeader)
     expect(screen.getByText('Description for project one')).toBeInTheDocument()
-    
-    // Expand second project
+
     const projectTwoHeader = screen.getByText('Project Two')
     fireEvent.click(projectTwoHeader)
-    
-    // First project should now be collapsed
-    expect(screen.queryByText('Description for project one')).not.toBeInTheDocument()
-    // Second project should be expanded
+
+    await waitFor(() => {
+      expect(screen.queryByText('Description for project one')).not.toBeInTheDocument()
+    })
     expect(screen.getByText('Description for project two')).toBeInTheDocument()
   })
 

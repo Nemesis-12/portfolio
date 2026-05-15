@@ -86,11 +86,6 @@ describe('Navbar', () => {
     })
   })
 
-  it('sets up IntersectionObserver to watch sections on mount', () => {
-    render(<Navbar />)
-    expect(IntersectionObserver).toHaveBeenCalled()
-  })
-
   describe('active section highlighting', () => {
     let section: HTMLElement
     let observerCallback!: IntersectionObserverCallback

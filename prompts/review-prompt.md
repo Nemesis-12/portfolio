@@ -52,14 +52,4 @@ If you find improvements to make:
 
 If the code is already clean and well-structured, do nothing.
 
-# CLOSE ISSUES
-
-For each branch that was merged, close its issue using the following command:
-
-`gh issue close <ID> --comment "Completed by <agent-name>"`
-
-Here are all the issues:
-
-{{ISSUES}}
-
 Once complete, output <promise>COMPLETE</promise>.

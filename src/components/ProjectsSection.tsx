@@ -90,8 +90,8 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
                   </div>
                 </div>
 
-                {isExpanded && (
-                  <AnimatePresence>
+                <AnimatePresence>
+                  {isExpanded && (
                     <motion.div
                       key={project.id}
                       initial={{ height: 0, opacity: 0 }}
@@ -114,8 +114,8 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
                         </p>
                       </div>
                     </motion.div>
-                  </AnimatePresence>
-                )}
+                  )}
+                </AnimatePresence>
               </div>
               <hr className="border-graphite/10" />
             </div>
