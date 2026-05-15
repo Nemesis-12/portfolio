@@ -61,9 +61,7 @@ describe('ProjectsSection', () => {
     const images = screen.getAllByRole('img')
     expect(images).toHaveLength(1)
 
-    const projectTwoSection = screen.getByText('Project Two').closest('div')
-    const imgInProjectTwo = projectTwoSection?.querySelector('img')
-    expect(imgInProjectTwo).not.toBeInTheDocument()
+    expect(screen.queryByAltText('Project Two screenshot')).not.toBeInTheDocument()
   })
 
   it('renders project cards matching the entries in projects data', () => {

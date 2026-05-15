@@ -67,9 +67,9 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
       }}
     >
       <div
-        className="absolute inset-0 bg-atomic-tangerine opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        className="absolute left-0 top-0 bottom-0 w-1 bg-atomic-tangerine opacity-0 group-hover:opacity-100 transition-all duration-300"
         style={{
-          clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)',
+          clipPath: 'polygon(0 20px, 4px 20px, 4px calc(100% - 20px), 4px 100%, 0 100%, 0 20px)',
         }}
       />
 
@@ -127,7 +127,7 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-body text-xs text-graphite hover:text-atomic-tangerine transition-colors"
+              className="font-mono text-xs text-graphite hover:text-atomic-tangerine transition-colors"
             >
               // {link.label} ↗
             </a>
