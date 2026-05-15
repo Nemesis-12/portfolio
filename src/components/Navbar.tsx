@@ -48,7 +48,7 @@ export default function Navbar() {
                   variants={hoverEase}
                   initial="idle"
                   whileHover="hover"
-                  className={`font-body text-sm text-graphite no-underline pb-0.5${isActive ? ' border-b-2 border-atomic-tangerine' : ''}`}
+                  className={`font-body text-sm no-underline pb-0.5${isActive ? ' text-atomic-tangerine border-b-2 border-atomic-tangerine' : ' text-black'}`}
                 >
                   {label}
                 </motion.a>

@@ -5,6 +5,10 @@ import LoadingScreen from './components/LoadingScreen'
 import Navbar from './components/Navbar'
 import { SkillsSection } from './components/SkillsSection'
 import ContactSection from './components/ContactSection'
+import ProjectsSection from './components/ProjectsSection'
+import HeroSection from './components/HeroSection'
+import TimelineSection from './components/TimelineSection'
+import { projects } from './data/projects'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -16,10 +20,10 @@ function App() {
       </AnimatePresence>
       <Navbar />
       <main>
-        <section id="hero" />
-        <section id="projects" />
+        <HeroSection />
+        <ProjectsSection projects={projects} />
         <SkillsSection />
-        <section id="timeline" />
+        <TimelineSection />
         <ContactSection />
       </main>
     </>

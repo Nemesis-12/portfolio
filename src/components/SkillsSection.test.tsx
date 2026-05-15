@@ -13,10 +13,11 @@ describe('SkillsSection', () => {
   it('renders all required skill names', () => {
     render(<SkillsSection />)
     const required = [
-      'Python', 'JavaScript', 'C/C++',
-      'React', 'Next.js', 'Flask',
-      'Node.js', 'Git/GitHub', 'Docker',
-      'PostgreSQL', 'MongoDB', 'Figma',
+      'Python', 'TypeScript', 'JavaScript', 'C / C++', 'SQL',
+      'PyTorch', 'Hugging Face', 'Scikit-learn',
+      'FastAPI',
+      'Docker', 'Git', 'Ansible', 'Linux',
+      'NumPy', 'Pandas',
     ]
     for (const skill of required) {
       expect(screen.getByText(skill)).toBeInTheDocument()
@@ -25,7 +26,7 @@ describe('SkillsSection', () => {
 
   it('renders all category label types', () => {
     render(<SkillsSection />)
-    const categories = ['LANGUAGE', 'FRAMEWORK', 'TOOL', 'RUNTIME', 'DATABASE', 'DESIGN']
+    const categories = ['LANGUAGE', 'FRAMEWORK', 'TOOL', 'ML / DL', 'DATA']
     for (const category of categories) {
       expect(screen.getAllByText(category).length).toBeGreaterThan(0)
     }
