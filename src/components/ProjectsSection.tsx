@@ -14,7 +14,19 @@ interface Props {
 }
 
 const STRIPE_STYLE = {
-  background: 'repeating-linear-gradient(45deg, #e0e0e0, #e0e0e0 2px, #ebebeb 2px, #ebebeb 14px)',
+  background: 'repeating-linear-gradient(45deg, #3A3B3A, #3A3B3A 2px, #4A4B4A 2px, #4A4B4A 14px)',
+}
+
+const TAG_COLORS = [
+  { bg: '#E0007F', fg: '#EFF1F3' }, // fuchsia-flame - light text
+  { bg: '#5200E0', fg: '#EFF1F3' }, // ultrasonic-blue - light text
+  { bg: '#FF8547', fg: '#050609' }, // atomic-tangerine - dark text
+  { bg: '#FFCE47', fg: '#050609' }, // golden-pollen - dark text
+]
+
+function getTagStyle(tagIndex: number) {
+  const color = TAG_COLORS[tagIndex % 4]
+  return { backgroundColor: color.bg, color: color.fg }
 }
 
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
@@ -31,7 +43,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
-      className="py-24 px-6 max-w-5xl mx-auto"
+      className="py-14 px-6 max-w-5xl mx-auto"
     >
       <div className="flex items-center gap-3 mb-8">
         <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 01</span>
@@ -45,15 +57,15 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
           return (
             <div key={project.id}>
               <div
-                className={`overflow-hidden border border-gray-200 ${isExpanded ? 'bg-gray-50' : ''}`}
+                className={`overflow-hidden border border-graphite/20 ${isExpanded ? 'bg-white/5' : ''}`}
                 style={isExpanded ? { borderLeft: '3px solid #FF8547' } : {}}
               >
                 <div
                   onClick={() => toggleExpand(project.id)}
-                  className="flex items-center justify-between px-4 py-4 cursor-pointer hover:bg-gray-50"
+                  className="flex items-center justify-between px-4 py-4 cursor-pointer hover:bg-white/5"
                 >
                   <div className="flex items-center gap-6">
-                    <span className="text-xs text-gray-400 font-body">
+                    <span className="text-xs text-graphite font-body">
                       _{project.id.padStart(2, '0')}
                     </span>
                     <h3 className="font-body font-bold text-base text-black">
@@ -62,10 +74,11 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="flex gap-2">
-                      {project.tags.map((tag) => (
+                      {project.tags.map((tag, tagIndex) => (
                         <span
                           key={tag}
-                          className="border border-graphite/40 text-graphite text-xs px-2 py-0.5 font-body"
+                          className="text-xs px-2 py-0.5 font-body rounded"
+                          style={getTagStyle(tagIndex)}
                         >
                           {tag}
                         </span>

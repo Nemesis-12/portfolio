@@ -72,7 +72,7 @@ const TimelineSection: React.FC = () => {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
-      className="py-24 px-6 max-w-5xl mx-auto"
+      className="py-14 px-6 max-w-5xl mx-auto"
     >
       <div className="flex items-center gap-3 mb-12">
         <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 03</span>
