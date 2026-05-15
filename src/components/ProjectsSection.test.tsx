@@ -1,96 +1,79 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import ProjectsSection from './ProjectsSection'
 
-// Mock project data
 const mockProjects = [
   {
     id: '1',
     title: 'Project One',
     description: 'Description for project one',
     tags: ['React', 'TypeScript'],
+    links: [
+      { label: 'GitHub', url: 'https://github.com/project1' },
+      { label: 'Demo', url: 'https://demo.project1.com' }
+    ],
+    image: 'https://example.com/image1.png'
   },
   {
     id: '2',
     title: 'Project Two',
     description: 'Description for project two',
     tags: ['Node.js', 'Express'],
-  },
+    links: [
+      { label: 'Docs', url: 'https://docs.project2.com' }
+    ]
+  }
 ]
 
 describe('ProjectsSection', () => {
-  it('renders all projects collapsed by default', () => {
+  it('renders all projects as cards on initial render (no collapsed state)', () => {
     render(<ProjectsSection projects={mockProjects} />)
 
-    // Check that project titles are present
     expect(screen.getByText('Project One')).toBeInTheDocument()
     expect(screen.getByText('Project Two')).toBeInTheDocument()
 
-    // Check that descriptions are not visible (collapsed)
-    expect(screen.queryByText('Description for project one')).not.toBeInTheDocument()
-    expect(screen.queryByText('Description for project two')).not.toBeInTheDocument()
-
-    // Check that image placeholder is not visible
-    expect(screen.queryByText('// PROJECT IMAGE')).not.toBeInTheDocument()
-  })
-
-  it('expands a project when clicked', () => {
-    render(<ProjectsSection projects={mockProjects} />)
-
-    // Click the first project header
-    const projectOneHeader = screen.getByText('Project One')
-    fireEvent.click(projectOneHeader)
-
-    // Now the description and image placeholder should be visible
     expect(screen.getByText('Description for project one')).toBeInTheDocument()
-    expect(screen.getByText('// PROJECT IMAGE')).toBeInTheDocument()
-
-    // The second project should still be collapsed
-    expect(screen.queryByText('Description for project two')).not.toBeInTheDocument()
-  })
-
-  it('collapses an already expanded project when clicked again', async () => {
-    render(<ProjectsSection projects={mockProjects} />)
-
-    const projectOneHeader = screen.getByText('Project One')
-    fireEvent.click(projectOneHeader)
-    expect(screen.getByText('Description for project one')).toBeInTheDocument()
-
-    fireEvent.click(projectOneHeader)
-    await waitFor(() => {
-      expect(screen.queryByText('Description for project one')).not.toBeInTheDocument()
-    })
-  })
-
-  it('expanding a second project collapses the first', async () => {
-    render(<ProjectsSection projects={mockProjects} />)
-
-    const projectOneHeader = screen.getByText('Project One')
-    fireEvent.click(projectOneHeader)
-    expect(screen.getByText('Description for project one')).toBeInTheDocument()
-
-    const projectTwoHeader = screen.getByText('Project Two')
-    fireEvent.click(projectTwoHeader)
-
-    await waitFor(() => {
-      expect(screen.queryByText('Description for project one')).not.toBeInTheDocument()
-    })
     expect(screen.getByText('Description for project two')).toBeInTheDocument()
   })
 
-  it('renders project rows matching the entries in projects data', () => {
+  it('displays title, description, tags, and links for each card', () => {
     render(<ProjectsSection projects={mockProjects} />)
-    
-    // Check that we have two project rows (we'll assume each project is a row)
-    const projectHeaders = screen.getAllByRole('heading', { level: 3 }) // Assuming h3 for project titles
-    expect(projectHeaders).toHaveLength(2)
-    expect(projectHeaders.map(h => h.textContent)).toContain('Project One')
-    expect(projectHeaders.map(h => h.textContent)).toContain('Project Two')
-    
-    // Check that tags are rendered
+
+    expect(screen.getByText('Project One')).toBeInTheDocument()
+    expect(screen.getByText('Description for project one')).toBeInTheDocument()
     expect(screen.getByText('React')).toBeInTheDocument()
     expect(screen.getByText('TypeScript')).toBeInTheDocument()
-    expect(screen.getByText('Node.js')).toBeInTheDocument()
-    expect(screen.getByText('Express')).toBeInTheDocument()
+    expect(screen.getByText('// GitHub ↗')).toBeInTheDocument()
+    expect(screen.getByText('// Demo ↗')).toBeInTheDocument()
+  })
+
+  it('renders image when provided', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const images = screen.getAllByRole('img')
+    expect(images).toHaveLength(1)
+    expect(images[0]).toHaveAttribute('src', 'https://example.com/image1.png')
+  })
+
+  it('renders color placeholder when no image provided', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const images = screen.getAllByRole('img')
+    expect(images).toHaveLength(1)
+
+    const projectTwoSection = screen.getByText('Project Two').closest('div')
+    const imgInProjectTwo = projectTwoSection?.querySelector('img')
+    expect(imgInProjectTwo).not.toBeInTheDocument()
+  })
+
+  it('renders project cards matching the entries in projects data', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const headings = screen.getAllByRole('heading', { level: 3 })
+    expect(headings).toHaveLength(2)
+    expect(headings.map(h => h.textContent)).toContain('Project One')
+    expect(headings.map(h => h.textContent)).toContain('Project Two')
+
+    expect(screen.getByText('// Docs ↗')).toBeInTheDocument()
   })
 })
