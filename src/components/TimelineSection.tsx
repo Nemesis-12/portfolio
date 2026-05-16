@@ -47,16 +47,16 @@ function EntryList({ entries }: { entries: TimelineEntry[] }) {
               </p>
             </div>
             <div>
-              <h3 className="font-display text-xs text-black mb-3 leading-relaxed">
+              <h3 className="font-display text-xs text-platinum mb-3 leading-relaxed">
                 {entry.role}
               </h3>
-              <p className="font-body text-sm text-graphite leading-relaxed">
+              <p className="font-body text-sm text-periwinkle leading-relaxed">
                 {entry.description}
               </p>
             </div>
           </div>
           {index < entries.length - 1 && (
-            <hr className="border-graphite/20" />
+            <hr className="border-periwinkle/20" />
           )}
         </div>
       ))}
@@ -76,24 +76,24 @@ const TimelineSection: React.FC = () => {
     >
       <div className="flex items-center gap-3 mb-12">
         <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 03</span>
-        <span className="font-body text-xs text-graphite tracking-widest whitespace-nowrap">TIMELINE</span>
-        <hr className="flex-1 border-graphite/20" />
+        <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">TIMELINE</span>
+        <hr className="flex-1 border-periwinkle/20" />
       </div>
 
       <div className="space-y-12">
         <div>
-          <p className="font-body text-xs text-graphite/60 tracking-widest mb-2 uppercase">
+          <p className="font-body text-xs text-periwinkle/60 tracking-widest mb-2 uppercase">
             Education
           </p>
-          <hr className="border-graphite/10 mb-0" />
+          <hr className="border-periwinkle/10 mb-0" />
           <EntryList entries={education} />
         </div>
 
         <div>
-          <p className="font-body text-xs text-graphite/60 tracking-widest mb-2 uppercase">
+          <p className="font-body text-xs text-periwinkle/60 tracking-widest mb-2 uppercase">
             Experience
           </p>
-          <hr className="border-graphite/10 mb-0" />
+          <hr className="border-periwinkle/10 mb-0" />
           <EntryList entries={experience} />
         </div>
       </div>

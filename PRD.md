@@ -54,17 +54,17 @@ A single-page scrollable portfolio website built with Vite + React + TypeScript 
 ### Color Palette (Tailwind theme tokens)
 | Token | Hex | Usage |
 |---|---|---|
-| `mint-cream` | `#2A2B2A` | Page background, loading screen background (dark graphite) |
+| `graphite` | `#2A2B2A` | Page background, loading screen background |
 | `atomic-tangerine` | `#FF8547` | Accents, active nav underline, progress bar, bento tiles |
 | `ultrasonic-blue` | `#5200E0` | Bento tiles, project tag palette |
 | `fuchsia-flame` | `#E0007F` | Bento tiles, project tag palette |
 | `golden-pollen` | `#FFCE47` | Bento tiles, project tag palette |
-| `black` | `#EFF1F3` | Headings, primary text (platinum/light) |
-| `graphite` | `#B2B6D2` | Body text, secondary text (periwinkle) |
+| `platinum` | `#EFF1F3` | Headings, primary text, light backgrounds |
+| `periwinkle` | `#B2B6D2` | Body text, secondary text |
 
-The site uses a dark theme. "Black" resolves to a near-white platinum; "graphite" resolves to a muted periwinkle. All Tailwind utility classes (`text-black`, `bg-mint-cream`, etc.) reference these tokens — no direct hex values in components except for tile and stripe definitions.
+The site uses a dark theme. `platinum` is a near-white used for headings and light surfaces; `periwinkle` is a muted blue-grey used for body and secondary text; `graphite` is the dark page background. All Tailwind utility classes (`text-platinum`, `bg-graphite`, etc.) reference these tokens — no direct hex values in components except for tile and stripe definitions.
 
-Tiles using the old dark (`#050609`) background (Docker, JavaScript, Linux) are flipped to platinum (`#EFF1F3`) background with dark graphite text (`#2A2B2A`) to maintain contrast on the dark page.
+Tiles using the old dark (`#050609`) background (Docker, JavaScript, Linux) are flipped to `platinum` (`#EFF1F3`) background with `graphite` (`#2A2B2A`) text to maintain contrast on the dark page.
 
 ### Typography
 - **Press Start 2P** (Google Fonts) — all headings and display text
@@ -72,7 +72,7 @@ Tiles using the old dark (`#050609`) background (Docker, JavaScript, Linux) are 
 
 ### Loading Screen
 - Renders as a full-page overlay on top of the main content on every visit (no session caching).
-- Background: `mint-cream` (dark graphite `#2A2B2A`).
+- Background: `graphite` (`#2A2B2A`).
 - Centre-aligned: `SYSTEM_INIT...` label, name in pixel font, animated progress bar (orange fill), and a cycling status message below the bar.
 - Status message sequence: `ESTABLISHING_SIGNAL` → `COMPILING_MODULES` → `LOADING_ASSETS` → `SYSTEM_READY`.
 - On completion, the overlay fades out via Framer Motion to reveal the site.
@@ -82,7 +82,7 @@ Tiles using the old dark (`#050609`) background (Docker, JavaScript, Linux) are 
 - Logo: `FM_` in pixel font, links to top of page.
 - Links: HERO, PROJECTS, SKILLS, TIMELINE, CONTACT — smooth-scroll to section anchors.
 - Active link: orange underline, determined by IntersectionObserver watching each section.
-- Inactive links use `text-black` (platinum) — not `text-graphite` (periwinkle), which is too dim at small nav sizes.
+- Inactive links use `text-platinum` — not `text-periwinkle`, which is too dim at small nav sizes.
 - **Mobile**: hamburger icon replaces inline links. Opens `MobileMenu`.
 
 ### MobileMenu
@@ -94,8 +94,8 @@ Tiles using the old dark (`#050609`) background (Docker, JavaScript, Linux) are 
 - Height: `min-h-[60vh]` — tall enough to feel like a landing section without consuming a full viewport before content begins.
 - Dot-grid background pattern via CSS radial-gradient. Dot color `#3A3B3A` (subtle dark-on-dark dots).
 - `// PORTFOLIO_INIT` label in accent orange.
-- Name in large pixel font, platinum.
-- Subtitle: `CS_STUDENT · DEVELOPER` in monospace, graphite.
+- Name in large pixel font, `platinum`.
+- Subtitle: `CS_STUDENT · DEVELOPER` in monospace, `periwinkle`.
 - `VIEW_WORK →` link that smooth-scrolls to the Projects section.
 
 ### Section Spacing
@@ -107,7 +107,7 @@ All sections use `py-14` (reduced from `py-24`) to keep content tighter given th
 - Each row shows: index (`_01`), project name, tech stack tags, expand/collapse arrow.
 - **Tag colors**: cycle through the four brand colors — fuchsia-flame, ultrasonic-blue, atomic-tangerine, golden-pollen — by tag index modulo 4. Each project resets to index 0. Tags have colored backgrounds with legible foreground text (dark text on light colors, light text on dark colors).
 - Expanded row shows: project image placeholder (dark diagonal stripe pattern), description paragraph.
-- Hover and expanded states use `bg-white/5` (subtle light overlay on dark background).
+- Hover and expanded states use `bg-platinum/5` (subtle light overlay on dark background).
 - Accordion expansion animated via Framer Motion `AnimatePresence`.
 
 ### Project Data Shape
@@ -126,7 +126,7 @@ interface Project {
 - Each tile: category label (small caps, muted) + skill name (bold monospace).
 - Tile colors assigned per skill from the brand palette.
 - **Creative asymmetric layout**: Python anchors rows 1–2 as `col-span-2 row-span-2`; TypeScript anchors col 3 rows 1–2 as `col-span-1 row-span-2`. This breaks the uniform single-cell grid into a visually dynamic arrangement.
-- Tiles previously using dark (`#050609`) backgrounds (Docker, JavaScript, Linux) use platinum (`#EFF1F3`) background on the dark page.
+- Tiles previously using dark (`#050609`) backgrounds (Docker, JavaScript, Linux) use `platinum` (`#EFF1F3`) background on the dark page.
 - Hugging Face uses golden-pollen (`#FFCE47`) background (was previously the same as the page background and effectively invisible).
 - Row 5 ends at col 3 (15 tiles total; col 4 of last row is intentionally open).
 - **Decorative stripes**: below the main tile grid, a separate aligned row places four thin vertical colored stripes (fuchsia-flame, ultrasonic-blue, atomic-tangerine, golden-pollen) in the right half (`col-span-2`). Desktop only (`hidden md:grid`). Each stripe is a `flex-1 rounded-lg` div inside a `flex gap-1` container.
@@ -134,13 +134,13 @@ interface Project {
 
 ### TimelineSection
 - Hardcoded entries split into Education and Experience subsections.
-- Each entry: date range (left column, accent orange), institution (accent orange), role title (pixel font, platinum), description (monospace, graphite).
+- Each entry: date range (left column, accent orange), institution (accent orange), role title (pixel font, `platinum`), description (monospace, `periwinkle`).
 - Horizontal rule separates entries within a subsection.
 
 ### ContactSection
 - `// 04 CONTACT` section label.
-- `LET'S CONNECT.` in large pixel font, platinum.
-- Single CTA: `SEND_MESSAGE →` as an `<a href="mailto:...">` link, styled as a bordered button. Border and text use `text-black` (platinum) on the dark background; hover inverts to platinum fill with dark graphite text via `hover:bg-black hover:text-mint-cream`.
+- `LET'S CONNECT.` in large pixel font, `platinum`.
+- Single CTA: `SEND_MESSAGE →` as an `<a href="mailto:...">` link, styled as a bordered button. Border and text use `text-platinum` on the dark background; hover inverts to platinum fill with `graphite` text via `hover:bg-platinum hover:text-graphite`.
 - Footer links: `// GITHUB`, `// LINKEDIN`, `// EMAIL`, `// RESUME` — Resume opens in new tab.
 - Resume PDF served from `public/resume.pdf`.
 

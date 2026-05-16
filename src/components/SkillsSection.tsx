@@ -82,8 +82,8 @@ export function SkillsSection() {
     >
       <div className="flex items-center gap-3 mb-12">
         <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 02</span>
-        <span className="font-body text-xs text-graphite tracking-widest whitespace-nowrap">SKILLS</span>
-        <hr className="flex-1 border-graphite/20" />
+        <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">SKILLS</span>
+        <hr className="flex-1 border-periwinkle/20" />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
