@@ -93,7 +93,7 @@ export function SkillsSection() {
 
         {/* Accent tile: fills R7 C2-C4 on desktop (col-span-3), full width on mobile */}
         <div
-          className="col-span-2 md:col-span-3 min-h-24 rounded-lg"
+          className="col-span-2 md:col-span-3 min-h-24 md:min-h-0 rounded-lg"
           style={{ backgroundColor: '#E0007F' }}
         />
       </div>
