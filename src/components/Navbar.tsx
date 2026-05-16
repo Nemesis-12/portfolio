@@ -33,7 +33,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-40 w-full flex items-center justify-between px-6 py-4 bg-graphite/90 backdrop-blur-sm">
+      <nav className="sticky top-0 z-40 w-full flex items-center justify-between px-8 py-4 bg-graphite/90 backdrop-blur-sm">
         <a href="#" className="font-display text-platinum text-lg no-underline">
           FM_
         </a>
