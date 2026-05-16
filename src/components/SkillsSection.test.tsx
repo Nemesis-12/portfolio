@@ -55,6 +55,24 @@ describe('SkillsSection', () => {
     expect(new Set(heights).size).toBeGreaterThanOrEqual(2)
   })
 
+  it('Python tile spans at least 3 rows on desktop (md:row-span-3 or higher)', () => {
+    render(<SkillsSection />)
+    const pythonTile = screen.getByText('Python').closest('div')
+    expect(pythonTile).not.toBeNull()
+    expect(pythonTile!.className).toMatch(/md:row-span-[3-9]/)
+  })
+
+  it('grid defines at least 8 explicit rows to accommodate Python row-span-3 layout', () => {
+    render(<SkillsSection />)
+    const grid = screen.getByTestId('skills-grid')
+    const rowsClass = Array.from(grid.classList).find(c => c.includes('grid-rows-['))
+    expect(rowsClass).toBeDefined()
+    const match = rowsClass!.match(/grid-rows-\[(.+)\]/)
+    expect(match).not.toBeNull()
+    const heights = match![1].split('_')
+    expect(heights.length).toBeGreaterThanOrEqual(8)
+  })
+
   it('accent tile renders without category or skill name (colored fill only)', () => {
     render(<SkillsSection />)
 
