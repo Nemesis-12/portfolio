@@ -127,7 +127,7 @@ function EntryList({ entries }: { entries: TimelineEntry[] }) {
 
 const TimelineSection: React.FC = () => {
   return (
-    <ScrollFadeSection id="timeline" className="min-h-screen flex flex-col justify-center py-14 px-8 max-w-7xl mx-auto">
+    <ScrollFadeSection id="timeline" className="min-h-screen flex flex-col justify-center py-14 px-8 max-w-7xl mx-auto bg-graphite-light">
       <div>
         <div className="flex items-center gap-3 mb-12">
           <span className="font-body text-sm text-atomic-tangerine tracking-widest whitespace-nowrap">// 03</span>
