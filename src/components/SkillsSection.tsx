@@ -61,7 +61,7 @@ function SkillTileCard({ tile }: { tile: SkillTile }) {
       variants={hoverEase}
       initial="idle"
       whileHover="hover"
-      className={`${tile.colSpan} ${tile.rowSpan} min-h-24 md:min-h-0 p-6 rounded-lg flex flex-col justify-between cursor-default`}
+      className={`${tile.colSpan} ${tile.rowSpan} min-h-24 md:min-h-0 p-5 rounded-lg flex flex-col justify-between cursor-default`}
       style={{ backgroundColor: tile.bg, color: tile.fg }}
     >
       <span className="text-xs uppercase tracking-widest font-body">
