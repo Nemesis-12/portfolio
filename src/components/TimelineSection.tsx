@@ -1,6 +1,9 @@
+import { useState, useEffect, useRef } from 'react'
+import { useInView } from 'framer-motion'
 import { ScrollFadeSection } from './ScrollFadeSection'
 
 interface TimelineEntry {
+  hash: string
   dateRange: string
   institution: string
   role: string
@@ -9,12 +12,14 @@ interface TimelineEntry {
 
 const education: TimelineEntry[] = [
   {
+    hash: 'a3f9d2b',
     dateRange: 'JAN 2026 – PRESENT',
     institution: 'WICHITA STATE UNIVERSITY',
     role: 'ACCELERATED_M.S._COMPUTER_SCIENCE',
     description: 'Accelerated graduate program. Focus on advanced machine learning, AI systems, and distributed computing.',
   },
   {
+    hash: 'b7c3e1a',
     dateRange: 'JAN 2022 – DEC 2025',
     institution: 'WICHITA STATE UNIVERSITY',
     role: 'B.S._COMPUTER_SCIENCE',
@@ -24,6 +29,7 @@ const education: TimelineEntry[] = [
 
 const experience: TimelineEntry[] = [
   {
+    hash: 'd4e8f2c',
     dateRange: 'AUG 2024 – PRESENT',
     institution: 'NETAPP INC.',
     role: 'SOFTWARE_ENGINEER_IN_TEST',
@@ -31,29 +37,83 @@ const experience: TimelineEntry[] = [
   },
 ]
 
+function CommitEntry({ entry }: { entry: TimelineEntry }) {
+  const [commitText, setCommitText] = useState('')
+  const [authorText, setAuthorText] = useState('')
+  const [dateText, setDateText] = useState('')
+  const [institutionText, setInstitutionText] = useState('')
+  const [roleText, setRoleText] = useState('')
+  const [descriptionText, setDescriptionText] = useState('')
+
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true })
+  const hasStarted = useRef(false)
+  const timersRef = useRef<(ReturnType<typeof setTimeout> | ReturnType<typeof setInterval>)[]>([])
+
+  useEffect(() => {
+    if (isInView && !hasStarted.current) {
+      hasStarted.current = true
+      const texts = [
+        { text: `commit ${entry.hash}`, setter: setCommitText, delay: 0 },
+        { text: 'Author: Farhan Mohammed', setter: setAuthorText, delay: 200 },
+        { text: `Date:   ${entry.dateRange}`, setter: setDateText, delay: 400 },
+        { text: entry.institution, setter: setInstitutionText, delay: 600 },
+        { text: entry.role, setter: setRoleText, delay: 800 },
+        { text: entry.description, setter: setDescriptionText, delay: 1000 },
+      ]
+
+      texts.forEach(({ text, setter, delay: d }) => {
+        const timeoutId = setTimeout(() => {
+          let i = 0
+          const interval = setInterval(() => {
+            if (i <= text.length) {
+              setter(text.slice(0, i))
+              i++
+            } else {
+              clearInterval(interval)
+            }
+          }, 30)
+          timersRef.current.push(interval)
+        }, d)
+        timersRef.current.push(timeoutId)
+      })
+    }
+
+    return () => {
+      timersRef.current.forEach(timer => {
+        clearTimeout(timer)
+        clearInterval(timer as ReturnType<typeof setInterval>)
+      })
+      timersRef.current = []
+    }
+  }, [isInView, entry])
+
+  return (
+    <div ref={ref} className="min-h-screen py-6 font-mono" data-testid="commit-entry">
+      <p className="text-atomic-tangerine text-xs" data-testid="commit-hash">
+        {commitText}
+      </p>
+      <p className="text-periwinkle text-xs mt-1" data-testid="commit-author">
+        {authorText}
+      </p>
+      <p className="text-periwinkle text-xs" data-testid="commit-date">
+        {dateText}
+      </p>
+      <div className="mt-2 ml-4">
+        <p className="text-platinum text-xs" data-testid="commit-institution">{institutionText}</p>
+        <p className="text-platinum text-xs mt-1" data-testid="commit-role">{roleText}</p>
+        <p className="text-periwinkle text-xs mt-2 whitespace-pre-line" data-testid="commit-description">{descriptionText}</p>
+      </div>
+    </div>
+  )
+}
+
 function EntryList({ entries }: { entries: TimelineEntry[] }) {
   return (
     <div>
       {entries.map((entry, index) => (
-        <div key={index}>
-          <div className="grid grid-cols-[30%_70%] gap-8 py-8">
-            <div>
-              <p className="font-body text-sm text-atomic-tangerine tracking-wider uppercase">
-                {entry.dateRange}
-              </p>
-              <p className="font-body text-sm text-atomic-tangerine tracking-wider mt-1">
-                {entry.institution}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-display text-sm text-platinum mb-3 leading-relaxed">
-                {entry.role}
-              </h3>
-              <p className="font-body text-base text-periwinkle leading-relaxed">
-                {entry.description}
-              </p>
-            </div>
-          </div>
+        <div key={entry.hash}>
+          <CommitEntry entry={entry} />
           {index < entries.length - 1 && (
             <hr className="border-periwinkle/20" />
           )}
@@ -62,6 +122,8 @@ function EntryList({ entries }: { entries: TimelineEntry[] }) {
     </div>
   )
 }
+
+
 
 const TimelineSection: React.FC = () => {
   return (
