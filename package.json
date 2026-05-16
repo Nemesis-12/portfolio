@@ -14,6 +14,7 @@
     "sandcastle": "npx tsx .sandcastle/main.ts"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "dotenv": "^17.4.2",
     "framer-motion": "^12.38.0",
     "react": "^19.2.6",

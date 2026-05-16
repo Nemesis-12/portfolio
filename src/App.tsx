@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
+import { Analytics } from '@vercel/analytics/react'
 import './index.css'
 import LoadingScreen from './components/LoadingScreen'
 import Navbar from './components/Navbar'
@@ -26,6 +27,7 @@ function App() {
         <TimelineSection />
         <ContactSection />
       </main>
+      <Analytics />
     </>
   )
 }
