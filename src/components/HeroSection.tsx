@@ -3,7 +3,7 @@ import { fadeUp } from '../animations/variants'
 
 const HeroSection: React.FC = () => {
   return (
-    <section id="hero" className="relative min-h-[60vh] flex flex-col justify-center bg-mint-cream">
+    <section id="hero" className="relative min-h-[60vh] flex flex-col justify-center bg-graphite">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(#3A3B3A_1px,transparent_1px)] bg-[size:20px_20px]"></div>
       </div>

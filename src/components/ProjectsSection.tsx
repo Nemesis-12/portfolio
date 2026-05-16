@@ -71,10 +71,7 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
       style={{ clipPath: NOTCH }}
     >
       {/* Card background */}
-      <div
-        className="relative bg-white p-5"
-        style={{ backgroundImage: 'linear-gradient(135deg, #F8F9FA 0%, #FFFFFF 100%)' }}
-      >
+      <div className="relative bg-platinum p-5">
         {project.image ? (
           <div className="mb-4 overflow-hidden" style={{ backgroundColor: '#3A3B3A' }}>
             <img
@@ -92,15 +89,15 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
         )}
 
         <div className="flex items-center gap-3 mb-2">
-          <span className="font-body text-xs text-periwinkle">
+          <span className="font-body text-xs text-graphite/50">
             _{project.id.padStart(2, '0')}
           </span>
-          <h3 className="font-body font-bold text-base text-platinum">
+          <h3 className="font-body font-bold text-base text-graphite">
             {project.title}
           </h3>
         </div>
 
-        <p className="text-periwinkle text-sm font-body leading-relaxed mb-4">
+        <p className="text-graphite/70 text-sm font-body leading-relaxed mb-4">
           {project.description}
         </p>
 
@@ -123,7 +120,7 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono text-xs text-periwinkle hover:text-atomic-tangerine transition-colors"
+              className="font-mono text-xs text-graphite/50 hover:text-atomic-tangerine transition-colors"
             >
               // {link.label} ↗
             </a>

@@ -30,7 +30,7 @@ export default function ContactSection() {
           variants={hoverEase}
           initial="idle"
           whileHover="hover"
-          className="inline-block font-body text-sm border-2 border-platinum text-platinum px-8 py-4 mb-12 hover:bg-platinum hover:text-mint-cream transition-colors"
+          className="inline-block font-body text-sm border-2 border-platinum text-platinum px-8 py-4 mb-12 hover:bg-platinum hover:text-graphite transition-colors"
         >
           SEND_MESSAGE →
         </motion.a>
