@@ -9,7 +9,7 @@ interface Props {
 
 export function ScrollFadeSection({ id, children, className = '' }: Props) {
   const ref = useRef<HTMLElement>(null)
-  const isInView = useInView(ref, { margin: '-20% 0px -20% 0px', amount: 0.3 })
+  const isInView = useInView(ref, { margin: '-10% 0px -10% 0px', amount: 0.1 })
 
   return (
     <motion.section
