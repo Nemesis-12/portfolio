@@ -37,7 +37,7 @@ const experience: TimelineEntry[] = [
 
 function CommitEntry({ entry }: { entry: TimelineEntry }) {
   return (
-    <div className="py-6 font-mono">
+    <div className="min-h-screen py-6 font-mono">
       <p className="text-atomic-tangerine text-xs">
         commit {entry.hash}
       </p>

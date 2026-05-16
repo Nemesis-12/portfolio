@@ -34,4 +34,13 @@ describe('TimelineSection', () => {
     render(<TimelineSection />)
     expect(screen.getAllByText(/Accelerated graduate program/).length).toBeGreaterThan(0)
   })
+
+  it('each entry has min-h-screen', () => {
+    render(<TimelineSection />)
+    const commitEntries = document.querySelectorAll('[class*="font-mono"][class*="py-"]')
+    expect(commitEntries.length).toBe(3)
+    commitEntries.forEach(entry => {
+      expect(entry).toHaveClass('min-h-screen')
+    })
+  })
 })
