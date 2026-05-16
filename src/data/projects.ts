@@ -1,8 +1,15 @@
+export interface ProjectLink {
+  label: string
+  url: string
+}
+
 export interface Project {
   id: string
   title: string
   description: string
   tags: string[]
+  links: ProjectLink[]
+  image?: string
 }
 
 export const projects: Project[] = [
@@ -10,12 +17,19 @@ export const projects: Project[] = [
     id: '1',
     title: 'LEVIATHAN',
     description: '20M-parameter searchless transformer chess engine with custom attention. Reduced KV-cache memory by 8× via Multi-Head Latent Attention. Custom 4,247-token tokenizer for single-token move prediction. Trained on 3M+ positions with gradient checkpointing and FP16 — 19ms per-move latency on edge hardware.',
-    tags: ['PyTorch', 'FastAPI', 'Next.js']
+    tags: ['PyTorch', 'FastAPI', 'Next.js'],
+    links: [
+      { label: 'HuggingFace', url: 'https://huggingface.co/spaces/NemesisTCO/LeviathanChess' }
+    ]
   },
   {
     id: '2',
     title: 'MLA_IMPL',
     description: 'Research implementation of Multi-Head Latent Attention from DeepSeek-V2. Modular PyTorch library with clean abstractions for KV compression and low-rank projection components. Published as a production-ready PyPI package with type hints, documentation, and integration examples.',
-    tags: ['PyTorch', 'Python', 'PyPI']
+    tags: ['PyTorch', 'Python', 'PyPI'],
+    links: [
+      { label: 'GitHub', url: 'https://github.com/Nemesis-12/multihead-latent-attention' },
+      { label: 'PyPI', url: 'https://pypi.org/project/multihead-latent-attention' }
+    ]
   }
 ]
