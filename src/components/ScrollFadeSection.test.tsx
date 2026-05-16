@@ -2,7 +2,12 @@ import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { ScrollFadeSection } from './ScrollFadeSection'
 
+/**
+ * Tests for ScrollFadeSection component.
+ * Verifies children rendering and initial animation states.
+ */
 describe('ScrollFadeSection', () => {
+  /** Verifies that child content is rendered inside the section. */
   it('renders children inside the section', () => {
     render(<ScrollFadeSection id="hero">Hello World</ScrollFadeSection>)
     expect(screen.getByText('Hello World')).toBeInTheDocument()
