@@ -1,3 +1,5 @@
+import { useState, useEffect, useRef } from 'react'
+import { useInView } from 'framer-motion'
 import { ScrollFadeSection } from './ScrollFadeSection'
 
 interface TimelineEntry {
@@ -36,21 +38,60 @@ const experience: TimelineEntry[] = [
 ]
 
 function CommitEntry({ entry }: { entry: TimelineEntry }) {
+  const [commitText, setCommitText] = useState('')
+  const [authorText, setAuthorText] = useState('')
+  const [dateText, setDateText] = useState('')
+  const [institutionText, setInstitutionText] = useState('')
+  const [roleText, setRoleText] = useState('')
+  const [descriptionText, setDescriptionText] = useState('')
+
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true })
+  const hasStarted = useRef(false)
+
+  useEffect(() => {
+    if (isInView && !hasStarted.current) {
+      hasStarted.current = true
+      const texts = [
+        { text: `commit ${entry.hash}`, setter: setCommitText, delay: 0 },
+        { text: 'Author: Farhan Mohammed', setter: setAuthorText, delay: 200 },
+        { text: `Date:   ${entry.dateRange}`, setter: setDateText, delay: 400 },
+        { text: entry.institution, setter: setInstitutionText, delay: 600 },
+        { text: entry.role, setter: setRoleText, delay: 800 },
+        { text: entry.description, setter: setDescriptionText, delay: 1000 },
+      ]
+
+      texts.forEach(({ text, setter, delay: d }) => {
+        setTimeout(() => {
+          let i = 0
+          const interval = setInterval(() => {
+            if (i <= text.length) {
+              setter(text.slice(0, i))
+              i++
+            } else {
+              clearInterval(interval)
+            }
+          }, 30)
+        }, d)
+      })
+    }
+  }, [isInView, entry])
+
   return (
-    <div className="min-h-screen py-6 font-mono">
+    <div ref={ref} className="min-h-screen py-6 font-mono">
       <p className="text-atomic-tangerine text-xs">
-        commit {entry.hash}
+        {commitText}
       </p>
       <p className="text-periwinkle text-xs mt-1">
-        Author: Farhan Mohammed
+        {authorText}
       </p>
       <p className="text-periwinkle text-xs">
-        Date:   {entry.dateRange}
+        {dateText}
       </p>
       <div className="mt-2 ml-4">
-        <p className="text-platinum text-xs">{entry.institution}</p>
-        <p className="text-platinum text-xs mt-1">{entry.role}</p>
-        <p className="text-periwinkle text-xs mt-2 whitespace-pre-line">{entry.description}</p>
+        <p className="text-platinum text-xs">{institutionText}</p>
+        <p className="text-platinum text-xs mt-1">{roleText}</p>
+        <p className="text-periwinkle text-xs mt-2 whitespace-pre-line">{descriptionText}</p>
       </div>
     </div>
   )
