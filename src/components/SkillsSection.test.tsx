@@ -55,6 +55,22 @@ describe('SkillsSection', () => {
     expect(new Set(heights).size).toBeGreaterThanOrEqual(2)
   })
 
+  it('at least two tiles cross the center column with md:col-span-3 on desktop', () => {
+    render(<SkillsSection />)
+    const grid = screen.getByTestId('skills-grid')
+    const tilesWithColSpan3 = Array.from(grid.children).filter(
+      el => el.className.includes('md:col-span-3')
+    )
+    expect(tilesWithColSpan3.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('TypeScript tile spans 2 columns on desktop (md:col-span-2) to break repetitive right-side pattern', () => {
+    render(<SkillsSection />)
+    const tsTile = screen.getByText('TypeScript').closest('div')
+    expect(tsTile).not.toBeNull()
+    expect(tsTile!.className).toContain('md:col-span-2')
+  })
+
   it('Python tile spans at least 3 rows on desktop (md:row-span-3 or higher)', () => {
     render(<SkillsSection />)
     const pythonTile = screen.getByText('Python').closest('div')

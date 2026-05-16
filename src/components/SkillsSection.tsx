@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { fadeUp, hoverEase } from '../animations/variants'
+import { hoverEase } from '../animations/variants'
+import { ScrollFadeSection } from './ScrollFadeSection'
 
 type Category = 'LANGUAGE' | 'FRAMEWORK' | 'TOOL' | 'ML / DL' | 'DATA'
 
@@ -12,15 +13,16 @@ interface SkillTile {
   fg: string
 }
 
-// Desktop (4-col):
-//   R1: Python(2) TypeScript(1) Docker(1)
-//   R2: Python(2) TypeScript(1) C/C++(1)
-//   R3: Python(2) JavaScript(1) FastAPI(1)
-//   R4: PyTorch(2) NumPy(2)
-//   R5: Pandas(1) Ansible(1) NumPy(2)
-//   R6: HuggingFace(2) Linux(1) Git(1)
-//   R7: Scikit-learn(3) SQL(1)
-//   R8: Accent(4)
+// Desktop (4-col, 9 rows — no two adjacent rows share the same span pattern):
+//   R1: Python(2) TypeScript(2)          [2,2]
+//   R2: Python(2) Docker(1) C/C++(1)     [2,1,1]
+//   R3: Python(2) JavaScript(2)          [2,2]
+//   R4: FastAPI(1) PyTorch(3)            [1,3]
+//   R5: NumPy(2) Pandas(1) Ansible(1)    [2,1,1]
+//   R6: NumPy(2) HuggingFace(2)          [2,2]
+//   R7: Scikit-learn(3) Linux(1)         [3,1]
+//   R8: Git(1) SQL(3)                    [1,3]
+//   R9: Accent(4)                        [4]
 //
 // Mobile (2-col):
 //   R1: Python(2)
@@ -31,26 +33,26 @@ interface SkillTile {
 //   R6: PyTorch(2)
 //   R7: NumPy(1) Pandas(1)
 //   R8: NumPy(1) Ansible(1)
-//   R9: HuggingFace(1) Linux(1)
-//   R10: Git(1) Scikit-learn(1)
+//   R9: HuggingFace(1) Scikit-learn(1)
+//   R10: Linux(1) Git(1)
 //   R11: SQL(2)
 //   R12: Accent(2)
 const tiles: SkillTile[] = [
   { category: 'LANGUAGE',  name: 'Python',       colSpan: 'col-span-2',                rowSpan: 'row-span-2 md:row-span-3', bg: '#FF8547', fg: '#050609' },
-  { category: 'LANGUAGE',  name: 'TypeScript',   colSpan: 'col-span-1',                rowSpan: 'row-span-2',               bg: '#5200E0', fg: '#EFF1F3' },
+  { category: 'LANGUAGE',  name: 'TypeScript',   colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-2 md:row-span-1', bg: '#5200E0', fg: '#EFF1F3' },
   { category: 'TOOL',      name: 'Docker',       colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
   { category: 'LANGUAGE',  name: 'C / C++',      colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
-  { category: 'LANGUAGE',  name: 'JavaScript',   colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
+  { category: 'LANGUAGE',  name: 'JavaScript',   colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
   { category: 'FRAMEWORK', name: 'FastAPI',      colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#5200E0', fg: '#EFF1F3' },
-  { category: 'ML / DL',   name: 'PyTorch',      colSpan: 'col-span-2',                rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
+  { category: 'ML / DL',   name: 'PyTorch',      colSpan: 'col-span-2 md:col-span-3',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
   { category: 'DATA',      name: 'NumPy',        colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-2',               bg: '#5200E0', fg: '#EFF1F3' },
   { category: 'DATA',      name: 'Pandas',       colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
   { category: 'TOOL',      name: 'Ansible',      colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#FF8547', fg: '#050609' },
   { category: 'ML / DL',   name: 'Hugging Face', colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Scikit-learn', colSpan: 'col-span-1 md:col-span-3',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
   { category: 'TOOL',      name: 'Linux',        colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
   { category: 'TOOL',      name: 'Git',          colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#FF8547', fg: '#050609' },
-  { category: 'ML / DL',   name: 'Scikit-learn', colSpan: 'col-span-1 md:col-span-3',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
-  { category: 'LANGUAGE',  name: 'SQL',          colSpan: 'col-span-2 md:col-span-1',  rowSpan: 'row-span-1',               bg: '#5200E0', fg: '#EFF1F3' },
+  { category: 'LANGUAGE',  name: 'SQL',          colSpan: 'col-span-2 md:col-span-3',  rowSpan: 'row-span-1',               bg: '#5200E0', fg: '#EFF1F3' },
 ]
 
 function SkillTileCard({ tile }: { tile: SkillTile }) {
@@ -74,31 +76,26 @@ function SkillTileCard({ tile }: { tile: SkillTile }) {
 
 export function SkillsSection() {
   return (
-    <motion.section
-      id="skills"
-      variants={fadeUp}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      className="py-14 px-6 max-w-5xl mx-auto"
-    >
-      <div className="flex items-center gap-3 mb-12">
-        <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 02</span>
-        <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">SKILLS</span>
-        <hr className="flex-1 border-periwinkle/20" />
-      </div>
+    <ScrollFadeSection id="skills" className="min-h-screen flex flex-col justify-center py-14 px-6 max-w-5xl mx-auto">
+      <div>
+        <div className="flex items-center gap-3 mb-12">
+          <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 02</span>
+          <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">SKILLS</span>
+          <hr className="flex-1 border-periwinkle/20" />
+        </div>
 
-      <div data-testid="skills-grid" className="grid grid-cols-2 md:grid-cols-4 gap-3 md:grid-rows-[120px_160px_120px_120px_120px_120px_120px_80px]">
-        {tiles.map((tile) => (
-          <SkillTileCard key={tile.name} tile={tile} />
-        ))}
+        <div data-testid="skills-grid" className="grid grid-cols-2 md:grid-cols-4 gap-3 md:grid-rows-[80px_100px_80px_80px_80px_80px_80px_80px_60px]">
+          {tiles.map((tile) => (
+            <SkillTileCard key={tile.name} tile={tile} />
+          ))}
 
-        {/* Accent tile: fills R8 C1-C4 on desktop (col-span-4), full width on mobile */}
-        <div
-          className="col-span-2 md:col-span-4 min-h-24 md:min-h-0 rounded-lg"
-          style={{ backgroundColor: '#E0007F' }}
-        />
+          {/* Accent tile: fills R9 C1-C4 on desktop (col-span-4), full width on mobile */}
+          <div
+            className="col-span-2 md:col-span-4 min-h-24 md:min-h-0 rounded-lg"
+            style={{ backgroundColor: '#E0007F' }}
+          />
+        </div>
       </div>
-    </motion.section>
+    </ScrollFadeSection>
   )
 }

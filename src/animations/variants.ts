@@ -7,6 +7,14 @@ export const fadeUp = {
   },
 } as const
 
+export const sectionFade = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.6, ease: 'easeOut' },
+  },
+} as const
+
 export const hoverEase = {
   idle: { scale: 1 },
   hover: {

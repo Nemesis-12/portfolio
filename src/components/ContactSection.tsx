@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { fadeUp, hoverEase } from '../animations/variants'
+import { hoverEase } from '../animations/variants'
+import { ScrollFadeSection } from './ScrollFadeSection'
 
 const EMAIL = 'mfa200312@gmail.com'
 
@@ -12,13 +13,8 @@ const footerLinks = [
 
 export default function ContactSection() {
   return (
-    <section id="contact" className="px-6 py-14 md:px-16 lg:px-32">
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-      >
+    <ScrollFadeSection id="contact" className="min-h-screen flex flex-col justify-center px-6 py-14 md:px-16 lg:px-32">
+      <div className="max-w-5xl mx-auto w-full">
         <p className="font-body text-sm text-atomic-tangerine mb-8">// 04 CONTACT</p>
 
         <h2 className="font-display text-3xl md:text-5xl text-platinum leading-tight mb-12">
@@ -56,7 +52,7 @@ export default function ContactSection() {
           <span>FARHAN_MOHAMMED © 2026</span>
           <span>PORTFOLIO.EXE</span>
         </div>
-      </motion.div>
-    </section>
+      </div>
+    </ScrollFadeSection>
   )
 }

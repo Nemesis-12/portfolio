@@ -16,7 +16,7 @@ describe('Navbar', () => {
     const nav = screen.getByRole('navigation')
     const links = within(nav).getAllByRole('link')
     const hrefs = links.map((l) => l.getAttribute('href'))
-    expect(hrefs).toContain('#hero')
+    expect(hrefs).toContain('#home')
     expect(hrefs).toContain('#projects')
     expect(hrefs).toContain('#skills')
     expect(hrefs).toContain('#timeline')
@@ -25,7 +25,7 @@ describe('Navbar', () => {
 
   it('shows label text for all five nav links', () => {
     render(<Navbar />)
-    for (const label of ['HERO', 'PROJECTS', 'SKILLS', 'TIMELINE', 'CONTACT']) {
+    for (const label of ['HOME', 'PROJECTS', 'SKILLS', 'TIMELINE', 'CONTACT']) {
       expect(screen.getByText(label)).toBeInTheDocument()
     }
   })
@@ -51,7 +51,7 @@ describe('Navbar', () => {
 
     const links = within(dialog).getAllByRole('link')
     const hrefs = links.map((l) => l.getAttribute('href'))
-    expect(hrefs).toContain('#hero')
+    expect(hrefs).toContain('#home')
     expect(hrefs).toContain('#projects')
     expect(hrefs).toContain('#skills')
     expect(hrefs).toContain('#timeline')
@@ -78,7 +78,7 @@ describe('Navbar', () => {
     await user.click(screen.getByRole('button', { name: /open menu/i }))
     const dialog = screen.getByRole('dialog')
 
-    const heroLink = within(dialog).getByRole('link', { name: 'HERO' })
+    const heroLink = within(dialog).getByRole('link', { name: 'HOME' })
     await user.click(heroLink)
 
     await waitFor(() => {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { fadeUp } from '../animations/variants'
+import { ScrollFadeSection } from './ScrollFadeSection'
 import type { Project } from '../data/projects'
 
 interface Props {
@@ -34,26 +34,21 @@ function getPlaceholderColor(projectIndex: number) {
 
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
   return (
-    <motion.section
-      id="projects"
-      variants={fadeUp}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      className="py-14 px-6 max-w-5xl mx-auto"
-    >
-      <div className="flex items-center gap-3 mb-8">
-        <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 01</span>
-        <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">PROJECTS</span>
-        <hr className="flex-1 border-periwinkle/20" />
-      </div>
+    <ScrollFadeSection id="projects" className="min-h-screen flex flex-col justify-center py-14 px-6 max-w-5xl mx-auto">
+      <div>
+        <div className="flex items-center gap-3 mb-8">
+          <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 01</span>
+          <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">PROJECTS</span>
+          <hr className="flex-1 border-periwinkle/20" />
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {projects.map((project, projectIndex) => (
-          <ProjectCard key={project.id} project={project} projectIndex={projectIndex} />
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {projects.map((project, projectIndex) => (
+            <ProjectCard key={project.id} project={project} projectIndex={projectIndex} />
+          ))}
+        </div>
       </div>
-    </motion.section>
+    </ScrollFadeSection>
   )
 }
 
