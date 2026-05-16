@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { sectionFade } from '../animations/variants'
+import { ScrollFadeSection } from './ScrollFadeSection'
 import type { Project } from '../data/projects'
 
 interface Props {
@@ -34,14 +34,7 @@ function getPlaceholderColor(projectIndex: number) {
 
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
   return (
-    <motion.section
-      id="projects"
-      variants={sectionFade}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: false }}
-      className="min-h-screen flex flex-col justify-center py-14 px-6 max-w-5xl mx-auto"
-    >
+    <ScrollFadeSection id="projects" className="min-h-screen flex flex-col justify-center py-14 px-6 max-w-5xl mx-auto">
       <div>
         <div className="flex items-center gap-3 mb-8">
           <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 01</span>
@@ -55,7 +48,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
           ))}
         </div>
       </div>
-    </motion.section>
+    </ScrollFadeSection>
   )
 }
 

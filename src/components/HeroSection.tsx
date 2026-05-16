@@ -1,16 +1,8 @@
-import { motion } from 'framer-motion'
-import { sectionFade } from '../animations/variants'
+import { ScrollFadeSection } from './ScrollFadeSection'
 
 const HeroSection: React.FC = () => {
   return (
-    <motion.section
-      id="hero"
-      variants={sectionFade}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: false }}
-      className="relative min-h-screen flex flex-col justify-center bg-graphite"
-    >
+    <ScrollFadeSection id="hero" className="relative min-h-screen flex flex-col justify-center bg-graphite">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(#3A3B3A_1px,transparent_1px)] bg-[size:20px_20px]"></div>
       </div>
@@ -38,7 +30,7 @@ const HeroSection: React.FC = () => {
           VIEW_WORK →
         </a>
       </div>
-    </motion.section>
+    </ScrollFadeSection>
   )
 }
 

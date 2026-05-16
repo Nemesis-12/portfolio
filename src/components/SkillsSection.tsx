@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { sectionFade, hoverEase } from '../animations/variants'
+import { hoverEase } from '../animations/variants'
+import { ScrollFadeSection } from './ScrollFadeSection'
 
 type Category = 'LANGUAGE' | 'FRAMEWORK' | 'TOOL' | 'ML / DL' | 'DATA'
 
@@ -75,14 +76,7 @@ function SkillTileCard({ tile }: { tile: SkillTile }) {
 
 export function SkillsSection() {
   return (
-    <motion.section
-      id="skills"
-      variants={sectionFade}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: false }}
-      className="min-h-screen flex flex-col justify-center py-14 px-6 max-w-5xl mx-auto"
-    >
+    <ScrollFadeSection id="skills" className="min-h-screen flex flex-col justify-center py-14 px-6 max-w-5xl mx-auto">
       <div>
         <div className="flex items-center gap-3 mb-12">
           <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 02</span>
@@ -102,6 +96,6 @@ export function SkillsSection() {
           />
         </div>
       </div>
-    </motion.section>
+    </ScrollFadeSection>
   )
 }

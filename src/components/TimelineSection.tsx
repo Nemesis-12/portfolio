@@ -1,5 +1,4 @@
-import { motion } from 'framer-motion'
-import { sectionFade } from '../animations/variants'
+import { ScrollFadeSection } from './ScrollFadeSection'
 
 interface TimelineEntry {
   dateRange: string
@@ -66,14 +65,7 @@ function EntryList({ entries }: { entries: TimelineEntry[] }) {
 
 const TimelineSection: React.FC = () => {
   return (
-    <motion.section
-      id="timeline"
-      variants={sectionFade}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: false }}
-      className="min-h-screen flex flex-col justify-center py-14 px-6 max-w-5xl mx-auto"
-    >
+    <ScrollFadeSection id="timeline" className="min-h-screen flex flex-col justify-center py-14 px-6 max-w-5xl mx-auto">
       <div>
         <div className="flex items-center gap-3 mb-12">
           <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 03</span>
@@ -99,7 +91,7 @@ const TimelineSection: React.FC = () => {
           </div>
         </div>
       </div>
-    </motion.section>
+    </ScrollFadeSection>
   )
 }
 
