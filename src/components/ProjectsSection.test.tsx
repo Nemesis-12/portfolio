@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import ProjectsSection from './ProjectsSection'
 
 const mockProjects = [
@@ -82,5 +83,22 @@ describe('ProjectsSection', () => {
     expect(headings.map(h => h.textContent)).toContain('Project Two')
 
     expect(screen.getByText('// Docs ↗')).toBeInTheDocument()
+  })
+
+  it('project title changes to atomic-tangerine on hover', async () => {
+    const user = userEvent.setup()
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const card = screen.getByText('Project One').closest('div[class*="relative"]')
+    expect(card).not.toBeNull()
+
+    const title = screen.getByText('Project One')
+    expect(title.className).toContain('text-graphite')
+
+    await user.hover(title)
+    expect(title.className).toContain('text-atomic-tangerine')
+
+    await user.unhover(title)
+    expect(title.className).toContain('text-graphite')
   })
 })
