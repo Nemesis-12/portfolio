@@ -62,6 +62,7 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
       onMouseLeave={() => setIsHovered(false)}
       animate={{ y: isHovered ? -4 : 0 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
+      data-testid="project-card"
       className="relative"
       style={{ clipPath: NOTCH }}
     >

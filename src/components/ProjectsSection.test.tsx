@@ -89,16 +89,16 @@ describe('ProjectsSection', () => {
     const user = userEvent.setup()
     render(<ProjectsSection projects={mockProjects} />)
 
-    const card = screen.getByText('Project One').closest('div[class*="relative"]')
+    const title = screen.getByRole('heading', { name: 'Project One' })
+    const card = title.closest('[data-testid="project-card"]')
     expect(card).not.toBeNull()
 
-    const title = screen.getByText('Project One')
-    expect(title.className).toContain('text-graphite')
+    expect(title).toHaveClass('text-graphite')
 
-    await user.hover(title)
-    expect(title.className).toContain('text-atomic-tangerine')
+    await user.hover(card!)
+    expect(title).toHaveClass('text-atomic-tangerine')
 
-    await user.unhover(title)
-    expect(title.className).toContain('text-graphite')
+    await user.unhover(card!)
+    expect(title).toHaveClass('text-graphite')
   })
 })
