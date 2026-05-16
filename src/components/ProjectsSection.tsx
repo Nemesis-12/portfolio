@@ -62,6 +62,7 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
       onMouseLeave={() => setIsHovered(false)}
       animate={{ y: isHovered ? -4 : 0 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
+      data-testid="project-card"
       className="relative"
       style={{ clipPath: NOTCH }}
     >
@@ -87,7 +88,7 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
           <span className="font-body text-xs text-graphite/50">
             _{project.id.padStart(2, '0')}
           </span>
-          <h3 className="font-body font-bold text-base text-graphite">
+          <h3 className={`font-body font-bold text-base transition-colors duration-200 ${isHovered ? 'text-atomic-tangerine' : 'text-graphite'}`}>
             {project.title}
           </h3>
         </div>
