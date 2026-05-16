@@ -120,7 +120,7 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono text-xs text-graphite/50 hover:text-atomic-tangerine transition-colors"
+              className="font-mono text-xs text-ultrasonic-blue hover:text-atomic-tangerine transition-colors"
             >
               // {link.label} ↗
             </a>
