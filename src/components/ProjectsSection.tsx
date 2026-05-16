@@ -90,6 +90,7 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
           </div>
         ) : (
           <div
+            data-testid={`project-${project.id}-placeholder`}
             className="mb-4 h-32 rounded"
             style={{ backgroundColor: placeholderColor }}
           />
