@@ -1,6 +1,7 @@
 import { ScrollFadeSection } from './ScrollFadeSection'
 
 interface TimelineEntry {
+  hash: string
   dateRange: string
   institution: string
   role: string
@@ -9,12 +10,14 @@ interface TimelineEntry {
 
 const education: TimelineEntry[] = [
   {
+    hash: 'a3f9d2b',
     dateRange: 'JAN 2026 – PRESENT',
     institution: 'WICHITA STATE UNIVERSITY',
     role: 'ACCELERATED_M.S._COMPUTER_SCIENCE',
     description: 'Accelerated graduate program. Focus on advanced machine learning, AI systems, and distributed computing.',
   },
   {
+    hash: 'b7c3e1a',
     dateRange: 'JAN 2022 – DEC 2025',
     institution: 'WICHITA STATE UNIVERSITY',
     role: 'B.S._COMPUTER_SCIENCE',
@@ -24,6 +27,7 @@ const education: TimelineEntry[] = [
 
 const experience: TimelineEntry[] = [
   {
+    hash: 'd4e8f2c',
     dateRange: 'AUG 2024 – PRESENT',
     institution: 'NETAPP INC.',
     role: 'SOFTWARE_ENGINEER_IN_TEST',
@@ -31,29 +35,33 @@ const experience: TimelineEntry[] = [
   },
 ]
 
+function CommitEntry({ entry }: { entry: TimelineEntry }) {
+  return (
+    <div className="py-6 font-mono">
+      <p className="text-atomic-tangerine text-xs">
+        commit {entry.hash}
+      </p>
+      <p className="text-periwinkle text-xs mt-1">
+        Author: Farhan Mohammed
+      </p>
+      <p className="text-periwinkle text-xs">
+        Date:   {entry.dateRange}
+      </p>
+      <div className="mt-2 ml-4">
+        <p className="text-platinum text-xs">{entry.institution}</p>
+        <p className="text-platinum text-xs mt-1">{entry.role}</p>
+        <p className="text-periwinkle text-xs mt-2 whitespace-pre-line">{entry.description}</p>
+      </div>
+    </div>
+  )
+}
+
 function EntryList({ entries }: { entries: TimelineEntry[] }) {
   return (
     <div>
       {entries.map((entry, index) => (
         <div key={index}>
-          <div className="grid grid-cols-[30%_70%] gap-8 py-8">
-            <div>
-              <p className="font-body text-sm text-atomic-tangerine tracking-wider uppercase">
-                {entry.dateRange}
-              </p>
-              <p className="font-body text-sm text-atomic-tangerine tracking-wider mt-1">
-                {entry.institution}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-display text-sm text-platinum mb-3 leading-relaxed">
-                {entry.role}
-              </h3>
-              <p className="font-body text-base text-periwinkle leading-relaxed">
-                {entry.description}
-              </p>
-            </div>
-          </div>
+          <CommitEntry entry={entry} />
           {index < entries.length - 1 && (
             <hr className="border-periwinkle/20" />
           )}
@@ -62,6 +70,8 @@ function EntryList({ entries }: { entries: TimelineEntry[] }) {
     </div>
   )
 }
+
+
 
 const TimelineSection: React.FC = () => {
   return (
