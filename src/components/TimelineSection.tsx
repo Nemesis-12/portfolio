@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { fadeUp } from '../animations/variants'
+import { sectionFade } from '../animations/variants'
 
 interface TimelineEntry {
   dateRange: string
@@ -68,33 +68,35 @@ const TimelineSection: React.FC = () => {
   return (
     <motion.section
       id="timeline"
-      variants={fadeUp}
+      variants={sectionFade}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true }}
-      className="py-14 px-6 max-w-5xl mx-auto"
+      viewport={{ once: false }}
+      className="min-h-screen flex flex-col justify-center py-14 px-6 max-w-5xl mx-auto"
     >
-      <div className="flex items-center gap-3 mb-12">
-        <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 03</span>
-        <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">TIMELINE</span>
-        <hr className="flex-1 border-periwinkle/20" />
-      </div>
-
-      <div className="space-y-12">
-        <div>
-          <p className="font-body text-xs text-periwinkle/60 tracking-widest mb-2 uppercase">
-            Education
-          </p>
-          <hr className="border-periwinkle/10 mb-0" />
-          <EntryList entries={education} />
+      <div>
+        <div className="flex items-center gap-3 mb-12">
+          <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 03</span>
+          <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">TIMELINE</span>
+          <hr className="flex-1 border-periwinkle/20" />
         </div>
 
-        <div>
-          <p className="font-body text-xs text-periwinkle/60 tracking-widest mb-2 uppercase">
-            Experience
-          </p>
-          <hr className="border-periwinkle/10 mb-0" />
-          <EntryList entries={experience} />
+        <div className="space-y-12">
+          <div>
+            <p className="font-body text-xs text-periwinkle/60 tracking-widest mb-2 uppercase">
+              Education
+            </p>
+            <hr className="border-periwinkle/10 mb-0" />
+            <EntryList entries={education} />
+          </div>
+
+          <div>
+            <p className="font-body text-xs text-periwinkle/60 tracking-widest mb-2 uppercase">
+              Experience
+            </p>
+            <hr className="border-periwinkle/10 mb-0" />
+            <EntryList entries={experience} />
+          </div>
         </div>
       </div>
     </motion.section>

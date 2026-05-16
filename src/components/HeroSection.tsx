@@ -1,20 +1,21 @@
 import { motion } from 'framer-motion'
-import { fadeUp } from '../animations/variants'
+import { sectionFade } from '../animations/variants'
 
 const HeroSection: React.FC = () => {
   return (
-    <section id="hero" className="relative min-h-screen flex flex-col justify-center bg-graphite">
+    <motion.section
+      id="hero"
+      variants={sectionFade}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: false }}
+      className="relative min-h-screen flex flex-col justify-center bg-graphite"
+    >
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(#3A3B3A_1px,transparent_1px)] bg-[size:20px_20px]"></div>
       </div>
 
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="relative z-10 px-6 max-w-5xl mx-auto space-y-6"
-      >
+      <div className="relative z-10 px-6 max-w-5xl mx-auto space-y-6">
         <div className="space-y-2">
           <p className="font-body text-xs text-atomic-tangerine tracking-widest">
             // PORTFOLIO_INIT
@@ -36,8 +37,8 @@ const HeroSection: React.FC = () => {
         >
           VIEW_WORK →
         </a>
-      </motion.div>
-    </section>
+      </div>
+    </motion.section>
   )
 }
 

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { fadeUp, hoverEase } from '../animations/variants'
+import { sectionFade, hoverEase } from '../animations/variants'
 
 type Category = 'LANGUAGE' | 'FRAMEWORK' | 'TOOL' | 'ML / DL' | 'DATA'
 
@@ -77,28 +77,30 @@ export function SkillsSection() {
   return (
     <motion.section
       id="skills"
-      variants={fadeUp}
+      variants={sectionFade}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true }}
-      className="py-14 px-6 max-w-5xl mx-auto"
+      viewport={{ once: false }}
+      className="min-h-screen flex flex-col justify-center py-14 px-6 max-w-5xl mx-auto"
     >
-      <div className="flex items-center gap-3 mb-12">
-        <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 02</span>
-        <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">SKILLS</span>
-        <hr className="flex-1 border-periwinkle/20" />
-      </div>
+      <div>
+        <div className="flex items-center gap-3 mb-12">
+          <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 02</span>
+          <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">SKILLS</span>
+          <hr className="flex-1 border-periwinkle/20" />
+        </div>
 
-      <div data-testid="skills-grid" className="grid grid-cols-2 md:grid-cols-4 gap-3 md:grid-rows-[120px_160px_120px_120px_120px_120px_120px_120px_80px]">
-        {tiles.map((tile) => (
-          <SkillTileCard key={tile.name} tile={tile} />
-        ))}
+        <div data-testid="skills-grid" className="grid grid-cols-2 md:grid-cols-4 gap-3 md:grid-rows-[120px_160px_120px_120px_120px_120px_120px_120px_80px]">
+          {tiles.map((tile) => (
+            <SkillTileCard key={tile.name} tile={tile} />
+          ))}
 
-        {/* Accent tile: fills R8 C1-C4 on desktop (col-span-4), full width on mobile */}
-        <div
-          className="col-span-2 md:col-span-4 min-h-24 md:min-h-0 rounded-lg"
-          style={{ backgroundColor: '#E0007F' }}
-        />
+          {/* Accent tile: fills R8 C1-C4 on desktop (col-span-4), full width on mobile */}
+          <div
+            className="col-span-2 md:col-span-4 min-h-24 md:min-h-0 rounded-lg"
+            style={{ backgroundColor: '#E0007F' }}
+          />
+        </div>
       </div>
     </motion.section>
   )

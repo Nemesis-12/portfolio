@@ -17,6 +17,19 @@ html {
   scroll-behavior: smooth;
 }
 
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2A2B2A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FF8547;
+  border-radius: 4px;
+}
+
 body {
   margin: 0;
   font-family: var(--font-body);
