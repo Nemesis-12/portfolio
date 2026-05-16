@@ -122,4 +122,22 @@ describe('Navbar', () => {
       expect(skillsLink!.className).toContain('border-atomic-tangerine')
     })
   })
+
+  describe('issue #38 - logo size and container alignment', () => {
+    it('FM_ logo uses text-xl', () => {
+      render(<Navbar />)
+      const logo = screen.getByText('FM_')
+      expect(logo.className).toContain('text-xl')
+    })
+
+    it('nav inner content is wrapped in max-w-7xl mx-auto px-8 container', () => {
+      render(<Navbar />)
+      const nav = screen.getByRole('navigation')
+      const innerContainer = nav.querySelector('div.max-w-7xl')
+      expect(innerContainer).not.toBeNull()
+      expect(innerContainer!.className).toContain('max-w-7xl')
+      expect(innerContainer!.className).toContain('mx-auto')
+      expect(innerContainer!.className).toContain('px-8')
+    })
+  })
 })
