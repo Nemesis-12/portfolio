@@ -21,7 +21,7 @@ export default function ContactSection() {
       >
         <p className="font-body text-sm text-atomic-tangerine mb-8">// 04 CONTACT</p>
 
-        <h2 className="font-display text-3xl md:text-5xl text-black leading-tight mb-12">
+        <h2 className="font-display text-3xl md:text-5xl text-platinum leading-tight mb-12">
           LET'S CONNECT.
         </h2>
 
@@ -30,7 +30,7 @@ export default function ContactSection() {
           variants={hoverEase}
           initial="idle"
           whileHover="hover"
-          className="inline-block font-body text-sm border-2 border-black text-black px-8 py-4 mb-12 hover:bg-black hover:text-mint-cream transition-colors"
+          className="inline-block font-body text-sm border-2 border-platinum text-platinum px-8 py-4 mb-12 hover:bg-platinum hover:text-mint-cream transition-colors"
         >
           SEND_MESSAGE →
         </motion.a>
@@ -45,14 +45,14 @@ export default function ContactSection() {
               variants={hoverEase}
               initial="idle"
               whileHover="hover"
-              className="font-body text-sm text-graphite hover:text-atomic-tangerine transition-colors"
+              className="font-body text-sm text-periwinkle hover:text-atomic-tangerine transition-colors"
             >
               {label}
             </motion.a>
           ))}
         </div>
 
-        <div className="flex justify-between items-center pt-8 border-t border-graphite/20 text-xs font-body text-graphite">
+        <div className="flex justify-between items-center pt-8 border-t border-periwinkle/20 text-xs font-body text-periwinkle">
           <span>FARHAN_MOHAMMED © 2026</span>
           <span>PORTFOLIO.EXE</span>
         </div>

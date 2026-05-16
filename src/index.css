@@ -6,8 +6,8 @@
   --color-ultrasonic-blue: #5200E0;
   --color-fuchsia-flame: #E0007F;
   --color-golden-pollen: #FFCE47;
-  --color-black: #EFF1F3;
-  --color-graphite: #B2B6D2;
+  --color-platinum: #EFF1F3;
+  --color-periwinkle: #B2B6D2;
 
   --font-display: 'Press Start 2P', monospace;
   --font-body: 'Space Mono', monospace;
@@ -21,7 +21,7 @@ body {
   margin: 0;
   font-family: var(--font-body);
   background-color: var(--color-mint-cream);
-  color: var(--color-graphite);
+  color: var(--color-periwinkle);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

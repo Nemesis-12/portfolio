@@ -34,7 +34,7 @@ export default function Navbar() {
   return (
     <>
       <nav className="sticky top-0 z-40 w-full flex items-center justify-between px-6 py-4 bg-mint-cream/90 backdrop-blur-sm">
-        <a href="#" className="font-display text-black text-lg no-underline">
+        <a href="#" className="font-display text-platinum text-lg no-underline">
           FM_
         </a>
 
@@ -48,7 +48,7 @@ export default function Navbar() {
                   variants={hoverEase}
                   initial="idle"
                   whileHover="hover"
-                  className={`font-body text-sm no-underline pb-0.5${isActive ? ' text-atomic-tangerine border-b-2 border-atomic-tangerine' : ' text-black'}`}
+                  className={`font-body text-sm no-underline pb-0.5${isActive ? ' text-atomic-tangerine border-b-2 border-atomic-tangerine' : ' text-platinum'}`}
                 >
                   {label}
                 </motion.a>
@@ -58,7 +58,7 @@ export default function Navbar() {
         </ul>
 
         <motion.button
-          className="flex md:hidden text-graphite"
+          className="flex md:hidden text-periwinkle"
           onClick={() => setMenuOpen(true)}
           variants={hoverEase}
           initial="idle"

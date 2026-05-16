@@ -22,11 +22,11 @@ const HeroSection: React.FC = () => {
           <div className="w-8 h-0.5 bg-atomic-tangerine" />
         </div>
 
-        <h1 className="font-display text-5xl text-black leading-tight">
+        <h1 className="font-display text-5xl text-platinum leading-tight">
           FARHAN MOHAMMED
         </h1>
 
-        <p className="font-body text-xl text-graphite">
+        <p className="font-body text-xl text-periwinkle">
           CS_STUDENT · DEVELOPER
         </p>
 
