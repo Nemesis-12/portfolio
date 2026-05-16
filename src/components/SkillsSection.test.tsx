@@ -32,7 +32,7 @@ describe('SkillsSection', () => {
     }
   })
 
-  it('renders 15 skill tiles (no decorative stripe row with 4 vertical divs)', () => {
+  it('renders 15 skill tiles with no accent tile', () => {
     render(<SkillsSection />)
 
     const categoryLabels = screen.getAllByText(/^(LANGUAGE|FRAMEWORK|TOOL|ML \/ DL|DATA)$/)
@@ -40,7 +40,7 @@ describe('SkillsSection', () => {
 
     const gridContainer = document.querySelector('.grid')
     const children = gridContainer?.children || []
-    expect(children.length).toBe(16)
+    expect(children.length).toBe(15)
   })
 
   it('desktop grid has an explicit grid-rows class with at least 3 distinct row heights', () => {
@@ -89,17 +89,21 @@ describe('SkillsSection', () => {
     expect(heights.length).toBeGreaterThanOrEqual(8)
   })
 
-  it('accent tile renders without category or skill name (colored fill only)', () => {
+  it('no accent tile renders at bottom of grid', () => {
     render(<SkillsSection />)
 
     const gridContainer = document.querySelector('.grid')
     const children = Array.from(gridContainer?.children || [])
-    const accentTile = children[children.length - 1]
 
-    expect(accentTile).not.toHaveTextContent(/LANGUAGE|FRAMEWORK|TOOL|ML \/ DL|DATA/)
-    expect(accentTile).not.toHaveTextContent(/Python|TypeScript|JavaScript|C \/ C\+\+|SQL/)
+    const lastChild = children[children.length - 1]
+    expect(lastChild.textContent).toContain('SQL')
+    expect(lastChild.textContent).not.toMatch(/^(LANGUAGE|FRAMEWORK|TOOL|ML \/ DL|DATA)$/)
 
-    const styles = window.getComputedStyle(accentTile)
-    expect(styles.backgroundColor).not.toBe('rgba(0, 0, 0, 0)')
+    const allHaveCategoryOrSkill = children.every(child => {
+      const text = child.textContent || ''
+      return /^(LANGUAGE|FRAMEWORK|TOOL|ML \/ DL|DATA)$/.test(text) ||
+             /Python|TypeScript|JavaScript|C \/ C\+\+|SQL|Docker|Git|Ansible|Linux|NumPy|Pandas|FastAPI|PyTorch|Hugging Face|Scikit-learn/.test(text)
+    })
+    expect(allHaveCategoryOrSkill).toBe(true)
   })
 })
