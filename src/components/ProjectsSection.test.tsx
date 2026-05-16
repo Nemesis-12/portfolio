@@ -66,6 +66,13 @@ describe('ProjectsSection', () => {
     expect(screen.getByTestId('project-2-placeholder')).toBeInTheDocument()
   })
 
+  it('placeholder uses vivid palette color, not a dark shade', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const placeholder = screen.getByTestId('project-2-placeholder')
+    expect(placeholder).toHaveStyle({ backgroundColor: '#5200E0' })
+  })
+
   it('renders project cards matching the entries in projects data', () => {
     render(<ProjectsSection projects={mockProjects} />)
 

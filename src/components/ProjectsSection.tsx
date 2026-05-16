@@ -15,10 +15,10 @@ const TAG_COLORS = [
 ]
 
 const PLACEHOLDER_COLORS = [
-  '#5C002E',
-  '#1E0060',
-  '#6B3100',
-  '#5C4900',
+  '#E0007F',
+  '#5200E0',
+  '#FF8547',
+  '#FFCE47',
 ]
 
 const NOTCH = 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)'
@@ -120,7 +120,7 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono text-xs text-graphite/50 hover:text-atomic-tangerine transition-colors"
+              className="font-mono text-xs text-ultrasonic-blue hover:text-atomic-tangerine transition-colors"
             >
               // {link.label} ↗
             </a>
