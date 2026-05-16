@@ -13,7 +13,7 @@ interface SkillTile {
   fg: string
 }
 
-// Desktop (4-col, 9 rows — no two adjacent rows share the same span pattern):
+// Desktop (4-col, 8 rows — no two adjacent rows share the same span pattern):
 //   R1: Python(2) TypeScript(2)          [2,2]
 //   R2: Python(2) Docker(1) C/C++(1)     [2,1,1]
 //   R3: Python(2) JavaScript(2)          [2,2]
@@ -22,7 +22,6 @@ interface SkillTile {
 //   R6: NumPy(2) HuggingFace(2)          [2,2]
 //   R7: Scikit-learn(3) Linux(1)         [3,1]
 //   R8: Git(1) SQL(3)                    [1,3]
-//   R9: Accent(4)                        [4]
 //
 // Mobile (2-col):
 //   R1: Python(2)
@@ -36,7 +35,6 @@ interface SkillTile {
 //   R9: HuggingFace(1) Scikit-learn(1)
 //   R10: Linux(1) Git(1)
 //   R11: SQL(2)
-//   R12: Accent(2)
 const tiles: SkillTile[] = [
   { category: 'LANGUAGE',  name: 'Python',       colSpan: 'col-span-2',                rowSpan: 'row-span-2 md:row-span-3', bg: '#FF8547', fg: '#050609' },
   { category: 'LANGUAGE',  name: 'TypeScript',   colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-2 md:row-span-1', bg: '#5200E0', fg: '#EFF1F3' },
@@ -84,7 +82,7 @@ export function SkillsSection() {
           <hr className="flex-1 border-periwinkle/20" />
         </div>
 
-        <div data-testid="skills-grid" className="grid grid-cols-2 md:grid-cols-4 gap-3 md:grid-rows-[90px_100px_90px_90px_90px_90px_90px_90px_60px]">
+        <div data-testid="skills-grid" className="grid grid-cols-2 md:grid-cols-4 gap-3 md:grid-rows-[90px_100px_90px_90px_90px_90px_90px_90px]">
           {tiles.map((tile) => (
             <SkillTileCard key={tile.name} tile={tile} />
           ))}
