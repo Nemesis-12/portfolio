@@ -33,8 +33,9 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-40 w-full flex items-center justify-between px-8 py-4 bg-graphite/90 backdrop-blur-sm">
-        <a href="#" className="font-display text-platinum text-lg no-underline">
+      <nav className="sticky top-0 z-40 w-full py-4 bg-graphite/90 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-8">
+          <a href="#" className="font-display text-platinum text-xl no-underline">
           FM_
         </a>
 
@@ -71,6 +72,7 @@ export default function Navbar() {
             <line x1="3" y1="18" x2="21" y2="18" />
           </svg>
         </motion.button>
+        </div>
       </nav>
 
       <MobileMenu
