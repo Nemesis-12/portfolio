@@ -88,12 +88,6 @@ export function SkillsSection() {
           {tiles.map((tile) => (
             <SkillTileCard key={tile.name} tile={tile} />
           ))}
-
-          {/* Accent tile: fills R9 C1-C4 on desktop (col-span-4), full width on mobile */}
-          <div
-            className="col-span-2 md:col-span-4 min-h-24 md:min-h-0 rounded-lg"
-            style={{ backgroundColor: '#E0007F' }}
-          />
         </div>
       </div>
     </ScrollFadeSection>
