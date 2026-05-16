@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { fadeUp } from '../animations/variants'
 import type { Project } from '../data/projects'
@@ -19,6 +20,8 @@ const PLACEHOLDER_COLORS = [
   '#FF8547',
   '#FFCE47',
 ]
+
+const NOTCH = 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)'
 
 function getTagStyle(tagIndex: number) {
   const color = TAG_COLORS[tagIndex % 4]
@@ -55,43 +58,35 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
 }
 
 const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ project, projectIndex }) => {
+  const [isHovered, setIsHovered] = useState(false)
   const placeholderColor = getPlaceholderColor(projectIndex)
 
   return (
     <motion.div
-      whileHover={{ y: -4 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      animate={{ y: isHovered ? -4 : 0 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
-      className="relative group"
-      style={{
-        clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)',
-      }}
+      className="relative"
+      style={{ clipPath: NOTCH }}
     >
+      {/* Card background */}
       <div
-        className="absolute left-0 top-0 bottom-0 w-1 bg-atomic-tangerine opacity-0 group-hover:opacity-100 transition-all duration-300"
-        style={{
-          clipPath: 'polygon(0 20px, 4px 20px, 4px calc(100% - 20px), 4px 100%, 0 100%, 0 20px)',
-        }}
-      />
-
-      <div
-        className="relative bg-white border-0 p-5 h-full"
-        style={{
-          clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)',
-          backgroundImage: 'linear-gradient(135deg, #F8F9FA 0%, #FFFFFF 100%)',
-        }}
+        className="relative bg-white p-5"
+        style={{ backgroundImage: 'linear-gradient(135deg, #F8F9FA 0%, #FFFFFF 100%)' }}
       >
         {project.image ? (
-          <div className="mb-4 rounded overflow-hidden" style={{ backgroundColor: '#3A3B3A' }}>
+          <div className="mb-4 overflow-hidden" style={{ backgroundColor: '#3A3B3A' }}>
             <img
               src={project.image}
               alt={`${project.title} screenshot`}
-              className="w-full h-32 object-cover"
+              className="w-full h-40 object-cover"
             />
           </div>
         ) : (
           <div
             data-testid={`project-${project.id}-placeholder`}
-            className="mb-4 h-32 rounded"
+            className="mb-4 h-40"
             style={{ backgroundColor: placeholderColor }}
           />
         )}
@@ -135,6 +130,15 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
           ))}
         </div>
       </div>
+
+      {/* Left-edge hover outline — rendered after card so it sits on top */}
+      <motion.div
+        className="absolute left-0 top-0 bottom-0 w-[3px] bg-atomic-tangerine"
+        initial={{ scaleY: 0, opacity: 0 }}
+        animate={{ scaleY: isHovered ? 1 : 0, opacity: isHovered ? 1 : 0 }}
+        style={{ transformOrigin: 'bottom' }}
+        transition={{ duration: 0.25, ease: 'easeOut' }}
+      />
     </motion.div>
   )
 }
