@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
 import App from './App'
 
-const sections = ['hero', 'projects', 'skills', 'timeline', 'contact'] as const
+const sections = ['home', 'projects', 'skills', 'timeline', 'contact'] as const
 
 describe('App shell', () => {
   it.each(sections)('renders %s section', (id) => {

@@ -4,7 +4,7 @@ import { hoverEase } from '../animations/variants'
 import MobileMenu from './MobileMenu'
 
 const NAV_LINKS = [
-  { label: 'HERO', href: '#hero' },
+  { label: 'HOME', href: '#home' },
   { label: 'PROJECTS', href: '#projects' },
   { label: 'SKILLS', href: '#skills' },
   { label: 'TIMELINE', href: '#timeline' },
