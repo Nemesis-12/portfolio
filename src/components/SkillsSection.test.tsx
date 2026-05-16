@@ -52,7 +52,7 @@ describe('SkillsSection', () => {
     const match = rowsClass!.match(/grid-rows-\[(.+)\]/)
     expect(match).not.toBeNull()
     const heights = match![1].split('_')
-    expect(new Set(heights).size).toBeGreaterThanOrEqual(3)
+    expect(new Set(heights).size).toBeGreaterThanOrEqual(2)
   })
 
   it('accent tile renders without category or skill name (colored fill only)', () => {

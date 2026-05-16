@@ -60,7 +60,7 @@ function SkillTileCard({ tile }: { tile: SkillTile }) {
       className={`${tile.colSpan} ${tile.rowSpan} min-h-24 md:min-h-0 p-5 rounded-lg flex flex-col justify-between cursor-default`}
       style={{ backgroundColor: tile.bg, color: tile.fg }}
     >
-      <span className="text-xs uppercase tracking-widest opacity-60 font-body">
+      <span className="text-xs uppercase tracking-widest font-body">
         {tile.category}
       </span>
       <span className="font-body font-bold text-lg leading-tight mt-4">
@@ -86,7 +86,7 @@ export function SkillsSection() {
         <hr className="flex-1 border-periwinkle/20" />
       </div>
 
-      <div data-testid="skills-grid" className="grid grid-cols-2 md:grid-cols-4 gap-3 md:grid-rows-[80px_160px_80px_120px_80px_120px_80px]">
+      <div data-testid="skills-grid" className="grid grid-cols-2 md:grid-cols-4 gap-3 md:grid-rows-[120px_160px_120px_120px_120px_120px_120px]">
         {tiles.map((tile) => (
           <SkillTileCard key={tile.name} tile={tile} />
         ))}
