@@ -15,10 +15,10 @@ const TAG_COLORS = [
 ]
 
 const PLACEHOLDER_COLORS = [
-  '#E0007F',
-  '#5200E0',
-  '#FF8547',
-  '#FFCE47',
+  '#5C002E',
+  '#1E0060',
+  '#6B3100',
+  '#5C4900',
 ]
 
 const NOTCH = 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)'
