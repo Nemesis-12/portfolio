@@ -16,9 +16,9 @@ export function ScrollFadeSection({ id, children, className = '' }: Props) {
       ref={ref}
       id={id}
       className={className}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: isInView ? 1 : 0.3 }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: isInView ? 1 : 0, y: isInView ? 0 : 24 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
     >
       {children}
     </motion.section>
