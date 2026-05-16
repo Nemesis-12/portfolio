@@ -36,8 +36,8 @@ export default function Navbar() {
       <nav className="sticky top-0 z-40 w-full py-4 bg-graphite/90 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-8">
           <a href="#" className="font-display text-platinum text-xl no-underline">
-          FM_
-        </a>
+            FM_
+          </a>
 
         <ul className="hidden md:flex gap-8 list-none m-0 p-0">
           {NAV_LINKS.map(({ label, href }) => {

@@ -133,7 +133,7 @@ describe('Navbar', () => {
     it('nav inner content is wrapped in max-w-7xl mx-auto px-8 container', () => {
       render(<Navbar />)
       const nav = screen.getByRole('navigation')
-      const innerContainer = nav.querySelector(':scope > div')
+      const innerContainer = nav.querySelector('div.max-w-7xl')
       expect(innerContainer).not.toBeNull()
       expect(innerContainer!.className).toContain('max-w-7xl')
       expect(innerContainer!.className).toContain('mx-auto')
