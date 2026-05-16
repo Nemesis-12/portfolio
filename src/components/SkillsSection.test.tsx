@@ -95,6 +95,12 @@ describe('SkillsSection', () => {
     const gridContainer = document.querySelector('.grid')
     const children = Array.from(gridContainer?.children || [])
 
+    expect(children.length).toBe(15)
+
+    const lastChild = children[children.length - 1]
+    expect(lastChild.textContent).toContain('SQL')
+    expect(lastChild.textContent).not.toMatch(/^(LANGUAGE|FRAMEWORK|TOOL|ML \/ DL|DATA)$/)
+
     const allHaveCategoryOrSkill = children.every(child => {
       const text = child.textContent || ''
       return /^(LANGUAGE|FRAMEWORK|TOOL|ML \/ DL|DATA)$/.test(text) ||
