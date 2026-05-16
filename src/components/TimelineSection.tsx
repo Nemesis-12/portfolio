@@ -48,6 +48,7 @@ function CommitEntry({ entry }: { entry: TimelineEntry }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
   const hasStarted = useRef(false)
+  const timersRef = useRef<(ReturnType<typeof setTimeout> | ReturnType<typeof setInterval>)[]>([])
 
   useEffect(() => {
     if (isInView && !hasStarted.current) {
@@ -62,7 +63,7 @@ function CommitEntry({ entry }: { entry: TimelineEntry }) {
       ]
 
       texts.forEach(({ text, setter, delay: d }) => {
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
           let i = 0
           const interval = setInterval(() => {
             if (i <= text.length) {
@@ -72,26 +73,36 @@ function CommitEntry({ entry }: { entry: TimelineEntry }) {
               clearInterval(interval)
             }
           }, 30)
+          timersRef.current.push(interval)
         }, d)
+        timersRef.current.push(timeoutId)
       })
+    }
+
+    return () => {
+      timersRef.current.forEach(timer => {
+        clearTimeout(timer)
+        clearInterval(timer as ReturnType<typeof setInterval>)
+      })
+      timersRef.current = []
     }
   }, [isInView, entry])
 
   return (
-    <div ref={ref} className="min-h-screen py-6 font-mono">
-      <p className="text-atomic-tangerine text-xs">
+    <div ref={ref} className="min-h-screen py-6 font-mono" data-testid="commit-entry">
+      <p className="text-atomic-tangerine text-xs" data-testid="commit-hash">
         {commitText}
       </p>
-      <p className="text-periwinkle text-xs mt-1">
+      <p className="text-periwinkle text-xs mt-1" data-testid="commit-author">
         {authorText}
       </p>
-      <p className="text-periwinkle text-xs">
+      <p className="text-periwinkle text-xs" data-testid="commit-date">
         {dateText}
       </p>
       <div className="mt-2 ml-4">
-        <p className="text-platinum text-xs">{institutionText}</p>
-        <p className="text-platinum text-xs mt-1">{roleText}</p>
-        <p className="text-periwinkle text-xs mt-2 whitespace-pre-line">{descriptionText}</p>
+        <p className="text-platinum text-xs" data-testid="commit-institution">{institutionText}</p>
+        <p className="text-platinum text-xs mt-1" data-testid="commit-role">{roleText}</p>
+        <p className="text-periwinkle text-xs mt-2 whitespace-pre-line" data-testid="commit-description">{descriptionText}</p>
       </div>
     </div>
   )
@@ -101,7 +112,7 @@ function EntryList({ entries }: { entries: TimelineEntry[] }) {
   return (
     <div>
       {entries.map((entry, index) => (
-        <div key={index}>
+        <div key={entry.hash}>
           <CommitEntry entry={entry} />
           {index < entries.length - 1 && (
             <hr className="border-periwinkle/20" />
