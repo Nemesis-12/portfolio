@@ -57,10 +57,10 @@ function SkillTileCard({ tile }: { tile: SkillTile }) {
       variants={hoverEase}
       initial="idle"
       whileHover="hover"
-      className={`${tile.colSpan} ${tile.rowSpan} min-h-24 p-5 rounded-lg flex flex-col justify-between cursor-default`}
+      className={`${tile.colSpan} ${tile.rowSpan} min-h-24 md:min-h-0 p-5 rounded-lg flex flex-col justify-between cursor-default`}
       style={{ backgroundColor: tile.bg, color: tile.fg }}
     >
-      <span className="text-xs uppercase tracking-widest opacity-60 font-body">
+      <span className="text-xs uppercase tracking-widest font-body">
         {tile.category}
       </span>
       <span className="font-body font-bold text-lg leading-tight mt-4">
@@ -86,14 +86,14 @@ export function SkillsSection() {
         <hr className="flex-1 border-periwinkle/20" />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div data-testid="skills-grid" className="grid grid-cols-2 md:grid-cols-4 gap-3 md:grid-rows-[120px_160px_120px_120px_120px_120px_120px]">
         {tiles.map((tile) => (
           <SkillTileCard key={tile.name} tile={tile} />
         ))}
 
         {/* Accent tile: fills R7 C2-C4 on desktop (col-span-3), full width on mobile */}
         <div
-          className="col-span-2 md:col-span-3 min-h-24 rounded-lg"
+          className="col-span-2 md:col-span-3 min-h-24 md:min-h-0 rounded-lg"
           style={{ backgroundColor: '#E0007F' }}
         />
       </div>

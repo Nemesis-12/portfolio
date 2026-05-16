@@ -43,6 +43,18 @@ describe('SkillsSection', () => {
     expect(children.length).toBe(16)
   })
 
+  it('desktop grid has an explicit grid-rows class with at least 3 distinct row heights', () => {
+    render(<SkillsSection />)
+    const grid = screen.getByTestId('skills-grid')
+    const rowsClass = Array.from(grid.classList).find(c => c.includes('grid-rows-['))
+    expect(rowsClass).toBeDefined()
+
+    const match = rowsClass!.match(/grid-rows-\[(.+)\]/)
+    expect(match).not.toBeNull()
+    const heights = match![1].split('_')
+    expect(new Set(heights).size).toBeGreaterThanOrEqual(2)
+  })
+
   it('accent tile renders without category or skill name (colored fill only)', () => {
     render(<SkillsSection />)
 
