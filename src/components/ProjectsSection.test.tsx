@@ -62,6 +62,12 @@ describe('ProjectsSection', () => {
     expect(images).toHaveLength(1)
 
     expect(screen.queryByAltText('Project Two screenshot')).not.toBeInTheDocument()
+
+    const projectTwoTitle = screen.getByText('Project Two')
+    const cardElement = projectTwoTitle.closest('div[class*="relative"]')
+    expect(cardElement).toBeInTheDocument()
+    const placeholderDiv = cardElement?.querySelector('div[class="mb-4 h-32 rounded"]')
+    expect(placeholderDiv).toBeInTheDocument()
   })
 
   it('renders project cards matching the entries in projects data', () => {
