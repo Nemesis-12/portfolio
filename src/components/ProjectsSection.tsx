@@ -34,8 +34,8 @@ function getPlaceholderColor(projectIndex: number) {
 
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
   return (
-    <ScrollFadeSection id="projects" className="min-h-screen flex flex-col justify-center py-14 px-8 max-w-7xl mx-auto">
-      <div>
+    <ScrollFadeSection id="projects" className="min-h-screen flex flex-col justify-center py-14 px-8 bg-graphite-light">
+      <div className="max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-3 mb-8">
           <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 01</span>
           <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">PROJECTS</span>

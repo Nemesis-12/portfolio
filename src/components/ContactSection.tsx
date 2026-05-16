@@ -13,7 +13,7 @@ const footerLinks = [
 
 export default function ContactSection() {
   return (
-    <ScrollFadeSection id="contact" className="min-h-screen flex flex-col justify-center px-8 py-14">
+    <ScrollFadeSection id="contact" className="min-h-screen flex flex-col justify-center px-8 py-14 bg-graphite">
       <div className="max-w-7xl mx-auto w-full">
         <p className="font-body text-sm text-atomic-tangerine mb-8">// 04 CONTACT</p>
 

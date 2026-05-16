@@ -76,8 +76,8 @@ function SkillTileCard({ tile }: { tile: SkillTile }) {
 
 export function SkillsSection() {
   return (
-    <ScrollFadeSection id="skills" className="min-h-screen flex flex-col justify-center py-14 px-8 max-w-7xl mx-auto">
-      <div>
+    <ScrollFadeSection id="skills" className="min-h-screen flex flex-col justify-center py-14 px-8 bg-graphite">
+      <div className="max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-3 mb-12">
           <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 02</span>
           <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">SKILLS</span>
