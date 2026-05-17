@@ -82,7 +82,7 @@ export function SkillsSection() {
           <hr className="flex-1 border-periwinkle/20" />
         </div>
 
-        <div data-testid="skills-grid" className="grid grid-cols-2 md:grid-cols-4 gap-3 md:grid-rows-[90px_100px_90px_90px_90px_90px_90px_90px]">
+        <div data-testid="skills-grid" className="grid grid-cols-2 md:grid-cols-4 gap-3 min-h-screen md:grid-rows-[1fr_1.1fr_1fr_1fr_1fr_1fr_1fr_1fr]">
           {tiles.map((tile) => (
             <SkillTileCard key={tile.name} tile={tile} />
           ))}
