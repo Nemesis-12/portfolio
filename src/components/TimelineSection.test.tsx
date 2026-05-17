@@ -83,6 +83,21 @@ describe('TimelineSection', () => {
       screen.getAllByTestId('commit-author').forEach(el => {
         expect(el.textContent).toBe('Author: Farhan Mohammed')
       })
+
+      const dates = screen.getAllByTestId('commit-date')
+      expect(dates[0].textContent).toBe('Date:   JAN 2026 – PRESENT')
+      expect(dates[1].textContent).toBe('Date:   JAN 2022 – DEC 2025')
+      expect(dates[2].textContent).toBe('Date:   AUG 2024 – PRESENT')
+
+      const institutions = screen.getAllByTestId('commit-institution')
+      expect(institutions[0].textContent).toBe('WICHITA STATE UNIVERSITY')
+      expect(institutions[1].textContent).toBe('WICHITA STATE UNIVERSITY')
+      expect(institutions[2].textContent).toBe('NETAPP INC.')
+
+      const roles = screen.getAllByTestId('commit-role')
+      expect(roles[0].textContent).toBe('ACCELERATED_M.S._COMPUTER_SCIENCE')
+      expect(roles[1].textContent).toBe('B.S._COMPUTER_SCIENCE')
+      expect(roles[2].textContent).toBe('SOFTWARE_ENGINEER_IN_TEST')
     })
 
     it('typing does not restart when viewport is re-entered', () => {
