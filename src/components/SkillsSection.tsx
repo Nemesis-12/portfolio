@@ -19,6 +19,11 @@ const gridStagger = {
   },
 }
 
+const tileVariants = {
+  ...tileStagger,
+  hover: hoverEase.hover,
+}
+
 type Category = 'LANGUAGE' | 'FRAMEWORK' | 'TOOL' | 'ML / DL' | 'DATA'
 
 interface SkillTile {
@@ -73,8 +78,7 @@ const tiles: SkillTile[] = [
 function SkillTileCard({ tile }: { tile: SkillTile }) {
   return (
     <motion.div
-      variants={{ ...hoverEase, ...tileStagger }}
-      initial="idle"
+      variants={tileVariants}
       whileHover="hover"
       className={`${tile.colSpan} ${tile.rowSpan} min-h-24 md:min-h-0 p-5 rounded-lg flex flex-col justify-between cursor-default`}
       style={{ backgroundColor: tile.bg, color: tile.fg }}
