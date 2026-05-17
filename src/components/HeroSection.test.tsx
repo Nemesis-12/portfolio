@@ -19,4 +19,11 @@ describe('HeroSection', () => {
     expect(link).toBeInTheDocument()
     expect(link).toHaveAttribute('href', '#projects')
   })
+
+  it('shows a blinking cursor after the name', () => {
+    render(<HeroSection />)
+    const cursor = document.querySelector('[data-testid="cursor"]')
+    expect(cursor).toBeInTheDocument()
+    expect(cursor).toHaveClass('bg-atomic-tangerine')
+  })
 })
