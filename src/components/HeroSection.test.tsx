@@ -119,6 +119,13 @@ describe('HeroSection', () => {
 
   it('shows the VIEW_WORK call-to-action linking to projects section', () => {
     render(<HeroSection />)
+    const subtitleText = 'CS_STUDENT · DEVELOPER'
+    const valuePropText = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
+
+    act(() => {
+      vi.advanceTimersByTime(400 + subtitleText.length * 60 + 400 + valuePropText.length * 35 + 200)
+    })
+
     const link = screen.getByRole('link', { name: /VIEW_WORK →/i })
     expect(link).toBeInTheDocument()
     expect(link).toHaveAttribute('href', '#projects')
@@ -148,5 +155,56 @@ describe('HeroSection', () => {
         times: [0, 0.49, 0.5, 0.99, 1],
       },
     })
+  })
+
+  it('CTAs are absent before typewriter sequence completes', () => {
+    render(<HeroSection />)
+    const subtitleText = 'CS_STUDENT · DEVELOPER'
+    const valuePropText = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
+
+    act(() => {
+      vi.advanceTimersByTime(400 + subtitleText.length * 60 + 400 + valuePropText.length * 35)
+    })
+
+    expect(screen.queryByRole('link', { name: /VIEW_WORK →/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /VIEW_RESUME →/i })).not.toBeInTheDocument()
+  })
+
+  it('CTAs appear after value prop completes plus 200ms delay', () => {
+    render(<HeroSection />)
+    const subtitleText = 'CS_STUDENT · DEVELOPER'
+    const valuePropText = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
+
+    act(() => {
+      vi.advanceTimersByTime(400 + subtitleText.length * 60 + 400 + valuePropText.length * 35 + 200)
+    })
+
+    const viewWork = screen.getByRole('link', { name: /VIEW_WORK →/i })
+    const viewResume = screen.getByRole('link', { name: /VIEW_RESUME →/i })
+
+    expect(viewWork).toBeInTheDocument()
+    expect(viewWork).toHaveAttribute('href', '#projects')
+    expect(viewResume).toBeInTheDocument()
+    expect(viewResume).toHaveAttribute('href', '/resume.pdf')
+    expect(viewResume).toHaveAttribute('target', '_blank')
+    expect(viewResume).toHaveAttribute('rel', 'noopener noreferrer')
+  })
+
+  it('VIEW_WORK uses filled tangerine style, VIEW_RESUME uses outlined style', () => {
+    render(<HeroSection />)
+    const subtitleText = 'CS_STUDENT · DEVELOPER'
+    const valuePropText = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
+
+    act(() => {
+      vi.advanceTimersByTime(400 + subtitleText.length * 60 + 400 + valuePropText.length * 35 + 200)
+    })
+
+    const viewWork = screen.getByRole('link', { name: /VIEW_WORK →/i })
+    const viewResume = screen.getByRole('link', { name: /VIEW_RESUME →/i })
+
+    expect(viewWork).toHaveClass('bg-atomic-tangerine')
+    expect(viewWork).toHaveClass('text-graphite')
+    expect(viewResume).toHaveClass('border-atomic-tangerine')
+    expect(viewResume).toHaveClass('text-atomic-tangerine')
   })
 })
