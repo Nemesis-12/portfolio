@@ -3,6 +3,11 @@ import { render, screen, act } from '@testing-library/react'
 import HeroSection from './HeroSection'
 import { cursorVariants } from './HeroSection.constants'
 
+const SUBTITLE_TEXT = 'CS_STUDENT · DEVELOPER'
+const VALUE_PROP_TEXT = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
+const TYPEWRITER_DURATION = 400 + SUBTITLE_TEXT.length * 60 + 400 + VALUE_PROP_TEXT.length * 35
+const CTA_DELAY = 200
+
 describe('HeroSection', () => {
   beforeEach(() => {
     vi.useFakeTimers()
@@ -49,25 +54,23 @@ describe('HeroSection', () => {
 
   it('subtitle completes at 60ms/char and removes its cursor immediately', () => {
     render(<HeroSection />)
-    const subtitleText = 'CS_STUDENT · DEVELOPER'
 
     act(() => {
       vi.advanceTimersByTime(400)
-      vi.advanceTimersByTime(subtitleText.length * 60)
+      vi.advanceTimersByTime(SUBTITLE_TEXT.length * 60)
     })
 
     const subtitle = screen.getByTestId('subtitle')
-    expect(subtitle.textContent).toBe(subtitleText)
+    expect(subtitle.textContent).toBe(SUBTITLE_TEXT)
     expect(screen.queryByTestId('subtitle-cursor')).not.toBeInTheDocument()
   })
 
   it('value prop waits until subtitle completes plus the 400ms gap before typing', () => {
     render(<HeroSection />)
-    const subtitleText = 'CS_STUDENT · DEVELOPER'
     const valueProp = screen.getByTestId('value-prop')
 
     act(() => {
-      vi.advanceTimersByTime(400 + subtitleText.length * 60)
+      vi.advanceTimersByTime(400 + SUBTITLE_TEXT.length * 60)
     })
 
     expect(valueProp.textContent).toBe('')
@@ -90,24 +93,21 @@ describe('HeroSection', () => {
 
   it('value prop completes at 35ms/char and removes its cursor immediately', () => {
     render(<HeroSection />)
-    const subtitleText = 'CS_STUDENT · DEVELOPER'
-    const valuePropText = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
 
     act(() => {
-      vi.advanceTimersByTime(400 + subtitleText.length * 60 + 400 + valuePropText.length * 35)
+      vi.advanceTimersByTime(TYPEWRITER_DURATION)
     })
 
     const valueProp = screen.getByTestId('value-prop')
-    expect(valueProp.textContent).toBe(valuePropText)
+    expect(valueProp.textContent).toBe(VALUE_PROP_TEXT)
     expect(screen.queryByTestId('value-prop-cursor')).not.toBeInTheDocument()
   })
 
   it('cleans up pending typewriter timers when unmounted', () => {
     const { unmount } = render(<HeroSection />)
-    const subtitleText = 'CS_STUDENT · DEVELOPER'
 
     act(() => {
-      vi.advanceTimersByTime(400 + subtitleText.length * 60)
+      vi.advanceTimersByTime(400 + SUBTITLE_TEXT.length * 60)
     })
 
     expect(vi.getTimerCount()).toBeGreaterThan(0)
@@ -119,11 +119,9 @@ describe('HeroSection', () => {
 
   it('shows the VIEW_WORK call-to-action linking to projects section', () => {
     render(<HeroSection />)
-    const subtitleText = 'CS_STUDENT · DEVELOPER'
-    const valuePropText = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
 
     act(() => {
-      vi.advanceTimersByTime(400 + subtitleText.length * 60 + 400 + valuePropText.length * 35 + 200)
+      vi.advanceTimersByTime(TYPEWRITER_DURATION + CTA_DELAY)
     })
 
     const link = screen.getByRole('link', { name: /VIEW_WORK →/i })
@@ -159,24 +157,45 @@ describe('HeroSection', () => {
 
   it('CTAs are absent before typewriter sequence completes', () => {
     render(<HeroSection />)
-    const subtitleText = 'CS_STUDENT · DEVELOPER'
-    const valuePropText = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
 
     act(() => {
-      vi.advanceTimersByTime(400 + subtitleText.length * 60 + 400 + valuePropText.length * 35)
+      vi.advanceTimersByTime(TYPEWRITER_DURATION)
     })
 
     expect(screen.queryByRole('link', { name: /VIEW_WORK →/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /VIEW_RESUME →/i })).not.toBeInTheDocument()
   })
 
-  it('CTAs appear after value prop completes plus 200ms delay', () => {
+  it('CTAs remain absent until the full 200ms post-typewriter delay elapses', () => {
     render(<HeroSection />)
-    const subtitleText = 'CS_STUDENT · DEVELOPER'
-    const valuePropText = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
 
     act(() => {
-      vi.advanceTimersByTime(400 + subtitleText.length * 60 + 400 + valuePropText.length * 35 + 200)
+      vi.advanceTimersByTime(TYPEWRITER_DURATION + CTA_DELAY - 1)
+    })
+
+    expect(screen.queryByRole('link', { name: /VIEW_WORK →/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /VIEW_RESUME →/i })).not.toBeInTheDocument()
+  })
+
+  it('cleans up the pending CTA reveal timer when unmounted', () => {
+    const { unmount } = render(<HeroSection />)
+
+    act(() => {
+      vi.advanceTimersByTime(TYPEWRITER_DURATION)
+    })
+
+    expect(vi.getTimerCount()).toBeGreaterThan(0)
+
+    unmount()
+
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('CTAs appear after value prop completes plus 200ms delay', () => {
+    render(<HeroSection />)
+
+    act(() => {
+      vi.advanceTimersByTime(TYPEWRITER_DURATION + CTA_DELAY)
     })
 
     const viewWork = screen.getByRole('link', { name: /VIEW_WORK →/i })
@@ -192,11 +211,9 @@ describe('HeroSection', () => {
 
   it('VIEW_WORK uses filled tangerine style, VIEW_RESUME uses outlined style', () => {
     render(<HeroSection />)
-    const subtitleText = 'CS_STUDENT · DEVELOPER'
-    const valuePropText = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
 
     act(() => {
-      vi.advanceTimersByTime(400 + subtitleText.length * 60 + 400 + valuePropText.length * 35 + 200)
+      vi.advanceTimersByTime(TYPEWRITER_DURATION + CTA_DELAY)
     })
 
     const viewWork = screen.getByRole('link', { name: /VIEW_WORK →/i })
