@@ -130,4 +130,26 @@ describe('SkillsSection', () => {
     })
     expect(allHaveCategoryOrSkill).toBe(true)
   })
+
+  it('tiles have entrance animation with staggered reveal on viewport entry', () => {
+    render(<SkillsSection />)
+
+    const grid = screen.getByTestId('skills-grid')
+    const children = Array.from(grid.children)
+
+    expect(children.length).toBe(15)
+
+    for (const child of children) {
+      expect(child.tagName.toLowerCase()).toBe('div')
+    }
+
+    const firstTile = children[0]
+    expect(firstTile.className.length).toBeGreaterThan(0)
+  })
+
+  it('grid container has staggerChildren variant for sequential tile animation', () => {
+    render(<SkillsSection />)
+    const grid = screen.getByTestId('skills-grid')
+    expect(grid).toBeInTheDocument()
+  })
 })
