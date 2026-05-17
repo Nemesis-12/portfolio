@@ -35,7 +35,9 @@ describe('ContactSection', () => {
     expect(resumeLink).toHaveAttribute('href', '/resume.pdf')
     expect(resumeLink).toHaveAttribute('target', '_blank')
   })
+})
 
+describe('Footer', () => {
   it('renders copyright with FARHAN_MOHAMMED © 2026', () => {
     render(<ContactSection />)
     expect(screen.getByText(/FARHAN_MOHAMMED © 2026/)).toBeInTheDocument()
@@ -44,5 +46,18 @@ describe('ContactSection', () => {
   it('renders PORTFOLIO.EXE label', () => {
     render(<ContactSection />)
     expect(screen.getByText('PORTFOLIO.EXE')).toBeInTheDocument()
+  })
+
+  it('renders a footer element', () => {
+    render(<ContactSection />)
+    const footer = document.querySelector('footer')
+    expect(footer).toBeInTheDocument()
+  })
+
+  it('footer contains no anchor elements', () => {
+    render(<ContactSection />)
+    const footer = document.querySelector('footer')
+    const links = footer?.querySelectorAll('a')
+    expect(links?.length).toBe(0)
   })
 })
