@@ -89,6 +89,26 @@ describe('SkillsSection', () => {
     expect(heights.length).toBeGreaterThanOrEqual(8)
   })
 
+  it('grid container has min-h-screen or min-h-svh class', () => {
+    render(<SkillsSection />)
+    const grid = screen.getByTestId('skills-grid')
+    const hasMinHeight = grid.classList.contains('min-h-screen') || 
+                         grid.classList.contains('min-h-svh')
+    expect(hasMinHeight).toBe(true)
+  })
+
+  it('grid rows use fr units instead of fixed px values', () => {
+    render(<SkillsSection />)
+    const grid = screen.getByTestId('skills-grid')
+    const rowsClass = Array.from(grid.classList).find(c => c.includes('grid-rows-['))
+    expect(rowsClass).toBeDefined()
+    const match = rowsClass!.match(/grid-rows-\[(.+)\]/)
+    expect(match).not.toBeNull()
+    const rowsValue = match![1]
+    expect(rowsValue).not.toMatch(/\d+px/)
+    expect(rowsValue).toMatch(/fr/)
+  })
+
   it('no accent tile renders at bottom of grid', () => {
     render(<SkillsSection />)
 
