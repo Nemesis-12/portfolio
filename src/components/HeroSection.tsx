@@ -1,4 +1,17 @@
+import { motion, type Variants } from 'framer-motion'
 import { ScrollFadeSection } from './ScrollFadeSection'
+
+export const cursorVariants: Variants = {
+  blink: {
+    opacity: [1, 1, 0, 0, 1],
+    transition: {
+      duration: 1,
+      ease: 'linear',
+      repeat: Infinity,
+      times: [0, 0.49, 0.5, 0.99, 1],
+    },
+  },
+}
 
 const HeroSection: React.FC = () => {
   return (
@@ -17,6 +30,13 @@ const HeroSection: React.FC = () => {
 
         <h1 className="font-display text-5xl text-platinum leading-tight">
           FARHAN MOHAMMED
+          <motion.span
+            data-testid="cursor"
+            aria-hidden="true"
+            className="inline-block w-[3px] h-[1.2em] bg-atomic-tangerine align-middle ml-1"
+            variants={cursorVariants}
+            animate="blink"
+          />
         </h1>
 
         <p className="font-body text-xl text-periwinkle">
