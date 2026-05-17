@@ -1,21 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
-import { motion, type Variants } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { ScrollFadeSection } from './ScrollFadeSection'
-
-export const cursorVariants: Variants = {
-  blink: {
-    opacity: [1, 1, 0, 0, 1],
-    transition: {
-      duration: 1,
-      ease: 'linear',
-      repeat: Infinity,
-      times: [0, 0.49, 0.5, 0.99, 1],
-    },
-  },
-}
+import { cursorVariants } from './HeroSection.constants'
 
 const SUBTITLE = 'CS_STUDENT · DEVELOPER'
 const VALUE_PROP = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
+const INITIAL_DELAY = 400
+const SUBTITLE_SPEED = 60
+const VALUE_PROP_DELAY = 400
+const VALUE_PROP_SPEED = 35
 
 const HeroSection: React.FC = () => {
   const [subtitle, setSubtitle] = useState('')
@@ -25,44 +18,53 @@ const HeroSection: React.FC = () => {
 
   const subtitleRef = useRef(0)
   const valuePropRef = useRef(0)
-  const subtitleTimerRef = useRef<number | null>(null)
-  const valuePropTimerRef = useRef<number | null>(null)
+  const timersRef = useRef<number[]>([])
 
   useEffect(() => {
-    const initialDelay = setTimeout(() => {
-      setShowSubtitleCursor(true)
-      subtitleTimerRef.current = window.setInterval(() => {
-        if (subtitleRef.current < SUBTITLE.length) {
-          setSubtitle(SUBTITLE.slice(0, subtitleRef.current + 1))
-          subtitleRef.current += 1
-        } else {
-          if (subtitleTimerRef.current) {
-            clearInterval(subtitleTimerRef.current)
-          }
-          setShowSubtitleCursor(false)
+    const schedule = (callback: () => void, delay: number) => {
+      const timer = window.setTimeout(callback, delay)
+      timersRef.current.push(timer)
+    }
 
-          setTimeout(() => {
-            setShowValuePropCursor(true)
-            valuePropTimerRef.current = window.setInterval(() => {
-              if (valuePropRef.current < VALUE_PROP.length) {
-                setValueProp(VALUE_PROP.slice(0, valuePropRef.current + 1))
-                valuePropRef.current += 1
-              } else {
-                if (valuePropTimerRef.current) {
-                  clearInterval(valuePropTimerRef.current)
-                }
-                setShowValuePropCursor(false)
-              }
-            }, 35)
-          }, 400)
+    const typeValueProp = () => {
+      setShowValuePropCursor(true)
+
+      schedule(() => {
+        valuePropRef.current += 1
+        setValueProp(VALUE_PROP.slice(0, valuePropRef.current))
+
+        if (valuePropRef.current === VALUE_PROP.length) {
+          setShowValuePropCursor(false)
+          return
         }
-      }, 60)
-    }, 400)
+
+        typeValueProp()
+      }, VALUE_PROP_SPEED)
+    }
+
+    const typeSubtitle = () => {
+      schedule(() => {
+        subtitleRef.current += 1
+        setSubtitle(SUBTITLE.slice(0, subtitleRef.current))
+
+        if (subtitleRef.current === SUBTITLE.length) {
+          setShowSubtitleCursor(false)
+          schedule(typeValueProp, VALUE_PROP_DELAY)
+          return
+        }
+
+        typeSubtitle()
+      }, SUBTITLE_SPEED)
+    }
+
+    schedule(() => {
+      setShowSubtitleCursor(true)
+      typeSubtitle()
+    }, INITIAL_DELAY)
 
     return () => {
-      clearTimeout(initialDelay)
-      if (subtitleTimerRef.current) clearInterval(subtitleTimerRef.current)
-      if (valuePropTimerRef.current) clearInterval(valuePropTimerRef.current)
+      timersRef.current.forEach((timer) => window.clearTimeout(timer))
+      timersRef.current = []
     }
   }, [])
 
@@ -95,6 +97,7 @@ const HeroSection: React.FC = () => {
           {subtitle}
           {showSubtitleCursor && (
             <motion.span
+              data-testid="subtitle-cursor"
               aria-hidden="true"
               className="inline-block w-[3px] h-[1em] bg-atomic-tangerine align-middle ml-0.5"
               variants={cursorVariants}
@@ -107,6 +110,7 @@ const HeroSection: React.FC = () => {
           {valueProp}
           {showValuePropCursor && (
             <motion.span
+              data-testid="value-prop-cursor"
               aria-hidden="true"
               className="inline-block w-[3px] h-[1em] bg-atomic-tangerine align-middle ml-0.5"
               variants={cursorVariants}

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, act } from '@testing-library/react'
-import HeroSection, { cursorVariants } from './HeroSection'
+import HeroSection from './HeroSection'
+import { cursorVariants } from './HeroSection.constants'
 
 describe('HeroSection', () => {
   beforeEach(() => {
@@ -8,6 +9,7 @@ describe('HeroSection', () => {
   })
 
   afterEach(() => {
+    vi.clearAllTimers()
     vi.useRealTimers()
   })
 
@@ -31,14 +33,21 @@ describe('HeroSection', () => {
 
     act(() => {
       vi.advanceTimersByTime(400)
-      vi.advanceTimersByTime(60)
     })
 
     const subtitle = screen.getByTestId('subtitle')
+    expect(subtitle.textContent).toBe('')
+    expect(screen.getByTestId('subtitle-cursor')).toBeInTheDocument()
+
+    act(() => {
+      vi.advanceTimersByTime(60)
+    })
+
     expect(subtitle.textContent).toBe('C')
+    expect(subtitle.lastElementChild).toBe(screen.getByTestId('subtitle-cursor'))
   })
 
-  it('subtitle completes after typing full string at 60ms/char', () => {
+  it('subtitle completes at 60ms/char and removes its cursor immediately', () => {
     render(<HeroSection />)
     const subtitleText = 'CS_STUDENT · DEVELOPER'
 
@@ -49,29 +58,63 @@ describe('HeroSection', () => {
 
     const subtitle = screen.getByTestId('subtitle')
     expect(subtitle.textContent).toBe(subtitleText)
+    expect(screen.queryByTestId('subtitle-cursor')).not.toBeInTheDocument()
   })
 
-  it('value prop starts typing after subtitle completes + 400ms gap', () => {
+  it('value prop waits until subtitle completes plus the 400ms gap before typing', () => {
     render(<HeroSection />)
+    const subtitleText = 'CS_STUDENT · DEVELOPER'
+    const valueProp = screen.getByTestId('value-prop')
 
     act(() => {
-      vi.runAllTimers()
+      vi.advanceTimersByTime(400 + subtitleText.length * 60)
     })
 
-    const valueProp = screen.getByTestId('value-prop')
-    expect(valueProp.textContent).not.toBe('')
+    expect(valueProp.textContent).toBe('')
+    expect(screen.queryByTestId('value-prop-cursor')).not.toBeInTheDocument()
+
+    act(() => {
+      vi.advanceTimersByTime(400)
+    })
+
+    expect(valueProp.textContent).toBe('')
+    expect(screen.getByTestId('value-prop-cursor')).toBeInTheDocument()
+
+    act(() => {
+      vi.advanceTimersByTime(35)
+    })
+
+    expect(valueProp.textContent).toBe('/')
+    expect(valueProp.lastElementChild).toBe(screen.getByTestId('value-prop-cursor'))
   })
 
-  it('value prop completes after typing full string at 35ms/char', () => {
+  it('value prop completes at 35ms/char and removes its cursor immediately', () => {
     render(<HeroSection />)
+    const subtitleText = 'CS_STUDENT · DEVELOPER'
     const valuePropText = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
 
     act(() => {
-      vi.runAllTimers()
+      vi.advanceTimersByTime(400 + subtitleText.length * 60 + 400 + valuePropText.length * 35)
     })
 
     const valueProp = screen.getByTestId('value-prop')
     expect(valueProp.textContent).toBe(valuePropText)
+    expect(screen.queryByTestId('value-prop-cursor')).not.toBeInTheDocument()
+  })
+
+  it('cleans up pending typewriter timers when unmounted', () => {
+    const { unmount } = render(<HeroSection />)
+    const subtitleText = 'CS_STUDENT · DEVELOPER'
+
+    act(() => {
+      vi.advanceTimersByTime(400 + subtitleText.length * 60)
+    })
+
+    expect(vi.getTimerCount()).toBeGreaterThan(0)
+
+    unmount()
+
+    expect(vi.getTimerCount()).toBe(0)
   })
 
   it('shows the VIEW_WORK call-to-action linking to projects section', () => {
