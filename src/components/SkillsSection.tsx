@@ -1,6 +1,28 @@
-import { motion } from 'framer-motion'
+import { motion, useInView } from 'framer-motion'
+import { useRef } from 'react'
 import { hoverEase } from '../animations/variants'
 import { ScrollFadeSection } from './ScrollFadeSection'
+
+const tileStagger = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.4, ease: 'easeOut' as const },
+  },
+}
+
+const gridStagger = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.05 },
+  },
+}
+
+const tileVariants = {
+  ...tileStagger,
+  hover: hoverEase.hover,
+}
 
 type Category = 'LANGUAGE' | 'FRAMEWORK' | 'TOOL' | 'ML / DL' | 'DATA'
 
@@ -56,8 +78,7 @@ const tiles: SkillTile[] = [
 function SkillTileCard({ tile }: { tile: SkillTile }) {
   return (
     <motion.div
-      variants={hoverEase}
-      initial="idle"
+      variants={tileVariants}
       whileHover="hover"
       className={`${tile.colSpan} ${tile.rowSpan} min-h-24 md:min-h-0 p-5 rounded-lg flex flex-col justify-between cursor-default`}
       style={{ backgroundColor: tile.bg, color: tile.fg }}
@@ -73,6 +94,9 @@ function SkillTileCard({ tile }: { tile: SkillTile }) {
 }
 
 export function SkillsSection() {
+  const gridRef = useRef<HTMLDivElement>(null)
+  const isInView = useInView(gridRef, { once: true, margin: '-10% 0px -10% 0px' })
+
   return (
     <ScrollFadeSection id="skills" className="min-h-screen flex flex-col justify-center py-14 px-8 bg-graphite">
       <div className="max-w-7xl mx-auto w-full">
@@ -82,11 +106,18 @@ export function SkillsSection() {
           <hr className="flex-1 border-periwinkle/20" />
         </div>
 
-        <div data-testid="skills-grid" className="grid grid-cols-2 md:grid-cols-4 gap-3 min-h-screen md:grid-rows-[1fr_1.1fr_1fr_1fr_1fr_1fr_1fr_1fr]">
+        <motion.div
+          ref={gridRef}
+          data-testid="skills-grid"
+          variants={gridStagger}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 min-h-screen md:grid-rows-[1fr_1.1fr_1fr_1fr_1fr_1fr_1fr_1fr]"
+        >
           {tiles.map((tile) => (
             <SkillTileCard key={tile.name} tile={tile} />
           ))}
-        </div>
+        </motion.div>
       </div>
     </ScrollFadeSection>
   )

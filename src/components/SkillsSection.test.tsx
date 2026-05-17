@@ -1,6 +1,73 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import type { ReactElement, ReactNode } from 'react'
 import { SkillsSection } from './SkillsSection'
+
+const motionMock = vi.hoisted(() => ({
+  isInView: false,
+  divProps: [] as Array<Record<string, unknown>>,
+  useInView: vi.fn(),
+}))
+
+vi.mock('framer-motion', async () => {
+  const React = await vi.importActual<typeof import('react')>('react')
+
+  function getText(children: unknown): string {
+    if (children == null || typeof children === 'boolean') {
+      return ''
+    }
+
+    if (typeof children === 'string' || typeof children === 'number') {
+      return String(children)
+    }
+
+    if (Array.isArray(children)) {
+      return children.map(getText).join('')
+    }
+
+    if (React.isValidElement(children)) {
+      const element = children as ReactElement<{ children?: unknown }>
+      return getText(element.props.children)
+    }
+
+    return ''
+  }
+
+  function createMotionComponent(tagName: 'div' | 'section') {
+    return React.forwardRef<HTMLElement, Record<string, unknown>>(function MockMotionComponent(props, ref) {
+      const {
+        animate,
+        children,
+        initial,
+        transition,
+        variants,
+        whileHover,
+        ...domProps
+      } = props
+
+      if (tagName === 'div') {
+        motionMock.divProps.push({
+          animate,
+          initial,
+          text: getText(children),
+          transition,
+          variants,
+          whileHover,
+        })
+      }
+
+      return React.createElement(tagName, { ...domProps, ref }, children as ReactNode)
+    })
+  }
+
+  return {
+    motion: {
+      div: createMotionComponent('div'),
+      section: createMotionComponent('section'),
+    },
+    useInView: motionMock.useInView.mockImplementation(() => motionMock.isInView),
+  }
+})
 
 function getExplicitGridRows() {
   const grid = screen.getByTestId('skills-grid')
@@ -14,6 +81,12 @@ function getExplicitGridRows() {
 }
 
 describe('SkillsSection', () => {
+  beforeEach(() => {
+    motionMock.isInView = false
+    motionMock.divProps = []
+    motionMock.useInView.mockClear()
+  })
+
   it('renders a section element with id="skills"', () => {
     render(<SkillsSection />)
     const section = document.getElementById('skills')
@@ -129,5 +202,58 @@ describe('SkillsSection', () => {
              /Python|TypeScript|JavaScript|C \/ C\+\+|SQL|Docker|Git|Ansible|Linux|NumPy|Pandas|FastAPI|PyTorch|Hugging Face|Scikit-learn/.test(text)
     })
     expect(allHaveCategoryOrSkill).toBe(true)
+  })
+
+  it('tiles animate from hidden opacity and scale to visible opacity and scale', () => {
+    render(<SkillsSection />)
+
+    const tileAnimations = motionMock.divProps.filter(props => props.text !== undefined && props.text !== '')
+
+    expect(tileAnimations).toHaveLength(15)
+
+    for (const tileAnimation of tileAnimations) {
+      expect(tileAnimation.variants).toMatchObject({
+        hidden: { opacity: 0, scale: 0.95 },
+        visible: {
+          opacity: 1,
+          scale: 1,
+          transition: { duration: 0.4, ease: 'easeOut' },
+        },
+      })
+      expect(tileAnimation.initial).toBeUndefined()
+      expect(tileAnimation.whileHover).toBe('hover')
+    }
+  })
+
+  it('grid staggers tile animation and switches to visible on viewport entry once', () => {
+    motionMock.isInView = true
+
+    render(<SkillsSection />)
+
+    const gridAnimation = motionMock.divProps.find(props => props.text === '')
+
+    expect(gridAnimation).toMatchObject({
+      animate: 'visible',
+      initial: 'hidden',
+      variants: {
+        hidden: {},
+        visible: { transition: { staggerChildren: 0.05 } },
+      },
+    })
+    expect(motionMock.useInView).toHaveBeenCalledWith(
+      expect.objectContaining({ current: expect.any(HTMLElement) }),
+      { once: true, margin: '-10% 0px -10% 0px' },
+    )
+  })
+
+  it('keeps tile animation hidden until the skills grid enters the viewport', () => {
+    render(<SkillsSection />)
+
+    const gridAnimation = motionMock.divProps.find(props => props.text === '')
+
+    expect(gridAnimation).toMatchObject({
+      animate: 'hidden',
+      initial: 'hidden',
+    })
   })
 })
