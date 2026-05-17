@@ -2,6 +2,17 @@ import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { SkillsSection } from './SkillsSection'
 
+function getExplicitGridRows() {
+  const grid = screen.getByTestId('skills-grid')
+  const rowsClass = Array.from(grid.classList).find(className => className.includes('grid-rows-['))
+  expect(rowsClass).toBeDefined()
+
+  const match = rowsClass!.match(/grid-rows-\[(.+)\]/)
+  expect(match).not.toBeNull()
+
+  return match![1].split('_')
+}
+
 describe('SkillsSection', () => {
   it('renders a section element with id="skills"', () => {
     render(<SkillsSection />)
@@ -43,15 +54,9 @@ describe('SkillsSection', () => {
     expect(children.length).toBe(15)
   })
 
-  it('desktop grid has an explicit grid-rows class with at least 3 distinct row heights', () => {
+  it('desktop grid has an explicit grid-rows class with varied row heights', () => {
     render(<SkillsSection />)
-    const grid = screen.getByTestId('skills-grid')
-    const rowsClass = Array.from(grid.classList).find(c => c.includes('grid-rows-['))
-    expect(rowsClass).toBeDefined()
-
-    const match = rowsClass!.match(/grid-rows-\[(.+)\]/)
-    expect(match).not.toBeNull()
-    const heights = match![1].split('_')
+    const heights = getExplicitGridRows()
     expect(new Set(heights).size).toBeGreaterThanOrEqual(2)
   })
 
@@ -80,12 +85,7 @@ describe('SkillsSection', () => {
 
   it('grid defines at least 8 explicit rows to accommodate Python row-span-3 layout', () => {
     render(<SkillsSection />)
-    const grid = screen.getByTestId('skills-grid')
-    const rowsClass = Array.from(grid.classList).find(c => c.includes('grid-rows-['))
-    expect(rowsClass).toBeDefined()
-    const match = rowsClass!.match(/grid-rows-\[(.+)\]/)
-    expect(match).not.toBeNull()
-    const heights = match![1].split('_')
+    const heights = getExplicitGridRows()
     expect(heights.length).toBeGreaterThanOrEqual(8)
   })
 
@@ -99,14 +99,18 @@ describe('SkillsSection', () => {
 
   it('grid rows use fr units instead of fixed px values', () => {
     render(<SkillsSection />)
+    const rows = getExplicitGridRows()
+
+    expect(rows.every(row => /^(\d+|\d*\.\d+)fr$/.test(row))).toBe(true)
+  })
+
+  it('grid stays within the max-w-7xl section container', () => {
+    render(<SkillsSection />)
     const grid = screen.getByTestId('skills-grid')
-    const rowsClass = Array.from(grid.classList).find(c => c.includes('grid-rows-['))
-    expect(rowsClass).toBeDefined()
-    const match = rowsClass!.match(/grid-rows-\[(.+)\]/)
-    expect(match).not.toBeNull()
-    const rowsValue = match![1]
-    expect(rowsValue).not.toMatch(/\d+px/)
-    expect(rowsValue).toMatch(/fr/)
+
+    expect(grid.parentElement).not.toBeNull()
+    expect(grid.parentElement!.classList).toContain('max-w-7xl')
+    expect(grid.parentElement!.classList).toContain('w-full')
   })
 
   it('no accent tile renders at bottom of grid', () => {
