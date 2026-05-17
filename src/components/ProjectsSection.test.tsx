@@ -56,6 +56,19 @@ describe('ProjectsSection', () => {
     expect(images[0]).toHaveAttribute('src', 'https://example.com/image1.png')
   })
 
+  it('omits image and placeholder elements when no image is provided', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    expect(screen.queryByAltText('Project Two screenshot')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('project-2-placeholder')).not.toBeInTheDocument()
+
+    expect(screen.getByRole('heading', { name: 'Project Two' })).toBeInTheDocument()
+    expect(screen.getByText('Description for project two')).toBeInTheDocument()
+    expect(screen.getByText('Node.js')).toBeInTheDocument()
+    expect(screen.getByText('Express')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '// Docs ↗' })).toHaveAttribute('href', 'https://docs.project2.com')
+  })
+
   it('renders project cards matching the entries in projects data', () => {
     render(<ProjectsSection projects={mockProjects} />)
 

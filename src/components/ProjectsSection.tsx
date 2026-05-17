@@ -17,7 +17,7 @@ const TAG_COLORS = [
 const NOTCH = 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)'
 
 function getTagStyle(tagIndex: number) {
-  const color = TAG_COLORS[tagIndex % 4]
+  const color = TAG_COLORS[tagIndex % TAG_COLORS.length]
   return { backgroundColor: color.bg, color: color.fg }
 }
 
@@ -54,7 +54,6 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
       className="relative"
       style={{ clipPath: NOTCH }}
     >
-      {/* Card background */}
       <div className="relative bg-platinum p-5">
         {project.image && (
           <div className="mb-4 overflow-hidden" style={{ backgroundColor: '#3A3B3A' }}>
