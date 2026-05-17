@@ -1,8 +1,18 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, act } from '@testing-library/react'
+import { useInView } from 'framer-motion'
 import TimelineSection from './TimelineSection'
 
+vi.mock('framer-motion', async () => {
+  const actual = await vi.importActual<typeof import('framer-motion')>('framer-motion')
+  return { ...actual, useInView: vi.fn().mockReturnValue(false) }
+})
+
 describe('TimelineSection', () => {
+  beforeEach(() => {
+    vi.mocked(useInView).mockReturnValue(false)
+  })
+
   it('each entry has min-h-screen', () => {
     render(<TimelineSection />)
     const commitEntries = screen.getAllByTestId('commit-entry')
@@ -35,5 +45,67 @@ describe('TimelineSection', () => {
     institutionElements.forEach(el => expect(el).toHaveTextContent(''))
     roleElements.forEach(el => expect(el).toHaveTextContent(''))
     descriptionElements.forEach(el => expect(el).toHaveTextContent(''))
+  })
+
+  describe('issue #47 - scroll-triggered typewriter', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('text begins populating when entry enters the viewport', () => {
+      vi.mocked(useInView).mockReturnValue(true)
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      // Advance past first field's typing: "commit a3f9d2b" = 15 chars × 30ms = 450ms
+      act(() => { vi.advanceTimersByTime(1000) })
+
+      screen.getAllByTestId('commit-hash').forEach(el => {
+        expect(el.textContent).not.toBe('')
+      })
+    })
+
+    it('all text fields complete with expected content', () => {
+      vi.mocked(useInView).mockReturnValue(true)
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      // Longest entry: NetApp description ~351 chars → 1000ms delay + 351×30ms ≈ 11.5s
+      act(() => { vi.advanceTimersByTime(15000) })
+
+      const hashes = screen.getAllByTestId('commit-hash')
+      expect(hashes[0].textContent).toBe('commit a3f9d2b')
+      expect(hashes[1].textContent).toBe('commit b7c3e1a')
+      expect(hashes[2].textContent).toBe('commit d4e8f2c')
+
+      screen.getAllByTestId('commit-author').forEach(el => {
+        expect(el.textContent).toBe('Author: Farhan Mohammed')
+      })
+    })
+
+    it('typing does not restart when viewport is re-entered', () => {
+      vi.mocked(useInView).mockReturnValue(true)
+      vi.useFakeTimers()
+
+      const { rerender } = render(<TimelineSection />)
+
+      act(() => { vi.advanceTimersByTime(15000) })
+
+      const completedHashes = screen.getAllByTestId('commit-hash').map(el => el.textContent)
+
+      // Simulate scroll-out then scroll-in again
+      vi.mocked(useInView).mockReturnValue(false)
+      rerender(<TimelineSection />)
+      vi.mocked(useInView).mockReturnValue(true)
+      rerender(<TimelineSection />)
+
+      act(() => { vi.advanceTimersByTime(15000) })
+
+      screen.getAllByTestId('commit-hash').forEach((el, i) => {
+        expect(el.textContent).toBe(completedHashes[i])
+      })
+    })
   })
 })
