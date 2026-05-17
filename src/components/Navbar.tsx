@@ -14,6 +14,7 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [activeSection, setActiveSection] = useState<string>('')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [hoveredLink, setHoveredLink] = useState<string | null>(null)
 
   useEffect(() => {
     const sections = document.querySelectorAll('section[id]')
@@ -42,6 +43,7 @@ export default function Navbar() {
         <ul className="hidden md:flex gap-8 list-none m-0 p-0">
           {NAV_LINKS.map(({ label, href }) => {
             const isActive = activeSection === href.slice(1)
+            const isHovered = hoveredLink === label
             return (
               <li key={label}>
                 <motion.a
@@ -49,8 +51,16 @@ export default function Navbar() {
                   variants={hoverEase}
                   initial="idle"
                   whileHover="hover"
-                  className={`font-body text-sm no-underline pb-0.5${isActive ? ' text-atomic-tangerine border-b-2 border-atomic-tangerine' : ' text-platinum'}`}
+                  onMouseEnter={() => setHoveredLink(label)}
+                  onMouseLeave={() => setHoveredLink(null)}
+                  className={`group font-body text-sm no-underline pb-0.5${isActive ? ' text-atomic-tangerine border-b-2 border-atomic-tangerine' : ' text-platinum'}`}
                 >
+                  <span
+                    style={{ opacity: isHovered ? 1 : 0 }}
+                    className="transition-opacity duration-200"
+                  >
+                    &gt;{' '}
+                  </span>
                   {label}
                 </motion.a>
               </li>

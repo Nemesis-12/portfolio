@@ -140,4 +140,43 @@ describe('Navbar', () => {
       expect(innerContainer!.className).toContain('px-8')
     })
   })
+
+  describe('issue #42 - > prefix on hover', () => {
+    it('nav link shows > prefix on hover', async () => {
+      const user = userEvent.setup()
+      render(<Navbar />)
+
+      const homeLink = screen.getByRole('link', { name: /home/i })
+      const prefixSpan = homeLink.querySelector('span')
+      expect(prefixSpan).not.toBeNull()
+      expect(prefixSpan!.textContent).toBe('> ')
+      expect(prefixSpan!.style.opacity).toBe('0')
+
+      await user.hover(homeLink)
+      expect(prefixSpan!.style.opacity).toBe('1')
+
+      await user.unhover(homeLink)
+      expect(prefixSpan!.style.opacity).toBe('0')
+    })
+
+    it('> prefix appears on hover for all nav links', async () => {
+      const user = userEvent.setup()
+      render(<Navbar />)
+
+      const labels = ['HOME', 'PROJECTS', 'SKILLS', 'TIMELINE', 'CONTACT']
+      for (const label of labels) {
+        const link = screen.getByRole('link', { name: new RegExp(label, 'i') })
+        const prefixSpan = link.querySelector('span')
+        expect(prefixSpan).not.toBeNull()
+        expect(prefixSpan!.textContent).toBe('> ')
+        expect(prefixSpan!.style.opacity).toBe('0')
+
+        await user.hover(link)
+        expect(prefixSpan!.style.opacity).toBe('1')
+
+        await user.unhover(link)
+        expect(prefixSpan!.style.opacity).toBe('0')
+      }
+    })
+  })
 })
