@@ -1,16 +1,77 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, act } from '@testing-library/react'
 import HeroSection, { cursorVariants } from './HeroSection'
 
 describe('HeroSection', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('shows the developer name', () => {
     render(<HeroSection />)
     expect(screen.getByText('FARHAN MOHAMMED')).toBeInTheDocument()
   })
 
-  it('shows the subtitle', () => {
+  it('subtitle and value prop are empty initially', () => {
     render(<HeroSection />)
-    expect(screen.getByText('CS_STUDENT · DEVELOPER')).toBeInTheDocument()
+
+    const subtitle = screen.getByTestId('subtitle')
+    const valueProp = screen.getByTestId('value-prop')
+
+    expect(subtitle.textContent).toBe('')
+    expect(valueProp.textContent).toBe('')
+  })
+
+  it('subtitle starts typing after 400ms delay', () => {
+    render(<HeroSection />)
+
+    act(() => {
+      vi.advanceTimersByTime(400)
+      vi.advanceTimersByTime(60)
+    })
+
+    const subtitle = screen.getByTestId('subtitle')
+    expect(subtitle.textContent).toBe('C')
+  })
+
+  it('subtitle completes after typing full string at 60ms/char', () => {
+    render(<HeroSection />)
+    const subtitleText = 'CS_STUDENT · DEVELOPER'
+
+    act(() => {
+      vi.advanceTimersByTime(400)
+      vi.advanceTimersByTime(subtitleText.length * 60)
+    })
+
+    const subtitle = screen.getByTestId('subtitle')
+    expect(subtitle.textContent).toBe(subtitleText)
+  })
+
+  it('value prop starts typing after subtitle completes + 400ms gap', () => {
+    render(<HeroSection />)
+
+    act(() => {
+      vi.runAllTimers()
+    })
+
+    const valueProp = screen.getByTestId('value-prop')
+    expect(valueProp.textContent).not.toBe('')
+  })
+
+  it('value prop completes after typing full string at 35ms/char', () => {
+    render(<HeroSection />)
+    const valuePropText = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
+
+    act(() => {
+      vi.runAllTimers()
+    })
+
+    const valueProp = screen.getByTestId('value-prop')
+    expect(valueProp.textContent).toBe(valuePropText)
   })
 
   it('shows the VIEW_WORK call-to-action linking to projects section', () => {
