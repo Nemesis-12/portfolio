@@ -1,63 +1,58 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import ContactSection from './ContactSection'
 
 describe('ContactSection', () => {
-  it('renders the // 04 CONTACT section label', () => {
+  it('renders a contact section with only the CTA heading and contact links', () => {
     render(<ContactSection />)
-    expect(screen.getByText('// 04 CONTACT')).toBeInTheDocument()
+    const section = document.querySelector('#contact') as HTMLElement
+
+    expect(section).toBeInTheDocument()
+    expect(within(section).getByRole('heading', { name: /LET'S CONNECT\./i })).toBeInTheDocument()
+
+    const links = within(section).getAllByRole('link')
+    expect(links.map((link) => link.textContent)).toEqual([
+      'SEND_MESSAGE →',
+      '// GITHUB',
+      '// LINKEDIN',
+      '// EMAIL',
+      '// RESUME',
+    ])
+
+    expect(section).not.toHaveTextContent('// 04 CONTACT')
+    expect(section).not.toHaveTextContent('FARHAN_MOHAMMED © 2026')
+    expect(section).not.toHaveTextContent('PORTFOLIO.EXE')
   })
 
-  it('renders LET\'S CONNECT. as an h2 heading', () => {
+  it('renders contact links with the expected destinations', () => {
     render(<ContactSection />)
-    const heading = screen.getByRole('heading', { name: /LET'S CONNECT\./i })
-    expect(heading).toBeInTheDocument()
-  })
+    const sendMessageLink = screen.getByRole('link', { name: 'SEND_MESSAGE →' })
+    const emailLink = screen.getByRole('link', { name: '// EMAIL' })
+    const resumeLink = screen.getByRole('link', { name: '// RESUME' })
 
-  it('renders SEND_MESSAGE → as a mailto link', () => {
-    render(<ContactSection />)
-    const link = screen.getByRole('link', { name: /SEND_MESSAGE →/ })
-    expect(link).toBeInTheDocument()
-    expect(link).toHaveAttribute('href', expect.stringMatching(/^mailto:/))
-  })
-
-  it('renders footer links: GITHUB, LINKEDIN, EMAIL, RESUME', () => {
-    render(<ContactSection />)
-    expect(screen.getByText('// GITHUB')).toBeInTheDocument()
-    expect(screen.getByText('// LINKEDIN')).toBeInTheDocument()
-    expect(screen.getByText('// EMAIL')).toBeInTheDocument()
-    expect(screen.getByText('// RESUME')).toBeInTheDocument()
-  })
-
-  it('renders resume link with target="_blank" pointing to resume.pdf', () => {
-    render(<ContactSection />)
-    const resumeLink = screen.getByText('// RESUME').closest('a')
+    expect(sendMessageLink).toHaveAttribute('href', expect.stringMatching(/^mailto:/))
+    expect(emailLink).toHaveAttribute('href', expect.stringMatching(/^mailto:/))
     expect(resumeLink).toHaveAttribute('href', '/resume.pdf')
     expect(resumeLink).toHaveAttribute('target', '_blank')
   })
 })
 
 describe('Footer', () => {
-  it('renders copyright with FARHAN_MOHAMMED © 2026', () => {
+  it('renders a separate footer with only static labels', () => {
     render(<ContactSection />)
-    expect(screen.getByText(/FARHAN_MOHAMMED © 2026/)).toBeInTheDocument()
-  })
-
-  it('renders PORTFOLIO.EXE label', () => {
-    render(<ContactSection />)
-    expect(screen.getByText('PORTFOLIO.EXE')).toBeInTheDocument()
-  })
-
-  it('renders a footer element', () => {
-    render(<ContactSection />)
+    const section = document.querySelector('#contact')
     const footer = document.querySelector('footer')
+
     expect(footer).toBeInTheDocument()
-  })
-
-  it('footer contains no anchor elements', () => {
-    render(<ContactSection />)
-    const footer = document.querySelector('footer')
-    const links = footer?.querySelectorAll('a')
-    expect(links?.length).toBe(0)
+    expect(section?.nextElementSibling).toBe(footer)
+    expect(footer).toHaveTextContent('FARHAN_MOHAMMED © 2026')
+    expect(footer).toHaveTextContent('PORTFOLIO.EXE')
+    expect(Array.from(footer?.children ?? []).map((child) => child.textContent)).toEqual([
+      'FARHAN_MOHAMMED © 2026',
+      'PORTFOLIO.EXE',
+    ])
+    expect(footer).not.toHaveTextContent("LET'S CONNECT.")
+    expect(footer).not.toHaveTextContent('SEND_MESSAGE →')
+    expect(footer?.querySelectorAll('a, button, input, select, textarea, [tabindex]').length).toBe(0)
   })
 })
