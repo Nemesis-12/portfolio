@@ -10,11 +10,20 @@ const SUBTITLE_SPEED = 60
 const VALUE_PROP_DELAY = 400
 const VALUE_PROP_SPEED = 35
 
+const CTA_DELAY = 200
+const CTA_FADE_DURATION = 0.4
+
+const ctaVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0 },
+}
+
 const HeroSection: React.FC = () => {
   const [subtitle, setSubtitle] = useState('')
   const [valueProp, setValueProp] = useState('')
   const [showSubtitleCursor, setShowSubtitleCursor] = useState(false)
   const [showValuePropCursor, setShowValuePropCursor] = useState(false)
+  const [showCTAs, setShowCTAs] = useState(false)
 
   const subtitleRef = useRef(0)
   const valuePropRef = useRef(0)
@@ -35,6 +44,7 @@ const HeroSection: React.FC = () => {
 
         if (valuePropRef.current === VALUE_PROP.length) {
           setShowValuePropCursor(false)
+          schedule(() => setShowCTAs(true), CTA_DELAY)
           return
         }
 
@@ -119,12 +129,30 @@ const HeroSection: React.FC = () => {
           )}
         </p>
 
-        <a
-          href="#projects"
-          className="inline-block px-6 py-2 border border-atomic-tangerine text-sm font-body text-atomic-tangerine hover:bg-atomic-tangerine/10 transition-colors duration-200"
-        >
-          VIEW_WORK →
-        </a>
+        {showCTAs && (
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={ctaVariants}
+            transition={{ duration: CTA_FADE_DURATION }}
+            className="flex gap-4"
+          >
+            <a
+              href="#projects"
+              className="inline-block px-6 py-2 bg-atomic-tangerine text-graphite text-sm font-body hover:bg-atomic-tangerine/90 transition-colors duration-200"
+            >
+              VIEW_WORK →
+            </a>
+            <a
+              href="/resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-6 py-2 border border-atomic-tangerine text-atomic-tangerine text-sm font-body hover:bg-atomic-tangerine/10 transition-colors duration-200"
+            >
+              VIEW_RESUME →
+            </a>
+          </motion.div>
+        )}
       </div>
     </ScrollFadeSection>
   )
