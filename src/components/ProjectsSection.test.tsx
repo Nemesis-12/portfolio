@@ -56,24 +56,6 @@ describe('ProjectsSection', () => {
     expect(images[0]).toHaveAttribute('src', 'https://example.com/image1.png')
   })
 
-  it('renders color placeholder when no image provided', () => {
-    render(<ProjectsSection projects={mockProjects} />)
-
-    const images = screen.getAllByRole('img')
-    expect(images).toHaveLength(1)
-
-    expect(screen.queryByAltText('Project Two screenshot')).not.toBeInTheDocument()
-
-    expect(screen.getByTestId('project-2-placeholder')).toBeInTheDocument()
-  })
-
-  it('placeholder uses vivid palette color, not a dark shade', () => {
-    render(<ProjectsSection projects={mockProjects} />)
-
-    const placeholder = screen.getByTestId('project-2-placeholder')
-    expect(placeholder).toHaveStyle({ backgroundColor: '#5200E0' })
-  })
-
   it('renders project cards matching the entries in projects data', () => {
     render(<ProjectsSection projects={mockProjects} />)
 

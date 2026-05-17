@@ -14,22 +14,11 @@ const TAG_COLORS = [
   { bg: '#FFCE47', fg: '#050609' },
 ]
 
-const PLACEHOLDER_COLORS = [
-  '#E0007F',
-  '#5200E0',
-  '#FF8547',
-  '#FFCE47',
-]
-
 const NOTCH = 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)'
 
 function getTagStyle(tagIndex: number) {
   const color = TAG_COLORS[tagIndex % 4]
   return { backgroundColor: color.bg, color: color.fg }
-}
-
-function getPlaceholderColor(projectIndex: number) {
-  return PLACEHOLDER_COLORS[projectIndex % 4]
 }
 
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
@@ -43,8 +32,8 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {projects.map((project, projectIndex) => (
-            <ProjectCard key={project.id} project={project} projectIndex={projectIndex} />
+          {projects.map((project) => (
+            <ProjectCard key={project.id} project={project} />
           ))}
         </div>
       </div>
@@ -52,9 +41,8 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
   )
 }
 
-const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ project, projectIndex }) => {
+const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
   const [isHovered, setIsHovered] = useState(false)
-  const placeholderColor = getPlaceholderColor(projectIndex)
 
   return (
     <motion.div
@@ -68,7 +56,7 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
     >
       {/* Card background */}
       <div className="relative bg-platinum p-5">
-        {project.image ? (
+        {project.image && (
           <div className="mb-4 overflow-hidden" style={{ backgroundColor: '#3A3B3A' }}>
             <img
               src={project.image}
@@ -76,12 +64,6 @@ const ProjectCard: React.FC<{ project: Project; projectIndex: number }> = ({ pro
               className="w-full h-40 object-cover"
             />
           </div>
-        ) : (
-          <div
-            data-testid={`project-${project.id}-placeholder`}
-            className="mb-4 h-40"
-            style={{ backgroundColor: placeholderColor }}
-          />
         )}
 
         <div className="flex items-center gap-3 mb-2">
