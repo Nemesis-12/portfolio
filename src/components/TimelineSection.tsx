@@ -85,7 +85,6 @@ function CommitEntry({ entry }: { entry: TimelineEntry }) {
         timersRef.current.push(timeoutId)
       })
 
-      // Handle bullets typewriter effect
       const bulletDelayStart = 1000
       entry.bullets.forEach((bullet, index) => {
         const timeoutId = setTimeout(() => {
@@ -94,7 +93,7 @@ function CommitEntry({ entry }: { entry: TimelineEntry }) {
             newBullets[index] = ''
             return newBullets
           })
-          
+
           let i = 0
           const interval = setInterval(() => {
             if (i <= bullet.length) {

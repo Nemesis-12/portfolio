@@ -13,6 +13,10 @@ describe('TimelineSection', () => {
     vi.mocked(useInView).mockReturnValue(false)
   })
 
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('each entry has min-h-screen', () => {
     render(<TimelineSection />)
     const commitEntries = screen.getAllByTestId('commit-entry')
@@ -55,19 +59,17 @@ describe('TimelineSection', () => {
     act(() => { vi.advanceTimersByTime(15000) })
 
     const commitEntries = screen.getAllByTestId('commit-entry')
-    
-    // NetApp entry (index 2) should have 4 bullets as li elements
-    const netAppEntry = commitEntries[2]
-    const ulElements = netAppEntry.querySelectorAll('ul')
-    const liElements = netAppEntry.querySelectorAll('li')
-    
-    expect(ulElements.length).toBeGreaterThan(0)
-    expect(liElements.length).toBe(4)
-    
-    // Verify no p tags are used for bullet content inside the ul
-    liElements.forEach(li => {
-      expect(li.tagName).toBe('LI')
-    })
+
+    expect(commitEntries[0].querySelector('ul')).not.toBeInTheDocument()
+    expect(commitEntries[0].querySelectorAll('li')).toHaveLength(0)
+
+    expect(commitEntries[1].querySelectorAll('ul')).toHaveLength(1)
+    expect(commitEntries[1].querySelectorAll('li')).toHaveLength(2)
+    expect(commitEntries[1].querySelectorAll('ul p')).toHaveLength(0)
+
+    expect(commitEntries[2].querySelectorAll('ul')).toHaveLength(1)
+    expect(commitEntries[2].querySelectorAll('li')).toHaveLength(4)
+    expect(commitEntries[2].querySelectorAll('ul p')).toHaveLength(0)
   })
 
   it('has bullets with correct resume text', () => {
@@ -77,12 +79,16 @@ describe('TimelineSection', () => {
     render(<TimelineSection />)
     act(() => { vi.advanceTimersByTime(15000) })
 
-    const allLiElements = document.querySelectorAll('li')
-    const bulletTexts = Array.from(allLiElements).map(li => li.textContent)
-    
-    expect(bulletTexts).toContain('Built automated analysis pipeline processing storage telemetry across distributed RAID systems (FC, SAS, NVMe/RoCE), handling terabytes of performance data.')
-    expect(bulletTexts).toContain("Dean's List: Spring 2022 – Fall 2025")
-    expect(bulletTexts).toContain('Relevant Coursework: Machine Learning, Artificial Intelligence, Fundamentals of AI Agents, Data Science')
+    const bulletTexts = screen.getAllByTestId('commit-description').map(li => li.textContent)
+
+    expect(bulletTexts).toEqual([
+      "Dean's List: Spring 2022 – Fall 2025",
+      'Relevant Coursework: Machine Learning, Artificial Intelligence, Fundamentals of AI Agents, Data Science',
+      'Built automated analysis pipeline processing storage telemetry across distributed RAID systems (FC, SAS, NVMe/RoCE), handling terabytes of performance data.',
+      'Designed Python automation framework reducing manual configuration tasks by 30% across Linux, Windows, and VMware infrastructure.',
+      'Implemented Ansible-based deployment orchestration for 300+ system configurations, streamlining infrastructure provisioning workflows.',
+      'Developed interactive visualization dashboard for system performance metrics using Python, analyzing 1M+ database entries for engineering insights.',
+    ])
   })
 
   it('renders timeline section labels in pixel display typography', () => {
@@ -104,10 +110,6 @@ describe('TimelineSection', () => {
   })
 
   describe('issue #47 - scroll-triggered typewriter', () => {
-    afterEach(() => {
-      vi.useRealTimers()
-    })
-
     it('text begins populating when entry enters the viewport', () => {
       vi.mocked(useInView).mockReturnValue(true)
       vi.useFakeTimers()
