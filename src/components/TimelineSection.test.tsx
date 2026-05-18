@@ -13,6 +13,10 @@ describe('TimelineSection', () => {
     vi.mocked(useInView).mockReturnValue(false)
   })
 
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('each entry has min-h-screen', () => {
     render(<TimelineSection />)
     const commitEntries = screen.getAllByTestId('commit-entry')
@@ -30,21 +34,61 @@ describe('TimelineSection', () => {
     const dateElements = screen.getAllByTestId('commit-date')
     const institutionElements = screen.getAllByTestId('commit-institution')
     const roleElements = screen.getAllByTestId('commit-role')
-    const descriptionElements = screen.getAllByTestId('commit-description')
+    const bulletElements = screen.getAllByTestId('commit-description')
 
     expect(hashElements.length).toBe(3)
     expect(authorElements.length).toBe(3)
     expect(dateElements.length).toBe(3)
     expect(institutionElements.length).toBe(3)
     expect(roleElements.length).toBe(3)
-    expect(descriptionElements.length).toBe(3)
+    expect(bulletElements.length).toBe(6)
 
     hashElements.forEach(el => expect(el).toHaveTextContent(''))
     authorElements.forEach(el => expect(el).toHaveTextContent(''))
     dateElements.forEach(el => expect(el).toHaveTextContent(''))
     institutionElements.forEach(el => expect(el).toHaveTextContent(''))
     roleElements.forEach(el => expect(el).toHaveTextContent(''))
-    descriptionElements.forEach(el => expect(el).toHaveTextContent(''))
+    bulletElements.forEach(el => expect(el).toHaveTextContent(''))
+  })
+
+  it('renders bullets as li elements in ul, not as p elements', () => {
+    vi.mocked(useInView).mockReturnValue(true)
+    vi.useFakeTimers()
+
+    render(<TimelineSection />)
+    act(() => { vi.advanceTimersByTime(15000) })
+
+    const commitEntries = screen.getAllByTestId('commit-entry')
+
+    expect(commitEntries[0].querySelector('ul')).not.toBeInTheDocument()
+    expect(commitEntries[0].querySelectorAll('li')).toHaveLength(0)
+
+    expect(commitEntries[1].querySelectorAll('ul')).toHaveLength(1)
+    expect(commitEntries[1].querySelectorAll('li')).toHaveLength(2)
+    expect(commitEntries[1].querySelectorAll('ul p')).toHaveLength(0)
+
+    expect(commitEntries[2].querySelectorAll('ul')).toHaveLength(1)
+    expect(commitEntries[2].querySelectorAll('li')).toHaveLength(4)
+    expect(commitEntries[2].querySelectorAll('ul p')).toHaveLength(0)
+  })
+
+  it('has bullets with correct resume text', () => {
+    vi.mocked(useInView).mockReturnValue(true)
+    vi.useFakeTimers()
+
+    render(<TimelineSection />)
+    act(() => { vi.advanceTimersByTime(15000) })
+
+    const bulletTexts = screen.getAllByTestId('commit-description').map(li => li.textContent)
+
+    expect(bulletTexts).toEqual([
+      "Dean's List: Spring 2022 – Fall 2025",
+      'Relevant Coursework: Machine Learning, Artificial Intelligence, Fundamentals of AI Agents, Data Science',
+      'Built automated analysis pipeline processing storage telemetry across distributed RAID systems (FC, SAS, NVMe/RoCE), handling terabytes of performance data.',
+      'Designed Python automation framework reducing manual configuration tasks by 30% across Linux, Windows, and VMware infrastructure.',
+      'Implemented Ansible-based deployment orchestration for 300+ system configurations, streamlining infrastructure provisioning workflows.',
+      'Developed interactive visualization dashboard for system performance metrics using Python, analyzing 1M+ database entries for engineering insights.',
+    ])
   })
 
   it('renders timeline section labels in pixel display typography', () => {
@@ -66,10 +110,6 @@ describe('TimelineSection', () => {
   })
 
   describe('issue #47 - scroll-triggered typewriter', () => {
-    afterEach(() => {
-      vi.useRealTimers()
-    })
-
     it('text begins populating when entry enters the viewport', () => {
       vi.mocked(useInView).mockReturnValue(true)
       vi.useFakeTimers()
