@@ -54,6 +54,14 @@ describe('HeroSection', () => {
     expect(underline).toHaveClass('ml-0')
   })
 
+  it('marks the dot grid as a slow parallax layer', () => {
+    render(<HeroSection />)
+    const dotGrid = screen.getByTestId('hero-dot-grid')
+
+    expect(dotGrid).toHaveAttribute('data-parallax')
+    expect(dotGrid).toHaveAttribute('data-parallax-factor', '0.3')
+  })
+
   it('subtitle and value prop are empty initially', () => {
     render(<HeroSection />)
 

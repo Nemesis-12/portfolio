@@ -81,7 +81,12 @@ const HeroSection: React.FC = () => {
   return (
     <StickySection id="home" className="relative flex flex-col justify-center bg-graphite">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(#3A3B3A_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+        <div
+          data-testid="hero-dot-grid"
+          data-parallax
+          data-parallax-factor="0.3"
+          className="absolute inset-0 bg-[radial-gradient(#3A3B3A_1px,transparent_1px)] bg-[size:20px_20px]"
+        ></div>
       </div>
 
       <div data-testid="hero-content" className="relative z-10 px-8 pt-16 w-full space-y-6">
