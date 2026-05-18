@@ -13,12 +13,21 @@ export function Typewriter({ active, lines, speed = 25, onDone }: TypewriterProp
   const timerRef = useRef<number | null>(null)
   const onDoneRef = useRef(onDone)
   const prevActiveRef = useRef(active)
+  const prevLinesRef = useRef(lines)
 
   useEffect(() => {
     onDoneRef.current = onDone
   }, [onDone])
 
   useEffect(() => {
+    const linesChanged = JSON.stringify(prevLinesRef.current) !== JSON.stringify(lines)
+
+    if (linesChanged) {
+      prevLinesRef.current = lines
+      stateRef.current = { lineIndex: 0, charIndex: 0, done: false }
+      setDisplayedLines([])
+    }
+
     if (!active) {
       if (timerRef.current) {
         clearTimeout(timerRef.current)
@@ -29,13 +38,11 @@ export function Typewriter({ active, lines, speed = 25, onDone }: TypewriterProp
     }
 
     if (lines.length === 0) {
-      onDoneRef.current?.()
-      return
-    }
-
-    const isResuming = prevActiveRef.current === false && active === true
-
-    if (isResuming && stateRef.current.done) {
+      if (!stateRef.current.done) {
+        stateRef.current.done = true
+        onDoneRef.current?.()
+      }
+      prevActiveRef.current = active
       return
     }
 

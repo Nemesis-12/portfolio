@@ -117,4 +117,72 @@ describe('Typewriter', () => {
 
     expect(screen.getByText('Single')).toBeInTheDocument()
   })
+
+  it('restarts when lines prop changes after completion', () => {
+    const { rerender } = render(<Typewriter active={true} lines={['Hello']} />)
+
+    act(() => { vi.advanceTimersByTime(200) })
+    expect(screen.getByText('Hello')).toBeInTheDocument()
+
+    rerender(<Typewriter active={true} lines={['New', 'Lines']} />)
+
+    act(() => { vi.advanceTimersByTime(30) })
+    expect(screen.getByText('N')).toBeInTheDocument()
+
+    act(() => { vi.advanceTimersByTime(200) })
+    expect(screen.getByText('New')).toBeInTheDocument()
+    expect(screen.getByText('Lines')).toBeInTheDocument()
+  })
+
+  it('calls onDone exactly once even after active toggles post-completion', () => {
+    const onDone = vi.fn()
+    const { rerender } = render(<Typewriter active={true} lines={['A']} onDone={onDone} />)
+
+    act(() => { vi.advanceTimersByTime(100) })
+    expect(onDone).toHaveBeenCalledTimes(1)
+
+    rerender(<Typewriter active={false} lines={['A']} onDone={onDone} />)
+    rerender(<Typewriter active={true} lines={['A']} onDone={onDone} />)
+
+    act(() => { vi.advanceTimersByTime(100) })
+    expect(onDone).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not call onDone repeatedly when toggling active with empty lines', () => {
+    const onDone = vi.fn()
+    const { rerender } = render(<Typewriter active={true} lines={[]} onDone={onDone} />)
+
+    act(() => { vi.advanceTimersByTime(10) })
+    expect(onDone).toHaveBeenCalledTimes(1)
+
+    rerender(<Typewriter active={false} lines={[]} onDone={onDone} />)
+    rerender(<Typewriter active={true} lines={[]} onDone={onDone} />)
+
+    act(() => { vi.advanceTimersByTime(10) })
+    expect(onDone).toHaveBeenCalledTimes(1)
+  })
+
+  it('handles lines containing empty strings', () => {
+    render(<Typewriter active={true} lines={['Hello', '', 'World']} />)
+
+    act(() => { vi.advanceTimersByTime(300) })
+
+    expect(screen.getByText('Hello')).toBeInTheDocument()
+    expect(screen.getByText('World')).toBeInTheDocument()
+  })
+
+  it('clears old displayed lines when lines prop changes', () => {
+    const { rerender } = render(<Typewriter active={true} lines={['Old Line 1', 'Old Line 2']} />)
+
+    act(() => { vi.advanceTimersByTime(600) })
+    expect(screen.getByText('Old Line 1')).toBeInTheDocument()
+    expect(screen.getByText('Old Line 2')).toBeInTheDocument()
+
+    rerender(<Typewriter active={true} lines={['New']} />)
+
+    act(() => { vi.advanceTimersByTime(30) })
+    expect(screen.queryByText('Old Line 1')).not.toBeInTheDocument()
+    expect(screen.queryByText('Old Line 2')).not.toBeInTheDocument()
+    expect(screen.getByText('N')).toBeInTheDocument()
+  })
 })
