@@ -11,6 +11,20 @@ function expectNoShellConstraint(element: Element) {
   })
 }
 
+function rectAtTop(top: number): DOMRect {
+  return {
+    top,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    width: 0,
+    height: 0,
+    x: 0,
+    y: top,
+    toJSON: () => ({}),
+  }
+}
+
 describe('App shell', () => {
   afterEach(() => {
     vi.restoreAllMocks()
@@ -81,17 +95,7 @@ describe('App shell', () => {
     const dotGrid = document.querySelector('[data-testid="hero-dot-grid"]') as HTMLElement
     const homeSection = document.getElementById('home') as HTMLElement
 
-    vi.spyOn(homeSection, 'getBoundingClientRect').mockReturnValue({
-      top: -120,
-      right: 0,
-      bottom: 0,
-      left: 0,
-      width: 0,
-      height: 0,
-      x: 0,
-      y: -120,
-      toJSON: () => ({}),
-    })
+    vi.spyOn(homeSection, 'getBoundingClientRect').mockReturnValue(rectAtTop(-120))
 
     act(() => {
       frameCallbacks.get(1)?.(0)
@@ -116,5 +120,55 @@ describe('App shell', () => {
     expect(removeEventListenerSpy).toHaveBeenCalledWith('scroll', scrollHandler)
     expect(removeEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function))
     expect(cancelAnimationFrameSpy).toHaveBeenCalledWith(2)
+  })
+
+  it('uses element geometry for parallax layers outside sections', () => {
+    const frameCallbacks = new Map<number, FrameRequestCallback>()
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      frameCallbacks.set(1, callback)
+      return 1
+    })
+
+    render(<App />)
+    const footerText = document.querySelector('footer [data-parallax]') as HTMLElement
+
+    vi.spyOn(footerText, 'getBoundingClientRect').mockReturnValue(rectAtTop(-80))
+
+    act(() => {
+      frameCallbacks.get(1)?.(0)
+    })
+
+    expect(footerText.style.transform).toBe('translate3d(0, 40px, 0)')
+  })
+
+  it('treats missing and invalid parallax factors as zero movement', () => {
+    const frameCallbacks = new Map<number, FrameRequestCallback>()
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      frameCallbacks.set(1, callback)
+      return 1
+    })
+
+    render(<App />)
+    const missingFactorLayer = document.createElement('div')
+    const invalidFactorLayer = document.createElement('div')
+    missingFactorLayer.dataset.parallax = ''
+    invalidFactorLayer.dataset.parallax = ''
+    invalidFactorLayer.dataset.parallaxFactor = 'not-a-number'
+    document.body.append(missingFactorLayer, invalidFactorLayer)
+
+    vi.spyOn(missingFactorLayer, 'getBoundingClientRect').mockReturnValue(rectAtTop(-120))
+    vi.spyOn(invalidFactorLayer, 'getBoundingClientRect').mockReturnValue(rectAtTop(-120))
+
+    try {
+      act(() => {
+        frameCallbacks.get(1)?.(0)
+      })
+
+      expect(missingFactorLayer.style.transform).toBe('translate3d(0, 0px, 0)')
+      expect(invalidFactorLayer.style.transform).toBe('translate3d(0, 0px, 0)')
+    } finally {
+      missingFactorLayer.remove()
+      invalidFactorLayer.remove()
+    }
   })
 })
