@@ -13,7 +13,7 @@ interface TimelineEntry {
 const education: TimelineEntry[] = [
   {
     hash: 'a3f9d2b',
-    dateRange: 'JAN 2026 – PRESENT',
+    dateRange: 'JAN 2026 – DEC 2027 (EXPECTED)',
     institution: 'WICHITA STATE UNIVERSITY',
     role: 'ACCELERATED_M.S._COMPUTER_SCIENCE',
     description: 'Accelerated graduate program. Focus on advanced machine learning, AI systems, and distributed computing.',

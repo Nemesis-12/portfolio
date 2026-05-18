@@ -85,7 +85,7 @@ describe('TimelineSection', () => {
       })
 
       const dates = screen.getAllByTestId('commit-date')
-      expect(dates[0].textContent).toBe('Date:   JAN 2026 – PRESENT')
+      expect(dates[0].textContent).toBe('Date:   JAN 2026 – DEC 2027 (EXPECTED)')
       expect(dates[1].textContent).toBe('Date:   JAN 2022 – DEC 2025')
       expect(dates[2].textContent).toBe('Date:   AUG 2024 – PRESENT')
 
