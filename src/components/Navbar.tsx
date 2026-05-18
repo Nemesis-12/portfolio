@@ -53,15 +53,20 @@ export default function Navbar() {
                     whileHover="hover"
                     onMouseEnter={() => setHoveredLink(label)}
                     onMouseLeave={() => setHoveredLink(null)}
-                    className={`group font-body text-sm no-underline pb-0.5 transition-colors duration-150${isActive ? ' text-atomic-tangerine border-b-2 border-atomic-tangerine' : ' text-platinum'}`}
+                    className="group font-body text-sm no-underline pb-0.5 text-platinum transition-colors duration-150"
                   >
-                    <span
-                      style={{ opacity: isHovered ? 1 : 0 }}
-                      className="transition-opacity duration-200"
-                    >
-                      &gt;{' '}
+                    {!isActive && (
+                      <span
+                        data-testid="nav-caret"
+                        style={{ opacity: isHovered ? 1 : 0 }}
+                        className="transition-opacity duration-200"
+                      >
+                        &gt;{' '}
+                      </span>
+                    )}
+                    <span className={isActive ? 'text-atomic-tangerine border-b-2 border-atomic-tangerine' : undefined}>
+                      {label}
                     </span>
-                    {label}
                   </motion.a>
                 </li>
               )

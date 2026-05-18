@@ -106,7 +106,7 @@ describe('Navbar', () => {
       document.body.removeChild(section)
     })
 
-    it('applies active underline class to link matching the intersecting section', () => {
+    it('scopes active color and underline to the label span only', () => {
       render(<Navbar />)
 
       act(() => {
@@ -118,8 +118,14 @@ describe('Navbar', () => {
 
       const skillsLink = screen.getByText('SKILLS').closest('a')
       expect(skillsLink).not.toBeNull()
-      expect(skillsLink!.className).toContain('border-b-2')
-      expect(skillsLink!.className).toContain('border-atomic-tangerine')
+      const skillsLabel = screen.getByText('SKILLS')
+
+      expect(skillsLink!.className).not.toContain('border-b-2')
+      expect(skillsLink!.className).not.toContain('border-atomic-tangerine')
+      expect(skillsLabel).toHaveClass('text-atomic-tangerine')
+      expect(skillsLabel).toHaveClass('border-b-2')
+      expect(skillsLabel).toHaveClass('border-atomic-tangerine')
+      expect(skillsLink!.querySelector('[data-testid="nav-caret"]')).toBeNull()
     })
   })
 
