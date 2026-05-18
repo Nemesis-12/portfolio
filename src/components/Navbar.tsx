@@ -40,48 +40,48 @@ export default function Navbar() {
             FM_
           </a>
 
-        <ul className="hidden md:flex gap-8 list-none m-0 p-0">
-          {NAV_LINKS.map(({ label, href }) => {
-            const isActive = activeSection === href.slice(1)
-            const isHovered = hoveredLink === label
-            return (
-              <li key={label}>
-                <motion.a
-                  href={href}
-                  variants={hoverEase}
-                  initial="idle"
-                  whileHover="hover"
-                  onMouseEnter={() => setHoveredLink(label)}
-                  onMouseLeave={() => setHoveredLink(null)}
-                  className={`group font-body text-sm no-underline pb-0.5 transition-colors duration-150${isActive ? ' text-atomic-tangerine border-b-2 border-atomic-tangerine' : ' text-platinum'}`}
-                >
-                  <span
-                    style={{ opacity: isHovered ? 1 : 0 }}
-                    className="transition-opacity duration-200"
+          <ul className="hidden md:flex gap-8 list-none m-0 p-0">
+            {NAV_LINKS.map(({ label, href }) => {
+              const isActive = activeSection === href.slice(1)
+              const isHovered = hoveredLink === label
+              return (
+                <li key={label}>
+                  <motion.a
+                    href={href}
+                    variants={hoverEase}
+                    initial="idle"
+                    whileHover="hover"
+                    onMouseEnter={() => setHoveredLink(label)}
+                    onMouseLeave={() => setHoveredLink(null)}
+                    className={`group font-body text-sm no-underline pb-0.5 transition-colors duration-150${isActive ? ' text-atomic-tangerine border-b-2 border-atomic-tangerine' : ' text-platinum'}`}
                   >
-                    &gt;{' '}
-                  </span>
-                  {label}
-                </motion.a>
-              </li>
-            )
-          })}
-        </ul>
+                    <span
+                      style={{ opacity: isHovered ? 1 : 0 }}
+                      className="transition-opacity duration-200"
+                    >
+                      &gt;{' '}
+                    </span>
+                    {label}
+                  </motion.a>
+                </li>
+              )
+            })}
+          </ul>
 
-        <motion.button
-          className="flex md:hidden text-periwinkle"
-          onClick={() => setMenuOpen(true)}
-          variants={hoverEase}
-          initial="idle"
-          whileHover="hover"
-          aria-label="Open menu"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-        </motion.button>
+          <motion.button
+            className="flex md:hidden text-periwinkle"
+            onClick={() => setMenuOpen(true)}
+            variants={hoverEase}
+            initial="idle"
+            whileHover="hover"
+            aria-label="Open menu"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </motion.button>
         </div>
       </nav>
 

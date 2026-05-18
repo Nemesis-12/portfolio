@@ -142,22 +142,29 @@ describe('Navbar', () => {
   })
 
   describe('issue #103 - fixed translucent v4 chrome', () => {
-    it('navbar uses fixed positioning', () => {
+    it('navbar uses fixed top chrome above page sections', () => {
       render(<Navbar />)
       const nav = screen.getByRole('navigation')
       expect(nav.className).toContain('fixed')
+      expect(nav.className).toContain('top-0')
+      expect(nav.className).toContain('z-40')
+      expect(nav.className).toContain('w-full')
     })
 
-    it('navbar has subtle bottom border', () => {
+    it('navbar has translucent graphite background, blur, and subtle border', () => {
       render(<Navbar />)
       const nav = screen.getByRole('navigation')
+      expect(nav.className).toContain('bg-graphite/90')
+      expect(nav.className).toContain('backdrop-blur-md')
       expect(nav.className).toContain('border-b')
+      expect(nav.className).toContain('border-graphite-light/30')
     })
 
-    it('navbar has backdrop blur', () => {
+    it('desktop links use fast restrained color transitions', () => {
       render(<Navbar />)
-      const nav = screen.getByRole('navigation')
-      expect(nav.className).toContain('backdrop-blur')
+      const homeLink = screen.getByRole('link', { name: /home/i })
+      expect(homeLink.className).toContain('transition-colors')
+      expect(homeLink.className).toContain('duration-150')
     })
   })
 
@@ -196,6 +203,38 @@ describe('Navbar', () => {
 
         await user.unhover(link)
         expect(prefixSpan!.style.opacity).toBe('0')
+      }
+    })
+
+    it('active link keeps the > prefix hidden until hover', () => {
+      const section = document.createElement('section')
+      section.id = 'skills'
+      document.body.appendChild(section)
+      let observerCallback!: IntersectionObserverCallback
+
+      vi.stubGlobal('IntersectionObserver', vi.fn(function (cb: IntersectionObserverCallback) {
+        observerCallback = cb
+        return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() }
+      }))
+
+      try {
+        render(<Navbar />)
+
+        act(() => {
+          observerCallback(
+            [{ target: section, isIntersecting: true } as unknown as IntersectionObserverEntry],
+            {} as IntersectionObserver,
+          )
+        })
+
+        const skillsLink = screen.getByRole('link', { name: /skills/i })
+        const prefixSpan = skillsLink.querySelector('span')
+        expect(skillsLink.className).toContain('border-b-2')
+        expect(prefixSpan).not.toBeNull()
+        expect(prefixSpan!.style.opacity).toBe('0')
+      } finally {
+        vi.unstubAllGlobals()
+        document.body.removeChild(section)
       }
     })
   })
