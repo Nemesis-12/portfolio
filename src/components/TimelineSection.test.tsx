@@ -1,18 +1,13 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, act } from '@testing-library/react'
-import { useInView } from 'framer-motion'
 import TimelineSection from './TimelineSection'
+import { useActivePanel } from '../hooks/useActivePanel'
 
-vi.mock('framer-motion', async () => {
-  const actual = await vi.importActual<typeof import('framer-motion')>('framer-motion')
-  return { ...actual, useInView: vi.fn().mockReturnValue(false) }
-})
+vi.mock('../hooks/useActivePanel', () => ({
+  useActivePanel: vi.fn(() => ({ active: [false, false, false], setRef: () => () => {} })),
+}))
 
 describe('TimelineSection', () => {
-  beforeEach(() => {
-    vi.mocked(useInView).mockReturnValue(false)
-  })
-
   afterEach(() => {
     vi.useRealTimers()
   })
@@ -21,188 +16,243 @@ describe('TimelineSection', () => {
     render(<TimelineSection />)
     const commitEntries = screen.getAllByTestId('commit-entry')
     expect(commitEntries.length).toBe(3)
-    commitEntries.forEach(entry => {
+    commitEntries.forEach((entry) => {
       expect(entry).toHaveClass('min-h-screen')
     })
   })
 
-  it('entries start empty (typewriter effect)', () => {
-    render(<TimelineSection />)
-
-    const hashElements = screen.getAllByTestId('commit-hash')
-    const authorElements = screen.getAllByTestId('commit-author')
-    const dateElements = screen.getAllByTestId('commit-date')
-    const institutionElements = screen.getAllByTestId('commit-institution')
-    const roleElements = screen.getAllByTestId('commit-role')
-    const bulletElements = screen.getAllByTestId('commit-description')
-
-    expect(hashElements.length).toBe(3)
-    expect(authorElements.length).toBe(3)
-    expect(dateElements.length).toBe(3)
-    expect(institutionElements.length).toBe(3)
-    expect(roleElements.length).toBe(3)
-    expect(bulletElements.length).toBe(6)
-
-    hashElements.forEach(el => expect(el).toHaveTextContent(''))
-    authorElements.forEach(el => expect(el).toHaveTextContent(''))
-    dateElements.forEach(el => expect(el).toHaveTextContent(''))
-    institutionElements.forEach(el => expect(el).toHaveTextContent(''))
-    roleElements.forEach(el => expect(el).toHaveTextContent(''))
-    bulletElements.forEach(el => expect(el).toHaveTextContent(''))
-  })
-
-  it('renders bullets as li elements in ul, not as p elements', () => {
-    vi.mocked(useInView).mockReturnValue(true)
-    vi.useFakeTimers()
+  it('entries start empty when no panel is active', () => {
+    vi.mocked(useActivePanel).mockReturnValue({
+      active: [false, false, false],
+      setRef: () => () => {},
+    })
 
     render(<TimelineSection />)
-    act(() => { vi.advanceTimersByTime(15000) })
 
-    const commitEntries = screen.getAllByTestId('commit-entry')
-
-    // NetApp (index 0) has 4 bullets
-    expect(commitEntries[0].querySelectorAll('ul')).toHaveLength(1)
-    expect(commitEntries[0].querySelectorAll('li')).toHaveLength(4)
-    expect(commitEntries[0].querySelectorAll('ul p')).toHaveLength(0)
-
-    // M.S. (index 1) has 0 bullets
-    expect(commitEntries[1].querySelector('ul')).not.toBeInTheDocument()
-    expect(commitEntries[1].querySelectorAll('li')).toHaveLength(0)
-
-    // B.S. (index 2) has 2 bullets
-    expect(commitEntries[2].querySelectorAll('ul')).toHaveLength(1)
-    expect(commitEntries[2].querySelectorAll('li')).toHaveLength(2)
-    expect(commitEntries[2].querySelectorAll('ul p')).toHaveLength(0)
-  })
-
-  it('has bullets with correct resume text', () => {
-    vi.mocked(useInView).mockReturnValue(true)
-    vi.useFakeTimers()
-
-    render(<TimelineSection />)
-    act(() => { vi.advanceTimersByTime(15000) })
-
-    const bulletTexts = screen.getAllByTestId('commit-description').map(li => li.textContent)
-
-    // Newest-first: NetApp bullets first, then B.S. bullets
-    expect(bulletTexts).toEqual([
-      'Built automated analysis pipeline processing storage telemetry across distributed RAID systems (FC, SAS, NVMe/RoCE), handling terabytes of performance data.',
-      'Designed Python automation framework reducing manual configuration tasks by 30% across Linux, Windows, and VMware infrastructure.',
-      'Implemented Ansible-based deployment orchestration for 300+ system configurations, streamlining infrastructure provisioning workflows.',
-      'Developed interactive visualization dashboard for system performance metrics using Python, analyzing 1M+ database entries for engineering insights.',
-      "Dean's List: Spring 2022 – Fall 2025",
-      'Relevant Coursework: Machine Learning, Artificial Intelligence, Fundamentals of AI Agents, Data Science',
-    ])
+    const typewriterLines = document.querySelectorAll('[data-typewriter-line]')
+    expect(typewriterLines.length).toBe(0)
   })
 
   describe('issue #78 - newest-first ordering', () => {
     it('entries render in newest-first order (NetApp before M.S. before B.S.)', () => {
-      vi.mocked(useInView).mockReturnValue(true)
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, true, true],
+        setRef: () => () => {},
+      })
       vi.useFakeTimers()
 
       render(<TimelineSection />)
-      act(() => { vi.advanceTimersByTime(15000) })
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
 
-      const institutions = screen.getAllByTestId('commit-institution')
-      expect(institutions[0].textContent).toBe('NETAPP INC.')
-      expect(institutions[1].textContent).toBe('WICHITA STATE UNIVERSITY')
-      expect(institutions[2].textContent).toBe('WICHITA STATE UNIVERSITY')
+      const allLines = document.querySelectorAll('[data-typewriter-line]')
+      const texts = Array.from(allLines).map((el) => el.textContent)
 
-      const roles = screen.getAllByTestId('commit-role')
-      expect(roles[0].textContent).toBe('SOFTWARE_ENGINEER_IN_TEST')
-      expect(roles[1].textContent).toBe('ACCELERATED_M.S._COMPUTER_SCIENCE')
-      expect(roles[2].textContent).toBe('B.S._COMPUTER_SCIENCE')
-    })
+      expect(texts[0]).toBe('commit d4e8f2c')
+      expect(texts[3]).toBe('NETAPP INC.')
+      expect(texts[4]).toBe('SOFTWARE_ENGINEER_IN_TEST')
 
-    it('does not render Education/Experience subsection headings', () => {
-      render(<TimelineSection />)
+      expect(texts[9]).toBe('commit a3f9d2b')
+      expect(texts[12]).toBe('WICHITA STATE UNIVERSITY')
+      expect(texts[13]).toBe('ACCELERATED_M.S._COMPUTER_SCIENCE')
 
-      expect(screen.queryByText('EDUCATION')).not.toBeInTheDocument()
-      expect(screen.queryByText('EXPERIENCE')).not.toBeInTheDocument()
+      expect(texts[15]).toBe('commit b7c3e1a')
+      expect(texts[18]).toBe('WICHITA STATE UNIVERSITY')
+      expect(texts[19]).toBe('B.S._COMPUTER_SCIENCE')
     })
   })
 
-  describe('issue #47 - scroll-triggered typewriter', () => {
-    it('text begins populating when entry enters the viewport', () => {
-      vi.mocked(useInView).mockReturnValue(true)
-      vi.useFakeTimers()
-
+  describe('issue #97 - full-screen stacked panels', () => {
+    it('each timeline entry is its own sticky section panel', () => {
       render(<TimelineSection />)
 
-      // Advance past first field's typing: "commit a3f9d2b" = 15 chars × 30ms = 450ms
-      act(() => { vi.advanceTimersByTime(1000) })
+      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
+      expect(stickyPanels.length).toBe(3)
 
-      screen.getAllByTestId('commit-hash').forEach(el => {
-        expect(el.textContent).not.toBe('')
+      stickyPanels.forEach((panel) => {
+        expect(panel).toHaveClass('min-h-screen')
+        expect(panel).toHaveClass('sticky')
       })
     })
 
-    it('all text fields complete with expected content', () => {
-      vi.mocked(useInView).mockReturnValue(true)
+    it('each panel has a section label (EXPERIENCE or EDUCATION)', () => {
+      render(<TimelineSection />)
+
+      const sectionLabels = document.querySelectorAll('[data-testid="section-label"]')
+      expect(sectionLabels.length).toBe(3)
+
+      const labelTexts = Array.from(sectionLabels).map((el) => el.textContent)
+      expect(labelTexts).toContain('// EXPERIENCE')
+      expect(labelTexts).toContain('// EDUCATION')
+    })
+
+    it('section labels use font-display (pixel font) in orange', () => {
+      render(<TimelineSection />)
+
+      const sectionLabels = document.querySelectorAll('[data-testid="section-label"]')
+      sectionLabels.forEach((label) => {
+        expect(label.className).toContain('font-display')
+        expect(label.className).toContain('text-atomic-tangerine')
+        expect(label.className).not.toContain('font-body')
+      })
+    })
+
+    it('section label // is smaller than section word', () => {
+      render(<TimelineSection />)
+
+      const sectionLabels = document.querySelectorAll('[data-testid="section-label"]')
+      sectionLabels.forEach((label) => {
+        const slash = label.querySelector('span:first-child')
+        const word = label.querySelector('span:last-child')
+        expect(slash?.className).toContain('text-xs')
+        expect(word?.className).toContain('text-sm')
+      })
+    })
+
+    it('Typewriter types commit metadata when panel becomes active', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
       vi.useFakeTimers()
 
       render(<TimelineSection />)
 
-      // Longest entry: NetApp description ~351 chars → 1000ms delay + 351×30ms ≈ 11.5s
-      act(() => { vi.advanceTimersByTime(15000) })
-
-      const hashes = screen.getAllByTestId('commit-hash')
-      expect(hashes[0].textContent).toBe('commit d4e8f2c')
-      expect(hashes[1].textContent).toBe('commit a3f9d2b')
-      expect(hashes[2].textContent).toBe('commit b7c3e1a')
-
-      screen.getAllByTestId('commit-author').forEach(el => {
-        expect(el.textContent).toBe('Author: Farhan Mohammed')
+      act(() => {
+        vi.advanceTimersByTime(500)
       })
 
-      const dates = screen.getAllByTestId('commit-date')
-      expect(dates[0].textContent).toBe('Date:   AUG 2024 – PRESENT')
-      expect(dates[1].textContent).toBe('Date:   JAN 2026 – DEC 2027 (EXPECTED)')
-      expect(dates[2].textContent).toBe('Date:   JAN 2022 – DEC 2025')
-
-      const institutions = screen.getAllByTestId('commit-institution')
-      expect(institutions[0].textContent).toBe('NETAPP INC.')
-      expect(institutions[1].textContent).toBe('WICHITA STATE UNIVERSITY')
-      expect(institutions[2].textContent).toBe('WICHITA STATE UNIVERSITY')
-
-      const roles = screen.getAllByTestId('commit-role')
-      expect(roles[0].textContent).toBe('SOFTWARE_ENGINEER_IN_TEST')
-      expect(roles[1].textContent).toBe('ACCELERATED_M.S._COMPUTER_SCIENCE')
-      expect(roles[2].textContent).toBe('B.S._COMPUTER_SCIENCE')
+      const allLines = document.querySelectorAll('[data-typewriter-line]')
+      const firstPanelLines = Array.from(allLines).filter((_, i) => i < 5)
+      expect(firstPanelLines.length).toBeGreaterThan(0)
+      expect(firstPanelLines[0].textContent).toBe('commit d4e8f2c')
     })
 
-    it('does not render the superseded M.S. date range', () => {
-      vi.mocked(useInView).mockReturnValue(true)
+    it('Typewriter types all fields to completion when panel stays active', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
       vi.useFakeTimers()
 
       render(<TimelineSection />)
 
-      act(() => { vi.advanceTimersByTime(15000) })
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
 
-      expect(screen.queryByText('Date:   JAN 2026 – PRESENT')).not.toBeInTheDocument()
+      const allLines = document.querySelectorAll('[data-typewriter-line]')
+      const texts = Array.from(allLines).map((el) => el.textContent)
+
+      expect(texts).toContain('commit d4e8f2c')
+      expect(texts).toContain('Author: Farhan Mohammed')
+      expect(texts).toContain('Date:   AUG 2024 – PRESENT')
+      expect(texts).toContain('NETAPP INC.')
+      expect(texts).toContain('SOFTWARE_ENGINEER_IN_TEST')
     })
 
-    it('typing does not restart when viewport is re-entered', () => {
-      vi.mocked(useInView).mockReturnValue(true)
+    it('Typewriter types bullets when present', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const allLines = document.querySelectorAll('[data-typewriter-line]')
+      const texts = Array.from(allLines).map((el) => el.textContent)
+
+      expect(texts.some((text) => text?.includes('Built automated analysis pipeline'))).toBe(true)
+    })
+
+    it('inactive panels remain empty', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const panel2Lines = commitEntries[1].querySelectorAll('[data-typewriter-line]')
+      const panel3Lines = commitEntries[2].querySelectorAll('[data-typewriter-line]')
+      expect(panel2Lines.length).toBe(0)
+      expect(panel3Lines.length).toBe(0)
+    })
+
+    it('Typewriter holds position when panel is scrolled away mid-type', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
 
-      act(() => { vi.advanceTimersByTime(15000) })
-
-      const completedHashes = screen.getAllByTestId('commit-hash').map(el => el.textContent)
-
-      // Simulate scroll-out then scroll-in again
-      vi.mocked(useInView).mockReturnValue(false)
-      rerender(<TimelineSection />)
-      vi.mocked(useInView).mockReturnValue(true)
-      rerender(<TimelineSection />)
-
-      act(() => { vi.advanceTimersByTime(15000) })
-
-      screen.getAllByTestId('commit-hash').forEach((el, i) => {
-        expect(el.textContent).toBe(completedHashes[i])
+      act(() => {
+        vi.advanceTimersByTime(100)
       })
+
+      const partialText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
+
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [false, false, false],
+        setRef: () => () => {},
+      })
+      rerender(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(5000)
+      })
+
+      const heldText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
+      expect(heldText).toBe(partialText)
+    })
+
+    it('Typewriter resumes from held position when panel becomes active again', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      const { rerender } = render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+      const partialText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
+
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [false, false, false],
+        setRef: () => () => {},
+      })
+      rerender(<TimelineSection />)
+      act(() => {
+        vi.advanceTimersByTime(1000)
+      })
+
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      rerender(<TimelineSection />)
+      act(() => {
+        vi.advanceTimersByTime(500)
+      })
+
+      const resumedText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
+      expect(resumedText.length).toBeGreaterThan(partialText.length)
     })
   })
 })
