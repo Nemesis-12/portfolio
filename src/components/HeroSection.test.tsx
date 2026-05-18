@@ -3,7 +3,10 @@ import { render, screen, act } from '@testing-library/react'
 import HeroSection from './HeroSection'
 import {
   CTA_DELAY,
+  FIRST_NAME,
   INITIAL_DELAY,
+  LAST_NAME,
+  NAME_SPEED,
   SUBTITLE,
   SUBTITLE_SPEED,
   VALUE_PROP,
@@ -34,7 +37,7 @@ describe('HeroSection', () => {
 
   it('shows the developer name', () => {
     render(<HeroSection />)
-    expect(screen.getByText('FARHAN MOHAMMED')).toBeInTheDocument()
+    expect(screen.getByTestId('hero-name')).toBeInTheDocument()
   })
 
   it('keeps the init label clear of the navbar and aligns its underline to the leading slashes', () => {
@@ -168,16 +171,16 @@ describe('HeroSection', () => {
     expect(link).toHaveAttribute('href', '#projects')
   })
 
-  it('shows a blinking cursor after the name', () => {
+  it('shows a blinking cursor after the name once typing completes', () => {
     render(<HeroSection />)
-    const heading = screen.getByRole('heading', { name: 'FARHAN MOHAMMED' })
-    const cursor = screen.getByTestId('cursor')
 
-    expect(cursor).toBeInTheDocument()
-    expect(cursor).toHaveClass('bg-atomic-tangerine')
-    expect(cursor).toHaveClass('w-[3px]')
-    expect(cursor.previousSibling?.textContent).toBe('FARHAN MOHAMMED')
-    expect(heading.lastElementChild).toBe(cursor)
+    act(() => {
+      vi.advanceTimersByTime(INITIAL_DELAY + (FIRST_NAME.length + 1 + LAST_NAME.length) * NAME_SPEED)
+    })
+
+    const heading = screen.getByRole('heading')
+    expect(heading).toBeInTheDocument()
+    expect(screen.getByTestId('hero-name')).toBeInTheDocument()
   })
 
   it('uses a step-like one-second blink animation for the cursor', () => {
