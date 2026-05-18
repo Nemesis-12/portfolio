@@ -1,0 +1,109 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, act } from '@testing-library/react'
+import { RotatingRole } from './RotatingRole'
+
+const CS_STUDENT = 'CS_STUDENT'
+const DEVELOPER = 'DEVELOPER'
+const roles = [CS_STUDENT, DEVELOPER]
+
+describe('RotatingRole', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('types the first role when active', () => {
+    render(<RotatingRole roles={roles} active={true} />)
+
+    act(() => { vi.advanceTimersByTime(40) })
+    expect(screen.getByText(/^C$/)).toBeInTheDocument()
+
+    for (let i = 0; i < CS_STUDENT.length - 1; i++) {
+      act(() => { vi.advanceTimersByTime(40) })
+    }
+    expect(screen.getByText(new RegExp(`^${CS_STUDENT}$`))).toBeInTheDocument()
+  })
+
+it('completes type -> hold -> erase cycle and shows second role', () => {
+    const { container } = render(<RotatingRole roles={roles} active={true} typeSpeed={40} eraseSpeed={40} holdMs={100} />)
+
+    for (let i = 0; i <= CS_STUDENT.length; i++) {
+      act(() => { vi.advanceTimersByTime(40) })
+    }
+    expect(container.textContent?.replace('▍', '')).toBe(CS_STUDENT)
+
+    act(() => { vi.advanceTimersByTime(100) })
+    expect(container.textContent?.replace('▍', '')).toBe(CS_STUDENT)
+
+    for (let i = 0; i <= CS_STUDENT.length; i++) {
+      act(() => { vi.advanceTimersByTime(40) })
+    }
+
+    for (let i = 0; i <= DEVELOPER.length; i++) {
+      act(() => { vi.advanceTimersByTime(40) })
+    }
+    expect(container.textContent?.replace('▍', '')).toBe(DEVELOPER)
+  })
+
+  it('shows blinking cursor during typing and hold phases', () => {
+    render(<RotatingRole roles={roles} active={true} typeSpeed={40} holdMs={100} />)
+    const container = screen.getByTestId('rotating-role')
+    const cursor = container.querySelector('span')
+
+    act(() => { vi.advanceTimersByTime(40) })
+    expect(cursor).not.toBeNull()
+
+    for (let i = 1; i < CS_STUDENT.length; i++) {
+      act(() => { vi.advanceTimersByTime(40) })
+    }
+    expect(screen.getByText(new RegExp(`^${CS_STUDENT}$`))).toBeInTheDocument()
+    expect(container.querySelector('span')).not.toBeNull()
+  })
+
+  it('erases characters in reverse order', () => {
+    const { container } = render(<RotatingRole roles={roles} active={true} typeSpeed={40} eraseSpeed={40} holdMs={100} />)
+
+    for (let i = 0; i <= CS_STUDENT.length; i++) {
+      act(() => { vi.advanceTimersByTime(40) })
+    }
+    act(() => { vi.advanceTimersByTime(100) })
+
+    act(() => { vi.advanceTimersByTime(40) })
+    expect(container.textContent?.replace('▍', '')).toBe('CS_STUDEN')
+
+    act(() => { vi.advanceTimersByTime(40) })
+    expect(container.textContent?.replace('▍', '')).toBe('CS_STUDE')
+  })
+
+  it('transitions to next role after full cycle', () => {
+    render(<RotatingRole roles={[CS_STUDENT, DEVELOPER]} active={true} typeSpeed={40} eraseSpeed={40} holdMs={50} />)
+    const container = screen.getByTestId('rotating-role')
+
+    const fullCycle = () => {
+      for (let i = 0; i <= CS_STUDENT.length; i++) act(() => { vi.advanceTimersByTime(40) })
+      act(() => { vi.advanceTimersByTime(50) })
+      for (let i = 0; i <= CS_STUDENT.length; i++) act(() => { vi.advanceTimersByTime(40) })
+      for (let i = 0; i <= DEVELOPER.length; i++) act(() => { vi.advanceTimersByTime(40) })
+    }
+
+    fullCycle()
+    const text = container.textContent?.replace('▍', '')
+    expect(text).toBe(DEVELOPER)
+  })
+
+  it('cleans up timers on unmount', () => {
+    const { unmount } = render(<RotatingRole roles={roles} active={true} />)
+
+    for (let i = 0; i < CS_STUDENT.length; i++) {
+      act(() => { vi.advanceTimersByTime(40) })
+    }
+
+    unmount()
+
+    act(() => { vi.advanceTimersByTime(10000) })
+    expect(vi.getTimerCount()).toBe(0)
+  })
+})
