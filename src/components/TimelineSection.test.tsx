@@ -100,6 +100,17 @@ describe('TimelineSection', () => {
       expect(roles[2].textContent).toBe('SOFTWARE_ENGINEER_IN_TEST')
     })
 
+    it('does not render the superseded M.S. date range', () => {
+      vi.mocked(useInView).mockReturnValue(true)
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => { vi.advanceTimersByTime(15000) })
+
+      expect(screen.queryByText('Date:   JAN 2026 – PRESENT')).not.toBeInTheDocument()
+    })
+
     it('typing does not restart when viewport is re-entered', () => {
       vi.mocked(useInView).mockReturnValue(true)
       vi.useFakeTimers()

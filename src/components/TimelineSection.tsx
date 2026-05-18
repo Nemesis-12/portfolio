@@ -123,8 +123,6 @@ function EntryList({ entries }: { entries: TimelineEntry[] }) {
   )
 }
 
-
-
 const TimelineSection: React.FC = () => {
   return (
     <ScrollFadeSection id="timeline" className="min-h-screen flex flex-col justify-center py-14 px-8 bg-graphite-light">
