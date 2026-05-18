@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface TypeInProps {
   start: boolean
@@ -9,6 +9,7 @@ interface TypeInProps {
 
 export function TypeIn({ start, text, speed = 40, onDone }: TypeInProps) {
   const [displayed, setDisplayed] = useState('')
+  const timeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (!start) return
@@ -24,7 +25,7 @@ export function TypeIn({ start, text, speed = 40, onDone }: TypeInProps) {
         currentIndex++
 
         if (currentIndex <= text.length) {
-          setTimeout(tick, speed)
+          timeoutRef.current = window.setTimeout(tick, speed)
         } else {
           onDone?.()
         }
@@ -35,6 +36,10 @@ export function TypeIn({ start, text, speed = 40, onDone }: TypeInProps) {
 
     return () => {
       cancelled = true
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
     }
   }, [start, text, speed, onDone])
 
