@@ -24,7 +24,7 @@ describe('TimelineSection', () => {
 
   it('entries start empty (typewriter effect)', () => {
     render(<TimelineSection />)
-    
+
     const hashElements = screen.getAllByTestId('commit-hash')
     const authorElements = screen.getAllByTestId('commit-author')
     const dateElements = screen.getAllByTestId('commit-date')
@@ -45,6 +45,24 @@ describe('TimelineSection', () => {
     institutionElements.forEach(el => expect(el).toHaveTextContent(''))
     roleElements.forEach(el => expect(el).toHaveTextContent(''))
     descriptionElements.forEach(el => expect(el).toHaveTextContent(''))
+  })
+
+  it('renders timeline section labels in pixel display typography', () => {
+    render(<TimelineSection />)
+
+    const labels = ['EDUCATION', 'EXPERIENCE']
+
+    labels.forEach(label => {
+      const labelElement = screen.getByText(label)
+      const slashElement = labelElement.previousElementSibling
+
+      expect(slashElement).toHaveTextContent('//')
+      expect(slashElement).toHaveClass('font-display', 'text-xs', 'text-atomic-tangerine')
+      expect(slashElement).not.toHaveClass('font-body')
+
+      expect(labelElement).toHaveClass('font-display', 'text-sm', 'text-atomic-tangerine')
+      expect(labelElement).not.toHaveClass('font-body')
+    })
   })
 
   describe('issue #47 - scroll-triggered typewriter', () => {
