@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ScrollFadeSection } from './ScrollFadeSection'
+import { StickySection } from './StickySection'
 import type { Project } from '../data/projects'
 
 interface Props {
@@ -23,7 +23,7 @@ function getTagStyle(tagIndex: number) {
 
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
   return (
-    <ScrollFadeSection id="projects" className="min-h-screen flex flex-col justify-center py-14 px-8 bg-graphite-light">
+    <StickySection id="projects" className="flex flex-col justify-center py-14 px-8 bg-graphite-light">
       <div className="w-full">
         <div className="flex items-center gap-3 mb-8">
           <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 01</span>
@@ -37,7 +37,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
           ))}
         </div>
       </div>
-    </ScrollFadeSection>
+    </StickySection>
   )
 }
 

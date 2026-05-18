@@ -1,7 +1,7 @@
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { hoverEase } from '../animations/variants'
-import { ScrollFadeSection } from './ScrollFadeSection'
+import { StickySection } from './StickySection'
 
 const tileStagger = {
   hidden: { opacity: 0, scale: 0.95 },
@@ -112,7 +112,7 @@ export function SkillsSection() {
   const isInView = useInView(gridRef, { once: true, margin: '-10% 0px -10% 0px' })
 
   return (
-    <ScrollFadeSection id="skills" className="min-h-screen flex flex-col justify-center py-14 px-8 bg-graphite">
+    <StickySection id="skills" className="flex flex-col justify-center py-14 px-8 bg-graphite">
       <div className="w-full">
         <div className="flex items-center gap-3 mb-12">
           <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 02</span>
@@ -133,6 +133,6 @@ export function SkillsSection() {
           ))}
         </motion.div>
       </div>
-    </ScrollFadeSection>
+    </StickySection>
   )
 }

@@ -41,4 +41,16 @@ describe('App shell', () => {
     expect(main).not.toHaveAttribute('class')
     expectNoShellConstraint(main as Element)
   })
+
+  it('keeps the navbar above the sticky section stack', () => {
+    render(<App />)
+    const nav = document.querySelector('nav')
+    const sectionIds = document.querySelectorAll('section[id]')
+
+    expect(nav?.className).toContain('z-40')
+    sectionIds.forEach((section) => {
+      expect(section.className).toContain('sticky')
+      expect(Number((section as HTMLElement).style.zIndex)).toBeLessThan(40)
+    })
+  })
 })
