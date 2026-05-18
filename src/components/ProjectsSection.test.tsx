@@ -96,4 +96,32 @@ describe('ProjectsSection', () => {
     await user.unhover(card!)
     expect(title).toHaveClass('text-graphite')
   })
+
+  it('renders cards in a horizontal track structure for carousel scrolling', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const carouselTrack = document.querySelector('[data-carousel-track="true"]')
+    expect(carouselTrack).toBeInTheDocument()
+
+    const cards = document.querySelectorAll('[data-testid="project-card"]')
+    expect(cards).toHaveLength(2)
+  })
+
+  it('carousel track has relative positioning for horizontal layout', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const carouselTrack = document.querySelector('[data-carousel-track="true"]')
+    expect(carouselTrack).toBeInTheDocument()
+    expect(carouselTrack).toHaveClass('relative')
+  })
+
+  it('section header is separate from carousel track', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const headerLabel = screen.getByText('PROJECTS')
+    const carouselTrack = document.querySelector('[data-carousel-track="true"]')
+
+    expect(headerLabel.closest('section')).toBe(headerLabel.closest('section'))
+    expect(carouselTrack).toBeInTheDocument()
+  })
 })

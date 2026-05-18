@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { StickySection } from './StickySection'
+import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
 import type { Project } from '../data/projects'
 
 interface Props {
@@ -22,6 +23,10 @@ function getTagStyle(tagIndex: number) {
 }
 
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
+  const outerRef = useRef<HTMLElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
+  const { tx } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>)
+
   return (
     <StickySection id="projects" className="flex flex-col justify-center py-14 px-8 bg-graphite-light">
       <div className="w-full">
@@ -31,10 +36,12 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
           <hr className="flex-1 border-periwinkle/20" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
+        <div ref={innerRef as React.RefObject<HTMLDivElement>} data-carousel-track="true" className="relative" style={{ transform: `translateX(${tx}px)` }}>
+          <div className="flex gap-6 pb-4">
+            {projects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
         </div>
       </div>
     </StickySection>

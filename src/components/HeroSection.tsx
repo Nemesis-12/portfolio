@@ -1,10 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { StickySection } from './StickySection'
+import { TypeIn } from '../animations/TypeIn'
 import {
   CTA_DELAY,
   CTA_FADE_DURATION,
+  FIRST_NAME,
   INITIAL_DELAY,
+  LAST_NAME,
+  NAME_SPEED,
   SUBTITLE,
   SUBTITLE_SPEED,
   VALUE_PROP,
@@ -19,6 +23,9 @@ const ctaVariants = {
 }
 
 const HeroSection: React.FC = () => {
+  const [firstNameDone, setFirstNameDone] = useState(false)
+  const [, setLastNameDone] = useState(false)
+  const [showNameCursor, setShowNameCursor] = useState(false)
   const [subtitle, setSubtitle] = useState('')
   const [valueProp, setValueProp] = useState('')
   const [showSubtitleCursor, setShowSubtitleCursor] = useState(false)
@@ -97,15 +104,33 @@ const HeroSection: React.FC = () => {
           <div data-testid="hero-init-label-underline" className="ml-0 w-8 h-0.5 bg-atomic-tangerine" />
         </div>
 
-        <h1 className="font-display text-5xl text-platinum leading-tight">
-          FARHAN MOHAMMED
-          <motion.span
-            data-testid="cursor"
-            aria-hidden="true"
-            className="inline-block w-[3px] h-[1.2em] bg-atomic-tangerine align-middle ml-1"
-            variants={cursorVariants}
-            animate="blink"
+        <h1 data-testid="hero-name" className="font-display text-5xl text-platinum leading-tight">
+          <TypeIn
+            start={true}
+            text={FIRST_NAME}
+            speed={NAME_SPEED}
+            onDone={() => {
+              setFirstNameDone(true)
+            }}
           />
+          <TypeIn
+            start={firstNameDone}
+            text={` ${LAST_NAME}`}
+            speed={NAME_SPEED}
+            onDone={() => {
+              setLastNameDone(true)
+              setShowNameCursor(true)
+            }}
+          />
+          {showNameCursor && (
+            <motion.span
+              data-testid="hero-name-cursor"
+              aria-hidden="true"
+              className="inline-block w-[3px] h-[1.2em] bg-atomic-tangerine align-middle ml-1"
+              variants={cursorVariants}
+              animate="blink"
+            />
+          )}
         </h1>
 
         <p className="font-body text-xl text-periwinkle" data-testid="subtitle">
