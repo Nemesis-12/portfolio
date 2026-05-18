@@ -6,6 +6,8 @@ interface RotatingRoleProps {
   typeSpeed?: number
   eraseSpeed?: number
   holdMs?: number
+  /** Fires once after the first role has typed, held, erased, and the second role has typed. */
+  onFirstCycleComplete?: () => void
 }
 
 type Phase = 'idle' | 'typing' | 'holding' | 'erasing'
@@ -16,12 +18,16 @@ export function RotatingRole({
   typeSpeed = 40,
   eraseSpeed = 30,
   holdMs = 2000,
+  onFirstCycleComplete,
 }: RotatingRoleProps) {
   const [displayed, setDisplayed] = useState('')
   const [showCursor, setShowCursor] = useState(true)
   const stateRef = useRef({ roleIndex: 0, charIndex: 0, phase: 'idle' as Phase })
   const timerRef = useRef<number | null>(null)
   const cursorTimerRef = useRef<number | null>(null)
+  const onFirstCycleCompleteRef = useRef(onFirstCycleComplete)
+  const hasCompletedFirstCycleRef = useRef(false)
+  onFirstCycleCompleteRef.current = onFirstCycleComplete
 
   const clearTimers = () => {
     if (timerRef.current) {
@@ -40,6 +46,7 @@ export function RotatingRole({
       setDisplayed('')
       setShowCursor(true)
       stateRef.current = { roleIndex: 0, charIndex: 0, phase: 'idle' }
+      hasCompletedFirstCycleRef.current = false
       return
     }
 
@@ -62,6 +69,10 @@ export function RotatingRole({
           timerRef.current = window.setTimeout(tick, typeSpeed)
         } else {
           stateRef.current.phase = 'holding'
+          if (roleIndex > 0 && !hasCompletedFirstCycleRef.current) {
+            hasCompletedFirstCycleRef.current = true
+            onFirstCycleCompleteRef.current?.()
+          }
           timerRef.current = window.setTimeout(tick, holdMs)
         }
       } else if (phase === 'holding') {

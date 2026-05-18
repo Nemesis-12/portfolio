@@ -7,10 +7,8 @@ export const FIRST_NAME = 'FARHAN'
 export const LAST_NAME = 'MOHAMMED'
 export const NAME_SPEED = 40
 
-export const VALUE_PROP_DELAY = 400
 export const VALUE_PROP_SPEED = 35
 
-export const CTA_DELAY = 200
 export const CTA_FADE_DURATION = 0.4
 
 export const cursorVariants: Variants = {

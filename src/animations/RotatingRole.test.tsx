@@ -94,6 +94,32 @@ it('completes type -> hold -> erase cycle and shows second role', () => {
     expect(text).toBe(DEVELOPER)
   })
 
+  it('fires onFirstCycleComplete once after the second role finishes typing', () => {
+    const onFirstCycleComplete = vi.fn()
+
+    render(
+      <RotatingRole
+        roles={[CS_STUDENT, DEVELOPER]}
+        active={true}
+        typeSpeed={40}
+        eraseSpeed={40}
+        holdMs={50}
+        onFirstCycleComplete={onFirstCycleComplete}
+      />
+    )
+
+    for (let i = 0; i <= CS_STUDENT.length; i++) act(() => { vi.advanceTimersByTime(40) })
+    act(() => { vi.advanceTimersByTime(50) })
+    for (let i = 0; i <= CS_STUDENT.length; i++) act(() => { vi.advanceTimersByTime(40) })
+    expect(onFirstCycleComplete).not.toHaveBeenCalled()
+
+    for (let i = 0; i <= DEVELOPER.length; i++) act(() => { vi.advanceTimersByTime(40) })
+    expect(onFirstCycleComplete).toHaveBeenCalledTimes(1)
+
+    act(() => { vi.advanceTimersByTime(5000) })
+    expect(onFirstCycleComplete).toHaveBeenCalledTimes(1)
+  })
+
   it('cleans up timers on unmount', () => {
     const { unmount } = render(<RotatingRole roles={roles} active={true} />)
 
