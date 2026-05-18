@@ -8,7 +8,7 @@ const STATUS_MESSAGES = [
   'SYSTEM_READY',
 ] as const
 
-const MESSAGE_DURATION = 600
+const MESSAGE_DURATION = 700
 
 interface LoadingScreenProps {
   onComplete: () => void

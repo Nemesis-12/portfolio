@@ -5,7 +5,7 @@ import { cursorVariants } from './HeroSection.constants'
 
 const SUBTITLE = 'CS_STUDENT · DEVELOPER'
 const VALUE_PROP = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
-const INITIAL_DELAY = 400
+const INITIAL_DELAY = 3200
 const SUBTITLE_SPEED = 60
 const VALUE_PROP_DELAY = 400
 const VALUE_PROP_SPEED = 35

@@ -5,7 +5,7 @@ import { cursorVariants } from './HeroSection.constants'
 
 const SUBTITLE_TEXT = 'CS_STUDENT · DEVELOPER'
 const VALUE_PROP_TEXT = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
-const TYPEWRITER_DURATION = 400 + SUBTITLE_TEXT.length * 60 + 400 + VALUE_PROP_TEXT.length * 35
+const TYPEWRITER_DURATION = 3200 + SUBTITLE_TEXT.length * 60 + 400 + VALUE_PROP_TEXT.length * 35
 const CTA_DELAY = 200
 
 describe('HeroSection', () => {
@@ -33,11 +33,11 @@ describe('HeroSection', () => {
     expect(valueProp.textContent).toBe('')
   })
 
-  it('subtitle starts typing after 400ms delay', () => {
+  it('subtitle starts typing after 3200ms delay', () => {
     render(<HeroSection />)
 
     act(() => {
-      vi.advanceTimersByTime(400)
+      vi.advanceTimersByTime(3200)
     })
 
     const subtitle = screen.getByTestId('subtitle')
@@ -56,7 +56,7 @@ describe('HeroSection', () => {
     render(<HeroSection />)
 
     act(() => {
-      vi.advanceTimersByTime(400)
+      vi.advanceTimersByTime(3200)
       vi.advanceTimersByTime(SUBTITLE_TEXT.length * 60)
     })
 
@@ -70,7 +70,7 @@ describe('HeroSection', () => {
     const valueProp = screen.getByTestId('value-prop')
 
     act(() => {
-      vi.advanceTimersByTime(400 + SUBTITLE_TEXT.length * 60)
+      vi.advanceTimersByTime(3200 + SUBTITLE_TEXT.length * 60)
     })
 
     expect(valueProp.textContent).toBe('')
@@ -107,7 +107,7 @@ describe('HeroSection', () => {
     const { unmount } = render(<HeroSection />)
 
     act(() => {
-      vi.advanceTimersByTime(400 + SUBTITLE_TEXT.length * 60)
+      vi.advanceTimersByTime(3200 + SUBTITLE_TEXT.length * 60)
     })
 
     expect(vi.getTimerCount()).toBeGreaterThan(0)
