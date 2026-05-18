@@ -104,9 +104,10 @@ describe('Navbar', () => {
     afterEach(() => {
       vi.unstubAllGlobals()
       document.body.removeChild(section)
+      document.getElementById('projects')?.remove()
     })
 
-    it('applies active underline class to link matching the intersecting section', () => {
+    it('scopes active color and underline to the label span only', () => {
       render(<Navbar />)
 
       act(() => {
@@ -118,8 +119,48 @@ describe('Navbar', () => {
 
       const skillsLink = screen.getByText('SKILLS').closest('a')
       expect(skillsLink).not.toBeNull()
-      expect(skillsLink!.className).toContain('border-b-2')
-      expect(skillsLink!.className).toContain('border-atomic-tangerine')
+      const skillsLabel = screen.getByText('SKILLS')
+
+      expect(skillsLink!.className).not.toContain('border-b-2')
+      expect(skillsLink!.className).not.toContain('border-atomic-tangerine')
+      expect(skillsLabel).toHaveClass('text-atomic-tangerine')
+      expect(skillsLabel).toHaveClass('border-b-2')
+      expect(skillsLabel).toHaveClass('border-atomic-tangerine')
+      expect(skillsLink!.querySelector('[data-testid="nav-caret"]')).toBeNull()
+    })
+
+    it('restores inactive link caret and removes label underline when active section changes', () => {
+      const projectsSection = document.createElement('section')
+      projectsSection.id = 'projects'
+      document.body.appendChild(projectsSection)
+
+      render(<Navbar />)
+
+      act(() => {
+        observerCallback(
+          [{ target: section, isIntersecting: true } as unknown as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        )
+      })
+
+      act(() => {
+        observerCallback(
+          [{ target: projectsSection, isIntersecting: true } as unknown as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        )
+      })
+
+      const skillsLink = screen.getByText('SKILLS').closest('a')
+      const skillsLabel = screen.getByText('SKILLS')
+      const projectsLink = screen.getByText('PROJECTS').closest('a')
+      const projectsLabel = screen.getByText('PROJECTS')
+
+      expect(skillsLink!.querySelector('[data-testid="nav-caret"]')).not.toBeNull()
+      expect(skillsLabel).not.toHaveClass('text-atomic-tangerine')
+      expect(skillsLabel).not.toHaveClass('border-b-2')
+      expect(projectsLink!.querySelector('[data-testid="nav-caret"]')).toBeNull()
+      expect(projectsLabel).toHaveClass('text-atomic-tangerine')
+      expect(projectsLabel).toHaveClass('border-b-2')
     })
   })
 
