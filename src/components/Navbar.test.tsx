@@ -141,6 +141,26 @@ describe('Navbar', () => {
     })
   })
 
+  describe('issue #103 - fixed translucent v4 chrome', () => {
+    it('navbar uses fixed positioning', () => {
+      render(<Navbar />)
+      const nav = screen.getByRole('navigation')
+      expect(nav.className).toContain('fixed')
+    })
+
+    it('navbar has subtle bottom border', () => {
+      render(<Navbar />)
+      const nav = screen.getByRole('navigation')
+      expect(nav.className).toContain('border-b')
+    })
+
+    it('navbar has backdrop blur', () => {
+      render(<Navbar />)
+      const nav = screen.getByRole('navigation')
+      expect(nav.className).toContain('backdrop-blur')
+    })
+  })
+
   describe('issue #42 - > prefix on hover', () => {
     it('nav link shows > prefix on hover', async () => {
       const user = userEvent.setup()
