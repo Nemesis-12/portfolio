@@ -36,6 +36,7 @@ export default function ContactSection() {
                 key={label}
                 href={href}
                 target={target}
+                aria-label={`${prefix} ${label}`}
                 rel={target === '_blank' ? 'noopener noreferrer' : undefined}
                 variants={hoverEase}
                 initial="idle"
