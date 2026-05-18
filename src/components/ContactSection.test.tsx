@@ -29,13 +29,42 @@ describe('ContactSection', () => {
   it('renders contact links with the expected destinations', () => {
     render(<ContactSection />)
     const sendMessageLink = screen.getByRole('link', { name: 'SEND_MESSAGE →' })
+    const githubLink = screen.getByRole('link', { name: '// GITHUB' })
+    const linkedInLink = screen.getByRole('link', { name: '// LINKEDIN' })
     const emailLink = screen.getByRole('link', { name: '// EMAIL' })
     const resumeLink = screen.getByRole('link', { name: '// RESUME' })
 
     expect(sendMessageLink).toHaveAttribute('href', canonicalEmailHref)
+    expect(githubLink).toHaveAttribute('href', 'https://github.com/Nemesis-12')
+    expect(githubLink).not.toHaveAttribute('target')
+    expect(githubLink).not.toHaveAttribute('rel')
+    expect(linkedInLink).toHaveAttribute('href', 'https://linkedin.com/in/fa-mohammed')
+    expect(linkedInLink).not.toHaveAttribute('target')
+    expect(linkedInLink).not.toHaveAttribute('rel')
     expect(emailLink).toHaveAttribute('href', canonicalEmailHref)
+    expect(emailLink).not.toHaveAttribute('target')
+    expect(emailLink).not.toHaveAttribute('rel')
     expect(resumeLink).toHaveAttribute('href', '/resume.pdf')
     expect(resumeLink).toHaveAttribute('target', '_blank')
+    expect(resumeLink).toHaveAttribute('rel', 'noopener noreferrer')
+  })
+
+  it('renders footer link prefixes in orange and transitions the full link to white on hover', () => {
+    render(<ContactSection />)
+    const footerLinks = ['// GITHUB', '// LINKEDIN', '// EMAIL', '// RESUME'].map((name) =>
+      screen.getByRole('link', { name }),
+    )
+
+    footerLinks.forEach((link) => {
+      const spans = link.querySelectorAll('span')
+      const [prefix, label] = spans
+
+      expect(link).toHaveClass('group')
+      expect(spans).toHaveLength(2)
+      expect(prefix).toHaveTextContent('//')
+      expect(prefix).toHaveClass('text-atomic-tangerine', 'group-hover:text-white', 'transition-colors')
+      expect(label).toHaveClass('text-periwinkle', 'group-hover:text-white', 'transition-colors')
+    })
   })
 })
 
