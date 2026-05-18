@@ -135,17 +135,19 @@ const TimelineSection: React.FC = () => {
 
         <div className="space-y-12">
           <div>
-            <p className="font-body text-sm text-periwinkle tracking-widest mb-2 uppercase">
-              Education
-            </p>
+            <div className="flex items-center gap-1 mb-2">
+              <span className="font-display text-xs text-atomic-tangerine">//</span>
+              <span className="font-display text-sm text-atomic-tangerine">EDUCATION</span>
+            </div>
             <hr className="border-periwinkle/10 mb-0" />
             <EntryList entries={education} />
           </div>
 
           <div>
-            <p className="font-body text-sm text-periwinkle tracking-widest mb-2 uppercase">
-              Experience
-            </p>
+            <div className="flex items-center gap-1 mb-2">
+              <span className="font-display text-xs text-atomic-tangerine">//</span>
+              <span className="font-display text-sm text-atomic-tangerine">EXPERIENCE</span>
+            </div>
             <hr className="border-periwinkle/10 mb-0" />
             <EntryList entries={experience} />
           </div>
