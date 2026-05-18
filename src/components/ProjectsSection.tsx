@@ -58,7 +58,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
       animate={{ y: isHovered ? -4 : 0 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
       data-testid="project-card"
-      className="relative flex-shrink-0"
+      className="relative shrink-0"
       style={{ clipPath: NOTCH, maxWidth: '480px', width: '480px' }}
     >
       <div className="relative bg-platinum p-5">
