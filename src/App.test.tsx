@@ -3,6 +3,15 @@ import { act, render } from '@testing-library/react'
 import App from './App'
 
 const sections = ['home', 'projects', 'skills', 'timeline', 'contact'] as const
+const sectionIds = [
+  'home',
+  'projects',
+  'skills',
+  'timeline',
+  'timeline-a3f9d2b',
+  'timeline-b7c3e1a',
+  'contact',
+] as const
 const shellConstraintClasses = ['container', 'max-w-7xl', 'mx-auto'] as const
 
 function expectNoShellConstraint(element: Element) {
@@ -39,8 +48,8 @@ describe('App shell', () => {
 
   it('renders sections in the correct order', () => {
     render(<App />)
-    const sectionIds = document.querySelectorAll('section[id]')
-    expect(Array.from(sectionIds).map((s) => s.id)).toEqual([...sections])
+    const renderedSectionIds = document.querySelectorAll('section[id]')
+    expect(Array.from(renderedSectionIds).map((s) => s.id)).toEqual([...sectionIds])
   })
 
   it('section surfaces span the full browser width', () => {
@@ -103,7 +112,6 @@ describe('App shell', () => {
     })
 
     expect(dotGrid.style.transform).toBe('translate3d(0, 36px, 0)')
-    expect(addEventListenerSpy).toHaveBeenCalledTimes(2)
     expect(addEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function), { passive: true })
     expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true })
 

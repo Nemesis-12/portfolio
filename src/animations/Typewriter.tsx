@@ -110,7 +110,7 @@ export function Typewriter({ active, lines, speed = 25, onDone }: TypewriterProp
   return (
     <div>
       {displayedLines.map((line, i) => (
-        <div key={i}>{line}</div>
+        <div key={i} data-typewriter-line>{line}</div>
       ))}
     </div>
   )
