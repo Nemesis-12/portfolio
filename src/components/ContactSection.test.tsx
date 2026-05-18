@@ -29,8 +29,8 @@ describe('ContactSection', () => {
   it('renders contact links with the expected destinations', () => {
     render(<ContactSection />)
     const sendMessageLink = screen.getByRole('link', { name: 'SEND_MESSAGE →' })
-    const emailLink = screen.getByRole('link', { name: '// EMAIL' })
-    const resumeLink = screen.getByRole('link', { name: '// RESUME' })
+    const emailLink = screen.getByRole('link', { name: '//EMAIL' })
+    const resumeLink = screen.getByRole('link', { name: '//RESUME' })
 
     expect(sendMessageLink).toHaveAttribute('href', canonicalEmailHref)
     expect(emailLink).toHaveAttribute('href', canonicalEmailHref)

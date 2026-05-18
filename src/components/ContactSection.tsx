@@ -5,10 +5,10 @@ import { ScrollFadeSection } from './ScrollFadeSection'
 const EMAIL = 'famohammed@shockers.wichita.edu'
 
 const footerLinks = [
-  { label: '// GITHUB', href: 'https://github.com/Nemesis-12' },
-  { label: '// LINKEDIN', href: 'https://linkedin.com/in/fa-mohammed' },
-  { label: '// EMAIL', href: `mailto:${EMAIL}` },
-  { label: '// RESUME', href: '/resume.pdf', target: '_blank' as const },
+  { prefix: '//', label: 'GITHUB', href: 'https://github.com/Nemesis-12' },
+  { prefix: '//', label: 'LINKEDIN', href: 'https://linkedin.com/in/fa-mohammed' },
+  { prefix: '//', label: 'EMAIL', href: `mailto:${EMAIL}` },
+  { prefix: '//', label: 'RESUME', href: '/resume.pdf', target: '_blank' as const },
 ]
 
 export default function ContactSection() {
@@ -31,7 +31,7 @@ export default function ContactSection() {
           </motion.a>
 
           <div className="flex flex-wrap gap-6">
-            {footerLinks.map(({ label, href, target }) => (
+            {footerLinks.map(({ prefix, label, href, target }) => (
               <motion.a
                 key={label}
                 href={href}
@@ -40,9 +40,10 @@ export default function ContactSection() {
                 variants={hoverEase}
                 initial="idle"
                 whileHover="hover"
-                className="font-body text-sm text-periwinkle hover:text-atomic-tangerine transition-colors"
+                className="group font-body text-sm"
               >
-                {label}
+                <span className="text-atomic-tangerine group-hover:text-white transition-colors">{prefix}{' '}</span>
+                <span className="text-periwinkle group-hover:text-white transition-colors">{label}</span>
               </motion.a>
             ))}
           </div>
