@@ -1,0 +1,8 @@
+export const STATUS_MESSAGES = [
+  'ESTABLISHING_SIGNAL',
+  'COMPILING_MODULES',
+  'LOADING_ASSETS',
+  'SYSTEM_READY',
+] as const
+
+export const MESSAGE_DURATION = 700

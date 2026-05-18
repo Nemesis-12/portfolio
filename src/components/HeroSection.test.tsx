@@ -1,12 +1,22 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, act } from '@testing-library/react'
 import HeroSection from './HeroSection'
-import { cursorVariants } from './HeroSection.constants'
+import {
+  CTA_DELAY,
+  INITIAL_DELAY,
+  SUBTITLE,
+  SUBTITLE_SPEED,
+  VALUE_PROP,
+  VALUE_PROP_DELAY,
+  VALUE_PROP_SPEED,
+  cursorVariants,
+} from './HeroSection.constants'
 
-const SUBTITLE_TEXT = 'CS_STUDENT · DEVELOPER'
-const VALUE_PROP_TEXT = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
-const TYPEWRITER_DURATION = 3200 + SUBTITLE_TEXT.length * 60 + 400 + VALUE_PROP_TEXT.length * 35
-const CTA_DELAY = 200
+const TYPEWRITER_DURATION =
+  INITIAL_DELAY +
+  SUBTITLE.length * SUBTITLE_SPEED +
+  VALUE_PROP_DELAY +
+  VALUE_PROP.length * VALUE_PROP_SPEED
 
 describe('HeroSection', () => {
   beforeEach(() => {
@@ -16,6 +26,10 @@ describe('HeroSection', () => {
   afterEach(() => {
     vi.clearAllTimers()
     vi.useRealTimers()
+  })
+
+  it('uses a 3.2 second initial handoff delay', () => {
+    expect(INITIAL_DELAY).toBe(3200)
   })
 
   it('shows the developer name', () => {
@@ -37,7 +51,7 @@ describe('HeroSection', () => {
     render(<HeroSection />)
 
     act(() => {
-      vi.advanceTimersByTime(3200)
+      vi.advanceTimersByTime(INITIAL_DELAY)
     })
 
     const subtitle = screen.getByTestId('subtitle')
@@ -45,7 +59,7 @@ describe('HeroSection', () => {
     expect(screen.getByTestId('subtitle-cursor')).toBeInTheDocument()
 
     act(() => {
-      vi.advanceTimersByTime(60)
+      vi.advanceTimersByTime(SUBTITLE_SPEED)
     })
 
     expect(subtitle.textContent).toBe('C')
@@ -56,12 +70,12 @@ describe('HeroSection', () => {
     render(<HeroSection />)
 
     act(() => {
-      vi.advanceTimersByTime(3200)
-      vi.advanceTimersByTime(SUBTITLE_TEXT.length * 60)
+      vi.advanceTimersByTime(INITIAL_DELAY)
+      vi.advanceTimersByTime(SUBTITLE.length * SUBTITLE_SPEED)
     })
 
     const subtitle = screen.getByTestId('subtitle')
-    expect(subtitle.textContent).toBe(SUBTITLE_TEXT)
+    expect(subtitle.textContent).toBe(SUBTITLE)
     expect(screen.queryByTestId('subtitle-cursor')).not.toBeInTheDocument()
   })
 
@@ -70,21 +84,21 @@ describe('HeroSection', () => {
     const valueProp = screen.getByTestId('value-prop')
 
     act(() => {
-      vi.advanceTimersByTime(3200 + SUBTITLE_TEXT.length * 60)
+      vi.advanceTimersByTime(INITIAL_DELAY + SUBTITLE.length * SUBTITLE_SPEED)
     })
 
     expect(valueProp.textContent).toBe('')
     expect(screen.queryByTestId('value-prop-cursor')).not.toBeInTheDocument()
 
     act(() => {
-      vi.advanceTimersByTime(400)
+      vi.advanceTimersByTime(VALUE_PROP_DELAY)
     })
 
     expect(valueProp.textContent).toBe('')
     expect(screen.getByTestId('value-prop-cursor')).toBeInTheDocument()
 
     act(() => {
-      vi.advanceTimersByTime(35)
+      vi.advanceTimersByTime(VALUE_PROP_SPEED)
     })
 
     expect(valueProp.textContent).toBe('/')
@@ -99,7 +113,7 @@ describe('HeroSection', () => {
     })
 
     const valueProp = screen.getByTestId('value-prop')
-    expect(valueProp.textContent).toBe(VALUE_PROP_TEXT)
+    expect(valueProp.textContent).toBe(VALUE_PROP)
     expect(screen.queryByTestId('value-prop-cursor')).not.toBeInTheDocument()
   })
 
@@ -107,7 +121,7 @@ describe('HeroSection', () => {
     const { unmount } = render(<HeroSection />)
 
     act(() => {
-      vi.advanceTimersByTime(3200 + SUBTITLE_TEXT.length * 60)
+      vi.advanceTimersByTime(INITIAL_DELAY + SUBTITLE.length * SUBTITLE_SPEED)
     })
 
     expect(vi.getTimerCount()).toBeGreaterThan(0)

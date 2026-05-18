@@ -1,17 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { ScrollFadeSection } from './ScrollFadeSection'
-import { cursorVariants } from './HeroSection.constants'
-
-const SUBTITLE = 'CS_STUDENT · DEVELOPER'
-const VALUE_PROP = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
-const INITIAL_DELAY = 3200
-const SUBTITLE_SPEED = 60
-const VALUE_PROP_DELAY = 400
-const VALUE_PROP_SPEED = 35
-
-const CTA_DELAY = 200
-const CTA_FADE_DURATION = 0.4
+import {
+  CTA_DELAY,
+  CTA_FADE_DURATION,
+  INITIAL_DELAY,
+  SUBTITLE,
+  SUBTITLE_SPEED,
+  VALUE_PROP,
+  VALUE_PROP_DELAY,
+  VALUE_PROP_SPEED,
+  cursorVariants,
+} from './HeroSection.constants'
 
 const ctaVariants = {
   hidden: { opacity: 0, y: 8 },

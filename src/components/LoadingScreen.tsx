@@ -1,14 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-
-const STATUS_MESSAGES = [
-  'ESTABLISHING_SIGNAL',
-  'COMPILING_MODULES',
-  'LOADING_ASSETS',
-  'SYSTEM_READY',
-] as const
-
-const MESSAGE_DURATION = 700
+import { MESSAGE_DURATION, STATUS_MESSAGES } from './LoadingScreen.constants'
 
 interface LoadingScreenProps {
   onComplete: () => void

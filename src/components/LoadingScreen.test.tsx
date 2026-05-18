@@ -1,8 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, act } from '@testing-library/react'
 import LoadingScreen from './LoadingScreen'
-
-const MESSAGE_DURATION = 700
+import { MESSAGE_DURATION, STATUS_MESSAGES } from './LoadingScreen.constants'
 
 describe('LoadingScreen', () => {
   beforeEach(() => {
@@ -11,6 +10,10 @@ describe('LoadingScreen', () => {
 
   afterEach(() => {
     vi.useRealTimers()
+  })
+
+  it('uses a 2.8 second total status message sequence', () => {
+    expect(MESSAGE_DURATION * STATUS_MESSAGES.length).toBe(2800)
   })
 
   it('shows ESTABLISHING_SIGNAL as the first status message', () => {
