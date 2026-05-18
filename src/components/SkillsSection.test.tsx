@@ -198,12 +198,12 @@ describe('SkillsSection', () => {
     expect(rows.every(row => /^(\d+|\d*\.\d+)fr$/.test(row))).toBe(true)
   })
 
-  it('grid stays within the max-w-7xl section container', () => {
+  it('grid spans full-width section (no max-w constraint)', () => {
     render(<SkillsSection />)
     const grid = screen.getByTestId('skills-grid')
 
     expect(grid.parentElement).not.toBeNull()
-    expect(grid.parentElement!.classList).toContain('max-w-7xl')
+    expect(grid.parentElement!.classList).not.toContain('max-w-7xl')
     expect(grid.parentElement!.classList).toContain('w-full')
   })
 

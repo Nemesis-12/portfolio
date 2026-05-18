@@ -84,7 +84,7 @@ const HeroSection: React.FC = () => {
         <div className="absolute inset-0 bg-[radial-gradient(#3A3B3A_1px,transparent_1px)] bg-[size:20px_20px]"></div>
       </div>
 
-      <div className="relative z-10 px-8 max-w-7xl mx-auto space-y-6">
+      <div className="relative z-10 px-8 w-full space-y-6">
         <div className="space-y-2">
           <p className="font-body text-xs text-atomic-tangerine tracking-widest">
             // PORTFOLIO_INIT

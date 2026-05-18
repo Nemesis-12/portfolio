@@ -135,7 +135,7 @@ function SectionLabel({ label }: { label: 'EDUCATION' | 'EXPERIENCE' }) {
 const TimelineSection: React.FC = () => {
   return (
     <ScrollFadeSection id="timeline" className="min-h-screen flex flex-col justify-center py-14 px-8 bg-graphite-light">
-      <div className="max-w-7xl mx-auto w-full">
+      <div className="w-full">
         <div className="flex items-center gap-3 mb-12">
           <span className="font-body text-sm text-atomic-tangerine tracking-widest whitespace-nowrap">// 03</span>
           <span className="font-body text-sm text-periwinkle tracking-widest whitespace-nowrap">TIMELINE</span>
