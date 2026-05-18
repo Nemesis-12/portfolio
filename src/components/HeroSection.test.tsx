@@ -46,6 +46,7 @@ describe('HeroSection', () => {
     const underline = screen.getByTestId('hero-init-label-underline')
 
     expect(content).toHaveClass('pt-16')
+    expect(labelUnit).toHaveClass('w-fit')
     expect(labelUnit).toContainElement(label)
     expect(labelUnit).toContainElement(underline)
     expect(label.textContent?.startsWith('//')).toBe(true)
