@@ -66,7 +66,11 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocusCapture={() => setHasFocus(true)}
-      onBlurCapture={() => setHasFocus(false)}
+      onBlurCapture={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setHasFocus(false)
+        }
+      }}
       animate={{ y: isFillActive ? -4 : 0 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
       data-testid="project-card"
