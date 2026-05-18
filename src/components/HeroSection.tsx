@@ -1,17 +1,15 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { StickySection } from './StickySection'
 import { TypeIn } from '../animations/TypeIn'
 import { RotatingRole } from '../animations/RotatingRole'
 import {
-  CTA_DELAY,
   CTA_FADE_DURATION,
   FIRST_NAME,
   LAST_NAME,
   NAME_SPEED,
   ROLES,
   VALUE_PROP,
-  VALUE_PROP_DELAY,
   VALUE_PROP_SPEED,
   cursorVariants,
 } from './HeroSection.constants'
@@ -25,45 +23,9 @@ const HeroSection: React.FC = () => {
   const [firstNameDone, setFirstNameDone] = useState(false)
   const [nameDone, setNameDone] = useState(false)
   const [showNameCursor, setShowNameCursor] = useState(false)
-  const [valueProp, setValueProp] = useState('')
-  const [showValuePropCursor, setShowValuePropCursor] = useState(false)
+  const [startValueProp, setStartValueProp] = useState(false)
+  const [valuePropDone, setValuePropDone] = useState(false)
   const [showCTAs, setShowCTAs] = useState(false)
-
-  const valuePropRef = useRef(0)
-  const timersRef = useRef<number[]>([])
-
-  useEffect(() => {
-    const schedule = (callback: () => void, delay: number) => {
-      const timer = window.setTimeout(callback, delay)
-      timersRef.current.push(timer)
-    }
-
-    const typeValueProp = () => {
-      setShowValuePropCursor(true)
-
-      schedule(() => {
-        valuePropRef.current += 1
-        setValueProp(VALUE_PROP.slice(0, valuePropRef.current))
-
-        if (valuePropRef.current === VALUE_PROP.length) {
-          setShowValuePropCursor(false)
-          schedule(() => setShowCTAs(true), CTA_DELAY)
-          return
-        }
-
-        typeValueProp()
-      }, VALUE_PROP_SPEED)
-    }
-
-    if (nameDone) {
-      schedule(typeValueProp, VALUE_PROP_DELAY)
-    }
-
-    return () => {
-      timersRef.current.forEach((timer) => window.clearTimeout(timer))
-      timersRef.current = []
-    }
-  }, [nameDone])
 
   return (
     <StickySection id="home" className="relative flex flex-col justify-center bg-graphite">
@@ -113,11 +75,25 @@ const HeroSection: React.FC = () => {
           )}
         </h1>
 
-        <RotatingRole roles={ROLES} active={nameDone} />
+        <RotatingRole
+          roles={ROLES}
+          active={nameDone}
+          onFirstCycleComplete={() => {
+            setStartValueProp(true)
+          }}
+        />
 
         <p className="font-body text-lg text-periwinkle/80" data-testid="value-prop">
-          {valueProp}
-          {showValuePropCursor && (
+          <TypeIn
+            start={startValueProp}
+            text={VALUE_PROP}
+            speed={VALUE_PROP_SPEED}
+            onDone={() => {
+              setValuePropDone(true)
+              setShowCTAs(true)
+            }}
+          />
+          {startValueProp && !valuePropDone && (
             <motion.span
               data-testid="value-prop-cursor"
               aria-hidden="true"

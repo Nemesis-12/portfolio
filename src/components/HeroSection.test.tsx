@@ -2,13 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, act } from '@testing-library/react'
 import HeroSection from './HeroSection'
 import {
-  CTA_DELAY,
   FIRST_NAME,
   LAST_NAME,
   NAME_SPEED,
   ROLES,
   VALUE_PROP,
-  VALUE_PROP_DELAY,
   VALUE_PROP_SPEED,
   cursorVariants,
 } from './HeroSection.constants'
@@ -16,6 +14,8 @@ import {
 const FIRST_NAME_DURATION = FIRST_NAME.length * NAME_SPEED
 const LAST_NAME_DURATION = ` ${LAST_NAME}`.length * NAME_SPEED
 const ROLE_TYPE_SPEED = 40
+const ROLE_ERASE_SPEED = 30
+const ROLE_HOLD_MS = 2000
 
 function advanceToNameComplete() {
   act(() => {
@@ -29,6 +29,26 @@ function advanceToNameComplete() {
 function advanceRoleTyping(role: string) {
   act(() => {
     vi.advanceTimersByTime((role.length + 1) * ROLE_TYPE_SPEED)
+  })
+}
+
+function advanceFirstRoleCycle() {
+  advanceRoleTyping(ROLES[0])
+  act(() => {
+    vi.advanceTimersByTime(ROLE_HOLD_MS + (ROLES[0].length + 1) * ROLE_ERASE_SPEED)
+  })
+  advanceRoleTyping(ROLES[1])
+}
+
+function advanceToValuePropStart() {
+  advanceToNameComplete()
+  advanceFirstRoleCycle()
+}
+
+function advanceToValuePropComplete() {
+  advanceToValuePropStart()
+  act(() => {
+    vi.advanceTimersByTime(VALUE_PROP.length * VALUE_PROP_SPEED)
   })
 }
 
@@ -79,7 +99,7 @@ describe('HeroSection', () => {
     expect(valueProp.textContent).toBe('')
   })
 
-  it('value prop waits until name completes plus the 400ms gap before typing', () => {
+  it('value prop waits until RotatingRole completes the first role cycle before typing', () => {
     render(<HeroSection />)
     const valueProp = screen.getByTestId('value-prop')
 
@@ -88,28 +108,34 @@ describe('HeroSection', () => {
     expect(valueProp.textContent).toBe('')
     expect(screen.queryByTestId('value-prop-cursor')).not.toBeInTheDocument()
 
+    advanceRoleTyping(ROLES[0])
+    expect(valueProp.textContent).toBe('')
+    expect(screen.queryByTestId('value-prop-cursor')).not.toBeInTheDocument()
+
     act(() => {
-      vi.advanceTimersByTime(VALUE_PROP_DELAY)
+      vi.advanceTimersByTime(ROLE_HOLD_MS + (ROLES[0].length + 1) * ROLE_ERASE_SPEED)
     })
 
     expect(valueProp.textContent).toBe('')
+    expect(screen.queryByTestId('value-prop-cursor')).not.toBeInTheDocument()
+
+    advanceRoleTyping(ROLES[1])
+
     expect(screen.getByTestId('value-prop-cursor')).toBeInTheDocument()
 
     act(() => {
       vi.advanceTimersByTime(VALUE_PROP_SPEED)
     })
 
-    expect(valueProp.textContent).toBe('/')
+    expect(valueProp.textContent.length).toBeGreaterThan(0)
+    expect(valueProp.textContent.length).toBeLessThan(VALUE_PROP.length)
     expect(valueProp.lastElementChild).toBe(screen.getByTestId('value-prop-cursor'))
   })
 
   it('value prop completes at 35ms/char and removes its cursor immediately', () => {
     render(<HeroSection />)
 
-    advanceToNameComplete()
-    act(() => {
-      vi.advanceTimersByTime(VALUE_PROP_DELAY + VALUE_PROP.length * VALUE_PROP_SPEED)
-    })
+    advanceToValuePropComplete()
 
     const valueProp = screen.getByTestId('value-prop')
     expect(valueProp.textContent).toBe(VALUE_PROP)
@@ -131,10 +157,7 @@ describe('HeroSection', () => {
   it('shows the VIEW_WORK call-to-action linking to projects section', () => {
     render(<HeroSection />)
 
-    advanceToNameComplete()
-    act(() => {
-      vi.advanceTimersByTime(VALUE_PROP_DELAY + VALUE_PROP.length * VALUE_PROP_SPEED + CTA_DELAY)
-    })
+    advanceToValuePropComplete()
 
     const link = screen.getByRole('link', { name: /VIEW_WORK →/i })
     expect(link).toBeInTheDocument()
@@ -168,33 +191,33 @@ describe('HeroSection', () => {
   it('CTAs are absent before sequence completes', () => {
     render(<HeroSection />)
 
-    advanceToNameComplete()
+    advanceToValuePropStart()
     act(() => {
-      vi.advanceTimersByTime(VALUE_PROP_DELAY + VALUE_PROP.length * VALUE_PROP_SPEED)
+      vi.advanceTimersByTime(VALUE_PROP.length * VALUE_PROP_SPEED - 1)
     })
 
     expect(screen.queryByRole('link', { name: /VIEW_WORK →/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /VIEW_RESUME →/i })).not.toBeInTheDocument()
   })
 
-  it('CTAs remain absent until the full 200ms post-sequence delay elapses', () => {
+  it('CTAs appear as soon as the value prop TypeIn finishes', () => {
     render(<HeroSection />)
 
-    advanceToNameComplete()
-    act(() => {
-      vi.advanceTimersByTime(VALUE_PROP_DELAY + VALUE_PROP.length * VALUE_PROP_SPEED + CTA_DELAY - 1)
-    })
+    advanceToValuePropComplete()
 
-    expect(screen.queryByRole('link', { name: /VIEW_WORK →/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: /VIEW_RESUME →/i })).not.toBeInTheDocument()
+    const viewWork = screen.getByRole('link', { name: /VIEW_WORK →/i })
+    const viewResume = screen.getByRole('link', { name: /VIEW_RESUME →/i })
+
+    expect(viewWork).toBeInTheDocument()
+    expect(viewResume).toBeInTheDocument()
   })
 
-  it('cleans up the pending CTA reveal timer when unmounted', () => {
+  it('cleans up pending intro timers when unmounted', () => {
     const { unmount } = render(<HeroSection />)
 
     advanceToNameComplete()
     act(() => {
-      vi.advanceTimersByTime(VALUE_PROP_DELAY + VALUE_PROP.length * VALUE_PROP_SPEED)
+      vi.advanceTimersByTime(ROLE_TYPE_SPEED)
     })
 
     expect(vi.getTimerCount()).toBeGreaterThan(0)
@@ -204,13 +227,10 @@ describe('HeroSection', () => {
     expect(vi.getTimerCount()).toBe(0)
   })
 
-  it('CTAs appear after value prop completes plus 200ms delay', () => {
+  it('CTAs preserve project and resume link targets after value prop completes', () => {
     render(<HeroSection />)
 
-    advanceToNameComplete()
-    act(() => {
-      vi.advanceTimersByTime(VALUE_PROP_DELAY + VALUE_PROP.length * VALUE_PROP_SPEED + CTA_DELAY)
-    })
+    advanceToValuePropComplete()
 
     const viewWork = screen.getByRole('link', { name: /VIEW_WORK →/i })
     const viewResume = screen.getByRole('link', { name: /VIEW_RESUME →/i })
@@ -226,10 +246,7 @@ describe('HeroSection', () => {
   it('VIEW_WORK uses filled tangerine style, VIEW_RESUME uses outlined style', () => {
     render(<HeroSection />)
 
-    advanceToNameComplete()
-    act(() => {
-      vi.advanceTimersByTime(VALUE_PROP_DELAY + VALUE_PROP.length * VALUE_PROP_SPEED + CTA_DELAY)
-    })
+    advanceToValuePropComplete()
 
     const viewWork = screen.getByRole('link', { name: /VIEW_WORK →/i })
     const viewResume = screen.getByRole('link', { name: /VIEW_RESUME →/i })
@@ -271,7 +288,7 @@ describe('HeroSection', () => {
       expect(screen.getByTestId('rotating-role').textContent).toContain(role)
 
       act(() => {
-        vi.advanceTimersByTime(2000 + (role.length + 1) * 30)
+        vi.advanceTimersByTime(ROLE_HOLD_MS + (role.length + 1) * ROLE_ERASE_SPEED)
       })
     })
   })

@@ -27,7 +27,7 @@ describe('RotatingRole', () => {
     expect(screen.getByText(new RegExp(`^${CS_STUDENT}$`))).toBeInTheDocument()
   })
 
-it('completes type -> hold -> erase cycle and shows second role', () => {
+  it('completes type -> hold -> erase cycle and shows second role', () => {
     const { container } = render(<RotatingRole roles={roles} active={true} typeSpeed={40} eraseSpeed={40} holdMs={100} />)
 
     for (let i = 0; i <= CS_STUDENT.length; i++) {
@@ -92,6 +92,97 @@ it('completes type -> hold -> erase cycle and shows second role', () => {
     fullCycle()
     const text = container.textContent?.replace('▍', '')
     expect(text).toBe(DEVELOPER)
+  })
+
+  it('fires onFirstCycleComplete once after the second role finishes typing', () => {
+    const onFirstCycleComplete = vi.fn()
+
+    render(
+      <RotatingRole
+        roles={[CS_STUDENT, DEVELOPER]}
+        active={true}
+        typeSpeed={40}
+        eraseSpeed={40}
+        holdMs={50}
+        onFirstCycleComplete={onFirstCycleComplete}
+      />
+    )
+
+    for (let i = 0; i <= CS_STUDENT.length; i++) act(() => { vi.advanceTimersByTime(40) })
+    act(() => { vi.advanceTimersByTime(50) })
+    for (let i = 0; i <= CS_STUDENT.length; i++) act(() => { vi.advanceTimersByTime(40) })
+    expect(onFirstCycleComplete).not.toHaveBeenCalled()
+
+    for (let i = 0; i <= DEVELOPER.length; i++) act(() => { vi.advanceTimersByTime(40) })
+    expect(onFirstCycleComplete).toHaveBeenCalledTimes(1)
+
+    act(() => { vi.advanceTimersByTime(5000) })
+    expect(onFirstCycleComplete).toHaveBeenCalledTimes(1)
+  })
+
+  it('calls the latest onFirstCycleComplete after the callback changes mid-cycle', () => {
+    const firstCallback = vi.fn()
+    const latestCallback = vi.fn()
+    const { rerender } = render(
+      <RotatingRole
+        roles={[CS_STUDENT, DEVELOPER]}
+        active={true}
+        typeSpeed={40}
+        eraseSpeed={40}
+        holdMs={50}
+        onFirstCycleComplete={firstCallback}
+      />
+    )
+
+    for (let i = 0; i <= CS_STUDENT.length; i++) act(() => { vi.advanceTimersByTime(40) })
+
+    rerender(
+      <RotatingRole
+        roles={[CS_STUDENT, DEVELOPER]}
+        active={true}
+        typeSpeed={40}
+        eraseSpeed={40}
+        holdMs={50}
+        onFirstCycleComplete={latestCallback}
+      />
+    )
+
+    act(() => { vi.advanceTimersByTime(50) })
+    for (let i = 0; i <= CS_STUDENT.length; i++) act(() => { vi.advanceTimersByTime(40) })
+    for (let i = 0; i <= DEVELOPER.length; i++) act(() => { vi.advanceTimersByTime(40) })
+
+    expect(firstCallback).not.toHaveBeenCalled()
+    expect(latestCallback).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not fire onFirstCycleComplete after becoming inactive before completion', () => {
+    const onFirstCycleComplete = vi.fn()
+    const { rerender } = render(
+      <RotatingRole
+        roles={[CS_STUDENT, DEVELOPER]}
+        active={true}
+        typeSpeed={40}
+        eraseSpeed={40}
+        holdMs={50}
+        onFirstCycleComplete={onFirstCycleComplete}
+      />
+    )
+
+    for (let i = 0; i <= CS_STUDENT.length; i++) act(() => { vi.advanceTimersByTime(40) })
+    rerender(
+      <RotatingRole
+        roles={[CS_STUDENT, DEVELOPER]}
+        active={false}
+        typeSpeed={40}
+        eraseSpeed={40}
+        holdMs={50}
+        onFirstCycleComplete={onFirstCycleComplete}
+      />
+    )
+
+    act(() => { vi.advanceTimersByTime(5000) })
+
+    expect(onFirstCycleComplete).not.toHaveBeenCalled()
   })
 
   it('cleans up timers on unmount', () => {
