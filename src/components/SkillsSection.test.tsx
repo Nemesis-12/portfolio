@@ -102,6 +102,9 @@ describe('SkillsSection', () => {
       'FastAPI',
       'Docker', 'Git', 'Ansible', 'Linux',
       'NumPy', 'Pandas',
+      'Transformers', 'Attention Mechanisms', 'Gradient Optimization', 'Model Training / Fine-tuning',
+      'Matplotlib', 'Mixed-Precision Training',
+      'Jupyter',
     ]
     for (const skill of required) {
       expect(screen.getByText(skill)).toBeInTheDocument()
@@ -116,15 +119,15 @@ describe('SkillsSection', () => {
     }
   })
 
-  it('renders 15 skill tiles with no accent tile', () => {
+  it('renders 22 skill tiles (15 original + 7 new from resume)', () => {
     render(<SkillsSection />)
 
     const categoryLabels = screen.getAllByText(/^(LANGUAGE|FRAMEWORK|TOOL|ML \/ DL|DATA)$/)
-    expect(categoryLabels).toHaveLength(15)
+    expect(categoryLabels).toHaveLength(22)
 
     const gridContainer = document.querySelector('.grid')
     const children = gridContainer?.children || []
-    expect(children.length).toBe(15)
+    expect(children.length).toBe(22)
   })
 
   it('desktop grid has an explicit grid-rows class with varied row heights', () => {
@@ -156,10 +159,10 @@ describe('SkillsSection', () => {
     expect(pythonTile!.className).toMatch(/md:row-span-[3-9]/)
   })
 
-  it('grid defines at least 8 explicit rows to accommodate Python row-span-3 layout', () => {
+  it('grid defines at least 10 explicit rows to accommodate all skill tiles', () => {
     render(<SkillsSection />)
     const heights = getExplicitGridRows()
-    expect(heights.length).toBeGreaterThanOrEqual(8)
+    expect(heights.length).toBeGreaterThanOrEqual(10)
   })
 
   it('grid container has min-h-screen or min-h-svh class', () => {
@@ -193,13 +196,23 @@ describe('SkillsSection', () => {
     const children = Array.from(gridContainer?.children || [])
 
     const lastChild = children[children.length - 1]
-    expect(lastChild.textContent).toContain('SQL')
+    expect(lastChild.textContent).toContain('Jupyter')
     expect(lastChild.textContent).not.toMatch(/^(LANGUAGE|FRAMEWORK|TOOL|ML \/ DL|DATA)$/)
+
+    const allSkills = [
+      'Python', 'TypeScript', 'JavaScript', 'C / C++', 'SQL',
+      'PyTorch', 'Hugging Face', 'Scikit-learn',
+      'FastAPI', 'Docker', 'Git', 'Ansible', 'Linux',
+      'NumPy', 'Pandas',
+      'Transformers', 'Attention Mechanisms', 'Gradient Optimization', 'Model Training / Fine-tuning',
+      'Matplotlib', 'Mixed-Precision Training', 'Jupyter',
+    ]
 
     const allHaveCategoryOrSkill = children.every(child => {
       const text = child.textContent || ''
-      return /^(LANGUAGE|FRAMEWORK|TOOL|ML \/ DL|DATA)$/.test(text) ||
-             /Python|TypeScript|JavaScript|C \/ C\+\+|SQL|Docker|Git|Ansible|Linux|NumPy|Pandas|FastAPI|PyTorch|Hugging Face|Scikit-learn/.test(text)
+      const isCategory = /^(LANGUAGE|FRAMEWORK|TOOL|ML \/ DL|DATA)$/.test(text)
+      const isKnownSkill = allSkills.some(skill => text.includes(skill))
+      return isCategory || isKnownSkill
     })
     expect(allHaveCategoryOrSkill).toBe(true)
   })
@@ -209,7 +222,7 @@ describe('SkillsSection', () => {
 
     const tileAnimations = motionMock.divProps.filter(props => props.text !== undefined && props.text !== '')
 
-    expect(tileAnimations).toHaveLength(15)
+    expect(tileAnimations).toHaveLength(22)
 
     for (const tileAnimation of tileAnimations) {
       expect(tileAnimation.variants).toMatchObject({

@@ -35,15 +35,19 @@ interface SkillTile {
   fg: string
 }
 
-// Desktop (4-col, 8 rows — no two adjacent rows share the same span pattern):
-//   R1: Python(2) TypeScript(2)          [2,2]
-//   R2: Python(2) Docker(1) C/C++(1)     [2,1,1]
-//   R3: Python(2) JavaScript(2)          [2,2]
-//   R4: FastAPI(1) PyTorch(3)            [1,3]
-//   R5: NumPy(2) Pandas(1) Ansible(1)    [2,1,1]
-//   R6: NumPy(2) HuggingFace(2)          [2,2]
-//   R7: Scikit-learn(3) Linux(1)         [3,1]
-//   R8: Git(1) SQL(3)                    [1,3]
+// Desktop (4-col, 10 rows — no two adjacent rows share the same span pattern):
+//   R1: Python(2) TypeScript(2)                    [2,2]
+//   R2: Python(2) Docker(1) C/C++(1)               [2,1,1]
+//   R3: Python(2) JavaScript(2)                    [2,2]
+//   R4: FastAPI(1) PyTorch(3)                      [1,3]
+//   R5: NumPy(2) Pandas(1) Ansible(1)              [2,1,1]
+//   R6: NumPy(2) HuggingFace(2)                    [2,2]
+//   R7: Scikit-learn(3) Linux(1)                   [3,1]
+//   R8: Git(1) SQL(3)                               [1,3]
+//   R9: Transformers(2) Attention Mechanisms(2)    [2,2]
+//   R10: Gradient Opt(2) Model Training(2)         [2,2]
+//   R11: Matplotlib(2) Mixed-Precision(2)          [2,2]
+//   R12: Jupyter(4)                                 [4]
 //
 // Mobile (2-col):
 //   R1: Python(2)
@@ -57,6 +61,10 @@ interface SkillTile {
 //   R9: HuggingFace(1) Scikit-learn(1)
 //   R10: Linux(1) Git(1)
 //   R11: SQL(2)
+//   R12: Transformers(1) Attention Mechanisms(1)
+//   R13: Gradient Opt(1) Model Training(1)
+//   R14: Matplotlib(1) Mixed-Precision(1)
+//   R15: Jupyter(2)
 const tiles: SkillTile[] = [
   { category: 'LANGUAGE',  name: 'Python',       colSpan: 'col-span-2',                rowSpan: 'row-span-2 md:row-span-3', bg: '#FF8547', fg: '#050609' },
   { category: 'LANGUAGE',  name: 'TypeScript',   colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-2 md:row-span-1', bg: '#5200E0', fg: '#EFF1F3' },
@@ -73,6 +81,13 @@ const tiles: SkillTile[] = [
   { category: 'TOOL',      name: 'Linux',        colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
   { category: 'TOOL',      name: 'Git',          colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#FF8547', fg: '#050609' },
   { category: 'LANGUAGE',  name: 'SQL',          colSpan: 'col-span-2 md:col-span-3',  rowSpan: 'row-span-1',               bg: '#5200E0', fg: '#EFF1F3' },
+  { category: 'ML / DL',   name: 'Transformers', colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Attention Mechanisms', colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Gradient Optimization', colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Model Training / Fine-tuning', colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
+  { category: 'DATA',      name: 'Matplotlib',   colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
+  { category: 'DATA',      name: 'Mixed-Precision Training', colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
+  { category: 'TOOL',      name: 'Jupyter',      colSpan: 'col-span-2 md:col-span-4',  rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
 ]
 
 function SkillTileCard({ tile }: { tile: SkillTile }) {
@@ -112,7 +127,7 @@ export function SkillsSection() {
           variants={gridStagger}
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
-          className="grid grid-cols-2 md:grid-cols-4 gap-3 min-h-screen md:grid-rows-[1fr_1.1fr_1fr_1fr_1fr_1fr_1fr_1fr]"
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 min-h-screen md:grid-rows-[1fr_1.1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr]"
         >
           {tiles.map((tile) => (
             <SkillTileCard key={tile.name} tile={tile} />
