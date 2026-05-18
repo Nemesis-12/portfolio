@@ -1,16 +1,33 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, within, act } from '@testing-library/react'
+import { useInView } from 'framer-motion'
 import ContactSection from './ContactSection'
+
+vi.mock('framer-motion', async () => {
+  const actual = await vi.importActual<typeof import('framer-motion')>('framer-motion')
+  return { ...actual, useInView: vi.fn().mockReturnValue(false) }
+})
 
 describe('ContactSection', () => {
   const canonicalEmailHref = 'mailto:famohammed@shockers.wichita.edu'
 
+  beforeEach(() => {
+    vi.mocked(useInView).mockReturnValue(false)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('renders a contact section with only the CTA heading and contact links', () => {
+    vi.mocked(useInView).mockReturnValue(true)
+    vi.useFakeTimers()
     render(<ContactSection />)
+    act(() => { vi.advanceTimersByTime(1000) })
     const section = document.querySelector('#contact') as HTMLElement
 
     expect(section).toBeInTheDocument()
-    expect(within(section).getByRole('heading', { name: /LET'S CONNECT\./i })).toBeInTheDocument()
+    expect(section).toHaveTextContent("LET'S CONNECT.")
 
     const links = within(section).getAllByRole('link')
     expect(links.map((link) => link.textContent)).toEqual([
@@ -27,7 +44,10 @@ describe('ContactSection', () => {
   })
 
   it('renders contact links with the expected destinations', () => {
+    vi.mocked(useInView).mockReturnValue(true)
+    vi.useFakeTimers()
     render(<ContactSection />)
+    act(() => { vi.advanceTimersByTime(1000) })
     const sendMessageLink = screen.getByRole('link', { name: 'SEND_MESSAGE →' })
     const githubLink = screen.getByRole('link', { name: '// GITHUB' })
     const linkedInLink = screen.getByRole('link', { name: '// LINKEDIN' })
@@ -50,7 +70,10 @@ describe('ContactSection', () => {
   })
 
   it('renders footer link prefixes in orange and transitions the full link to white on hover', () => {
+    vi.mocked(useInView).mockReturnValue(true)
+    vi.useFakeTimers()
     render(<ContactSection />)
+    act(() => { vi.advanceTimersByTime(1000) })
     const footerLinks = ['// GITHUB', '// LINKEDIN', '// EMAIL', '// RESUME'].map((name) =>
       screen.getByRole('link', { name }),
     )
@@ -64,6 +87,44 @@ describe('ContactSection', () => {
       expect(prefix).toHaveTextContent('//')
       expect(prefix).toHaveClass('text-atomic-tangerine', 'group-hover:text-white', 'transition-colors')
       expect(label).toHaveClass('text-periwinkle', 'group-hover:text-white', 'transition-colors')
+    })
+  })
+
+  describe('issue #87 - LET\'S CONNECT. typewriter', () => {
+    it('heading is not visible when section is out of view', () => {
+      vi.mocked(useInView).mockReturnValue(false)
+      render(<ContactSection />)
+
+      expect(screen.queryByText("LET'S CONNECT.")).not.toBeInTheDocument()
+    })
+
+    it('heading types out character by character when section enters viewport', () => {
+      vi.mocked(useInView).mockReturnValue(true)
+      vi.useFakeTimers()
+
+      render(<ContactSection />)
+
+      // 5 chars × 50ms = 250ms for "LET'S"
+      act(() => { vi.advanceTimersByTime(250) })
+      expect(screen.getByText("LET'S")).toBeInTheDocument()
+
+      // 14 chars × 50ms = 700ms for full text
+      act(() => { vi.advanceTimersByTime(500) })
+      expect(screen.getByText("LET'S CONNECT.")).toBeInTheDocument()
+    })
+
+    it('blinking cursor persists after typing completes', () => {
+      vi.mocked(useInView).mockReturnValue(true)
+      vi.useFakeTimers()
+
+      render(<ContactSection />)
+
+      // Wait for typing to complete: "LET'S CONNECT." = 14 chars × 50ms = 700ms + buffer
+      act(() => { vi.advanceTimersByTime(1000) })
+
+      const cursor = document.querySelector('[data-testid="contact-cursor"]')
+      expect(cursor).toBeInTheDocument()
+      expect(cursor).toHaveClass('bg-atomic-tangerine')
     })
   })
 })

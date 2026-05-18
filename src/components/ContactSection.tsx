@@ -1,8 +1,13 @@
-import { motion } from 'framer-motion'
+import { useState, useRef } from 'react'
+import { motion, useInView } from 'framer-motion'
+import { TypeIn } from '../animations/TypeIn'
 import { hoverEase } from '../animations/variants'
 import { StickySection } from './StickySection'
+import { cursorVariants } from './HeroSection.constants'
 
 const EMAIL = 'famohammed@shockers.wichita.edu'
+const CONTACT_HEADING = "LET'S CONNECT."
+const CONTACT_SPEED = 50
 
 const footerLinks = [
   { prefix: '//', label: 'GITHUB', href: 'https://github.com/Nemesis-12' },
@@ -12,12 +17,30 @@ const footerLinks = [
 ]
 
 export default function ContactSection() {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true })
+  const [showCursor, setShowCursor] = useState(false)
+
   return (
     <>
       <StickySection id="contact" className="flex flex-col justify-center px-8 py-14 bg-graphite">
-        <div className="w-full">
+        <div ref={ref} className="w-full">
           <h2 className="font-display text-3xl md:text-5xl text-platinum leading-tight mb-12">
-            LET'S CONNECT.
+            <TypeIn
+              start={isInView}
+              text={CONTACT_HEADING}
+              speed={CONTACT_SPEED}
+              onDone={() => setShowCursor(true)}
+            />
+            {showCursor && (
+              <motion.span
+                data-testid="contact-cursor"
+                aria-hidden="true"
+                className="inline-block w-[3px] h-[1.2em] bg-atomic-tangerine align-middle ml-1"
+                variants={cursorVariants}
+                animate="blink"
+              />
+            )}
           </h2>
 
           <motion.a
