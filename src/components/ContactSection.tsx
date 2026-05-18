@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { hoverEase } from '../animations/variants'
 import { ScrollFadeSection } from './ScrollFadeSection'
 
-const EMAIL = 'mfa200312@gmail.com'
+const EMAIL = 'famohammed@shockers.wichita.edu'
 
 const footerLinks = [
   { label: '// GITHUB', href: 'https://github.com/Nemesis-12' },
