@@ -10,7 +10,19 @@ interface TimelineEntry {
   bullets: string[]
 }
 
-const education: TimelineEntry[] = [
+const timelineEntries: TimelineEntry[] = [
+  {
+    hash: 'd4e8f2c',
+    dateRange: 'AUG 2024 – PRESENT',
+    institution: 'NETAPP INC.',
+    role: 'SOFTWARE_ENGINEER_IN_TEST',
+    bullets: [
+      'Built automated analysis pipeline processing storage telemetry across distributed RAID systems (FC, SAS, NVMe/RoCE), handling terabytes of performance data.',
+      'Designed Python automation framework reducing manual configuration tasks by 30% across Linux, Windows, and VMware infrastructure.',
+      'Implemented Ansible-based deployment orchestration for 300+ system configurations, streamlining infrastructure provisioning workflows.',
+      'Developed interactive visualization dashboard for system performance metrics using Python, analyzing 1M+ database entries for engineering insights.',
+    ],
+  },
   {
     hash: 'a3f9d2b',
     dateRange: 'JAN 2026 – DEC 2027 (EXPECTED)',
@@ -26,21 +38,6 @@ const education: TimelineEntry[] = [
     bullets: [
       "Dean's List: Spring 2022 – Fall 2025",
       "Relevant Coursework: Machine Learning, Artificial Intelligence, Fundamentals of AI Agents, Data Science",
-    ],
-  },
-]
-
-const experience: TimelineEntry[] = [
-  {
-    hash: 'd4e8f2c',
-    dateRange: 'AUG 2024 – PRESENT',
-    institution: 'NETAPP INC.',
-    role: 'SOFTWARE_ENGINEER_IN_TEST',
-    bullets: [
-      'Built automated analysis pipeline processing storage telemetry across distributed RAID systems (FC, SAS, NVMe/RoCE), handling terabytes of performance data.',
-      'Designed Python automation framework reducing manual configuration tasks by 30% across Linux, Windows, and VMware infrastructure.',
-      'Implemented Ansible-based deployment orchestration for 300+ system configurations, streamlining infrastructure provisioning workflows.',
-      'Developed interactive visualization dashboard for system performance metrics using Python, analyzing 1M+ database entries for engineering insights.',
     ],
   },
 ]
@@ -163,14 +160,7 @@ function EntryList({ entries }: { entries: TimelineEntry[] }) {
   )
 }
 
-function SectionLabel({ label }: { label: 'EDUCATION' | 'EXPERIENCE' }) {
-  return (
-    <div className="flex items-center gap-1 mb-2">
-      <span className="font-display text-xs text-atomic-tangerine">//</span>
-      <span className="font-display text-sm text-atomic-tangerine">{label}</span>
-    </div>
-  )
-}
+
 
 const TimelineSection: React.FC = () => {
   return (
@@ -182,19 +172,7 @@ const TimelineSection: React.FC = () => {
           <hr className="flex-1 border-periwinkle/20" />
         </div>
 
-        <div className="space-y-12">
-          <div>
-            <SectionLabel label="EDUCATION" />
-            <hr className="border-periwinkle/10 mb-0" />
-            <EntryList entries={education} />
-          </div>
-
-          <div>
-            <SectionLabel label="EXPERIENCE" />
-            <hr className="border-periwinkle/10 mb-0" />
-            <EntryList entries={experience} />
-          </div>
-        </div>
+        <EntryList entries={timelineEntries} />
       </div>
     </StickySection>
   )
