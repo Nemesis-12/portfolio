@@ -60,15 +60,18 @@ describe('TimelineSection', () => {
 
     const commitEntries = screen.getAllByTestId('commit-entry')
 
-    expect(commitEntries[0].querySelector('ul')).not.toBeInTheDocument()
-    expect(commitEntries[0].querySelectorAll('li')).toHaveLength(0)
+    // NetApp (index 0) has 4 bullets
+    expect(commitEntries[0].querySelectorAll('ul')).toHaveLength(1)
+    expect(commitEntries[0].querySelectorAll('li')).toHaveLength(4)
+    expect(commitEntries[0].querySelectorAll('ul p')).toHaveLength(0)
 
-    expect(commitEntries[1].querySelectorAll('ul')).toHaveLength(1)
-    expect(commitEntries[1].querySelectorAll('li')).toHaveLength(2)
-    expect(commitEntries[1].querySelectorAll('ul p')).toHaveLength(0)
+    // M.S. (index 1) has 0 bullets
+    expect(commitEntries[1].querySelector('ul')).not.toBeInTheDocument()
+    expect(commitEntries[1].querySelectorAll('li')).toHaveLength(0)
 
+    // B.S. (index 2) has 2 bullets
     expect(commitEntries[2].querySelectorAll('ul')).toHaveLength(1)
-    expect(commitEntries[2].querySelectorAll('li')).toHaveLength(4)
+    expect(commitEntries[2].querySelectorAll('li')).toHaveLength(2)
     expect(commitEntries[2].querySelectorAll('ul p')).toHaveLength(0)
   })
 
@@ -81,31 +84,41 @@ describe('TimelineSection', () => {
 
     const bulletTexts = screen.getAllByTestId('commit-description').map(li => li.textContent)
 
+    // Newest-first: NetApp bullets first, then B.S. bullets
     expect(bulletTexts).toEqual([
-      "Dean's List: Spring 2022 – Fall 2025",
-      'Relevant Coursework: Machine Learning, Artificial Intelligence, Fundamentals of AI Agents, Data Science',
       'Built automated analysis pipeline processing storage telemetry across distributed RAID systems (FC, SAS, NVMe/RoCE), handling terabytes of performance data.',
       'Designed Python automation framework reducing manual configuration tasks by 30% across Linux, Windows, and VMware infrastructure.',
       'Implemented Ansible-based deployment orchestration for 300+ system configurations, streamlining infrastructure provisioning workflows.',
       'Developed interactive visualization dashboard for system performance metrics using Python, analyzing 1M+ database entries for engineering insights.',
+      "Dean's List: Spring 2022 – Fall 2025",
+      'Relevant Coursework: Machine Learning, Artificial Intelligence, Fundamentals of AI Agents, Data Science',
     ])
   })
 
-  it('renders timeline section labels in pixel display typography', () => {
-    render(<TimelineSection />)
+  describe('issue #78 - newest-first ordering', () => {
+    it('entries render in newest-first order (NetApp before M.S. before B.S.)', () => {
+      vi.mocked(useInView).mockReturnValue(true)
+      vi.useFakeTimers()
 
-    const labels = ['EDUCATION', 'EXPERIENCE']
+      render(<TimelineSection />)
+      act(() => { vi.advanceTimersByTime(15000) })
 
-    labels.forEach(label => {
-      const labelElement = screen.getByText(label)
-      const slashElement = labelElement.previousElementSibling
+      const institutions = screen.getAllByTestId('commit-institution')
+      expect(institutions[0].textContent).toBe('NETAPP INC.')
+      expect(institutions[1].textContent).toBe('WICHITA STATE UNIVERSITY')
+      expect(institutions[2].textContent).toBe('WICHITA STATE UNIVERSITY')
 
-      expect(slashElement).toHaveTextContent('//')
-      expect(slashElement).toHaveClass('font-display', 'text-xs', 'text-atomic-tangerine')
-      expect(slashElement).not.toHaveClass('font-body')
+      const roles = screen.getAllByTestId('commit-role')
+      expect(roles[0].textContent).toBe('SOFTWARE_ENGINEER_IN_TEST')
+      expect(roles[1].textContent).toBe('ACCELERATED_M.S._COMPUTER_SCIENCE')
+      expect(roles[2].textContent).toBe('B.S._COMPUTER_SCIENCE')
+    })
 
-      expect(labelElement).toHaveClass('font-display', 'text-sm', 'text-atomic-tangerine')
-      expect(labelElement).not.toHaveClass('font-body')
+    it('does not render Education/Experience subsection headings', () => {
+      render(<TimelineSection />)
+
+      expect(screen.queryByText('EDUCATION')).not.toBeInTheDocument()
+      expect(screen.queryByText('EXPERIENCE')).not.toBeInTheDocument()
     })
   })
 
@@ -134,28 +147,28 @@ describe('TimelineSection', () => {
       act(() => { vi.advanceTimersByTime(15000) })
 
       const hashes = screen.getAllByTestId('commit-hash')
-      expect(hashes[0].textContent).toBe('commit a3f9d2b')
-      expect(hashes[1].textContent).toBe('commit b7c3e1a')
-      expect(hashes[2].textContent).toBe('commit d4e8f2c')
+      expect(hashes[0].textContent).toBe('commit d4e8f2c')
+      expect(hashes[1].textContent).toBe('commit a3f9d2b')
+      expect(hashes[2].textContent).toBe('commit b7c3e1a')
 
       screen.getAllByTestId('commit-author').forEach(el => {
         expect(el.textContent).toBe('Author: Farhan Mohammed')
       })
 
       const dates = screen.getAllByTestId('commit-date')
-      expect(dates[0].textContent).toBe('Date:   JAN 2026 – DEC 2027 (EXPECTED)')
-      expect(dates[1].textContent).toBe('Date:   JAN 2022 – DEC 2025')
-      expect(dates[2].textContent).toBe('Date:   AUG 2024 – PRESENT')
+      expect(dates[0].textContent).toBe('Date:   AUG 2024 – PRESENT')
+      expect(dates[1].textContent).toBe('Date:   JAN 2026 – DEC 2027 (EXPECTED)')
+      expect(dates[2].textContent).toBe('Date:   JAN 2022 – DEC 2025')
 
       const institutions = screen.getAllByTestId('commit-institution')
-      expect(institutions[0].textContent).toBe('WICHITA STATE UNIVERSITY')
+      expect(institutions[0].textContent).toBe('NETAPP INC.')
       expect(institutions[1].textContent).toBe('WICHITA STATE UNIVERSITY')
-      expect(institutions[2].textContent).toBe('NETAPP INC.')
+      expect(institutions[2].textContent).toBe('WICHITA STATE UNIVERSITY')
 
       const roles = screen.getAllByTestId('commit-role')
-      expect(roles[0].textContent).toBe('ACCELERATED_M.S._COMPUTER_SCIENCE')
-      expect(roles[1].textContent).toBe('B.S._COMPUTER_SCIENCE')
-      expect(roles[2].textContent).toBe('SOFTWARE_ENGINEER_IN_TEST')
+      expect(roles[0].textContent).toBe('SOFTWARE_ENGINEER_IN_TEST')
+      expect(roles[1].textContent).toBe('ACCELERATED_M.S._COMPUTER_SCIENCE')
+      expect(roles[2].textContent).toBe('B.S._COMPUTER_SCIENCE')
     })
 
     it('does not render the superseded M.S. date range', () => {
