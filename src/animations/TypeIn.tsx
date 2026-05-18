@@ -10,6 +10,8 @@ interface TypeInProps {
 export function TypeIn({ start, text, speed = 40, onDone }: TypeInProps) {
   const [displayed, setDisplayed] = useState('')
   const timeoutRef = useRef<number | null>(null)
+  const onDoneRef = useRef(onDone)
+  onDoneRef.current = onDone
 
   useEffect(() => {
     if (!start) return
@@ -27,7 +29,7 @@ export function TypeIn({ start, text, speed = 40, onDone }: TypeInProps) {
         if (currentIndex <= text.length) {
           timeoutRef.current = window.setTimeout(tick, speed)
         } else {
-          onDone?.()
+          onDoneRef.current?.()
         }
       }
     }
@@ -41,7 +43,7 @@ export function TypeIn({ start, text, speed = 40, onDone }: TypeInProps) {
         timeoutRef.current = null
       }
     }
-  }, [start, text, speed, onDone])
+  }, [start, text, speed])
 
   if (!start) return null
 
