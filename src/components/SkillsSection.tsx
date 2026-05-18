@@ -65,28 +65,28 @@ interface SkillTile {
 //   R14: Matplotlib(1) Mixed-Precision(1)
 //   R15: Jupyter(2)
 const tiles: SkillTile[] = [
-  { category: 'LANGUAGE',  name: 'Python',       colSpan: 'col-span-2',                rowSpan: 'row-span-2 md:row-span-3', bg: '#FF8547', fg: '#050609' },
-  { category: 'LANGUAGE',  name: 'TypeScript',   colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-2 md:row-span-1', bg: '#5200E0', fg: '#EFF1F3' },
-  { category: 'TOOL',      name: 'Docker',       colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
-  { category: 'LANGUAGE',  name: 'C / C++',      colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
-  { category: 'LANGUAGE',  name: 'JavaScript',   colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
-  { category: 'FRAMEWORK', name: 'FastAPI',      colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#5200E0', fg: '#EFF1F3' },
-  { category: 'ML / DL',   name: 'PyTorch',      colSpan: 'col-span-2 md:col-span-3',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
-  { category: 'DATA',      name: 'NumPy',        colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-2',               bg: '#5200E0', fg: '#EFF1F3' },
-  { category: 'DATA',      name: 'Pandas',       colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
-  { category: 'TOOL',      name: 'Ansible',      colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#FF8547', fg: '#050609' },
-  { category: 'ML / DL',   name: 'Hugging Face', colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
-  { category: 'ML / DL',   name: 'Scikit-learn', colSpan: 'col-span-1 md:col-span-3',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
-  { category: 'TOOL',      name: 'Linux',        colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
-  { category: 'TOOL',      name: 'Git',          colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#FF8547', fg: '#050609' },
-  { category: 'LANGUAGE',  name: 'SQL',          colSpan: 'col-span-2 md:col-span-3',  rowSpan: 'row-span-1',               bg: '#5200E0', fg: '#EFF1F3' },
-  { category: 'ML / DL',   name: 'Transformers', colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
-  { category: 'ML / DL',   name: 'Attention Mechanisms', colSpan: 'col-span-1',        rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
-  { category: 'ML / DL',   name: 'Gradient Optimization', colSpan: 'col-span-1',       rowSpan: 'row-span-1 md:row-span-2', bg: '#FFCE47', fg: '#050609' },
-  { category: 'ML / DL',   name: 'Model Training / Fine-tuning', colSpan: 'col-span-1 md:col-span-3',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
-  { category: 'DATA',      name: 'Matplotlib',   colSpan: 'col-span-1',                rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
-  { category: 'DATA',      name: 'Mixed-Precision Training', colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
-  { category: 'TOOL',      name: 'Jupyter',      colSpan: 'col-span-2 md:col-span-1',  rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
+  { category: 'LANGUAGE',  name: 'Python',       colSpan: 'col-span-2 md:col-span-3',          rowSpan: 'row-span-2 md:row-span-3', bg: '#FF8547', fg: '#050609' },
+  { category: 'LANGUAGE',  name: 'TypeScript',   colSpan: 'col-span-1 md:col-span-2',          rowSpan: 'row-span-2 md:row-span-2', bg: '#5200E0', fg: '#EFF1F3' },
+  { category: 'TOOL',      name: 'Docker',       colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
+  { category: 'LANGUAGE',  name: 'C / C++',      colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
+  { category: 'LANGUAGE',  name: 'JavaScript',   colSpan: 'col-span-1 md:col-span-2',          rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
+  { category: 'FRAMEWORK', name: 'FastAPI',      colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#5200E0', fg: '#EFF1F3' },
+  { category: 'ML / DL',   name: 'PyTorch',      colSpan: 'col-span-2 md:col-span-3',          rowSpan: 'row-span-1 md:row-span-2', bg: '#FFCE47', fg: '#050609' },
+  { category: 'DATA',      name: 'NumPy',        colSpan: 'col-span-1 md:col-span-2',          rowSpan: 'row-span-1',               bg: '#5200E0', fg: '#EFF1F3' },
+  { category: 'DATA',      name: 'Pandas',       colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
+  { category: 'TOOL',      name: 'Ansible',      colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#FF8547', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Hugging Face', colSpan: 'col-span-1 md:col-span-2',          rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Scikit-learn', colSpan: 'col-span-1 md:col-span-3',          rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
+  { category: 'TOOL',      name: 'Linux',        colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
+  { category: 'TOOL',      name: 'Git',          colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#FF8547', fg: '#050609' },
+  { category: 'LANGUAGE',  name: 'SQL',          colSpan: 'col-span-1 md:col-span-2',          rowSpan: 'row-span-1',               bg: '#5200E0', fg: '#EFF1F3' },
+  { category: 'ML / DL',   name: 'Transformers', colSpan: 'col-span-1 md:col-span-2',          rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Attention Mechanisms', colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Gradient Optimization', colSpan: 'col-span-1 md:col-span-2', rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Model Training / Fine-tuning', colSpan: 'col-span-1 md:col-span-3', rowSpan: 'row-span-1',        bg: '#FFCE47', fg: '#050609' },
+  { category: 'DATA',      name: 'Matplotlib',   colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
+  { category: 'DATA',      name: 'Mixed-Precision Training', colSpan: 'col-span-1 md:col-span-2', rowSpan: 'row-span-1',            bg: '#E0007F', fg: '#EFF1F3' },
+  { category: 'TOOL',      name: 'Jupyter',      colSpan: 'col-span-2',                        rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
 ]
 
 function SkillTileCard({ tile }: { tile: SkillTile }) {
@@ -126,7 +126,7 @@ export function SkillsSection() {
           variants={gridStagger}
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
-          className="grid grid-cols-2 md:grid-cols-4 gap-3 min-h-screen md:grid-rows-[1fr_1.1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr]"
+          className="grid grid-cols-2 md:grid-cols-6 gap-3 min-h-screen md:grid-rows-[1fr_1.1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr]"
         >
           {tiles.map((tile) => (
             <SkillTileCard key={tile.name} tile={tile} />
