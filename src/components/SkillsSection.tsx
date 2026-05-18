@@ -3,20 +3,21 @@ import { useRef } from 'react'
 import { hoverEase } from '../animations/variants'
 import { StickySection } from './StickySection'
 
+const TILE_REVEAL_STEP = 0.12
+const TILE_REVEAL_DURATION = 0.5
+
 const tileStagger = {
   hidden: { opacity: 0, scale: 0.95 },
-  visible: {
+  visible: (order: number) => ({
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.4, ease: 'easeOut' as const },
-  },
+    transition: { delay: order * TILE_REVEAL_STEP, duration: TILE_REVEAL_DURATION, ease: 'easeOut' as const },
+  }),
 }
 
 const gridStagger = {
   hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.05 },
-  },
+  visible: {},
 }
 
 const tileVariants = {
@@ -35,7 +36,7 @@ interface SkillTile {
   fg: string
 }
 
-// Desktop (4-col, 11 rows — no two adjacent rows share the same span pattern):
+// Desktop (6-col, 11 rows — no two adjacent rows share the same span pattern):
 //   R1: Python(2) TypeScript(2)                    [2,2]
 //   R2: Python(2) Docker(1) C/C++(1)               [2,1,1]
 //   R3: Python(2) JavaScript(2)                    [2,2]
@@ -89,10 +90,31 @@ const tiles: SkillTile[] = [
   { category: 'TOOL',      name: 'Jupyter',      colSpan: 'col-span-2',                        rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
 ]
 
+function getResponsiveSpan(span: string, axis: 'col' | 'row') {
+  const mdMatch = span.match(new RegExp(`md:${axis}-span-(\\d+)`))
+  if (mdMatch) return Number(mdMatch[1])
+
+  const baseMatch = span.match(new RegExp(`${axis}-span-(\\d+)`))
+  return baseMatch ? Number(baseMatch[1]) : 1
+}
+
+function getTileArea(tile: SkillTile) {
+  return getResponsiveSpan(tile.colSpan, 'col') * getResponsiveSpan(tile.rowSpan, 'row')
+}
+
+const revealOrderByName = new Map(
+  [...tiles]
+    .sort((a, b) => getTileArea(b) - getTileArea(a) || tiles.indexOf(a) - tiles.indexOf(b))
+    .map((tile, index) => [tile.name, index]),
+)
+
 function SkillTileCard({ tile }: { tile: SkillTile }) {
+  const revealOrder = revealOrderByName.get(tile.name) ?? 0
+
   return (
     <motion.div
       variants={tileVariants}
+      custom={revealOrder}
       whileHover="hover"
       className={`${tile.colSpan} ${tile.rowSpan} min-h-24 md:min-h-0 p-5 rounded-lg flex flex-col justify-between cursor-default`}
       style={{ backgroundColor: tile.bg, color: tile.fg }}
