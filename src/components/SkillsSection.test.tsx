@@ -94,6 +94,20 @@ function getSkillAnimation(name: string) {
   return animation!
 }
 
+function getLatestGridAnimation() {
+  const gridAnimations = motionMock.divProps.filter(props => props.text === '')
+  const animation = gridAnimations[gridAnimations.length - 1]
+  expect(animation).toBeDefined()
+  return animation!
+}
+
+function getLatestTileRevealOrder() {
+  return motionMock.divProps
+    .filter(props => props.text !== undefined && props.text !== '')
+    .slice(-22)
+    .map(props => [props.text, props.custom])
+}
+
 describe('SkillsSection', () => {
   beforeEach(() => {
     motionMock.isInView = false
@@ -324,7 +338,7 @@ describe('SkillsSection', () => {
     }
   })
 
-  it('grid switches to visible on viewport entry once while tiles handle their own reveal delays', () => {
+  it('grid switches to visible on viewport entry while tiles handle their own reveal delays', () => {
     motionMock.isInView = true
 
     render(<SkillsSection />)
@@ -341,18 +355,37 @@ describe('SkillsSection', () => {
     })
     expect(motionMock.useInView).toHaveBeenCalledWith(
       expect.objectContaining({ current: expect.any(HTMLElement) }),
-      { once: true, margin: '-10% 0px -10% 0px' },
+      { margin: '-10% 0px -10% 0px' },
     )
   })
 
   it('keeps tile animation hidden until the skills grid enters the viewport', () => {
     render(<SkillsSection />)
 
-    const gridAnimation = motionMock.divProps.find(props => props.text === '')
+    const gridAnimation = getLatestGridAnimation()
 
     expect(gridAnimation).toMatchObject({
       animate: 'hidden',
       initial: 'hidden',
     })
+  })
+
+  it('resets to hidden after leaving the viewport and replays the deterministic order on re-entry', () => {
+    motionMock.isInView = true
+    const { rerender } = render(<SkillsSection />)
+
+    const firstRevealOrder = getLatestTileRevealOrder()
+    expect(getLatestGridAnimation()).toMatchObject({ animate: 'visible' })
+
+    motionMock.isInView = false
+    rerender(<SkillsSection />)
+
+    expect(getLatestGridAnimation()).toMatchObject({ animate: 'hidden' })
+
+    motionMock.isInView = true
+    rerender(<SkillsSection />)
+
+    expect(getLatestGridAnimation()).toMatchObject({ animate: 'visible' })
+    expect(getLatestTileRevealOrder()).toEqual(firstRevealOrder)
   })
 })

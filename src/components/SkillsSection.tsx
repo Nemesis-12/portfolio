@@ -131,7 +131,7 @@ function SkillTileCard({ tile }: { tile: SkillTile }) {
 
 export function SkillsSection() {
   const gridRef = useRef<HTMLDivElement>(null)
-  const isInView = useInView(gridRef, { once: true, margin: '-10% 0px -10% 0px' })
+  const isInView = useInView(gridRef, { margin: '-10% 0px -10% 0px' })
 
   return (
     <StickySection id="skills" className="flex flex-col justify-center py-14 px-8 bg-graphite">
