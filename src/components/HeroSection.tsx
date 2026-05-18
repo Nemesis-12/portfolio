@@ -2,15 +2,14 @@ import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { StickySection } from './StickySection'
 import { TypeIn } from '../animations/TypeIn'
+import { RotatingRole } from '../animations/RotatingRole'
 import {
   CTA_DELAY,
   CTA_FADE_DURATION,
   FIRST_NAME,
-  INITIAL_DELAY,
   LAST_NAME,
   NAME_SPEED,
-  SUBTITLE,
-  SUBTITLE_SPEED,
+  ROLES,
   VALUE_PROP,
   VALUE_PROP_DELAY,
   VALUE_PROP_SPEED,
@@ -24,14 +23,12 @@ const ctaVariants = {
 
 const HeroSection: React.FC = () => {
   const [firstNameDone, setFirstNameDone] = useState(false)
+  const [nameDone, setNameDone] = useState(false)
   const [showNameCursor, setShowNameCursor] = useState(false)
-  const [subtitle, setSubtitle] = useState('')
   const [valueProp, setValueProp] = useState('')
-  const [showSubtitleCursor, setShowSubtitleCursor] = useState(false)
   const [showValuePropCursor, setShowValuePropCursor] = useState(false)
   const [showCTAs, setShowCTAs] = useState(false)
 
-  const subtitleRef = useRef(0)
   const valuePropRef = useRef(0)
   const timersRef = useRef<number[]>([])
 
@@ -58,31 +55,15 @@ const HeroSection: React.FC = () => {
       }, VALUE_PROP_SPEED)
     }
 
-    const typeSubtitle = () => {
-      schedule(() => {
-        subtitleRef.current += 1
-        setSubtitle(SUBTITLE.slice(0, subtitleRef.current))
-
-        if (subtitleRef.current === SUBTITLE.length) {
-          setShowSubtitleCursor(false)
-          schedule(typeValueProp, VALUE_PROP_DELAY)
-          return
-        }
-
-        typeSubtitle()
-      }, SUBTITLE_SPEED)
+    if (nameDone) {
+      schedule(typeValueProp, VALUE_PROP_DELAY)
     }
-
-    schedule(() => {
-      setShowSubtitleCursor(true)
-      typeSubtitle()
-    }, INITIAL_DELAY)
 
     return () => {
       timersRef.current.forEach((timer) => window.clearTimeout(timer))
       timersRef.current = []
     }
-  }, [])
+  }, [nameDone])
 
   return (
     <StickySection id="home" className="relative flex flex-col justify-center bg-graphite">
@@ -116,7 +97,10 @@ const HeroSection: React.FC = () => {
             start={firstNameDone}
             text={` ${LAST_NAME}`}
             speed={NAME_SPEED}
-            onDone={() => setShowNameCursor(true)}
+            onDone={() => {
+              setNameDone(true)
+              setShowNameCursor(true)
+            }}
           />
           {showNameCursor && (
             <motion.span
@@ -129,18 +113,7 @@ const HeroSection: React.FC = () => {
           )}
         </h1>
 
-        <p className="font-body text-xl text-periwinkle" data-testid="subtitle">
-          {subtitle}
-          {showSubtitleCursor && (
-            <motion.span
-              data-testid="subtitle-cursor"
-              aria-hidden="true"
-              className="inline-block w-[3px] h-[1em] bg-atomic-tangerine align-middle ml-0.5"
-              variants={cursorVariants}
-              animate="blink"
-            />
-          )}
-        </p>
+        <RotatingRole roles={ROLES} active={nameDone} />
 
         <p className="font-body text-lg text-periwinkle/80" data-testid="value-prop">
           {valueProp}
