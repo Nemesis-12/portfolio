@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { ScrollFadeSection } from './ScrollFadeSection'
+import { StickySection } from './StickySection'
 import {
   CTA_DELAY,
   CTA_FADE_DURATION,
@@ -79,7 +79,7 @@ const HeroSection: React.FC = () => {
   }, [])
 
   return (
-    <ScrollFadeSection id="home" className="relative min-h-screen flex flex-col justify-center bg-graphite">
+    <StickySection id="home" className="relative flex flex-col justify-center bg-graphite">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(#3A3B3A_1px,transparent_1px)] bg-[size:20px_20px]"></div>
       </div>
@@ -154,7 +154,7 @@ const HeroSection: React.FC = () => {
           </motion.div>
         )}
       </div>
-    </ScrollFadeSection>
+    </StickySection>
   )
 }
 

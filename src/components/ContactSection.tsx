@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { hoverEase } from '../animations/variants'
-import { ScrollFadeSection } from './ScrollFadeSection'
+import { StickySection } from './StickySection'
 
 const EMAIL = 'famohammed@shockers.wichita.edu'
 
@@ -14,7 +14,7 @@ const footerLinks = [
 export default function ContactSection() {
   return (
     <>
-      <ScrollFadeSection id="contact" className="min-h-screen flex flex-col justify-center px-8 py-14 bg-graphite">
+      <StickySection id="contact" className="flex flex-col justify-center px-8 py-14 bg-graphite">
         <div className="w-full">
           <h2 className="font-display text-3xl md:text-5xl text-platinum leading-tight mb-12">
             LET'S CONNECT.
@@ -49,7 +49,7 @@ export default function ContactSection() {
             ))}
           </div>
         </div>
-      </ScrollFadeSection>
+      </StickySection>
 
       <footer className="flex justify-between items-center px-8 py-8 border-t border-periwinkle/20 text-xs font-body text-periwinkle bg-graphite">
         <span>FARHAN_MOHAMMED © 2026</span>
