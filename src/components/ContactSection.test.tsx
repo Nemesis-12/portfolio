@@ -3,6 +3,8 @@ import { render, screen, within } from '@testing-library/react'
 import ContactSection from './ContactSection'
 
 describe('ContactSection', () => {
+  const canonicalEmailHref = 'mailto:famohammed@shockers.wichita.edu'
+
   it('renders a contact section with only the CTA heading and contact links', () => {
     render(<ContactSection />)
     const section = document.querySelector('#contact') as HTMLElement
@@ -30,8 +32,8 @@ describe('ContactSection', () => {
     const emailLink = screen.getByRole('link', { name: '// EMAIL' })
     const resumeLink = screen.getByRole('link', { name: '// RESUME' })
 
-    expect(sendMessageLink).toHaveAttribute('href', expect.stringMatching(/^mailto:/))
-    expect(emailLink).toHaveAttribute('href', expect.stringMatching(/^mailto:/))
+    expect(sendMessageLink).toHaveAttribute('href', canonicalEmailHref)
+    expect(emailLink).toHaveAttribute('href', canonicalEmailHref)
     expect(resumeLink).toHaveAttribute('href', '/resume.pdf')
     expect(resumeLink).toHaveAttribute('target', '_blank')
   })
