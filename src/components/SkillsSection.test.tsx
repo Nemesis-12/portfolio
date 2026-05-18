@@ -80,6 +80,12 @@ function getExplicitGridRows() {
   return match![1].split('_')
 }
 
+function getSkillTile(name: string) {
+  const tile = screen.getByText(name).closest('div')
+  expect(tile).not.toBeNull()
+  return tile!
+}
+
 describe('SkillsSection', () => {
   beforeEach(() => {
     motionMock.isInView = false
@@ -159,10 +165,22 @@ describe('SkillsSection', () => {
     expect(pythonTile!.className).toMatch(/md:row-span-[3-9]/)
   })
 
-  it('grid defines at least 10 explicit rows to accommodate all skill tiles', () => {
+  it('grid defines at least 11 explicit rows to accommodate all skill tiles', () => {
     render(<SkillsSection />)
     const heights = getExplicitGridRows()
-    expect(heights.length).toBeGreaterThanOrEqual(10)
+    expect(heights.length).toBeGreaterThanOrEqual(11)
+  })
+
+  it('new resume skills keep an asymmetric desktop layout', () => {
+    render(<SkillsSection />)
+
+    expect(getSkillTile('Transformers').className).toContain('md:col-span-2')
+    expect(getSkillTile('Attention Mechanisms').className).not.toContain('md:col-span-2')
+    expect(getSkillTile('Gradient Optimization').className).toContain('md:row-span-2')
+    expect(getSkillTile('Model Training / Fine-tuning').className).toContain('md:col-span-3')
+    expect(getSkillTile('Matplotlib').className).not.toContain('md:col-span-2')
+    expect(getSkillTile('Mixed-Precision Training').className).toContain('md:col-span-2')
+    expect(getSkillTile('Jupyter').className).toContain('md:col-span-1')
   })
 
   it('grid container has min-h-screen or min-h-svh class', () => {
