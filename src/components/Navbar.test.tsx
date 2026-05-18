@@ -269,10 +269,11 @@ describe('Navbar', () => {
         })
 
         const skillsLink = screen.getByRole('link', { name: /skills/i })
-        const prefixSpan = skillsLink.querySelector('span')
-        expect(skillsLink.className).toContain('border-b-2')
-        expect(prefixSpan).not.toBeNull()
-        expect(prefixSpan!.style.opacity).toBe('0')
+        // border-b-2 is on the label <span> inside the link, not on the link itself
+        const labelSpan = skillsLink.querySelector('span')
+        expect(labelSpan?.className).toContain('border-b-2')
+        // When a link is active the > prefix is removed entirely (not just hidden)
+        expect(skillsLink.querySelector('[data-testid="nav-caret"]')).not.toBeInTheDocument()
       } finally {
         vi.unstubAllGlobals()
         document.body.removeChild(section)

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest'
 import { act, render } from '@testing-library/react'
 import App from './App'
 
-const sections = ['home', 'projects', 'skills', 'timeline', 'contact'] as const
+const sections = ['home', 'projects', 'skills', 'timeline-d4e8f2c', 'timeline-a3f9d2b', 'timeline-b7c3e1a', 'contact'] as const
 const shellConstraintClasses = ['container', 'max-w-7xl', 'mx-auto'] as const
 
 function expectNoShellConstraint(element: Element) {
@@ -103,11 +103,20 @@ describe('App shell', () => {
     })
 
     expect(dotGrid.style.transform).toBe('translate3d(0, 36px, 0)')
-    expect(addEventListenerSpy).toHaveBeenCalledTimes(2)
+    // App's parallax is the only scroll handler that also registers resize with { passive: true }
+    // StickySection registers resize without options, so this uniquely identifies the parallax handler
     expect(addEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function), { passive: true })
     expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true })
 
-    const scrollHandler = addEventListenerSpy.mock.calls.find(([eventName]) => eventName === 'scroll')?.[1]
+    const passiveResizeHandlers = addEventListenerSpy.mock.calls
+      .filter(([ev, , opts]) => ev === 'resize' && (opts as { passive?: boolean })?.passive === true)
+      .map(([, fn]) => fn)
+    const scrollHandler = addEventListenerSpy.mock.calls.find(
+      ([ev, fn, opts]) =>
+        ev === 'scroll' &&
+        (opts as { passive?: boolean })?.passive === true &&
+        passiveResizeHandlers.includes(fn),
+    )?.[1]
     act(() => {
       window.dispatchEvent(new Event('scroll'))
       window.dispatchEvent(new Event('scroll'))

@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
-import { useInView } from 'framer-motion'
 import { StickySection } from './StickySection'
+import { Typewriter } from '../animations/Typewriter'
+import { useActivePanel } from '../hooks/useActivePanel'
 
 interface TimelineEntry {
   hash: string
@@ -8,6 +8,7 @@ interface TimelineEntry {
   institution: string
   role: string
   bullets: string[]
+  category: 'experience' | 'education'
 }
 
 const timelineEntries: TimelineEntry[] = [
@@ -22,6 +23,7 @@ const timelineEntries: TimelineEntry[] = [
       'Implemented Ansible-based deployment orchestration for 300+ system configurations, streamlining infrastructure provisioning workflows.',
       'Developed interactive visualization dashboard for system performance metrics using Python, analyzing 1M+ database entries for engineering insights.',
     ],
+    category: 'experience',
   },
   {
     hash: 'a3f9d2b',
@@ -29,6 +31,7 @@ const timelineEntries: TimelineEntry[] = [
     institution: 'WICHITA STATE UNIVERSITY',
     role: 'ACCELERATED_M.S._COMPUTER_SCIENCE',
     bullets: [],
+    category: 'education',
   },
   {
     hash: 'b7c3e1a',
@@ -39,142 +42,51 @@ const timelineEntries: TimelineEntry[] = [
       "Dean's List: Spring 2022 – Fall 2025",
       "Relevant Coursework: Machine Learning, Artificial Intelligence, Fundamentals of AI Agents, Data Science",
     ],
+    category: 'education',
   },
 ]
 
-function CommitEntry({ entry }: { entry: TimelineEntry }) {
-  const [commitText, setCommitText] = useState('')
-  const [authorText, setAuthorText] = useState('')
-  const [dateText, setDateText] = useState('')
-  const [institutionText, setInstitutionText] = useState('')
-  const [roleText, setRoleText] = useState('')
-  const [bulletTexts, setBulletTexts] = useState<string[]>([])
-
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
-  const hasStarted = useRef(false)
-  const timersRef = useRef<(ReturnType<typeof setTimeout> | ReturnType<typeof setInterval>)[]>([])
-
-  useEffect(() => {
-    if (isInView && !hasStarted.current) {
-      hasStarted.current = true
-      const texts = [
-        { text: `commit ${entry.hash}`, setter: setCommitText, delay: 0 },
-        { text: 'Author: Farhan Mohammed', setter: setAuthorText, delay: 200 },
-        { text: `Date:   ${entry.dateRange}`, setter: setDateText, delay: 400 },
-        { text: entry.institution, setter: setInstitutionText, delay: 600 },
-        { text: entry.role, setter: setRoleText, delay: 800 },
-      ]
-
-      texts.forEach(({ text, setter, delay: d }) => {
-        const timeoutId = setTimeout(() => {
-          let i = 0
-          const interval = setInterval(() => {
-            if (i <= text.length) {
-              setter(text.slice(0, i))
-              i++
-            } else {
-              clearInterval(interval)
-            }
-          }, 30)
-          timersRef.current.push(interval)
-        }, d)
-        timersRef.current.push(timeoutId)
-      })
-
-      const bulletDelayStart = 1000
-      entry.bullets.forEach((bullet, index) => {
-        const timeoutId = setTimeout(() => {
-          setBulletTexts(prev => {
-            const newBullets = [...prev]
-            newBullets[index] = ''
-            return newBullets
-          })
-
-          let i = 0
-          const interval = setInterval(() => {
-            if (i <= bullet.length) {
-              setBulletTexts(prev => {
-                const newBullets = [...prev]
-                newBullets[index] = bullet.slice(0, i)
-                return newBullets
-              })
-              i++
-            } else {
-              clearInterval(interval)
-            }
-          }, 30)
-          timersRef.current.push(interval)
-        }, bulletDelayStart + index * 200)
-        timersRef.current.push(timeoutId)
-      })
-    }
-
-    return () => {
-      timersRef.current.forEach(timer => {
-        clearTimeout(timer)
-        clearInterval(timer as ReturnType<typeof setInterval>)
-      })
-      timersRef.current = []
-    }
-  }, [isInView, entry])
+function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean }) {
+  const lines = [
+    `commit ${entry.hash}`,
+    'Author: Farhan Mohammed',
+    `Date:   ${entry.dateRange}`,
+    entry.institution,
+    entry.role,
+    ...entry.bullets,
+  ]
 
   return (
-    <div ref={ref} className="min-h-screen py-6 font-mono" data-testid="commit-entry">
-      <p className="text-atomic-tangerine text-xs" data-testid="commit-hash">
-        {commitText}
-      </p>
-      <p className="text-periwinkle text-xs mt-1" data-testid="commit-author">
-        {authorText}
-      </p>
-      <p className="text-periwinkle text-xs" data-testid="commit-date">
-        {dateText}
-      </p>
-      <div className="mt-2 ml-4">
-        <p className="text-platinum text-xs" data-testid="commit-institution">{institutionText}</p>
-        <p className="text-platinum text-xs mt-1" data-testid="commit-role">{roleText}</p>
-        {entry.bullets.length > 0 && (
-          <ul className="text-periwinkle text-xs mt-2 list-disc list-inside">
-            {entry.bullets.map((_, index) => (
-              <li key={index} data-testid="commit-description">{bulletTexts[index] || ''}</li>
-            ))}
-          </ul>
-        )}
-      </div>
+    <div className="min-h-screen py-6 font-mono" data-testid="commit-entry">
+      <Typewriter active={active} lines={lines} speed={25} />
     </div>
   )
 }
 
-function EntryList({ entries }: { entries: TimelineEntry[] }) {
+function TimelinePanel({ entry, active, panelRef }: { entry: TimelineEntry; active: boolean; panelRef: (el: HTMLElement | null) => void }) {
   return (
-    <div>
-      {entries.map((entry, index) => (
-        <div key={entry.hash}>
-          <CommitEntry entry={entry} />
-          {index < entries.length - 1 && (
-            <hr className="border-periwinkle/20" />
-          )}
+    <StickySection id={`timeline-${entry.hash}`} className="bg-graphite-light">
+      <div ref={panelRef} className="min-h-screen flex flex-col justify-center py-14 px-8">
+        <div data-testid="section-label" className="font-display text-atomic-tangerine mb-8">
+          <span className="text-xs">//</span>{' '}
+          <span className="text-sm">{entry.category === 'experience' ? 'EXPERIENCE' : 'EDUCATION'}</span>
         </div>
-      ))}
-    </div>
-  )
-}
-
-
-
-const TimelineSection: React.FC = () => {
-  return (
-    <StickySection id="timeline" className="flex flex-col justify-center py-14 px-8 bg-graphite-light">
-      <div className="w-full">
-        <div className="flex items-center gap-3 mb-12">
-          <span className="font-body text-sm text-atomic-tangerine tracking-widest whitespace-nowrap">// 03</span>
-          <span className="font-body text-sm text-periwinkle tracking-widest whitespace-nowrap">TIMELINE</span>
-          <hr className="flex-1 border-periwinkle/20" />
-        </div>
-
-        <EntryList entries={timelineEntries} />
+        <CommitEntry entry={entry} active={active} />
       </div>
     </StickySection>
+  )
+}
+
+const TimelineSection: React.FC = () => {
+  const { active, setRef } = useActivePanel(timelineEntries.length)
+
+  return (
+    <>
+      <span id="timeline" aria-hidden="true" className="sr-only" />
+      {timelineEntries.map((entry, i) => (
+        <TimelinePanel key={entry.hash} entry={entry} active={active[i]} panelRef={setRef(i)} />
+      ))}
+    </>
   )
 }
 

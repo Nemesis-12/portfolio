@@ -42,7 +42,8 @@ export default function Navbar() {
 
           <ul className="hidden md:flex gap-8 list-none m-0 p-0">
             {NAV_LINKS.map(({ label, href }) => {
-              const isActive = activeSection === href.slice(1)
+              const target = href.slice(1)
+              const isActive = activeSection === target || activeSection.startsWith(target + '-')
               const isHovered = hoveredLink === label
               return (
                 <li key={label}>
