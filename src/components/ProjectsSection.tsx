@@ -58,8 +58,8 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
       animate={{ y: isHovered ? -4 : 0 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
       data-testid="project-card"
-      className="relative"
-      style={{ clipPath: NOTCH }}
+      className="relative shrink-0"
+      style={{ clipPath: NOTCH, maxWidth: '480px', width: '480px' }}
     >
       <div className="relative bg-platinum p-5">
         {project.image && (
@@ -96,6 +96,14 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
             </span>
           ))}
         </div>
+
+        {project.bullets && project.bullets.length > 0 && (
+          <ul className="list-disc list-inside text-graphite/70 text-sm font-body leading-relaxed mb-4 space-y-1">
+            {project.bullets.map((bullet, index) => (
+              <li key={index}>{bullet}</li>
+            ))}
+          </ul>
+        )}
 
         <div className="flex flex-col gap-1">
           {project.links.map((link) => (

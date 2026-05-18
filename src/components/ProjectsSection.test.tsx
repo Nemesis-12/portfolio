@@ -13,7 +13,11 @@ const mockProjects = [
       { label: 'GitHub', url: 'https://github.com/project1' },
       { label: 'Demo', url: 'https://demo.project1.com' }
     ],
-    image: 'https://example.com/image1.png'
+    image: 'https://example.com/image1.png',
+    bullets: [
+      'First bullet point for project one',
+      'Second bullet point for project one'
+    ]
   },
   {
     id: '2',
@@ -123,5 +127,40 @@ describe('ProjectsSection', () => {
 
     expect(headerLabel.closest('[data-carousel-track="true"]')).toBeNull()
     expect(carouselTrack).toBeInTheDocument()
+  })
+
+  it('renders resume bullets when provided', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    expect(screen.getByText('First bullet point for project one')).toBeInTheDocument()
+    expect(screen.getByText('Second bullet point for project one')).toBeInTheDocument()
+  })
+
+  it('omits bullets section when project has no bullets', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const projectTwoCard = screen.getByRole('heading', { name: 'Project Two' }).closest('[data-testid="project-card"]')
+    expect(projectTwoCard).not.toBeNull()
+
+    const bulletsList = projectTwoCard?.querySelector('ul')
+    expect(bulletsList).not.toBeInTheDocument()
+  })
+
+  it('renders bullets as a list structure', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const lists = document.querySelectorAll('[data-testid="project-card"] ul')
+    expect(lists).toHaveLength(1)
+    expect(lists[0].querySelectorAll('li')).toHaveLength(2)
+  })
+
+  it('card has explicit width constraint to prevent full-width collapse', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const card = document.querySelector('[data-testid="project-card"]')
+    expect(card).not.toBeNull()
+    const style = window.getComputedStyle(card!)
+    expect(style.maxWidth).not.toBe('none')
+    expect(style.maxWidth).not.toBe('')
   })
 })
