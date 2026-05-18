@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { render } from '@testing-library/react'
+import { describe, it, expect, vi, afterEach } from 'vitest'
+import { act, render } from '@testing-library/react'
 import App from './App'
 
 const sections = ['home', 'projects', 'skills', 'timeline', 'contact'] as const
@@ -12,6 +12,10 @@ function expectNoShellConstraint(element: Element) {
 }
 
 describe('App shell', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it.each(sections)('renders %s section', (id) => {
     render(<App />)
     const section = document.getElementById(id)
@@ -52,5 +56,65 @@ describe('App shell', () => {
       expect(section.className).toContain('sticky')
       expect(Number((section as HTMLElement).style.zIndex)).toBeLessThan(40)
     })
+  })
+
+  it('initializes one RAF-batched parallax scroll listener and cleans it up', () => {
+    let nextFrameId = 1
+    const frameCallbacks = new Map<number, FrameRequestCallback>()
+    const requestAnimationFrameSpy = vi
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((callback) => {
+        const frameId = nextFrameId
+        nextFrameId += 1
+        frameCallbacks.set(frameId, callback)
+        return frameId
+      })
+    const cancelAnimationFrameSpy = vi
+      .spyOn(window, 'cancelAnimationFrame')
+      .mockImplementation((frameId) => {
+        frameCallbacks.delete(frameId)
+      })
+    const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
+    const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
+
+    const { unmount } = render(<App />)
+    const dotGrid = document.querySelector('[data-testid="hero-dot-grid"]') as HTMLElement
+    const homeSection = document.getElementById('home') as HTMLElement
+
+    vi.spyOn(homeSection, 'getBoundingClientRect').mockReturnValue({
+      top: -120,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      width: 0,
+      height: 0,
+      x: 0,
+      y: -120,
+      toJSON: () => ({}),
+    })
+
+    act(() => {
+      frameCallbacks.get(1)?.(0)
+      frameCallbacks.delete(1)
+    })
+
+    expect(dotGrid.style.transform).toBe('translate3d(0, 36px, 0)')
+    expect(addEventListenerSpy).toHaveBeenCalledTimes(2)
+    expect(addEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function), { passive: true })
+    expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true })
+
+    const scrollHandler = addEventListenerSpy.mock.calls.find(([eventName]) => eventName === 'scroll')?.[1]
+    act(() => {
+      window.dispatchEvent(new Event('scroll'))
+      window.dispatchEvent(new Event('scroll'))
+    })
+
+    expect(requestAnimationFrameSpy).toHaveBeenCalledTimes(2)
+
+    unmount()
+
+    expect(removeEventListenerSpy).toHaveBeenCalledWith('scroll', scrollHandler)
+    expect(removeEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function))
+    expect(cancelAnimationFrameSpy).toHaveBeenCalledWith(2)
   })
 })

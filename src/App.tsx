@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
@@ -14,6 +14,53 @@ import { projects } from './data/projects'
 
 function App() {
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let frameId: number | null = null
+
+    const updateParallax = () => {
+      const parallaxLayers = Array.from(document.querySelectorAll<HTMLElement>('[data-parallax]'))
+      const layerUpdates = parallaxLayers.map((layer) => {
+        const factor = Number(layer.dataset.parallaxFactor ?? 0)
+        const section = layer.closest('section')
+        const sectionRect = section?.getBoundingClientRect()
+        const scrollOffset = sectionRect ? -sectionRect.top : -layer.getBoundingClientRect().top
+
+        return {
+          layer,
+          offset: scrollOffset * (Number.isFinite(factor) ? factor : 0),
+        }
+      })
+
+      layerUpdates.forEach(({ layer, offset }) => {
+        layer.style.transform = `translate3d(0, ${offset}px, 0)`
+      })
+    }
+
+    const requestParallaxUpdate = () => {
+      if (frameId !== null) {
+        return
+      }
+
+      frameId = window.requestAnimationFrame(() => {
+        frameId = null
+        updateParallax()
+      })
+    }
+
+    window.addEventListener('scroll', requestParallaxUpdate, { passive: true })
+    window.addEventListener('resize', requestParallaxUpdate, { passive: true })
+    requestParallaxUpdate()
+
+    return () => {
+      window.removeEventListener('scroll', requestParallaxUpdate)
+      window.removeEventListener('resize', requestParallaxUpdate)
+
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId)
+      }
+    }
+  }, [])
 
   return (
     <>

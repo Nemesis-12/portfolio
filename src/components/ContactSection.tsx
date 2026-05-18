@@ -52,8 +52,12 @@ export default function ContactSection() {
       </StickySection>
 
       <footer className="flex justify-between items-center px-8 py-8 border-t border-periwinkle/20 text-xs font-body text-periwinkle bg-graphite">
-        <span>FARHAN_MOHAMMED © 2026</span>
-        <span>PORTFOLIO.EXE</span>
+        <span data-parallax data-parallax-factor="0.5">
+          FARHAN_MOHAMMED © 2026
+        </span>
+        <span data-parallax data-parallax-factor="0.5">
+          PORTFOLIO.EXE
+        </span>
       </footer>
     </>
   )

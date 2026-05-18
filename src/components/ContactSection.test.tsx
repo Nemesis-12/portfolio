@@ -86,4 +86,14 @@ describe('Footer', () => {
     expect(footer).not.toHaveTextContent('SEND_MESSAGE →')
     expect(footer?.querySelectorAll('a, button, input, select, textarea, [tabindex]').length).toBe(0)
   })
+
+  it('marks footer text as a stronger parallax layer', () => {
+    render(<ContactSection />)
+    const footerText = Array.from(document.querySelectorAll('footer [data-parallax]'))
+
+    expect(footerText).toHaveLength(2)
+    footerText.forEach((item) => {
+      expect(item).toHaveAttribute('data-parallax-factor', '0.5')
+    })
+  })
 })
