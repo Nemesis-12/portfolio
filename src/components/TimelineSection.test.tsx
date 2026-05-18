@@ -30,21 +30,59 @@ describe('TimelineSection', () => {
     const dateElements = screen.getAllByTestId('commit-date')
     const institutionElements = screen.getAllByTestId('commit-institution')
     const roleElements = screen.getAllByTestId('commit-role')
-    const descriptionElements = screen.getAllByTestId('commit-description')
+    const bulletElements = screen.getAllByTestId('commit-description')
 
     expect(hashElements.length).toBe(3)
     expect(authorElements.length).toBe(3)
     expect(dateElements.length).toBe(3)
     expect(institutionElements.length).toBe(3)
     expect(roleElements.length).toBe(3)
-    expect(descriptionElements.length).toBe(3)
+    expect(bulletElements.length).toBe(6)
 
     hashElements.forEach(el => expect(el).toHaveTextContent(''))
     authorElements.forEach(el => expect(el).toHaveTextContent(''))
     dateElements.forEach(el => expect(el).toHaveTextContent(''))
     institutionElements.forEach(el => expect(el).toHaveTextContent(''))
     roleElements.forEach(el => expect(el).toHaveTextContent(''))
-    descriptionElements.forEach(el => expect(el).toHaveTextContent(''))
+    bulletElements.forEach(el => expect(el).toHaveTextContent(''))
+  })
+
+  it('renders bullets as li elements in ul, not as p elements', () => {
+    vi.mocked(useInView).mockReturnValue(true)
+    vi.useFakeTimers()
+
+    render(<TimelineSection />)
+    act(() => { vi.advanceTimersByTime(15000) })
+
+    const commitEntries = screen.getAllByTestId('commit-entry')
+    
+    // NetApp entry (index 2) should have 4 bullets as li elements
+    const netAppEntry = commitEntries[2]
+    const ulElements = netAppEntry.querySelectorAll('ul')
+    const liElements = netAppEntry.querySelectorAll('li')
+    
+    expect(ulElements.length).toBeGreaterThan(0)
+    expect(liElements.length).toBe(4)
+    
+    // Verify no p tags are used for bullet content inside the ul
+    liElements.forEach(li => {
+      expect(li.tagName).toBe('LI')
+    })
+  })
+
+  it('has bullets with correct resume text', () => {
+    vi.mocked(useInView).mockReturnValue(true)
+    vi.useFakeTimers()
+
+    render(<TimelineSection />)
+    act(() => { vi.advanceTimersByTime(15000) })
+
+    const allLiElements = document.querySelectorAll('li')
+    const bulletTexts = Array.from(allLiElements).map(li => li.textContent)
+    
+    expect(bulletTexts).toContain('Built automated analysis pipeline processing storage telemetry across distributed RAID systems (FC, SAS, NVMe/RoCE), handling terabytes of performance data.')
+    expect(bulletTexts).toContain("Dean's List: Spring 2022 – Fall 2025")
+    expect(bulletTexts).toContain('Relevant Coursework: Machine Learning, Artificial Intelligence, Fundamentals of AI Agents, Data Science')
   })
 
   it('renders timeline section labels in pixel display typography', () => {
