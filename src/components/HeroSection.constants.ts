@@ -3,6 +3,10 @@ import type { Variants } from 'framer-motion'
 export const SUBTITLE = 'CS_STUDENT · DEVELOPER'
 export const VALUE_PROP = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
 
+export const FIRST_NAME = 'FARHAN'
+export const LAST_NAME = 'MOHAMMED'
+export const NAME_SPEED = 40
+
 export const INITIAL_DELAY = 3200
 export const SUBTITLE_SPEED = 60
 export const VALUE_PROP_DELAY = 400
