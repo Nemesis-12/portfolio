@@ -19,16 +19,13 @@ const NOTCH = 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px)
 const FILL_CLOSED = 'polygon(0 0, 0 0, 0 0, 0 0)'
 const FILL_OPEN = 'polygon(0 0, 220% 0, 100% 220%, 0 100%)'
 const FILL_TRANSITION = { duration: 0.32, ease: 'easeOut' } as const
+const INVERTED_TAG_STYLE = {
+  backgroundColor: 'rgba(42, 43, 42, 0.14)',
+  color: '#2A2B2A',
+  borderColor: 'rgba(42, 43, 42, 0.38)',
+} as const
 
-function getTagStyle(tagIndex: number, isInverted = false) {
-  if (isInverted) {
-    return {
-      backgroundColor: 'rgba(42, 43, 42, 0.14)',
-      color: '#2A2B2A',
-      borderColor: 'rgba(42, 43, 42, 0.38)',
-    }
-  }
-
+function getTagStyle(tagIndex: number) {
   const color = TAG_COLORS[tagIndex % TAG_COLORS.length]
   return { backgroundColor: color.bg, color: color.fg }
 }
@@ -116,7 +113,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
               key={tag}
               data-inverted={isFillActive}
               className="text-xs px-2 py-0.5 font-body rounded border border-transparent transition-colors duration-200"
-              style={getTagStyle(tagIndex, isFillActive)}
+              style={isFillActive ? INVERTED_TAG_STYLE : getTagStyle(tagIndex)}
             >
               {tag}
             </span>

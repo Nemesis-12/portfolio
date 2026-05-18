@@ -173,6 +173,42 @@ describe('ProjectsSection', () => {
     expect(tag).toHaveAttribute('data-inverted', 'true')
   })
 
+  it('fill stays active when tabbing between links within the same card', async () => {
+    const user = userEvent.setup()
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const githubLink = screen.getByRole('link', { name: '// GitHub ↗' })
+    const demoLink = screen.getByRole('link', { name: '// Demo ↗' })
+    const card = githubLink.closest('[data-testid="project-card"]')!
+    const fill = card.querySelector('[data-testid="project-card-fill"]')!
+
+    await user.tab()
+    expect(githubLink).toHaveFocus()
+    expect(fill).toHaveAttribute('data-active', 'true')
+
+    await user.tab()
+    expect(demoLink).toHaveFocus()
+    expect(fill).toHaveAttribute('data-active', 'true')
+  })
+
+  it('fill deactivates when focus leaves the project card', async () => {
+    const user = userEvent.setup()
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const githubLink = screen.getByRole('link', { name: '// GitHub ↗' })
+    const card = githubLink.closest('[data-testid="project-card"]')!
+    const fill = card.querySelector('[data-testid="project-card-fill"]')!
+
+    await user.tab()
+    expect(githubLink).toHaveFocus()
+    expect(fill).toHaveAttribute('data-active', 'true')
+
+    // Tab past Demo link, then out of the card entirely
+    await user.tab()
+    await user.tab()
+    expect(fill).toHaveAttribute('data-active', 'false')
+  })
+
   it('renders cards in a horizontal track structure for carousel scrolling', () => {
     render(<ProjectsSection projects={mockProjects} />)
 
