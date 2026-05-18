@@ -73,4 +73,89 @@ describe('StickySection', () => {
     expect(outgoing.style.opacity).toBe('0.875')
     expect(outgoing.style.filter).toBe('')
   })
+
+  it('keeps the outgoing section at full depth before the next section enters', async () => {
+    render(
+      <>
+        <StickySection id="outgoing">Outgoing</StickySection>
+        <StickySection id="incoming">Incoming</StickySection>
+      </>,
+    )
+
+    const outgoing = document.getElementById('outgoing')!
+    const incoming = document.getElementById('incoming')!
+    mockRect(incoming, 900)
+
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 800,
+    })
+
+    await act(async () => {
+      window.dispatchEvent(new Event('scroll'))
+    })
+
+    expect(outgoing.style.transform).toBe('scale(1)')
+    expect(outgoing.style.opacity).toBe('1')
+  })
+
+  it('clamps the outgoing section depth after the next section passes the viewport top', async () => {
+    render(
+      <>
+        <StickySection id="outgoing">Outgoing</StickySection>
+        <StickySection id="incoming">Incoming</StickySection>
+      </>,
+    )
+
+    const outgoing = document.getElementById('outgoing')!
+    const incoming = document.getElementById('incoming')!
+    mockRect(incoming, -200)
+
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 800,
+    })
+
+    await act(async () => {
+      window.dispatchEvent(new Event('scroll'))
+    })
+
+    expect(outgoing.style.transform).toBe('scale(0.95)')
+    expect(outgoing.style.opacity).toBe('0.75')
+  })
+
+  it('uses the current following sticky section after sections change', async () => {
+    const { rerender } = render(
+      <>
+        <StickySection id="outgoing">Outgoing</StickySection>
+        <StickySection id="original-incoming">Original Incoming</StickySection>
+      </>,
+    )
+
+    rerender(
+      <>
+        <StickySection id="outgoing">Outgoing</StickySection>
+        <StickySection id="new-incoming">New Incoming</StickySection>
+        <StickySection id="original-incoming">Original Incoming</StickySection>
+      </>,
+    )
+
+    const outgoing = document.getElementById('outgoing')!
+    const newIncoming = document.getElementById('new-incoming')!
+    const originalIncoming = document.getElementById('original-incoming')!
+    mockRect(newIncoming, 400)
+    mockRect(originalIncoming, 800)
+
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 800,
+    })
+
+    await act(async () => {
+      window.dispatchEvent(new Event('scroll'))
+    })
+
+    expect(outgoing.style.transform).toBe('scale(0.975)')
+    expect(outgoing.style.opacity).toBe('0.875')
+  })
 })

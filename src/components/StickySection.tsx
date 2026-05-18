@@ -8,6 +8,7 @@ interface Props {
 
 const MIN_SCALE = 0.95
 const MIN_OPACITY = 0.75
+const STICKY_SECTION_SELECTOR = 'section[data-sticky-section="true"]'
 
 function clamp(value: number) {
   return Math.min(Math.max(value, 0), 1)
@@ -26,13 +27,13 @@ export function StickySection({ id, children, className = '' }: Props) {
       return undefined
     }
 
-    const sections = Array.from(document.querySelectorAll<HTMLElement>('section[id]'))
-    const sectionIndex = sections.indexOf(section)
-    const nextSection = sections[sectionIndex + 1]
-
-    section.style.zIndex = String(sectionIndex + 1)
-
     const updateCardDepth = () => {
+      const sections = Array.from(document.querySelectorAll<HTMLElement>(STICKY_SECTION_SELECTOR))
+      const sectionIndex = sections.indexOf(section)
+      const nextSection = sections[sectionIndex + 1]
+
+      section.style.zIndex = String(sectionIndex + 1)
+
       if (!nextSection) {
         section.style.transform = 'scale(1)'
         section.style.opacity = '1'
@@ -63,6 +64,7 @@ export function StickySection({ id, children, className = '' }: Props) {
     <section
       ref={sectionRef}
       id={id}
+      data-sticky-section="true"
       className={`sticky top-0 min-h-screen origin-center transform-gpu ${className}`.trim()}
       style={{ willChange: 'transform, opacity' }}
     >
