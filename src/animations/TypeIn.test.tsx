@@ -129,4 +129,33 @@ describe('TypeIn', () => {
     act(() => { vi.advanceTimersByTime(250) })
     expect(screen.getByText(specialText)).toBeInTheDocument()
   })
+
+  it('does not restart animation when onDone reference changes between renders', () => {
+    const onDone = vi.fn()
+    const { rerender } = render(<TypeIn start={true} text="Hello" onDone={onDone} />)
+
+    act(() => { vi.advanceTimersByTime(80) })
+    expect(screen.getByText('He')).toBeInTheDocument()
+
+    const newOnDone = vi.fn()
+    rerender(<TypeIn start={true} text="Hello" onDone={newOnDone} />)
+
+    act(() => { vi.advanceTimersByTime(45) })
+    expect(screen.getByText('Hel')).toBeInTheDocument()
+  })
+
+  it('calls the latest onDone when typing completes after onDone reference changes', () => {
+    const firstOnDone = vi.fn()
+    const { rerender } = render(<TypeIn start={true} text="Hi" onDone={firstOnDone} />)
+
+    act(() => { vi.advanceTimersByTime(45) })
+
+    const latestOnDone = vi.fn()
+    rerender(<TypeIn start={true} text="Hi" onDone={latestOnDone} />)
+
+    act(() => { vi.advanceTimersByTime(45) })
+
+    expect(firstOnDone).not.toHaveBeenCalled()
+    expect(latestOnDone).toHaveBeenCalledTimes(1)
+  })
 })

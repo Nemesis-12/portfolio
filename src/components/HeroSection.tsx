@@ -24,7 +24,6 @@ const ctaVariants = {
 
 const HeroSection: React.FC = () => {
   const [firstNameDone, setFirstNameDone] = useState(false)
-  const [, setLastNameDone] = useState(false)
   const [showNameCursor, setShowNameCursor] = useState(false)
   const [subtitle, setSubtitle] = useState('')
   const [valueProp, setValueProp] = useState('')
@@ -117,10 +116,7 @@ const HeroSection: React.FC = () => {
             start={firstNameDone}
             text={` ${LAST_NAME}`}
             speed={NAME_SPEED}
-            onDone={() => {
-              setLastNameDone(true)
-              setShowNameCursor(true)
-            }}
+            onDone={() => setShowNameCursor(true)}
           />
           {showNameCursor && (
             <motion.span

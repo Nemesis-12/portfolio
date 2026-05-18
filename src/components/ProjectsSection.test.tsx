@@ -121,7 +121,7 @@ describe('ProjectsSection', () => {
     const headerLabel = screen.getByText('PROJECTS')
     const carouselTrack = document.querySelector('[data-carousel-track="true"]')
 
-    expect(headerLabel.closest('section')).toBe(headerLabel.closest('section'))
+    expect(headerLabel.closest('[data-carousel-track="true"]')).toBeNull()
     expect(carouselTrack).toBeInTheDocument()
   })
 })
