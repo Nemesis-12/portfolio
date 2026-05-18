@@ -123,6 +123,15 @@ function EntryList({ entries }: { entries: TimelineEntry[] }) {
   )
 }
 
+function SectionLabel({ label }: { label: 'EDUCATION' | 'EXPERIENCE' }) {
+  return (
+    <div className="flex items-center gap-1 mb-2">
+      <span className="font-display text-xs text-atomic-tangerine">//</span>
+      <span className="font-display text-sm text-atomic-tangerine">{label}</span>
+    </div>
+  )
+}
+
 const TimelineSection: React.FC = () => {
   return (
     <ScrollFadeSection id="timeline" className="min-h-screen flex flex-col justify-center py-14 px-8 bg-graphite-light">
@@ -135,19 +144,13 @@ const TimelineSection: React.FC = () => {
 
         <div className="space-y-12">
           <div>
-            <div className="flex items-center gap-1 mb-2">
-              <span className="font-display text-xs text-atomic-tangerine">//</span>
-              <span className="font-display text-sm text-atomic-tangerine">EDUCATION</span>
-            </div>
+            <SectionLabel label="EDUCATION" />
             <hr className="border-periwinkle/10 mb-0" />
             <EntryList entries={education} />
           </div>
 
           <div>
-            <div className="flex items-center gap-1 mb-2">
-              <span className="font-display text-xs text-atomic-tangerine">//</span>
-              <span className="font-display text-sm text-atomic-tangerine">EXPERIENCE</span>
-            </div>
+            <SectionLabel label="EXPERIENCE" />
             <hr className="border-periwinkle/10 mb-0" />
             <EntryList entries={experience} />
           </div>
