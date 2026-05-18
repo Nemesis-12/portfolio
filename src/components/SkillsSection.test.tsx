@@ -136,7 +136,19 @@ describe('SkillsSection', () => {
     expect(children.length).toBe(22)
   })
 
-  it('desktop grid has an explicit grid-rows class with varied row heights', () => {
+  it('desktop grid uses 6-column bento layout (md:grid-cols-6)', () => {
+    render(<SkillsSection />)
+    const grid = screen.getByTestId('skills-grid')
+    expect(grid.classList).toContain('md:grid-cols-6')
+  })
+
+  it('mobile grid uses 2-column bento layout (grid-cols-2)', () => {
+    render(<SkillsSection />)
+    const grid = screen.getByTestId('skills-grid')
+    expect(grid.classList).toContain('grid-cols-2')
+  })
+
+  it('desktop grid has varied row heights creating asymmetric bento rhythm', () => {
     render(<SkillsSection />)
     const heights = getExplicitGridRows()
     expect(new Set(heights).size).toBeGreaterThanOrEqual(2)
@@ -165,6 +177,22 @@ describe('SkillsSection', () => {
     expect(pythonTile!.className).toMatch(/md:row-span-[3-9]/)
   })
 
+  it('anchor skills (Python, PyTorch) have visibly stronger layout weight with larger spans', () => {
+    render(<SkillsSection />)
+    
+    // Python should be the largest tile (3 cols × 3 rows)
+    const pythonTile = screen.getByText('Python').closest('div')
+    expect(pythonTile).not.toBeNull()
+    expect(pythonTile!.className).toContain('md:col-span-3')
+    expect(pythonTile!.className).toContain('md:row-span-3')
+    
+    // PyTorch should be second largest (3 cols × 2 rows)
+    const pytorchTile = screen.getByText('PyTorch').closest('div')
+    expect(pytorchTile).not.toBeNull()
+    expect(pytorchTile!.className).toContain('md:col-span-3')
+    expect(pytorchTile!.className).toContain('md:row-span-2')
+  })
+
   it('grid defines at least 11 explicit rows to accommodate all skill tiles', () => {
     render(<SkillsSection />)
     const heights = getExplicitGridRows()
@@ -175,12 +203,12 @@ describe('SkillsSection', () => {
     render(<SkillsSection />)
 
     expect(getSkillTile('Transformers').className).toContain('md:col-span-2')
-    expect(getSkillTile('Attention Mechanisms').className).not.toContain('md:col-span-2')
-    expect(getSkillTile('Gradient Optimization').className).toContain('md:row-span-2')
+    expect(getSkillTile('Attention Mechanisms').className).toContain('md:col-span-2')
+    expect(getSkillTile('Gradient Optimization').className).toContain('md:col-span-2')
     expect(getSkillTile('Model Training / Fine-tuning').className).toContain('md:col-span-3')
     expect(getSkillTile('Matplotlib').className).not.toContain('md:col-span-2')
     expect(getSkillTile('Mixed-Precision Training').className).toContain('md:col-span-2')
-    expect(getSkillTile('Jupyter').className).toContain('md:col-span-1')
+    expect(getSkillTile('Jupyter').className).not.toContain('md:col-span-3')
   })
 
   it('grid container has min-h-screen or min-h-svh class', () => {
