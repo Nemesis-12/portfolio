@@ -3,6 +3,13 @@ import { render } from '@testing-library/react'
 import App from './App'
 
 const sections = ['home', 'projects', 'skills', 'timeline', 'contact'] as const
+const shellConstraintClasses = ['container', 'max-w-7xl', 'mx-auto'] as const
+
+function expectNoShellConstraint(element: Element) {
+  shellConstraintClasses.forEach((className) => {
+    expect(element.classList).not.toContain(className)
+  })
+}
 
 describe('App shell', () => {
   it.each(sections)('renders %s section', (id) => {
@@ -18,12 +25,12 @@ describe('App shell', () => {
     expect(Array.from(sectionIds).map((s) => s.id)).toEqual([...sections])
   })
 
-  it('sections span full browser width (no max-width constraint)', () => {
+  it('section surfaces span the full browser width', () => {
     render(<App />)
     const sectionIds = document.querySelectorAll('section[id]')
     sectionIds.forEach((section) => {
-      const style = window.getComputedStyle(section)
-      expect(style.maxWidth).toBe('none')
+      expectNoShellConstraint(section)
+      expect(section.className).toContain('min-h-screen')
     })
   })
 
@@ -31,15 +38,7 @@ describe('App shell', () => {
     render(<App />)
     const main = document.querySelector('main')
     expect(main).toBeInTheDocument()
-    const style = window.getComputedStyle(main as Element)
-    expect(style.display).toBe('block')
-  })
-
-  it('sections use full-viewport min-height for card-deck stacking', () => {
-    render(<App />)
-    const sectionIds = document.querySelectorAll('section[id]')
-    sectionIds.forEach((section) => {
-      expect(section.className).toContain('min-h-screen')
-    })
+    expect(main).not.toHaveAttribute('class')
+    expectNoShellConstraint(main as Element)
   })
 })
