@@ -14,6 +14,11 @@
   --font-body: 'Space Mono', monospace;
 }
 
+:root {
+  --graphite: var(--color-graphite);
+  --orange: var(--color-atomic-tangerine);
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -23,12 +28,17 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #2A2B2A;
+  background: var(--graphite);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #FF8547;
+  background: var(--orange);
   border-radius: 4px;
+}
+
+::selection {
+  background-color: var(--orange);
+  color: var(--graphite);
 }
 
 body {
