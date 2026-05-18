@@ -84,7 +84,7 @@ describe('ProjectsSection', () => {
     expect(screen.getByText('// Docs ↗')).toBeInTheDocument()
   })
 
-  it('project title changes to atomic-tangerine on hover', async () => {
+  it('keeps the project title readable during hover fill', async () => {
     const user = userEvent.setup()
     render(<ProjectsSection projects={mockProjects} />)
 
@@ -95,10 +95,118 @@ describe('ProjectsSection', () => {
     expect(title).toHaveClass('text-graphite')
 
     await user.hover(card!)
-    expect(title).toHaveClass('text-atomic-tangerine')
+    expect(title).toHaveClass('text-graphite')
 
     await user.unhover(card!)
     expect(title).toHaveClass('text-graphite')
+  })
+
+  it('activates a diagonal orange fill layer when a project card is hovered', async () => {
+    const user = userEvent.setup()
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const card = screen.getByRole('heading', { name: 'Project One' }).closest('[data-testid="project-card"]')
+    expect(card).not.toBeNull()
+
+    const fill = card!.querySelector('[data-testid="project-card-fill"]')
+    expect(fill).toBeInTheDocument()
+    expect(fill).toHaveAttribute('aria-hidden', 'true')
+    expect(fill).toHaveAttribute('data-active', 'false')
+
+    await user.hover(card!)
+    expect(fill).toHaveAttribute('data-active', 'true')
+
+    await user.unhover(card!)
+    expect(fill).toHaveAttribute('data-active', 'false')
+  })
+
+  it('activates the diagonal orange fill while a project card link has focus', async () => {
+    const user = userEvent.setup()
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const link = screen.getByRole('link', { name: '// GitHub ↗' })
+    const card = link.closest('[data-testid="project-card"]')
+    expect(card).not.toBeNull()
+
+    const fill = card!.querySelector('[data-testid="project-card-fill"]')
+    expect(fill).toHaveAttribute('data-active', 'false')
+
+    await user.tab()
+    expect(link).toHaveFocus()
+    expect(fill).toHaveAttribute('data-active', 'true')
+  })
+
+  it('switches project card content to readable graphite text during the orange fill', async () => {
+    const user = userEvent.setup()
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const title = screen.getByRole('heading', { name: 'Project One' })
+    const card = title.closest('[data-testid="project-card"]')
+    expect(card).not.toBeNull()
+
+    const description = screen.getByText('Description for project one')
+    const bullet = screen.getByText('First bullet point for project one')
+    const link = screen.getByRole('link', { name: '// GitHub ↗' })
+
+    await user.hover(card!)
+
+    expect(title).toHaveClass('text-graphite')
+    expect(description).toHaveClass('text-graphite')
+    expect(bullet.closest('ul')).toHaveClass('text-graphite')
+    expect(link).toHaveClass('text-graphite')
+  })
+
+  it('inverts project tags and ghost number during the orange fill', async () => {
+    const user = userEvent.setup()
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const title = screen.getByRole('heading', { name: 'Project One' })
+    const card = title.closest('[data-testid="project-card"]')
+    expect(card).not.toBeNull()
+
+    const ghostNumber = screen.getByText('_01')
+    const tag = screen.getByText('React')
+
+    await user.hover(card!)
+
+    expect(ghostNumber).toHaveClass('text-graphite')
+    expect(tag).toHaveAttribute('data-inverted', 'true')
+  })
+
+  it('fill stays active when tabbing between links within the same card', async () => {
+    const user = userEvent.setup()
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const githubLink = screen.getByRole('link', { name: '// GitHub ↗' })
+    const demoLink = screen.getByRole('link', { name: '// Demo ↗' })
+    const card = githubLink.closest('[data-testid="project-card"]')!
+    const fill = card.querySelector('[data-testid="project-card-fill"]')!
+
+    await user.tab()
+    expect(githubLink).toHaveFocus()
+    expect(fill).toHaveAttribute('data-active', 'true')
+
+    await user.tab()
+    expect(demoLink).toHaveFocus()
+    expect(fill).toHaveAttribute('data-active', 'true')
+  })
+
+  it('fill deactivates when focus leaves the project card', async () => {
+    const user = userEvent.setup()
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const githubLink = screen.getByRole('link', { name: '// GitHub ↗' })
+    const card = githubLink.closest('[data-testid="project-card"]')!
+    const fill = card.querySelector('[data-testid="project-card-fill"]')!
+
+    await user.tab()
+    expect(githubLink).toHaveFocus()
+    expect(fill).toHaveAttribute('data-active', 'true')
+
+    // Tab past Demo link, then out of the card entirely
+    await user.tab()
+    await user.tab()
+    expect(fill).toHaveAttribute('data-active', 'false')
   })
 
   it('renders cards in a horizontal track structure for carousel scrolling', () => {
