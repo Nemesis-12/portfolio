@@ -269,10 +269,10 @@ describe('Navbar', () => {
         })
 
         const skillsLink = screen.getByRole('link', { name: /skills/i })
-        const prefixSpan = skillsLink.querySelector('span')
-        expect(skillsLink.className).toContain('border-b-2')
-        expect(prefixSpan).not.toBeNull()
-        expect(prefixSpan!.style.opacity).toBe('0')
+        const labelSpan = skillsLink.querySelector('span:last-child')
+        const caretSpan = skillsLink.querySelector('[data-testid="nav-caret"]')
+        expect(labelSpan?.className).toContain('border-b-2')
+        expect(caretSpan).toBeNull()
       } finally {
         vi.unstubAllGlobals()
         document.body.removeChild(section)
