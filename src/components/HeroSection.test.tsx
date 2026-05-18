@@ -37,6 +37,23 @@ describe('HeroSection', () => {
     expect(screen.getByText('FARHAN MOHAMMED')).toBeInTheDocument()
   })
 
+  it('keeps the init label clear of the navbar and aligns its underline to the leading slashes', () => {
+    render(<HeroSection />)
+
+    const content = screen.getByTestId('hero-content')
+    const labelUnit = screen.getByTestId('hero-init-label-unit')
+    const label = screen.getByText('// PORTFOLIO_INIT')
+    const underline = screen.getByTestId('hero-init-label-underline')
+
+    expect(content).toHaveClass('pt-16')
+    expect(labelUnit).toHaveClass('w-fit')
+    expect(labelUnit).toContainElement(label)
+    expect(labelUnit).toContainElement(underline)
+    expect(label.textContent?.startsWith('//')).toBe(true)
+    expect(label.nextElementSibling).toBe(underline)
+    expect(underline).toHaveClass('ml-0')
+  })
+
   it('subtitle and value prop are empty initially', () => {
     render(<HeroSection />)
 
