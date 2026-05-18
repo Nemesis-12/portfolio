@@ -23,7 +23,7 @@ function getHorizontalScrollState(
   const scrollRange = Math.max(rect.height - viewportHeight, 0)
   const progress = scrollRange === 0 ? 0 : clamp01(-rect.top / scrollRange)
   const trackWidth = Math.max(inner.scrollWidth - viewportWidth, 0)
-  const tx = progress === 0 ? 0 : -(progress * trackWidth)
+  const tx = progress === 0 || trackWidth === 0 ? 0 : -(progress * trackWidth)
 
   return {
     progress,
