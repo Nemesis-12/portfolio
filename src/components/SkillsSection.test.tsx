@@ -38,6 +38,7 @@ vi.mock('framer-motion', async () => {
       const {
         animate,
         children,
+        custom,
         initial,
         transition,
         variants,
@@ -48,6 +49,7 @@ vi.mock('framer-motion', async () => {
       if (tagName === 'div') {
         motionMock.divProps.push({
           animate,
+          custom,
           initial,
           text: getText(children),
           transition,
@@ -84,6 +86,12 @@ function getSkillTile(name: string) {
   const tile = screen.getByText(name).closest('div')
   expect(tile).not.toBeNull()
   return tile!
+}
+
+function getSkillAnimation(name: string) {
+  const animation = motionMock.divProps.find(props => String(props.text).includes(name))
+  expect(animation).toBeDefined()
+  return animation!
 }
 
 describe('SkillsSection', () => {
@@ -193,6 +201,33 @@ describe('SkillsSection', () => {
     expect(pytorchTile!.className).toContain('md:row-span-2')
   })
 
+  it('reveals larger anchor skill tiles before smaller supporting tiles', () => {
+    render(<SkillsSection />)
+
+    expect(getSkillAnimation('Python').custom).toBeLessThan(getSkillAnimation('Docker').custom as number)
+    expect(getSkillAnimation('PyTorch').custom).toBeLessThan(getSkillAnimation('FastAPI').custom as number)
+  })
+
+  it('assigns every skill tile one deterministic reveal position across renders', () => {
+    const { unmount } = render(<SkillsSection />)
+
+    const firstOrder = motionMock.divProps
+      .filter(props => props.text !== undefined && props.text !== '')
+      .map(props => [props.text, props.custom])
+
+    unmount()
+    motionMock.divProps = []
+
+    render(<SkillsSection />)
+
+    const secondOrder = motionMock.divProps
+      .filter(props => props.text !== undefined && props.text !== '')
+      .map(props => [props.text, props.custom])
+
+    expect(new Set(firstOrder.map(([, order]) => order)).size).toBe(22)
+    expect(firstOrder).toEqual(secondOrder)
+  })
+
   it('grid defines at least 11 explicit rows to accommodate all skill tiles', () => {
     render(<SkillsSection />)
     const heights = getExplicitGridRows()
@@ -271,20 +306,25 @@ describe('SkillsSection', () => {
     expect(tileAnimations).toHaveLength(22)
 
     for (const tileAnimation of tileAnimations) {
-      expect(tileAnimation.variants).toMatchObject({
+      const variants = tileAnimation.variants as {
+        hidden: unknown
+        visible: (order: number) => unknown
+      }
+
+      expect(variants).toMatchObject({
         hidden: { opacity: 0, scale: 0.95 },
-        visible: {
-          opacity: 1,
-          scale: 1,
-          transition: { duration: 0.4, ease: 'easeOut' },
-        },
+      })
+      expect(variants.visible(tileAnimation.custom as number)).toMatchObject({
+        opacity: 1,
+        scale: 1,
+        transition: { delay: (tileAnimation.custom as number) * 0.12, duration: 0.5, ease: 'easeOut' },
       })
       expect(tileAnimation.initial).toBeUndefined()
       expect(tileAnimation.whileHover).toBe('hover')
     }
   })
 
-  it('grid staggers tile animation and switches to visible on viewport entry once', () => {
+  it('grid switches to visible on viewport entry once while tiles handle their own reveal delays', () => {
     motionMock.isInView = true
 
     render(<SkillsSection />)
@@ -296,7 +336,7 @@ describe('SkillsSection', () => {
       initial: 'hidden',
       variants: {
         hidden: {},
-        visible: { transition: { staggerChildren: 0.05 } },
+        visible: {},
       },
     })
     expect(motionMock.useInView).toHaveBeenCalledWith(
