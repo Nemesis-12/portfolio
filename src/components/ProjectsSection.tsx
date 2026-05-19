@@ -58,7 +58,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
       animate={{ y: isHovered ? -4 : 0 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
       data-testid="project-card"
-      className="relative"
+      className="relative w-[480px] flex-shrink-0"
       style={{ clipPath: NOTCH }}
     >
       <div className="relative bg-platinum p-5">
@@ -110,6 +110,17 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
             </a>
           ))}
         </div>
+
+        {project.bullets && project.bullets.length > 0 && (
+          <ul className="mt-3 space-y-1">
+            {project.bullets.map((bullet, index) => (
+              <li key={index} className="text-xs text-graphite/60 font-body leading-relaxed pl-3 relative">
+                <span className="absolute left-0 text-atomic-tangerine/40">▸</span>
+                <span className="block pl-2">{bullet}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Left-edge hover outline — rendered after card so it sits on top */}

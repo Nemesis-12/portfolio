@@ -13,7 +13,11 @@ const mockProjects = [
       { label: 'GitHub', url: 'https://github.com/project1' },
       { label: 'Demo', url: 'https://demo.project1.com' }
     ],
-    image: 'https://example.com/image1.png'
+    image: 'https://example.com/image1.png',
+    bullets: [
+      'Designed and implemented a React component library',
+      'Reduced bundle size by 40% through code splitting'
+    ]
   },
   {
     id: '2',
@@ -123,5 +127,41 @@ describe('ProjectsSection', () => {
 
     expect(headerLabel.closest('[data-carousel-track="true"]')).toBeNull()
     expect(carouselTrack).toBeInTheDocument()
+  })
+
+  it('renders bullets when provided', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    expect(screen.getByText('Designed and implemented a React component library')).toBeInTheDocument()
+    expect(screen.getByText('Reduced bundle size by 40% through code splitting')).toBeInTheDocument()
+  })
+
+  it('omits bullets section when project has no bullets', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const projectTwoCard = screen.getByRole('heading', { name: 'Project Two' }).closest('[data-testid="project-card"]')
+    expect(projectTwoCard).not.toBeNull()
+    const bulletLists = projectTwoCard!.querySelectorAll('ul')
+    expect(bulletLists).toHaveLength(0)
+  })
+
+  it('renders bullets as proper list structure', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const projectOneCard = screen.getByRole('heading', { name: 'Project One' }).closest('[data-testid="project-card"]')
+    expect(projectOneCard).not.toBeNull()
+    const listItems = projectOneCard!.querySelectorAll('li')
+    expect(listItems).toHaveLength(2)
+  })
+
+  it('card has explicit width constraint', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const cards = screen.getAllByTestId('project-card')
+    expect(cards).toHaveLength(2)
+    cards.forEach(card => {
+      expect(card).toHaveClass('w-[480px]')
+      expect(card).toHaveClass('flex-shrink-0')
+    })
   })
 })
