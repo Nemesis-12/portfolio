@@ -8,8 +8,9 @@ vi.mock('framer-motion', async () => {
   return { ...actual, useInView: vi.fn().mockReturnValue(false) }
 })
 
+const canonicalEmailHref = 'mailto:famohammed@shockers.wichita.edu'
+
 describe('ContactSection', () => {
-  const canonicalEmailHref = 'mailto:famohammed@shockers.wichita.edu'
 
   beforeEach(() => {
     vi.mocked(useInView).mockReturnValue(false)
@@ -19,7 +20,7 @@ describe('ContactSection', () => {
     vi.useRealTimers()
   })
 
-  it('renders a contact section with only the CTA heading and contact links', () => {
+  it('renders a contact section with only the CTA heading and send message link', () => {
     vi.mocked(useInView).mockReturnValue(true)
     vi.useFakeTimers()
     render(<ContactSection />)
@@ -32,41 +33,24 @@ describe('ContactSection', () => {
     const links = within(section).getAllByRole('link')
     expect(links.map((link) => link.textContent)).toEqual([
       'SEND_MESSAGE →',
-      '// GITHUB',
-      '// LINKEDIN',
-      '// EMAIL',
-      '// RESUME',
     ])
 
-    expect(section).not.toHaveTextContent('// 04 CONTACT')
+    expect(section).not.toHaveTextContent('// GITHUB')
+    expect(section).not.toHaveTextContent('// LINKEDIN')
+    expect(section).not.toHaveTextContent('// EMAIL')
+    expect(section).not.toHaveTextContent('// RESUME')
     expect(section).not.toHaveTextContent('FARHAN_MOHAMMED © 2026')
     expect(section).not.toHaveTextContent('PORTFOLIO.EXE')
   })
 
-  it('renders contact links with the expected destinations', () => {
+  it('renders the send message link with the expected destination', () => {
     vi.mocked(useInView).mockReturnValue(true)
     vi.useFakeTimers()
     render(<ContactSection />)
     act(() => { vi.advanceTimersByTime(1000) })
     const sendMessageLink = screen.getByRole('link', { name: 'SEND_MESSAGE →' })
-    const githubLink = screen.getByRole('link', { name: '// GITHUB' })
-    const linkedInLink = screen.getByRole('link', { name: '// LINKEDIN' })
-    const emailLink = screen.getByRole('link', { name: '// EMAIL' })
-    const resumeLink = screen.getByRole('link', { name: '// RESUME' })
 
     expect(sendMessageLink).toHaveAttribute('href', canonicalEmailHref)
-    expect(githubLink).toHaveAttribute('href', 'https://github.com/Nemesis-12')
-    expect(githubLink).not.toHaveAttribute('target')
-    expect(githubLink).not.toHaveAttribute('rel')
-    expect(linkedInLink).toHaveAttribute('href', 'https://linkedin.com/in/fa-mohammed')
-    expect(linkedInLink).not.toHaveAttribute('target')
-    expect(linkedInLink).not.toHaveAttribute('rel')
-    expect(emailLink).toHaveAttribute('href', canonicalEmailHref)
-    expect(emailLink).not.toHaveAttribute('target')
-    expect(emailLink).not.toHaveAttribute('rel')
-    expect(resumeLink).toHaveAttribute('href', '/resume.pdf')
-    expect(resumeLink).toHaveAttribute('target', '_blank')
-    expect(resumeLink).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
   it('renders footer link prefixes in orange and transitions the full link to white on hover', () => {
@@ -130,7 +114,7 @@ describe('ContactSection', () => {
 })
 
 describe('Footer', () => {
-  it('renders a separate footer with only static labels', () => {
+  it('renders a separate footer with social links and static labels', () => {
     render(<ContactSection />)
     const section = document.querySelector('#contact')
     const footer = document.querySelector('footer')
@@ -139,13 +123,33 @@ describe('Footer', () => {
     expect(section?.nextElementSibling).toBe(footer)
     expect(footer).toHaveTextContent('FARHAN_MOHAMMED © 2026')
     expect(footer).toHaveTextContent('PORTFOLIO.EXE')
-    expect(Array.from(footer?.children ?? []).map((child) => child.textContent)).toEqual([
-      'FARHAN_MOHAMMED © 2026',
-      'PORTFOLIO.EXE',
-    ])
+    expect(footer).toHaveTextContent('// GITHUB')
+    expect(footer).toHaveTextContent('// LINKEDIN')
+    expect(footer).toHaveTextContent('// EMAIL')
+    expect(footer).toHaveTextContent('// RESUME')
     expect(footer).not.toHaveTextContent("LET'S CONNECT.")
     expect(footer).not.toHaveTextContent('SEND_MESSAGE →')
-    expect(footer?.querySelectorAll('a, button, input, select, textarea, [tabindex]').length).toBe(0)
+  })
+
+  it('renders footer social links with the expected destinations', () => {
+    render(<ContactSection />)
+    const githubLink = screen.getByRole('link', { name: '// GITHUB' })
+    const linkedInLink = screen.getByRole('link', { name: '// LINKEDIN' })
+    const emailLink = screen.getByRole('link', { name: '// EMAIL' })
+    const resumeLink = screen.getByRole('link', { name: '// RESUME' })
+
+    expect(githubLink).toHaveAttribute('href', 'https://github.com/Nemesis-12')
+    expect(githubLink).not.toHaveAttribute('target')
+    expect(githubLink).not.toHaveAttribute('rel')
+    expect(linkedInLink).toHaveAttribute('href', 'https://linkedin.com/in/fa-mohammed')
+    expect(linkedInLink).not.toHaveAttribute('target')
+    expect(linkedInLink).not.toHaveAttribute('rel')
+    expect(emailLink).toHaveAttribute('href', canonicalEmailHref)
+    expect(emailLink).not.toHaveAttribute('target')
+    expect(emailLink).not.toHaveAttribute('rel')
+    expect(resumeLink).toHaveAttribute('href', '/resume.pdf')
+    expect(resumeLink).toHaveAttribute('target', '_blank')
+    expect(resumeLink).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
   it('marks footer text as a stronger parallax layer', () => {

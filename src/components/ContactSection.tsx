@@ -48,39 +48,41 @@ export default function ContactSection() {
             variants={hoverEase}
             initial="idle"
             whileHover="hover"
-            className="inline-block font-body text-sm border-2 border-platinum text-platinum px-8 py-4 mb-12 hover:bg-platinum hover:text-graphite transition-colors"
+            className="inline-block font-body text-sm border-2 border-platinum text-platinum px-8 py-4 hover:bg-platinum hover:text-graphite transition-colors"
           >
             SEND_MESSAGE →
           </motion.a>
-
-          <div className="flex flex-wrap gap-6">
-            {footerLinks.map(({ prefix, label, href, target }) => (
-              <motion.a
-                key={label}
-                href={href}
-                target={target}
-                aria-label={`${prefix} ${label}`}
-                rel={target === '_blank' ? 'noopener noreferrer' : undefined}
-                variants={hoverEase}
-                initial="idle"
-                whileHover="hover"
-                className="group font-body text-sm"
-              >
-                <span className="text-atomic-tangerine group-hover:text-white transition-colors">{prefix}{' '}</span>
-                <span className="text-periwinkle group-hover:text-white transition-colors">{label}</span>
-              </motion.a>
-            ))}
-          </div>
         </div>
       </StickySection>
 
-      <footer className="flex justify-between items-center px-8 py-8 border-t border-periwinkle/20 text-xs font-body text-periwinkle bg-graphite">
-        <span data-parallax data-parallax-factor="0.5">
-          FARHAN_MOHAMMED © 2026
-        </span>
-        <span data-parallax data-parallax-factor="0.5">
-          PORTFOLIO.EXE
-        </span>
+      <footer className="flex flex-col gap-6 px-8 py-8 border-t border-periwinkle/20 text-xs font-body text-periwinkle bg-graphite">
+        <div className="flex flex-wrap gap-6">
+          {footerLinks.map(({ prefix, label, href, target }) => (
+            <motion.a
+              key={label}
+              href={href}
+              target={target}
+              aria-label={`${prefix} ${label}`}
+              rel={target === '_blank' ? 'noopener noreferrer' : undefined}
+              variants={hoverEase}
+              initial="idle"
+              whileHover="hover"
+              className="group font-body text-sm"
+            >
+              <span className="text-atomic-tangerine group-hover:text-white transition-colors">{prefix}{' '}</span>
+              <span className="text-periwinkle group-hover:text-white transition-colors">{label}</span>
+            </motion.a>
+          ))}
+        </div>
+
+        <div className="flex justify-between items-center">
+          <span data-parallax data-parallax-factor="0.5">
+            FARHAN_MOHAMMED © 2026
+          </span>
+          <span data-parallax data-parallax-factor="0.5">
+            PORTFOLIO.EXE
+          </span>
+        </div>
       </footer>
     </>
   )
