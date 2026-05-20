@@ -3,7 +3,7 @@ import { projects } from './projects'
 import { FIRST_NAME, LAST_NAME } from '../components/HeroSection.constants'
 
 // Resume source-of-truth constants (from public/resume.pdf)
-const RESUME_FULL_NAME = 'Farhan Ahmed Mohammed'
+const RESUME_FULL_NAME = 'Farhan Mohammed'
 const RESUME_EMAIL = 'famohammed@shockers.wichita.edu'
 
 describe('resume source-of-truth audit', () => {

@@ -121,7 +121,7 @@ describe('Footer', () => {
 
     expect(footer).toBeInTheDocument()
     expect(section?.nextElementSibling).toBe(footer)
-    expect(footer).toHaveTextContent('FARHAN_AHMED_MOHAMMED © 2026')
+    expect(footer).toHaveTextContent('FARHAN_MOHAMMED © 2026')
     expect(footer).toHaveTextContent('PORTFOLIO.EXE')
     expect(footer).toHaveTextContent('// GITHUB')
     expect(footer).toHaveTextContent('// LINKEDIN')
