@@ -5,7 +5,6 @@ import App from './App'
 const sections = ['home', 'projects', 'skills', 'timeline', 'contact'] as const
 const sectionIds = [
   'home',
-  'projects',
   'skills',
   'timeline',
   'timeline-a3f9d2b',

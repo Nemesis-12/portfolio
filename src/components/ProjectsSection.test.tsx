@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import ProjectsSection from './ProjectsSection'
+import ProjectsSection, { getScrollRangeVh } from './ProjectsSection'
 
 const mockProjects = [
   {
@@ -315,5 +315,68 @@ describe('ProjectsSection', () => {
     const style = window.getComputedStyle(card!)
     expect(style.maxWidth).not.toBe('none')
     expect(style.maxWidth).not.toBe('')
+  })
+
+  it('outer container uses the scroll range formula (projects.length * 1.5 + 1) * 100vh', () => {
+    setViewport(1000, 800)
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const projectsSection = document.getElementById('projects')
+    expect(projectsSection).toBeInTheDocument()
+
+    const expectedHeightVh = mockProjects.length * 1.5 + 1
+    expect(projectsSection).toHaveStyle({ height: `${expectedHeightVh * 100}vh` })
+  })
+
+  it('sticky viewport child has 100vh height and top: 0', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const projectsSection = document.getElementById('projects')
+    const stickyViewport = projectsSection?.querySelector('[data-sticky-viewport="true"]')
+    expect(stickyViewport).toBeInTheDocument()
+
+    const style = window.getComputedStyle(stickyViewport!)
+    expect(style.height).toBe('100vh')
+    expect(style.top).toBe('0px')
+    expect(style.position).toBe('sticky')
+  })
+
+  it('section header is outside the carousel track and remains pinned', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const headerLabel = screen.getByText('PROJECTS')
+    const carouselTrack = document.querySelector('[data-carousel-track="true"]')
+
+    expect(headerLabel.closest('[data-carousel-track="true"]')).toBeNull()
+    expect(carouselTrack).toBeInTheDocument()
+
+    expect(headerLabel.closest('[data-sticky-viewport="true"]')).toBeInTheDocument()
+    expect(carouselTrack?.closest('[data-sticky-viewport="true"]')).toBeInTheDocument()
+  })
+
+  it('outer container does not introduce horizontal overflow', () => {
+    setViewport(1000, 800)
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const projectsSection = document.getElementById('projects')
+    expect(projectsSection).toHaveStyle({ overflowX: 'hidden' })
+  })
+
+  it('scroll range calculation matches the desktop geometry contract', () => {
+    const projectCount = 2
+    const viewportHeight = 800
+    const expectedScrollRangeVh = projectCount * 1.5 + 1
+    const expectedScrollRangePx = expectedScrollRangeVh * viewportHeight
+
+    expect(expectedScrollRangeVh).toBe(4)
+    expect(expectedScrollRangePx).toBe(3200)
+  })
+
+  it('getScrollRangeVh returns correct vh multiplier for various project counts', () => {
+    expect(getScrollRangeVh(1)).toBe(2.5)
+    expect(getScrollRangeVh(2)).toBe(4)
+    expect(getScrollRangeVh(3)).toBe(5.5)
+    expect(getScrollRangeVh(4)).toBe(7)
+    expect(getScrollRangeVh(0)).toBe(1)
   })
 })

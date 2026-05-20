@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { StickySection } from './StickySection'
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
 import type { Project } from '../data/projects'
 
@@ -30,29 +29,36 @@ function getTagStyle(tagIndex: number) {
   return { backgroundColor: color.bg, color: color.fg }
 }
 
+export function getScrollRangeVh(projectCount: number) {
+  return projectCount * 1.5 + 1
+}
+
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
   const outerRef = useRef<HTMLElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
   const { tx } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>)
+  const scrollRangeVh = getScrollRangeVh(projects.length)
 
   return (
-    <StickySection ref={outerRef} id="projects" className="flex flex-col justify-center py-14 px-8 bg-graphite-light">
-      <div className="w-full">
-        <div className="flex items-center gap-3 mb-8">
-          <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 01</span>
-          <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">PROJECTS</span>
-          <hr className="flex-1 border-periwinkle/20" />
-        </div>
+    <section ref={outerRef} id="projects" className="px-8 bg-graphite-light" style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden' }}>
+      <div data-sticky-viewport="true" className="flex flex-col justify-center py-14" style={{ position: 'sticky', top: 0, height: '100vh' }}>
+        <div className="w-full">
+          <div className="flex items-center gap-3 mb-8">
+            <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 01</span>
+            <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">PROJECTS</span>
+            <hr className="flex-1 border-periwinkle/20" />
+          </div>
 
-        <div ref={innerRef as React.RefObject<HTMLDivElement>} data-carousel-track="true" className="relative" style={{ transform: `translateX(${tx}px)` }}>
-          <div className="flex gap-6 pb-4">
-            {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
+          <div ref={innerRef as React.RefObject<HTMLDivElement>} data-carousel-track="true" className="relative" style={{ transform: `translateX(${tx}px)` }}>
+            <div className="flex gap-6 pb-4">
+              {projects.map((project) => (
+                <ProjectCard key={project.id} project={project} />
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </StickySection>
+    </section>
   )
 }
 
