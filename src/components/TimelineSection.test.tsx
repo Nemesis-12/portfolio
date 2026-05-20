@@ -148,7 +148,7 @@ describe('TimelineSection', () => {
       const texts = Array.from(allLines).map((el) => el.textContent)
 
       expect(texts).toContain('commit d4e8f2c')
-      expect(texts).toContain('Author: Farhan Mohammed')
+      expect(texts).toContain('Author: Farhan Ahmed Mohammed')
       expect(texts).toContain('Date:   AUG 2024 – PRESENT')
       expect(texts).toContain('NETAPP INC.')
       expect(texts).toContain('SOFTWARE_ENGINEER_IN_TEST')
@@ -266,9 +266,9 @@ describe('TimelineSection', () => {
 
       render(<TimelineSection />)
 
-      // Metadata takes ~1664ms at 16ms/char, then longest bullet (156 chars) takes ~2496ms
+      // Metadata takes ~1696ms at 16ms/char (with "Ahmed" middle name), then longest bullet (156 chars) takes ~2496ms
       act(() => {
-        vi.advanceTimersByTime(4200)
+        vi.advanceTimersByTime(4400)
       })
 
       const allLines = document.querySelectorAll('[data-typewriter-line]')

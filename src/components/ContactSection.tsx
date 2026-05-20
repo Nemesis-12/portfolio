@@ -77,7 +77,7 @@ export default function ContactSection() {
 
         <div className="flex justify-between items-center">
           <span data-parallax data-parallax-factor="0.5">
-            FARHAN_MOHAMMED © 2026
+            FARHAN_AHMED_MOHAMMED © 2026
           </span>
           <span data-parallax data-parallax-factor="0.5">
             PORTFOLIO.EXE

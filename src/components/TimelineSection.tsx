@@ -49,7 +49,7 @@ const timelineEntries: TimelineEntry[] = [
 function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean }) {
   const lines = [
     `commit ${entry.hash}`,
-    'Author: Farhan Mohammed',
+    'Author: Farhan Ahmed Mohammed',
     `Date:   ${entry.dateRange}`,
     entry.institution,
     entry.role,

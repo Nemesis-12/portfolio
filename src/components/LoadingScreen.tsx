@@ -36,7 +36,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
         SYSTEM_INIT...
       </p>
       <h1 className="mb-8 font-display text-2xl text-platinum">
-        FARHAN MOHAMMED
+        FARHAN AHMED MOHAMMED
       </h1>
       <div
         role="progressbar"
