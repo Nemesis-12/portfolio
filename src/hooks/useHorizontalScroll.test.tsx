@@ -87,6 +87,20 @@ describe('useHorizontalScroll', () => {
     expect(result.current).toEqual({ progress: 0, tx: 0 })
   })
 
+  it('holds the first card in place through the leading dead zone', () => {
+    setViewport(1000, 800)
+
+    const { result } = renderHorizontalScrollHook({
+      outerTop: -160,
+      outerHeight: 2400,
+      innerScrollWidth: 2600,
+    })
+
+    act(() => window.dispatchEvent(new Event('scroll')))
+
+    expect(result.current).toEqual({ progress: 0, tx: 0 })
+  })
+
   it('returns full progress and max translate after the outer container scrolls fully past', () => {
     setViewport(1000, 800)
 
@@ -99,6 +113,35 @@ describe('useHorizontalScroll', () => {
     act(() => window.dispatchEvent(new Event('scroll')))
 
     expect(result.current).toEqual({ progress: 1, tx: -1600 })
+  })
+
+  it('holds the last card in place through the trailing dead zone', () => {
+    setViewport(1000, 800)
+
+    const { result } = renderHorizontalScrollHook({
+      outerTop: -1440,
+      outerHeight: 2400,
+      innerScrollWidth: 2600,
+    })
+
+    act(() => window.dispatchEvent(new Event('scroll')))
+
+    expect(result.current).toEqual({ progress: 1, tx: -1600 })
+  })
+
+  it('moves linearly between the leading and trailing dead zones', () => {
+    setViewport(1000, 800)
+
+    const { result } = renderHorizontalScrollHook({
+      outerTop: -400,
+      outerHeight: 2400,
+      innerScrollWidth: 2600,
+    })
+
+    act(() => window.dispatchEvent(new Event('scroll')))
+
+    expect(result.current.progress).toBeCloseTo(0.1667, 4)
+    expect(result.current.tx).toBeCloseTo(-266.67, 2)
   })
 
   it('returns zero translate when the inner track does not overflow the viewport', () => {

@@ -5,8 +5,26 @@ interface HorizontalScrollState {
   progress: number
 }
 
+const DEAD_ZONE_VIEWPORT_RATIO = 0.25
+
 function clamp01(value: number) {
   return Math.min(Math.max(value, 0), 1)
+}
+
+function applyDeadZones(rawProgress: number, deadZoneProgress: number) {
+  if (deadZoneProgress <= 0) {
+    return rawProgress
+  }
+
+  if (rawProgress <= deadZoneProgress) {
+    return 0
+  }
+
+  if (rawProgress >= 1 - deadZoneProgress) {
+    return 1
+  }
+
+  return (rawProgress - deadZoneProgress) / (1 - deadZoneProgress * 2)
 }
 
 function getHorizontalScrollState(
@@ -21,7 +39,9 @@ function getHorizontalScrollState(
   const viewportWidth = window.innerWidth
   const viewportHeight = window.innerHeight
   const scrollRange = Math.max(rect.height - viewportHeight, 0)
-  const progress = scrollRange === 0 ? 0 : clamp01(-rect.top / scrollRange)
+  const rawProgress = scrollRange === 0 ? 0 : clamp01(-rect.top / scrollRange)
+  const deadZoneProgress = scrollRange === 0 ? 0 : (viewportHeight * DEAD_ZONE_VIEWPORT_RATIO) / scrollRange
+  const progress = clamp01(applyDeadZones(rawProgress, deadZoneProgress))
   const trackWidth = Math.max(inner.scrollWidth - viewportWidth, 0)
   const tx = progress === 0 || trackWidth === 0 ? 0 : -(progress * trackWidth)
 
