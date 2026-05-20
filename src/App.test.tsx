@@ -13,6 +13,7 @@ const sectionIds = [
   'contact',
   'footer',
 ] as const
+const timelinePanelIds = ['timeline', 'timeline-a3f9d2b', 'timeline-b7c3e1a']
 const shellConstraintClasses = ['container', 'max-w-7xl', 'mx-auto'] as const
 
 function expectNoShellConstraint(element: Element) {
@@ -225,5 +226,76 @@ describe('App shell', () => {
       missingFactorLayer.remove()
       invalidFactorLayer.remove()
     }
+  })
+
+  describe('issue #157 - Timeline sticky panel scroll contract', () => {
+    it('timeline panels are part of the global sticky section stack', () => {
+      render(<App />)
+
+      const allStickySections = document.querySelectorAll('[data-sticky-section="true"]')
+      const timelinePanels = Array.from(allStickySections).filter((s) =>
+        timelinePanelIds.includes(s.id)
+      )
+
+      expect(timelinePanels.length).toBe(3)
+    })
+
+    it('timeline panels have z-index below navbar', () => {
+      render(<App />)
+
+      const timelinePanels = document.querySelectorAll('[data-sticky-section="true"]')
+      const filtered = Array.from(timelinePanels).filter((s) =>
+        timelinePanelIds.includes(s.id)
+      )
+
+      filtered.forEach((panel) => {
+        const zIndex = Number((panel as HTMLElement).style.zIndex)
+        expect(zIndex).toBeLessThan(40)
+        expect(zIndex).toBeGreaterThan(0)
+      })
+    })
+
+    it('timeline panels do not use horizontal scroll behavior', () => {
+      render(<App />)
+
+      const timelinePanels = document.querySelectorAll('[data-sticky-section="true"]')
+      const filtered = Array.from(timelinePanels).filter((s) =>
+        timelinePanelIds.includes(s.id)
+      )
+
+      filtered.forEach((panel) => {
+        const style = (panel as HTMLElement).style
+        expect(style.transform).not.toContain('translateX')
+      })
+    })
+
+    it('timeline panels render in newest-first order in the global stack', () => {
+      render(<App />)
+
+      const allStickySections = document.querySelectorAll('[data-sticky-section="true"][id]')
+      const ids = Array.from(allStickySections).map((s) => s.id)
+
+      const timelineIndex = ids.indexOf('timeline')
+      const msIndex = ids.indexOf('timeline-a3f9d2b')
+      const bsIndex = ids.indexOf('timeline-b7c3e1a')
+
+      expect(timelineIndex).toBeLessThan(msIndex)
+      expect(msIndex).toBeLessThan(bsIndex)
+    })
+
+    it('each timeline panel occupies full viewport height in the stack', () => {
+      render(<App />)
+
+      const allStickySections = document.querySelectorAll('[data-sticky-section="true"]')
+      const timelinePanels = Array.from(allStickySections).filter((s) =>
+        timelinePanelIds.includes(s.id)
+      )
+
+      timelinePanels.forEach((panel) => {
+        expect(panel).toHaveClass('min-h-screen')
+        expect(panel).toHaveClass('sticky')
+        expect(panel).toHaveClass('top-0')
+      })
+    })
   })
 })

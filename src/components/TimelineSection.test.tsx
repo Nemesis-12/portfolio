@@ -277,4 +277,86 @@ describe('TimelineSection', () => {
       expect(texts).toContain(longestBullet)
     })
   })
+
+  describe('issue #157 - desktop sticky panel scroll contract', () => {
+    it('timeline panels do not use horizontal scroll or translateX', () => {
+      render(<TimelineSection />)
+
+      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
+      stickyPanels.forEach((panel) => {
+        const style = (panel as HTMLElement).style
+        expect(style.transform).not.toContain('translateX')
+        expect(style.transform).not.toContain('translate3d')
+      })
+    })
+
+    it('timeline panels do not have a horizontal track element', () => {
+      render(<TimelineSection />)
+
+      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
+      stickyPanels.forEach((panel) => {
+        const children = panel.querySelectorAll('[data-testid]')
+        const hasTrack = Array.from(children).some(
+          (child) =>
+            child.getAttribute('data-testid')?.includes('track') ||
+            child.getAttribute('data-testid')?.includes('carousel')
+        )
+        expect(hasTrack).toBe(false)
+      })
+    })
+
+    it('each timeline panel participates in card-deck stack with z-index', () => {
+      render(<TimelineSection />)
+
+      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
+      expect(stickyPanels.length).toBe(3)
+
+      stickyPanels.forEach((panel) => {
+        const zIndex = (panel as HTMLElement).style.zIndex
+        expect(zIndex).toBeTruthy()
+        expect(Number(zIndex)).toBeGreaterThan(0)
+      })
+    })
+
+    it('each timeline panel occupies a full desktop viewport beat (min-h-screen)', () => {
+      render(<TimelineSection />)
+
+      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
+      stickyPanels.forEach((panel) => {
+        expect(panel).toHaveClass('min-h-screen')
+        expect(panel).toHaveClass('sticky')
+        expect(panel).toHaveClass('top-0')
+      })
+    })
+
+    it('timeline panels are in DOM order matching newest-first scroll progression', () => {
+      render(<TimelineSection />)
+
+      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"][id]')
+      const ids = Array.from(stickyPanels).map((p) => p.id)
+
+      expect(ids[0]).toBe('timeline')
+      expect(ids[1]).toBe('timeline-a3f9d2b')
+      expect(ids[2]).toBe('timeline-b7c3e1a')
+    })
+
+    it('timeline panels have origin-center and transform-gpu for card-deck animations', () => {
+      render(<TimelineSection />)
+
+      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
+      stickyPanels.forEach((panel) => {
+        expect(panel).toHaveClass('origin-center')
+        expect(panel).toHaveClass('transform-gpu')
+      })
+    })
+
+    it('timeline panels have willChange set for GPU compositing', () => {
+      render(<TimelineSection />)
+
+      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
+      stickyPanels.forEach((panel) => {
+        expect((panel as HTMLElement).style.willChange).toBe('transform, opacity')
+      })
+    })
+  })
 })
