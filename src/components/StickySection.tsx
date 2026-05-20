@@ -9,7 +9,7 @@ interface Props {
 
 const MIN_SCALE = 0.95
 const MIN_OPACITY = 0.75
-const STICKY_SECTION_SELECTOR = 'section[data-sticky-section="true"]'
+const STICKY_SECTION_SELECTOR = '[data-sticky-section="true"]'
 
 function clamp(value: number) {
   return Math.min(Math.max(value, 0), 1)

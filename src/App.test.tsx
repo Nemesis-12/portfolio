@@ -131,7 +131,7 @@ describe('App shell', () => {
     expect(cancelAnimationFrameSpy).toHaveBeenCalledWith(2)
   })
 
-  it('uses element geometry for parallax layers outside sections', () => {
+  it('uses stack surface geometry for footer parallax layers', () => {
     const frameCallbacks = new Map<number, FrameRequestCallback>()
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
       frameCallbacks.set(1, callback)
@@ -139,15 +139,44 @@ describe('App shell', () => {
     })
 
     render(<App />)
+    const footer = document.querySelector('footer') as HTMLElement
     const footerText = document.querySelector('footer [data-parallax]') as HTMLElement
 
-    vi.spyOn(footerText, 'getBoundingClientRect').mockReturnValue(rectAtTop(-80))
+    vi.spyOn(footer, 'getBoundingClientRect').mockReturnValue(rectAtTop(-80))
+    vi.spyOn(footerText, 'getBoundingClientRect').mockReturnValue(rectAtTop(-20))
 
     act(() => {
       frameCallbacks.get(1)?.(0)
     })
 
     expect(footerText.style.transform).toBe('translate3d(0, 40px, 0)')
+  })
+
+  it('uses element geometry for parallax layers outside stack surfaces', () => {
+    const frameCallbacks = new Map<number, FrameRequestCallback>()
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      frameCallbacks.set(1, callback)
+      return 1
+    })
+
+    const orphanLayer = document.createElement('div')
+    orphanLayer.dataset.parallax = ''
+    orphanLayer.dataset.parallaxFactor = '0.5'
+    document.body.append(orphanLayer)
+
+    vi.spyOn(orphanLayer, 'getBoundingClientRect').mockReturnValue(rectAtTop(-80))
+
+    try {
+      render(<App />)
+
+      act(() => {
+        frameCallbacks.get(1)?.(0)
+      })
+
+      expect(orphanLayer.style.transform).toBe('translate3d(0, 40px, 0)')
+    } finally {
+      orphanLayer.remove()
+    }
   })
 
   it('treats missing and invalid parallax factors as zero movement', () => {

@@ -23,6 +23,16 @@ describe('StickySection', () => {
     expect(screen.getByText('Hello World')).toBeInTheDocument()
   })
 
+  it('can render as a footer surface', () => {
+    render(
+      <StickySection as="footer" id="footer">
+        Footer
+      </StickySection>,
+    )
+
+    expect(document.getElementById('footer')?.tagName.toLowerCase()).toBe('footer')
+  })
+
   it('renders as a sharp sticky full-viewport card layer', async () => {
     render(
       <>
@@ -72,6 +82,35 @@ describe('StickySection', () => {
     expect(outgoing.style.transform).toBe('scale(0.975)')
     expect(outgoing.style.opacity).toBe('0.875')
     expect(outgoing.style.filter).toBe('')
+  })
+
+  it('includes footer surfaces in stack depth calculations', async () => {
+    render(
+      <>
+        <StickySection id="contact">Contact</StickySection>
+        <StickySection as="footer" id="footer">
+          Footer
+        </StickySection>
+      </>,
+    )
+
+    const contact = document.getElementById('contact')!
+    const footer = document.getElementById('footer')!
+    mockRect(footer, 400)
+
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 800,
+    })
+
+    await act(async () => {
+      window.dispatchEvent(new Event('scroll'))
+    })
+
+    expect(contact.style.zIndex).toBe('1')
+    expect(footer.style.zIndex).toBe('2')
+    expect(contact.style.transform).toBe('scale(0.975)')
+    expect(contact.style.opacity).toBe('0.875')
   })
 
   it('keeps the outgoing section at full depth before the next section enters', async () => {
