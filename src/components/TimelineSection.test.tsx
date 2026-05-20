@@ -47,7 +47,9 @@ describe('TimelineSection', () => {
       })
 
       const allLines = document.querySelectorAll('[data-typewriter-line]')
-      const texts = Array.from(allLines).map((el) => el.textContent)
+      const texts = Array.from(allLines)
+        .map((el) => el.textContent)
+        .filter((t) => t !== '')
 
       expect(texts[0]).toBe('commit d4e8f2c')
       expect(texts[3]).toBe('NETAPP INC.')
@@ -57,9 +59,9 @@ describe('TimelineSection', () => {
       expect(texts[12]).toBe('WICHITA STATE UNIVERSITY')
       expect(texts[13]).toBe('ACCELERATED_M.S._COMPUTER_SCIENCE')
 
-      expect(texts[15]).toBe('commit b7c3e1a')
-      expect(texts[18]).toBe('WICHITA STATE UNIVERSITY')
-      expect(texts[19]).toBe('B.S._COMPUTER_SCIENCE')
+      expect(texts[14]).toBe('commit b7c3e1a')
+      expect(texts[17]).toBe('WICHITA STATE UNIVERSITY')
+      expect(texts[18]).toBe('B.S._COMPUTER_SCIENCE')
     })
   })
 
@@ -253,6 +255,27 @@ describe('TimelineSection', () => {
 
       const resumedText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
       expect(resumedText.length).toBeGreaterThan(partialText.length)
+    })
+
+    it('issue #98 - longest bullet completes within 2.5s', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      // Metadata takes ~1664ms at 16ms/char, then longest bullet (156 chars) takes ~2496ms
+      act(() => {
+        vi.advanceTimersByTime(4200)
+      })
+
+      const allLines = document.querySelectorAll('[data-typewriter-line]')
+      const texts = Array.from(allLines).map((el) => el.textContent)
+
+      const longestBullet = 'Built automated analysis pipeline processing storage telemetry across distributed RAID systems (FC, SAS, NVMe/RoCE), handling terabytes of performance data.'
+      expect(texts).toContain(longestBullet)
     })
   })
 })

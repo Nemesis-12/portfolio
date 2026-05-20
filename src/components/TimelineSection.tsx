@@ -58,7 +58,7 @@ function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean 
 
   return (
     <div className="min-h-screen py-6 font-mono" data-testid="commit-entry">
-      <Typewriter active={active} lines={lines} speed={25} />
+      <Typewriter active={active} lines={lines} speed={16} />
     </div>
   )
 }
