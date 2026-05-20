@@ -17,7 +17,13 @@ function blockFor(selector: string) {
 describe('global CSS brand chrome', () => {
   it('keeps canonical color tokens available', () => {
     expect(blockFor('@theme')).toContain('--color-graphite: #2A2B2A;')
+    expect(blockFor('@theme')).toContain('--color-graphite-light: #323332;')
     expect(blockFor('@theme')).toContain('--color-atomic-tangerine: #FF8547;')
+    expect(blockFor('@theme')).toContain('--color-ultrasonic-blue: #5200E0;')
+    expect(blockFor('@theme')).toContain('--color-fuchsia-flame: #E0007F;')
+    expect(blockFor('@theme')).toContain('--color-golden-pollen: #FFC857;')
+    expect(blockFor('@theme')).toContain('--color-platinum: #EFF1F3;')
+    expect(blockFor('@theme')).toContain('--color-periwinkle: #B2B6D2;')
     expect(css).toContain('--graphite: var(--color-graphite);')
     expect(css).toContain('--orange: var(--color-atomic-tangerine);')
   })
@@ -28,5 +34,10 @@ describe('global CSS brand chrome', () => {
     expect(blockFor('::-webkit-scrollbar-thumb')).toContain('background: var(--orange);')
     expect(blockFor('::selection')).toContain('background-color: var(--orange);')
     expect(blockFor('::selection')).toContain('color: var(--graphite);')
+  })
+
+  it('uses Press Start 2P for display and Space Mono for body text', () => {
+    expect(blockFor('@theme')).toContain("--font-display: 'Press Start 2P', monospace;")
+    expect(blockFor('@theme')).toContain("--font-body: 'Space Mono', monospace;")
   })
 })

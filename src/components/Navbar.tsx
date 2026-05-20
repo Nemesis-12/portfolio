@@ -35,7 +35,7 @@ export default function Navbar() {
   return (
     <>
       <nav className="fixed top-0 z-40 w-full py-4 bg-graphite/90 backdrop-blur-md border-b border-graphite-light/30">
-        <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-8">
+        <div className="w-full flex items-center justify-between px-8">
           <a href="#" className="font-display text-platinum text-xl no-underline">
             FM_
           </a>

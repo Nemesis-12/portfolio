@@ -72,19 +72,19 @@ const tiles: SkillTile[] = [
   { category: 'LANGUAGE',  name: 'C / C++',      colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
   { category: 'LANGUAGE',  name: 'JavaScript',   colSpan: 'col-span-1 md:col-span-2',          rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
   { category: 'FRAMEWORK', name: 'FastAPI',      colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#5200E0', fg: '#EFF1F3' },
-  { category: 'ML / DL',   name: 'PyTorch',      colSpan: 'col-span-2 md:col-span-3',          rowSpan: 'row-span-1 md:row-span-2', bg: '#FFCE47', fg: '#050609' },
+  { category: 'ML / DL',   name: 'PyTorch',      colSpan: 'col-span-2 md:col-span-3',          rowSpan: 'row-span-1 md:row-span-2', bg: '#FFC857', fg: '#050609' },
   { category: 'DATA',      name: 'NumPy',        colSpan: 'col-span-1 md:col-span-2',          rowSpan: 'row-span-1',               bg: '#5200E0', fg: '#EFF1F3' },
   { category: 'DATA',      name: 'Pandas',       colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
   { category: 'TOOL',      name: 'Ansible',      colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#FF8547', fg: '#050609' },
-  { category: 'ML / DL',   name: 'Hugging Face', colSpan: 'col-span-1 md:col-span-2',          rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
-  { category: 'ML / DL',   name: 'Scikit-learn', colSpan: 'col-span-1 md:col-span-3',          rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Hugging Face', colSpan: 'col-span-1 md:col-span-2',          rowSpan: 'row-span-1',               bg: '#FFC857', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Scikit-learn', colSpan: 'col-span-1 md:col-span-3',          rowSpan: 'row-span-1',               bg: '#FFC857', fg: '#050609' },
   { category: 'TOOL',      name: 'Linux',        colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
   { category: 'TOOL',      name: 'Git',          colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#FF8547', fg: '#050609' },
   { category: 'LANGUAGE',  name: 'SQL',          colSpan: 'col-span-1 md:col-span-2',          rowSpan: 'row-span-1',               bg: '#5200E0', fg: '#EFF1F3' },
-  { category: 'ML / DL',   name: 'Transformers', colSpan: 'col-span-1 md:col-span-2',          rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
-  { category: 'ML / DL',   name: 'Attention Mechanisms', colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
-  { category: 'ML / DL',   name: 'Gradient Optimization', colSpan: 'col-span-1 md:col-span-2', rowSpan: 'row-span-1',               bg: '#FFCE47', fg: '#050609' },
-  { category: 'ML / DL',   name: 'Model Training / Fine-tuning', colSpan: 'col-span-1 md:col-span-3', rowSpan: 'row-span-1',        bg: '#FFCE47', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Transformers', colSpan: 'col-span-1 md:col-span-2',          rowSpan: 'row-span-1',               bg: '#FFC857', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Attention Mechanisms', colSpan: 'col-span-1 md:col-span-2',  rowSpan: 'row-span-1',               bg: '#FFC857', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Gradient Optimization', colSpan: 'col-span-1 md:col-span-2', rowSpan: 'row-span-1',               bg: '#FFC857', fg: '#050609' },
+  { category: 'ML / DL',   name: 'Model Training / Fine-tuning', colSpan: 'col-span-1 md:col-span-3', rowSpan: 'row-span-1',        bg: '#FFC857', fg: '#050609' },
   { category: 'DATA',      name: 'Matplotlib',   colSpan: 'col-span-1',                        rowSpan: 'row-span-1',               bg: '#E0007F', fg: '#EFF1F3' },
   { category: 'DATA',      name: 'Mixed-Precision Training', colSpan: 'col-span-1 md:col-span-2', rowSpan: 'row-span-1',            bg: '#E0007F', fg: '#EFF1F3' },
   { category: 'TOOL',      name: 'Jupyter',      colSpan: 'col-span-2',                        rowSpan: 'row-span-1',               bg: '#EFF1F3', fg: '#2A2B2A' },
@@ -116,7 +116,7 @@ function SkillTileCard({ tile }: { tile: SkillTile }) {
       variants={tileVariants}
       custom={revealOrder}
       whileHover="hover"
-      className={`${tile.colSpan} ${tile.rowSpan} min-h-24 md:min-h-0 p-5 rounded-lg flex flex-col justify-between cursor-default`}
+      className={`${tile.colSpan} ${tile.rowSpan} min-h-24 md:min-h-0 p-5 flex flex-col justify-between cursor-default`}
       style={{ backgroundColor: tile.bg, color: tile.fg }}
     >
       <span className="text-xs uppercase tracking-widest font-body">

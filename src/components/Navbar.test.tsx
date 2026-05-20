@@ -171,13 +171,14 @@ describe('Navbar', () => {
       expect(logo.className).toContain('text-xl')
     })
 
-    it('nav inner content is wrapped in max-w-7xl mx-auto px-8 container', () => {
+    it('nav inner content spans full width without narrow shell constraint', () => {
       render(<Navbar />)
       const nav = screen.getByRole('navigation')
-      const innerContainer = nav.querySelector('div.max-w-7xl')
+      const innerContainer = nav.querySelector('div')
       expect(innerContainer).not.toBeNull()
-      expect(innerContainer!.className).toContain('max-w-7xl')
-      expect(innerContainer!.className).toContain('mx-auto')
+      expect(innerContainer!.className).not.toContain('max-w-7xl')
+      expect(innerContainer!.className).not.toContain('mx-auto')
+      expect(innerContainer!.className).toContain('w-full')
       expect(innerContainer!.className).toContain('px-8')
     })
   })

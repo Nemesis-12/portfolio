@@ -87,6 +87,18 @@ describe('App shell', () => {
     })
   })
 
+  it('navbar does not force a narrow page shell', () => {
+    render(<App />)
+    const nav = document.querySelector('nav')
+    expect(nav).toBeInTheDocument()
+    const innerDiv = nav?.querySelector('div')
+    expect(innerDiv).not.toBeNull()
+    expect(innerDiv!.className).not.toContain('max-w-7xl')
+    expect(innerDiv!.className).not.toContain('mx-auto')
+    expect(innerDiv!.className).toContain('w-full')
+    expect(innerDiv!.className).toContain('px-8')
+  })
+
   it('initializes one RAF-batched parallax scroll listener and cleans it up', () => {
     let nextFrameId = 1
     const frameCallbacks = new Map<number, FrameRequestCallback>()

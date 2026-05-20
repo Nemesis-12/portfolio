@@ -13,7 +13,7 @@ const TAG_COLORS = [
   { bg: '#E0007F', fg: '#EFF1F3' },
   { bg: '#5200E0', fg: '#EFF1F3' },
   { bg: '#FF8547', fg: '#050609' },
-  { bg: '#FFCE47', fg: '#050609' },
+  { bg: '#FFC857', fg: '#050609' },
 ]
 
 const NOTCH = 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)'

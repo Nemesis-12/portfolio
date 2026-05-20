@@ -284,6 +284,16 @@ describe('SkillsSection', () => {
     expect(grid.parentElement!.classList).toContain('w-full')
   })
 
+  it('skill tiles use sharp edges (no rounded corners)', () => {
+    render(<SkillsSection />)
+    const grid = screen.getByTestId('skills-grid')
+    const tiles = Array.from(grid.children)
+
+    for (const tile of tiles) {
+      expect(tile.className).not.toMatch(/rounded/)
+    }
+  })
+
   it('no accent tile renders at bottom of grid', () => {
     render(<SkillsSection />)
 
