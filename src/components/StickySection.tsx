@@ -1,9 +1,10 @@
-import { useLayoutEffect, useRef, type ReactNode } from 'react'
+import { useLayoutEffect, useRef, type ElementType, type ReactNode } from 'react'
 
 interface Props {
   id: string
   children: ReactNode
   className?: string
+  as?: 'section' | 'footer'
 }
 
 const MIN_SCALE = 0.95
@@ -18,8 +19,9 @@ function formatNumber(value: number) {
   return Number(value.toFixed(3)).toString()
 }
 
-export function StickySection({ id, children, className = '' }: Props) {
+export function StickySection({ id, children, className = '', as = 'section' }: Props) {
   const sectionRef = useRef<HTMLElement>(null)
+  const Component = as as ElementType
 
   useLayoutEffect(() => {
     const section = sectionRef.current
@@ -61,7 +63,7 @@ export function StickySection({ id, children, className = '' }: Props) {
   }, [])
 
   return (
-    <section
+    <Component
       ref={sectionRef}
       id={id}
       data-sticky-section="true"
@@ -69,6 +71,6 @@ export function StickySection({ id, children, className = '' }: Props) {
       style={{ willChange: 'transform, opacity' }}
     >
       {children}
-    </section>
+    </Component>
   )
 }
