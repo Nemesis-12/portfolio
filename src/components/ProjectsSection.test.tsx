@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import ProjectsSection from './ProjectsSection'
 
@@ -29,6 +29,33 @@ const mockProjects = [
     ]
   }
 ]
+
+function setViewport(width: number, height: number) {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    writable: true,
+    value: width,
+  })
+  Object.defineProperty(window, 'innerHeight', {
+    configurable: true,
+    writable: true,
+    value: height,
+  })
+}
+
+function createRect(top: number, height: number): DOMRect {
+  return {
+    top,
+    bottom: top + height,
+    left: 0,
+    right: window.innerWidth,
+    width: window.innerWidth,
+    height,
+    x: 0,
+    y: top,
+    toJSON: () => ({}),
+  }
+}
 
 describe('ProjectsSection', () => {
   it('renders all projects as cards on initial render (no collapsed state)', () => {
@@ -225,6 +252,24 @@ describe('ProjectsSection', () => {
     const carouselTrack = document.querySelector('[data-carousel-track="true"]')
     expect(carouselTrack).toBeInTheDocument()
     expect(carouselTrack).toHaveClass('relative')
+  })
+
+  it('translates the carousel track from the projects section scroll position', () => {
+    setViewport(1000, 800)
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const projectsSection = document.getElementById('projects') as HTMLElement
+    const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
+
+    vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-800, 2400))
+    Object.defineProperty(carouselTrack, 'scrollWidth', {
+      configurable: true,
+      value: 1800,
+    })
+
+    act(() => window.dispatchEvent(new Event('scroll')))
+
+    expect(carouselTrack.style.transform).toBe('translateX(-400px)')
   })
 
   it('section header is separate from carousel track', () => {
