@@ -271,7 +271,8 @@ describe('ProjectsSection', () => {
     act(() => window.dispatchEvent(new Event('scroll')))
 
     const centerOffset = 1000 / 2 - 480 / 2
-    expect(carouselTrack.style.transform).toBe(`translateX(${-400 + centerOffset}px)`)
+    const centeredTravelWidth = 1800 - 480
+    expect(carouselTrack.style.transform).toBe(`translateX(${centerOffset - centeredTravelWidth / 2}px)`)
   })
 
   it('section header is separate from carousel track', () => {

@@ -35,13 +35,11 @@ function renderHorizontalScrollHook({
   outerHeight,
   innerScrollWidth,
   cardWidth,
-  cardGap,
 }: {
   outerTop: number | (() => number)
   outerHeight: number
   innerScrollWidth: number
   cardWidth?: number
-  cardGap?: number
 }) {
   const outer = document.createElement('section')
   const inner = document.createElement('div')
@@ -57,8 +55,12 @@ function renderHorizontalScrollHook({
     const outerRef = useRef<HTMLElement>(outer)
     const innerRef = useRef<HTMLElement>(inner)
 
-    return useHorizontalScroll(outerRef, innerRef, { cardWidth, cardGap })
+    return useHorizontalScroll(outerRef, innerRef, { cardWidth })
   })
+}
+
+function cardCenterX(tx: number, cardIndex: number, cardWidth: number, cardGap: number) {
+  return tx + cardIndex * (cardWidth + cardGap) + cardWidth / 2
 }
 
 describe('useHorizontalScroll', () => {
@@ -203,7 +205,6 @@ describe('useHorizontalScroll', () => {
       outerHeight: 2400,
       innerScrollWidth: 984,
       cardWidth: 480,
-      cardGap: 24,
     })
 
     act(() => window.dispatchEvent(new Event('scroll')))
@@ -221,15 +222,12 @@ describe('useHorizontalScroll', () => {
       outerHeight: 2400,
       innerScrollWidth: 984,
       cardWidth: 480,
-      cardGap: 24,
     })
 
     act(() => window.dispatchEvent(new Event('scroll')))
 
-    const centerOffset = 1000 / 2 - 480 / 2
-    const trackWidth = 984 - 1000
     expect(result.current.progress).toBe(1)
-    expect(result.current.tx).toBe(-Math.max(trackWidth, 0) + centerOffset)
+    expect(cardCenterX(result.current.tx, 1, 480, 24)).toBe(1000 / 2)
   })
 
   it('centers intermediate cards as progress advances', () => {
@@ -238,17 +236,30 @@ describe('useHorizontalScroll', () => {
     const { result } = renderHorizontalScrollHook({
       outerTop: -800,
       outerHeight: 2400,
-      innerScrollWidth: 2600,
+      innerScrollWidth: 1992,
       cardWidth: 480,
-      cardGap: 24,
     })
 
     act(() => window.dispatchEvent(new Event('scroll')))
 
-    const centerOffset = 1000 / 2 - 480 / 2
-    const trackWidth = 2600 - 1000
     expect(result.current.progress).toBe(0.5)
-    expect(result.current.tx).toBeCloseTo(-0.5 * trackWidth + centerOffset, 1)
+    expect(cardCenterX(result.current.tx, 1.5, 480, 24)).toBe(1000 / 2)
+  })
+
+  it('centers a middle active card when progress selects that card', () => {
+    setViewport(1000, 800)
+
+    const { result } = renderHorizontalScrollHook({
+      outerTop: -600,
+      outerHeight: 2400,
+      innerScrollWidth: 1992,
+      cardWidth: 480,
+    })
+
+    act(() => window.dispatchEvent(new Event('scroll')))
+
+    expect(result.current.progress).toBeCloseTo(1 / 3, 4)
+    expect(cardCenterX(result.current.tx, 1, 480, 24)).toBeCloseTo(1000 / 2, 2)
   })
 
   it('holds first card centered through the leading dead zone', () => {
@@ -259,7 +270,6 @@ describe('useHorizontalScroll', () => {
       outerHeight: 2400,
       innerScrollWidth: 984,
       cardWidth: 480,
-      cardGap: 24,
     })
 
     act(() => window.dispatchEvent(new Event('scroll')))
@@ -277,15 +287,12 @@ describe('useHorizontalScroll', () => {
       outerHeight: 2400,
       innerScrollWidth: 984,
       cardWidth: 480,
-      cardGap: 24,
     })
 
     act(() => window.dispatchEvent(new Event('scroll')))
 
-    const centerOffset = 1000 / 2 - 480 / 2
-    const trackWidth = 984 - 1000
     expect(result.current.progress).toBe(1)
-    expect(result.current.tx).toBe(-Math.max(trackWidth, 0) + centerOffset)
+    expect(cardCenterX(result.current.tx, 1, 480, 24)).toBe(1000 / 2)
   })
 })
 
