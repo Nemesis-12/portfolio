@@ -75,4 +75,34 @@ describe('LoadingScreen', () => {
     await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
     expect(bar).toHaveAttribute('aria-valuenow', '100')
   })
+
+  it('renders FARHAN and MOHAMMED on separate display lines', () => {
+    const { getByText } = render(<LoadingScreen onComplete={vi.fn()} />)
+    expect(getByText('FARHAN')).toBeInTheDocument()
+    expect(getByText('MOHAMMED')).toBeInTheDocument()
+  })
+
+  it('uses graphite background covering the full viewport', () => {
+    const { container } = render(<LoadingScreen onComplete={vi.fn()} />)
+    const overlay = container.firstChild as HTMLElement
+    expect(overlay).toHaveClass('fixed')
+    expect(overlay).toHaveClass('inset-0')
+    expect(overlay).toHaveClass('bg-graphite')
+  })
+
+  it('renders a thin orange progress bar', () => {
+    const { container } = render(<LoadingScreen onComplete={vi.fn()} />)
+    const track = container.querySelector('[role="progressbar"]')
+    expect(track).toHaveClass('h-0.5')
+    const fill = track?.querySelector('.bg-atomic-tangerine')
+    expect(fill).toBeInTheDocument()
+  })
+
+  it('uses display font for identity and mono font for status text', () => {
+    const { getByText } = render(<LoadingScreen onComplete={vi.fn()} />)
+    const firstName = getByText('FARHAN')
+    expect(firstName).toHaveClass('font-display')
+    const status = getByText('ESTABLISHING_SIGNAL')
+    expect(status).toHaveClass('font-body')
+  })
 })

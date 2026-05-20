@@ -36,14 +36,17 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
         SYSTEM_INIT...
       </p>
       <h1 className="mb-8 font-display text-2xl text-platinum">
-        FARHAN MOHAMMED
+        FARHAN
       </h1>
+      <h2 className="-mt-6 mb-8 font-display text-2xl text-platinum">
+        MOHAMMED
+      </h2>
       <div
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={progress}
-        className="mb-4 h-2 w-64 overflow-hidden rounded-none bg-periwinkle/20"
+        className="mb-4 h-0.5 w-64 overflow-hidden rounded-none bg-periwinkle/20"
       >
         <motion.div
           className="h-full bg-atomic-tangerine"
