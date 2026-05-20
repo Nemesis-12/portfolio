@@ -1,5 +1,10 @@
 import { useEffect, useState, type RefObject } from 'react'
 
+interface HorizontalScrollOptions {
+  cardWidth?: number
+  cardGap?: number
+}
+
 interface HorizontalScrollState {
   tx: number
   progress: number
@@ -29,7 +34,8 @@ export function applyDeadZones(rawProgress: number, deadZoneProgress: number) {
 
 function getHorizontalScrollState(
   outer: HTMLElement | null,
-  inner: HTMLElement | null
+  inner: HTMLElement | null,
+  options?: HorizontalScrollOptions
 ): HorizontalScrollState {
   if (!outer || !inner) {
     return { tx: 0, progress: 0 }
@@ -43,7 +49,13 @@ function getHorizontalScrollState(
   const deadZoneProgress = scrollRange === 0 ? 0 : (viewportHeight * DEAD_ZONE_VIEWPORT_RATIO) / scrollRange
   const progress = clamp01(applyDeadZones(rawProgress, deadZoneProgress))
   const trackWidth = Math.max(inner.scrollWidth - viewportWidth, 0)
-  const tx = progress === 0 || trackWidth === 0 ? 0 : -(progress * trackWidth)
+
+  let tx = progress === 0 || trackWidth === 0 ? 0 : -(progress * trackWidth)
+
+  if (options?.cardWidth) {
+    const centerOffset = viewportWidth / 2 - options.cardWidth / 2
+    tx = -progress * trackWidth + centerOffset
+  }
 
   return {
     progress,
@@ -53,13 +65,17 @@ function getHorizontalScrollState(
 
 export function useHorizontalScroll(
   outerRef: RefObject<HTMLElement>,
-  innerRef: RefObject<HTMLElement>
+  innerRef: RefObject<HTMLElement>,
+  options?: HorizontalScrollOptions
 ): HorizontalScrollState {
   const [state, setState] = useState<HorizontalScrollState>({ tx: 0, progress: 0 })
+  const cardWidth = options?.cardWidth
+  const cardGap = options?.cardGap
 
   useEffect(() => {
+    const opts = cardWidth !== undefined ? { cardWidth, cardGap } : undefined
     const update = () => {
-      setState(getHorizontalScrollState(outerRef.current, innerRef.current))
+      setState(getHorizontalScrollState(outerRef.current, innerRef.current, opts))
     }
 
     update()
@@ -71,7 +87,7 @@ export function useHorizontalScroll(
       window.removeEventListener('scroll', update)
       window.removeEventListener('resize', update)
     }
-  }, [outerRef, innerRef])
+  }, [outerRef, innerRef, cardWidth, cardGap])
 
   return state
 }

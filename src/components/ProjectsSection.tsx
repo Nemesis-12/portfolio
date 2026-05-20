@@ -31,10 +31,13 @@ function getTagStyle(tagIndex: number) {
   return { backgroundColor: color.bg, color: color.fg }
 }
 
+const CARD_WIDTH = 480
+const CARD_GAP = 24
+
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
   const outerRef = useRef<HTMLElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
-  const { tx } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>)
+  const { tx } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>, { cardWidth: CARD_WIDTH, cardGap: CARD_GAP })
   const scrollRangeVh = getScrollRangeVh(projects.length)
   useCardDeckDepth(outerRef as React.RefObject<HTMLElement>)
 

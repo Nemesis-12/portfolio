@@ -270,7 +270,8 @@ describe('ProjectsSection', () => {
 
     act(() => window.dispatchEvent(new Event('scroll')))
 
-    expect(carouselTrack.style.transform).toBe('translateX(-400px)')
+    const centerOffset = 1000 / 2 - 480 / 2
+    expect(carouselTrack.style.transform).toBe(`translateX(${-400 + centerOffset}px)`)
   })
 
   it('section header is separate from carousel track', () => {
@@ -403,5 +404,47 @@ describe('ProjectsSection', () => {
     expect(getScrollRangeVh(3)).toBe(5.5)
     expect(getScrollRangeVh(4)).toBe(7)
     expect(getScrollRangeVh(0)).toBe(1)
+  })
+
+  it('derives active index from adjusted progress using Math.round(progress * (projects.length - 1))', () => {
+    const projectCount = 4
+    expect(Math.round(0 * (projectCount - 1))).toBe(0)
+    expect(Math.round(0.25 * (projectCount - 1))).toBe(1)
+    expect(Math.round(0.5 * (projectCount - 1))).toBe(2)
+    expect(Math.round(0.75 * (projectCount - 1))).toBe(2)
+    expect(Math.round(1 * (projectCount - 1))).toBe(3)
+  })
+
+  it('active index at start of scroll range is 0', () => {
+    const progress = 0
+    const activeIndex = Math.round(progress * (mockProjects.length - 1))
+    expect(activeIndex).toBe(0)
+  })
+
+  it('active index at end of scroll range is last project', () => {
+    const progress = 1
+    const activeIndex = Math.round(progress * (mockProjects.length - 1))
+    expect(activeIndex).toBe(mockProjects.length - 1)
+  })
+
+  it('active index transitions through middle projects as progress advances', () => {
+    const threeProjects = [
+      ...mockProjects,
+      {
+        id: '3',
+        title: 'Project Three',
+        description: 'Description for project three',
+        tags: ['Vue', 'Python'],
+        links: [{ label: 'Site', url: 'https://project3.com' }]
+      }
+    ]
+
+    const progressPoints = [0, 0.33, 0.5, 0.66, 1]
+    const expectedIndices = [0, 1, 1, 1, 2]
+
+    progressPoints.forEach((progress, i) => {
+      const activeIndex = Math.round(progress * (threeProjects.length - 1))
+      expect(activeIndex).toBe(expectedIndices[i])
+    })
   })
 })
