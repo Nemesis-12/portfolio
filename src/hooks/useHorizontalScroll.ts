@@ -7,11 +7,11 @@ interface HorizontalScrollState {
 
 const DEAD_ZONE_VIEWPORT_RATIO = 0.25
 
-function clamp01(value: number) {
+export function clamp01(value: number) {
   return Math.min(Math.max(value, 0), 1)
 }
 
-function applyDeadZones(rawProgress: number, deadZoneProgress: number) {
+export function applyDeadZones(rawProgress: number, deadZoneProgress: number) {
   if (deadZoneProgress <= 0) {
     return rawProgress
   }

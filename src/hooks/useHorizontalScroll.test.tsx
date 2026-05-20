@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { useRef } from 'react'
-import { useHorizontalScroll } from './useHorizontalScroll'
+import { useHorizontalScroll, applyDeadZones, clamp01 } from './useHorizontalScroll'
 
 function setViewport(width: number, height: number) {
   Object.defineProperty(window, 'innerWidth', {
@@ -189,5 +189,65 @@ describe('useHorizontalScroll', () => {
     act(() => window.dispatchEvent(new Event('resize')))
 
     expect(result.current).toEqual({ progress: 0.5, tx: -700 })
+  })
+})
+
+describe('applyDeadZones', () => {
+  it('returns 0 when raw progress is before start', () => {
+    expect(applyDeadZones(0, 0.125)).toBe(0)
+  })
+
+  it('returns 0 within the first dead zone', () => {
+    expect(applyDeadZones(0.06, 0.125)).toBe(0)
+    expect(applyDeadZones(0.125, 0.125)).toBe(0)
+  })
+
+  it('maps the midpoint linearly between dead zones', () => {
+    const result = applyDeadZones(0.5, 0.125)
+    expect(result).toBeCloseTo(0.5, 4)
+  })
+
+  it('returns 1 within the final dead zone', () => {
+    expect(applyDeadZones(0.875, 0.125)).toBe(1)
+    expect(applyDeadZones(0.94, 0.125)).toBe(1)
+  })
+
+  it('returns 1 after end', () => {
+    expect(applyDeadZones(1, 0.125)).toBe(1)
+    expect(applyDeadZones(1.2, 0.125)).toBe(1)
+  })
+
+  it('maps linearly between the leading and trailing dead zones', () => {
+    const deadZone = 0.125
+    const result = applyDeadZones(0.3, deadZone)
+    const expected = (0.3 - deadZone) / (1 - deadZone * 2)
+    expect(result).toBeCloseTo(expected, 4)
+  })
+
+  it('returns raw progress when dead zone is zero', () => {
+    expect(applyDeadZones(0.25, 0)).toBe(0.25)
+    expect(applyDeadZones(0.75, 0)).toBe(0.75)
+  })
+
+  it('returns 0 for negative raw progress (falls within leading dead zone)', () => {
+    expect(applyDeadZones(-0.1, 0.125)).toBe(0)
+  })
+})
+
+describe('clamp01', () => {
+  it('returns 0 for negative values', () => {
+    expect(clamp01(-0.5)).toBe(0)
+    expect(clamp01(-10)).toBe(0)
+  })
+
+  it('returns 1 for values above 1', () => {
+    expect(clamp01(1.5)).toBe(1)
+    expect(clamp01(10)).toBe(1)
+  })
+
+  it('passes through values between 0 and 1', () => {
+    expect(clamp01(0)).toBe(0)
+    expect(clamp01(0.5)).toBe(0.5)
+    expect(clamp01(1)).toBe(1)
   })
 })
