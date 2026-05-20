@@ -55,7 +55,11 @@ export default function ContactSection() {
         </div>
       </StickySection>
 
-      <footer className="flex flex-col gap-6 px-8 py-8 border-t border-periwinkle/20 text-xs font-body text-periwinkle bg-graphite">
+      <StickySection
+        as="footer"
+        id="footer"
+        className="flex flex-col justify-center gap-6 px-8 py-8 border-t border-periwinkle/20 text-xs font-body text-periwinkle bg-graphite"
+      >
         <div className="flex flex-wrap gap-6">
           {footerLinks.map(({ prefix, label, href, target }) => (
             <motion.a
@@ -83,7 +87,7 @@ export default function ContactSection() {
             PORTFOLIO.EXE
           </span>
         </div>
-      </footer>
+      </StickySection>
     </>
   )
 }

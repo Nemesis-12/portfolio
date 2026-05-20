@@ -11,6 +11,7 @@ const sectionIds = [
   'timeline-a3f9d2b',
   'timeline-b7c3e1a',
   'contact',
+  'footer',
 ] as const
 const shellConstraintClasses = ['container', 'max-w-7xl', 'mx-auto'] as const
 
@@ -48,16 +49,16 @@ describe('App shell', () => {
 
   it('renders sections in the correct order', () => {
     render(<App />)
-    const renderedSectionIds = document.querySelectorAll('section[id]')
-    expect(Array.from(renderedSectionIds).map((s) => s.id)).toEqual([...sectionIds])
+    const renderedStackIds = document.querySelectorAll('[data-sticky-section="true"][id]')
+    expect(Array.from(renderedStackIds).map((s) => s.id)).toEqual([...sectionIds])
   })
 
-  it('section surfaces span the full browser width', () => {
+  it('stack surfaces span the full browser width', () => {
     render(<App />)
-    const sectionIds = document.querySelectorAll('section[id]')
-    sectionIds.forEach((section) => {
-      expectNoShellConstraint(section)
-      expect(section.className).toContain('min-h-screen')
+    const stackSurfaces = document.querySelectorAll('[data-sticky-section="true"][id]')
+    stackSurfaces.forEach((surface) => {
+      expectNoShellConstraint(surface)
+      expect(surface.className).toContain('min-h-screen')
     })
   })
 
@@ -72,12 +73,12 @@ describe('App shell', () => {
   it('keeps the navbar above the sticky section stack', () => {
     render(<App />)
     const nav = document.querySelector('nav')
-    const sectionIds = document.querySelectorAll('section[id]')
+    const stackSurfaces = document.querySelectorAll('[data-sticky-section="true"][id]')
 
     expect(nav?.className).toContain('z-40')
-    sectionIds.forEach((section) => {
-      expect(section.className).toContain('sticky')
-      expect(Number((section as HTMLElement).style.zIndex)).toBeLessThan(40)
+    stackSurfaces.forEach((surface) => {
+      expect(surface.className).toContain('sticky')
+      expect(Number((surface as HTMLElement).style.zIndex)).toBeLessThan(40)
     })
   })
 
@@ -130,7 +131,7 @@ describe('App shell', () => {
     expect(cancelAnimationFrameSpy).toHaveBeenCalledWith(2)
   })
 
-  it('uses element geometry for parallax layers outside sections', () => {
+  it('uses stack surface geometry for footer parallax layers', () => {
     const frameCallbacks = new Map<number, FrameRequestCallback>()
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
       frameCallbacks.set(1, callback)
@@ -138,15 +139,44 @@ describe('App shell', () => {
     })
 
     render(<App />)
+    const footer = document.querySelector('footer') as HTMLElement
     const footerText = document.querySelector('footer [data-parallax]') as HTMLElement
 
-    vi.spyOn(footerText, 'getBoundingClientRect').mockReturnValue(rectAtTop(-80))
+    vi.spyOn(footer, 'getBoundingClientRect').mockReturnValue(rectAtTop(-80))
+    vi.spyOn(footerText, 'getBoundingClientRect').mockReturnValue(rectAtTop(-20))
 
     act(() => {
       frameCallbacks.get(1)?.(0)
     })
 
     expect(footerText.style.transform).toBe('translate3d(0, 40px, 0)')
+  })
+
+  it('uses element geometry for parallax layers outside stack surfaces', () => {
+    const frameCallbacks = new Map<number, FrameRequestCallback>()
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      frameCallbacks.set(1, callback)
+      return 1
+    })
+
+    const orphanLayer = document.createElement('div')
+    orphanLayer.dataset.parallax = ''
+    orphanLayer.dataset.parallaxFactor = '0.5'
+    document.body.append(orphanLayer)
+
+    vi.spyOn(orphanLayer, 'getBoundingClientRect').mockReturnValue(rectAtTop(-80))
+
+    try {
+      render(<App />)
+
+      act(() => {
+        frameCallbacks.get(1)?.(0)
+      })
+
+      expect(orphanLayer.style.transform).toBe('translate3d(0, 40px, 0)')
+    } finally {
+      orphanLayer.remove()
+    }
   })
 
   it('treats missing and invalid parallax factors as zero movement', () => {

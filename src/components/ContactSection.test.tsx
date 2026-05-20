@@ -131,6 +131,17 @@ describe('Footer', () => {
     expect(footer).not.toHaveTextContent('SEND_MESSAGE →')
   })
 
+  it('makes the compact footer a stackable sticky surface after the contact CTA', () => {
+    render(<ContactSection />)
+    const contact = document.querySelector('#contact')
+    const footer = document.querySelector('#footer')
+
+    expect(footer?.tagName.toLowerCase()).toBe('footer')
+    expect(contact?.nextElementSibling).toBe(footer)
+    expect(footer).toHaveAttribute('data-sticky-section', 'true')
+    expect(footer).toHaveClass('sticky', 'top-0', 'min-h-screen')
+  })
+
   it('renders footer social links with the expected destinations', () => {
     render(<ContactSection />)
     const githubLink = screen.getByRole('link', { name: '// GITHUB' })
