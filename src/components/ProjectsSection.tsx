@@ -36,7 +36,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
   const { tx } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>)
 
   return (
-    <StickySection id="projects" className="flex flex-col justify-center py-14 px-8 bg-graphite-light">
+    <StickySection ref={outerRef} id="projects" className="flex flex-col justify-center py-14 px-8 bg-graphite-light">
       <div className="w-full">
         <div className="flex items-center gap-3 mb-8">
           <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 01</span>

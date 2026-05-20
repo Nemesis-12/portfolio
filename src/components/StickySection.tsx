@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type ElementType, type ReactNode } from 'react'
+import { forwardRef, useCallback, useLayoutEffect, useRef, type ElementType, type ReactNode } from 'react'
 
 interface Props {
   id: string
@@ -19,9 +19,27 @@ function formatNumber(value: number) {
   return Number(value.toFixed(3)).toString()
 }
 
-export function StickySection({ id, children, className = '', as = 'section' }: Props) {
+export const StickySection = forwardRef<HTMLElement, Props>(function StickySection(
+  { id, children, className = '', as = 'section' },
+  forwardedRef
+) {
   const sectionRef = useRef<HTMLElement>(null)
   const Component = as as ElementType
+  const setSectionRef = useCallback(
+    (node: HTMLElement | null) => {
+      sectionRef.current = node
+
+      if (typeof forwardedRef === 'function') {
+        forwardedRef(node)
+        return
+      }
+
+      if (forwardedRef) {
+        forwardedRef.current = node
+      }
+    },
+    [forwardedRef]
+  )
 
   useLayoutEffect(() => {
     const section = sectionRef.current
@@ -64,7 +82,7 @@ export function StickySection({ id, children, className = '', as = 'section' }: 
 
   return (
     <Component
-      ref={sectionRef}
+      ref={setSectionRef}
       id={id}
       data-sticky-section="true"
       className={`sticky top-0 min-h-screen origin-center transform-gpu ${className}`.trim()}
@@ -73,4 +91,4 @@ export function StickySection({ id, children, className = '', as = 'section' }: 
       {children}
     </Component>
   )
-}
+})

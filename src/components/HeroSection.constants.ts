@@ -3,7 +3,7 @@ import type { Variants } from 'framer-motion'
 export const ROLES = ['CS_STUDENT', 'DEVELOPER', 'BUILDER', 'DEBUGGER', 'PROBLEM_SOLVER']
 export const VALUE_PROP = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
 
-export const FIRST_NAME = 'FARHAN AHMED'
+export const FIRST_NAME = 'FARHAN'
 export const LAST_NAME = 'MOHAMMED'
 export const NAME_SPEED = 40
 
