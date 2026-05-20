@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
+import { useCardDeckDepth } from '../hooks/useCardDeckDepth'
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
 import type { Project } from '../data/projects'
+import { getScrollRangeVh } from './projectsGeometry'
 
 interface Props {
   projects: Project[]
@@ -29,18 +31,21 @@ function getTagStyle(tagIndex: number) {
   return { backgroundColor: color.bg, color: color.fg }
 }
 
-export function getScrollRangeVh(projectCount: number) {
-  return projectCount * 1.5 + 1
-}
-
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
   const outerRef = useRef<HTMLElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
   const { tx } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>)
   const scrollRangeVh = getScrollRangeVh(projects.length)
+  useCardDeckDepth(outerRef as React.RefObject<HTMLElement>)
 
   return (
-    <section ref={outerRef} id="projects" className="px-8 bg-graphite-light" style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden' }}>
+    <section
+      ref={outerRef}
+      id="projects"
+      data-sticky-section="true"
+      className="relative min-h-screen px-8 bg-graphite-light origin-center transform-gpu"
+      style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden', willChange: 'transform, opacity' }}
+    >
       <div data-sticky-viewport="true" className="flex flex-col justify-center py-14" style={{ position: 'sticky', top: 0, height: '100vh' }}>
         <div className="w-full">
           <div className="flex items-center gap-3 mb-8">

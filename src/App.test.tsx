@@ -5,6 +5,7 @@ import App from './App'
 const sections = ['home', 'projects', 'skills', 'timeline', 'contact'] as const
 const sectionIds = [
   'home',
+  'projects',
   'skills',
   'timeline',
   'timeline-a3f9d2b',
@@ -76,7 +77,12 @@ describe('App shell', () => {
 
     expect(nav?.className).toContain('z-40')
     stackSurfaces.forEach((surface) => {
-      expect(surface.className).toContain('sticky')
+      if (surface.id === 'projects') {
+        expect(surface.className).toContain('relative')
+        expect(surface.querySelector('[data-sticky-viewport="true"]')).toBeInTheDocument()
+      } else {
+        expect(surface.className).toContain('sticky')
+      }
       expect(Number((surface as HTMLElement).style.zIndex)).toBeLessThan(40)
     })
   })

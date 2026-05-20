@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import ProjectsSection, { getScrollRangeVh } from './ProjectsSection'
+import ProjectsSection from './ProjectsSection'
+import { getScrollRangeVh } from './projectsGeometry'
 
 const mockProjects = [
   {
@@ -360,6 +361,30 @@ describe('ProjectsSection', () => {
 
     const projectsSection = document.getElementById('projects')
     expect(projectsSection).toHaveStyle({ overflowX: 'hidden' })
+  })
+
+  it('outer container participates in card-deck stack depth', () => {
+    render(
+      <>
+        <ProjectsSection projects={mockProjects} />
+        <section data-sticky-section="true" id="skills" />
+      </>,
+    )
+
+    const projectsSection = document.getElementById('projects') as HTMLElement
+    const skillsSection = document.getElementById('skills') as HTMLElement
+    vi.spyOn(skillsSection, 'getBoundingClientRect').mockReturnValue(createRect(400, 800))
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 800,
+    })
+
+    act(() => window.dispatchEvent(new Event('scroll')))
+
+    expect(projectsSection).toHaveAttribute('data-sticky-section', 'true')
+    expect(projectsSection.style.zIndex).toBe('1')
+    expect(projectsSection.style.transform).toBe('scale(0.975)')
+    expect(projectsSection.style.opacity).toBe('0.875')
   })
 
   it('scroll range calculation matches the desktop geometry contract', () => {
