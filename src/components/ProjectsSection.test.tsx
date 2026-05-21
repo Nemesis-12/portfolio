@@ -452,6 +452,98 @@ describe('ProjectsSection', () => {
     })
   })
 
+  describe('progress indicator', () => {
+    it('renders zero-padded current index and total count in the header', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+      // 2 projects, progress=0 → activeIndex=0 → "01 / 02"
+      expect(screen.getByTestId('progress-count')).toHaveTextContent('01 / 02')
+    })
+
+    it('progress indicator is inside the header row, not inside the carousel track', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+      const progressIndicator = screen.getByTestId('progress-indicator')
+      expect(progressIndicator.closest('[data-carousel-track="true"]')).toBeNull()
+    })
+
+    it('progress fill starts at 0% width before any scroll', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+      const fill = screen.getByTestId('progress-fill')
+      expect(fill).toHaveStyle({ width: '0%' })
+    })
+
+    it('progress fill width reflects carousel progress on scroll', () => {
+      setViewport(1000, 800)
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const projectsSection = document.getElementById('projects') as HTMLElement
+      const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
+
+      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-800, 2400))
+      Object.defineProperty(carouselTrack, 'scrollWidth', {
+        configurable: true,
+        value: 1800,
+      })
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+
+      const fill = screen.getByTestId('progress-fill')
+      const width = parseFloat(fill.style.width)
+      expect(width).toBeGreaterThan(0)
+      expect(width).toBeLessThanOrEqual(100)
+    })
+
+    it('progress indicator is inside the sticky viewport', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+      const progressIndicator = screen.getByTestId('progress-indicator')
+      expect(progressIndicator.closest('[data-sticky-viewport="true"]')).toBeInTheDocument()
+    })
+  })
+
+  describe('scroll hint', () => {
+    it('renders scroll hint element inside the sticky viewport', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+      const hint = screen.getByTestId('scroll-hint')
+      expect(hint).toBeInTheDocument()
+      expect(hint.closest('[data-sticky-viewport="true"]')).toBeInTheDocument()
+    })
+
+    it('scroll hint is visible when progress is 0', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+      const hint = screen.getByTestId('scroll-hint')
+      expect(hint).toHaveAttribute('data-visible', 'true')
+    })
+
+    it('scroll hint is not visible when progress advances beyond 0', () => {
+      setViewport(1000, 800)
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const projectsSection = document.getElementById('projects') as HTMLElement
+      const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
+
+      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-800, 2400))
+      Object.defineProperty(carouselTrack, 'scrollWidth', {
+        configurable: true,
+        value: 1800,
+      })
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+
+      const hint = screen.getByTestId('scroll-hint')
+      expect(hint).toHaveAttribute('data-visible', 'false')
+    })
+
+    it('scroll hint is visually secondary (aria-hidden)', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+      expect(screen.getByTestId('scroll-hint')).toHaveAttribute('aria-hidden', 'true')
+    })
+
+    it('scroll hint is not inside the carousel track', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+      const hint = screen.getByTestId('scroll-hint')
+      expect(hint.closest('[data-carousel-track="true"]')).toBeNull()
+    })
+  })
+
   describe('desktop active card and neighbor model', () => {
     const threeProjects = [
       ...mockProjects,
