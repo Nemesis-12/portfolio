@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom/vitest'
+import '../index.css'
 import { vi } from 'vitest'
 
 // jsdom doesn't implement IntersectionObserver

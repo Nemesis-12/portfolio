@@ -2,9 +2,9 @@ import { describe, it, expect, vi } from 'vitest'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import ProjectsSection from './ProjectsSection'
-import { getScrollRangeVh } from './projectsGeometry'
+import { getScrollRangeVh, PROJECT_CARD_WIDTH } from './projectsGeometry'
 
-const CARD_WIDTH = 480
+const CARD_WIDTH = PROJECT_CARD_WIDTH
 const CARD_GAP = 24
 
 const mockProjects = [
@@ -79,16 +79,17 @@ describe('ProjectsSection', () => {
     expect(screen.getByText('Description for project one')).toBeInTheDocument()
     expect(screen.getByText('React')).toBeInTheDocument()
     expect(screen.getByText('TypeScript')).toBeInTheDocument()
-    expect(screen.getByText('// GitHub ↗')).toBeInTheDocument()
-    expect(screen.getByText('// Demo ↗')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '// GitHub ↗' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '// Demo ↗' })).toBeInTheDocument()
   })
 
-  it('renders image when provided', () => {
+  it('does not render project screenshots inside cards (text-led layout)', () => {
     render(<ProjectsSection projects={mockProjects} />)
 
-    const images = screen.getAllByRole('img')
-    expect(images).toHaveLength(1)
-    expect(images[0]).toHaveAttribute('src', 'https://example.com/image1.png')
+    const cards = document.querySelectorAll('[data-testid="project-card"]')
+    cards.forEach((card) => {
+      expect(card.querySelector('img')).not.toBeInTheDocument()
+    })
   })
 
   it('omits image and placeholder elements when no image is provided', () => {
@@ -112,7 +113,7 @@ describe('ProjectsSection', () => {
     expect(headings.map(h => h.textContent)).toContain('Project One')
     expect(headings.map(h => h.textContent)).toContain('Project Two')
 
-    expect(screen.getByText('// Docs ↗')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '// Docs ↗' })).toBeInTheDocument()
   })
 
   it('keeps the project title readable during hover fill', async () => {
@@ -123,13 +124,13 @@ describe('ProjectsSection', () => {
     const card = title.closest('[data-testid="project-card"]')
     expect(card).not.toBeNull()
 
-    expect(title).toHaveClass('text-graphite')
+    expect(title).toHaveClass('pcard-name')
 
     await user.hover(card!)
-    expect(title).toHaveClass('text-graphite')
+    expect(title).toHaveClass('text-platinum')
 
     await user.unhover(card!)
-    expect(title).toHaveClass('text-graphite')
+    expect(title).not.toHaveClass('text-platinum')
   })
 
   it('activates a diagonal orange fill layer when a project card is hovered', async () => {
@@ -167,7 +168,7 @@ describe('ProjectsSection', () => {
     expect(fill).toHaveAttribute('data-active', 'true')
   })
 
-  it('switches project card content to readable graphite text during the orange fill', async () => {
+  it('switches project card content to readable platinum text during the orange fill', async () => {
     const user = userEvent.setup()
     render(<ProjectsSection projects={mockProjects} />)
 
@@ -176,18 +177,16 @@ describe('ProjectsSection', () => {
     expect(card).not.toBeNull()
 
     const description = screen.getByText('Description for project one')
-    const bullet = screen.getByText('First bullet point for project one')
     const link = screen.getByRole('link', { name: '// GitHub ↗' })
 
     await user.hover(card!)
 
-    expect(title).toHaveClass('text-graphite')
-    expect(description).toHaveClass('text-graphite')
-    expect(bullet.closest('ul')).toHaveClass('text-graphite')
-    expect(link).toHaveClass('text-graphite')
+    expect(title).toHaveClass('text-platinum')
+    expect(description).toHaveClass('text-platinum')
+    expect(link).toHaveClass('text-platinum')
   })
 
-  it('inverts project tags and ghost number during the orange fill', async () => {
+  it('inverts project tags, ghost number, and card number during the orange fill', async () => {
     const user = userEvent.setup()
     render(<ProjectsSection projects={mockProjects} />)
 
@@ -195,12 +194,17 @@ describe('ProjectsSection', () => {
     const card = title.closest('[data-testid="project-card"]')
     expect(card).not.toBeNull()
 
-    const ghostNumber = screen.getByText('_01')
+    const ghostNumber = card!.querySelector('[data-testid="pcard-ghost"]')
+    const cardNumber = card!.querySelector('[data-testid="pcard-num"]')
     const tag = screen.getByText('React')
+
+    expect(card).toHaveAttribute('data-fill-active', 'false')
 
     await user.hover(card!)
 
-    expect(ghostNumber).toHaveClass('text-graphite')
+    expect(card).toHaveAttribute('data-fill-active', 'true')
+    expect(ghostNumber).not.toBeNull()
+    expect(cardNumber).not.toBeNull()
     expect(tag).toHaveAttribute('data-inverted', 'true')
   })
 
@@ -273,8 +277,8 @@ describe('ProjectsSection', () => {
 
     act(() => window.dispatchEvent(new Event('scroll')))
 
-    const centerOffset = 1000 / 2 - 480 / 2
-    const centeredTravelWidth = 1800 - 480
+    const centerOffset = 1000 / 2 - PROJECT_CARD_WIDTH / 2
+    const centeredTravelWidth = 1800 - PROJECT_CARD_WIDTH
     expect(carouselTrack.style.transform).toBe(`translateX(${centerOffset - centeredTravelWidth / 2}px)`)
   })
 
@@ -288,39 +292,14 @@ describe('ProjectsSection', () => {
     expect(carouselTrack).toBeInTheDocument()
   })
 
-  it('renders resume bullets when provided', () => {
+  it('omits resume bullets from cards to preserve v4 content hierarchy', () => {
     render(<ProjectsSection projects={mockProjects} />)
 
-    expect(screen.getByText('First bullet point for project one')).toBeInTheDocument()
-    expect(screen.getByText('Second bullet point for project one')).toBeInTheDocument()
-  })
-
-  it('omits bullets section when project has no bullets', () => {
-    render(<ProjectsSection projects={mockProjects} />)
-
-    const projectTwoCard = screen.getByRole('heading', { name: 'Project Two' }).closest('[data-testid="project-card"]')
-    expect(projectTwoCard).not.toBeNull()
-
-    const bulletsList = projectTwoCard?.querySelector('ul')
-    expect(bulletsList).not.toBeInTheDocument()
-  })
-
-  it('renders bullets as a list structure', () => {
-    render(<ProjectsSection projects={mockProjects} />)
-
-    const lists = document.querySelectorAll('[data-testid="project-card"] ul')
-    expect(lists).toHaveLength(1)
-    expect(lists[0].querySelectorAll('li')).toHaveLength(2)
-  })
-
-  it('card has explicit width constraint to prevent full-width collapse', () => {
-    render(<ProjectsSection projects={mockProjects} />)
-
-    const card = document.querySelector('[data-testid="project-card"]')
-    expect(card).not.toBeNull()
-    const style = window.getComputedStyle(card!)
-    expect(style.maxWidth).not.toBe('none')
-    expect(style.maxWidth).not.toBe('')
+    const cards = document.querySelectorAll('[data-testid="project-card"]')
+    cards.forEach((card) => {
+      expect(card.querySelector('ul')).not.toBeInTheDocument()
+    })
+    expect(screen.queryByText('First bullet point for project one')).not.toBeInTheDocument()
   })
 
   it('outer container uses the scroll range formula (projects.length * 1.5 + 1) * 100vh', () => {
@@ -588,6 +567,128 @@ describe('ProjectsSection', () => {
       render(<ProjectsSection projects={mockProjects} />)
       const hint = screen.getByTestId('scroll-hint')
       expect(hint.closest('[data-carousel-track="true"]')).toBeNull()
+    })
+  })
+
+  describe('v4 notched card hierarchy', () => {
+    it('each card exposes number, ghost number, title, description, tags, and links', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+      expect(cards).toHaveLength(2)
+
+      cards.forEach((card, index) => {
+        const project = mockProjects[index]
+        const paddedId = project.id.padStart(2, '0')
+
+        expect(card.querySelector('[data-testid="pcard-ghost"]')).toHaveTextContent(`_${paddedId}`)
+        expect(card.querySelector('[data-testid="pcard-num"]')).toHaveTextContent(`_${paddedId}`)
+        expect(card.querySelector('.pcard-name')).toHaveTextContent(project.title)
+        expect(card.querySelector('.pcard-desc')).toHaveTextContent(project.description)
+
+        project.tags.forEach((tag) => {
+          expect(card.querySelector('.pcard-tags')).toHaveTextContent(tag)
+        })
+
+        project.links.forEach((link) => {
+          expect(card.querySelector('.pcard-links')).toHaveTextContent(link.label)
+        })
+      })
+    })
+
+    it('renders a large ghost number element behind card content', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const ghost = document.querySelector('[data-testid="pcard-ghost"]')
+      expect(ghost).toBeInTheDocument()
+      expect(ghost).toHaveClass('pcard-ghost')
+    })
+
+    it('project title uses the pixel display font via pcard-name', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const title = screen.getByRole('heading', { name: 'Project One' })
+      expect(title).toHaveClass('pcard-name')
+    })
+
+    it('tags use v4 palette classes', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const tags = document.querySelectorAll('.pcard-tags .ptag')
+      expect(tags.length).toBeGreaterThan(0)
+      tags.forEach((tag) => {
+        expect(tag.className).toMatch(/ptag ptag-(fuchsia|blue|orange|yellow)/)
+      })
+    })
+
+    it('cards use pcard sizing and do not collapse to full-width rows', () => {
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const card = document.querySelector('[data-testid="project-card"]') as HTMLElement
+      expect(card).toHaveClass('pcard')
+      expect(card).toHaveClass('shrink-0')
+      expect(card.querySelector('.pcard-bg')).toBeInTheDocument()
+      expect(PROJECT_CARD_WIDTH).toBe(560)
+    })
+
+    it('renders notched corner accent markers on each card', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+      cards.forEach((card) => {
+        expect(card.querySelector('.pcard-notch.tl')).toBeInTheDocument()
+        expect(card.querySelector('.pcard-notch.br')).toBeInTheDocument()
+      })
+    })
+
+    it('renders card hierarchy for a single-project carousel', () => {
+      const singleProject = [mockProjects[0]]
+      render(<ProjectsSection projects={singleProject} />)
+
+      const card = document.querySelector('[data-testid="project-card"]')
+      expect(card).toBeInTheDocument()
+      expect(card?.querySelector('[data-testid="pcard-ghost"]')).toHaveTextContent('_01')
+      expect(card?.querySelector('.pcard-name')).toHaveTextContent('Project One')
+    })
+
+    it('renders empty tag and link regions without breaking card layout', () => {
+      const sparseProject = [{
+        id: '9',
+        title: 'Sparse Project',
+        description: 'No tags or links',
+        tags: [],
+        links: [],
+      }]
+      render(<ProjectsSection projects={sparseProject} />)
+
+      const card = document.querySelector('[data-testid="project-card"]')
+      expect(card?.querySelector('.pcard-tags')).toBeEmptyDOMElement()
+      expect(card?.querySelector('.pcard-links')).toBeEmptyDOMElement()
+      expect(card?.querySelector('.pcard-name')).toHaveTextContent('Sparse Project')
+      expect(card?.querySelector('[data-testid="pcard-num"]')).toHaveTextContent('_09')
+    })
+
+    it('cycles tag palette variants for projects with more than four tags', () => {
+      const manyTagsProject = [{
+        id: '1',
+        title: 'Tagged Project',
+        description: 'Many technologies',
+        tags: ['A', 'B', 'C', 'D', 'E'],
+        links: [{ label: 'Site', url: 'https://example.com' }],
+      }]
+      render(<ProjectsSection projects={manyTagsProject} />)
+
+      const tags = document.querySelectorAll('.pcard-tags .ptag')
+      expect(tags).toHaveLength(5)
+      expect(tags[4]).toHaveClass('ptag-fuchsia')
+    })
+
+    it('does not render dominant project screenshots inside cards', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const card = screen.getByRole('heading', { name: 'Project One' }).closest('[data-testid="project-card"]')
+      expect(card?.querySelector('img')).not.toBeInTheDocument()
     })
   })
 
