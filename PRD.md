@@ -2,258 +2,176 @@
 
 ## Problem Statement
 
-The current portfolio codebase has diverged significantly from the v4 design reference (`ideas/Portfolio v4.html`). Three categories of problems exist:
+The production portfolio app does not visually match its canonical reference design (`ideas/Portfolio.html` and the six reference screenshots in `ideas/`). The gap is not a missing spec — the design intent is well-understood. The gap is architectural: every time an agent rewrites a component, it translates the reference's precise vanilla CSS (`clamp()`, `vw` units, exact `px` values, exact `letter-spacing`) into Tailwind v4 utility classes. This translation is lossy.
 
-1. **Visual bugs**: The `// PORTFOLIO_INIT` hero label sits too close to the navbar border and its orange underline bar is misaligned — the underline should align to the start of the `//`, not to the text after the slashes. The `// EDUCATION` and `// EXPERIENCE` section labels in the Timeline use the wrong font — both the `//` and the section word must be in Press Start 2P, orange, with `//` slightly smaller than the word.
+Concrete examples of the drift:
 
-2. **Missing scroll UX**: The site has no inter-section scroll transition. Sections replace each other flatly as the user scrolls, losing all sense of depth and layering.
+| Reference CSS value | What agents produce | Visual damage |
+|---|---|---|
+| `font-size: clamp(40px, 12vw, 180px)` | `text-5xl` (48px fixed) | Hero name is 3–4× too small |
+| `padding: 0 5vw` | `px-8` (32px fixed) | Layout loses viewport-relative spacing |
+| `font-size: clamp(40px, 8vw, 120px)` | `text-3xl md:text-5xl` | Contact CTA is massively undersized |
+| `letter-spacing: 5px` | `tracking-widest` | Spacing is imprecise |
+| `border-radius: 0` on scrollbar | `border-radius: 4px` | Browser chrome has wrong feel |
+| `clip-path` notch card | `rounded` with `bg-platinum` | Cards look like generic portfolio tiles |
+| `grid-template-areas` bento | ad-hoc grid utilities | Skills bento loses size hierarchy |
 
-3. **Projects carousel pacing**: Cards scroll by too quickly and the section has no entry/exit buffer, so the user teleports into and out of the horizontal carousel with no easing.
-
-The redesign should also preserve the v4 reference's full-browser-width, full-viewport composition. The site should not feel boxed into a centered page shell; each major section should read as an immersive full-screen card in the stack.
-
----
+The result is that the site looks like a generic portfolio with the correct color scheme rather than the distinctive full-screen terminal artifact the reference describes.
 
 ## Solution
 
-Rebuild all components to match `ideas/Portfolio v4.html` as the canonical design reference, then layer on:
+The solution has three parts:
 
-- A **card-deck stacking effect** between sections: each new section slides up from below while the section beneath scales to ~0.95× and dims. The effect applies across Hero, Projects, Skills, each Timeline entry, Contact, and Footer. Projects is the one exception inside its own active viewport — the outer layer stays visually stable while the internal cards move.
-- **Improved Projects carousel pacing**: ~1.5× viewport height per card, plus a 20–25vh dead-zone buffer at each end of the carousel.
-- **Timeline redesigned as vertical stacked panels** — one full-screen panel per entry, newest first. The v4 horizontal scroll behavior is explicitly not desired.
-- **Skills reveal changed to deterministic order** — largest/anchor tiles first, supporting tiles fan out after. Slower reveal than v4.
-- **Bug fixes** for the hero init label spacing/alignment and the timeline section-label font.
+**Part 1 — CSS anchor.** Create `src/portfolio.css` as a near-verbatim copy of the `<style>` block from `ideas/Portfolio.html` (lines 11–233), restructured as `@layer components { … }`. Color tokens already exist in `src/index.css`; only the component rules need to be ported. This gives every component a stable set of class names whose values are proven correct by the reference. Agents no longer derive CSS values — they apply class names.
 
----
+**Part 2 — Component fixes.** Update each component to use the ported class names instead of Tailwind approximations for all layout-critical and typography-critical properties.
+
+**Part 3 — Cursor rule.** Create `.cursor/rules/portfolio-css.md` instructing agents never to replace classes from `src/portfolio.css` with Tailwind equivalents.
 
 ## User Stories
 
-1. As a visitor, I want to see a system-boot loading screen with a progress bar and rotating status messages, so that the site feels like a terminal initialising.
-2. As a visitor, I want the loading screen to fade out after ~2.8 s, so that I land smoothly on the hero.
-3. As a visitor, I want the portfolio to use the full browser width, so that the site feels immersive instead of boxed into the center.
-4. As a visitor, I want each major section to feel like a full-screen card, so that the page has a strong intentional rhythm.
-5. As a visitor, I want a fixed navbar with a blurred, semi-transparent graphite background and a subtle bottom border, so that I can navigate without losing context of the page.
-6. As a visitor, I want navbar hover and active animations to be fast and subtle, so that navigation feels crisp.
-7. As a visitor, I want the `>` caret on nav links to appear only on hover, not on the active item, so that hover and active states are visually distinct.
-8. As a visitor, I want the active nav link to use orange label color and an orange underline scoped to the label text only, so that I always know which section I am in without visual noise from the caret.
-9. As a visitor, I want the `FM_` logo in the navbar to jump to the hero when clicked, so that I can return to the top quickly.
-10. As a visitor, I want the `// PORTFOLIO_INIT` label in the hero to have sufficient clearance below the navbar border, so that it reads as hero content rather than nav decoration.
-11. As a visitor, I want the orange underline bar beneath `// PORTFOLIO_INIT` to align with the start of the `//`, so that the label and underline behave as one paired unit.
-12. As a visitor, I want the hero name to appear via a typewriter animation (first line, then second), so that my attention is drawn to the name progressively.
-13. As a visitor, I want a blinking block cursor to persist at the end of the hero name once typing completes, so that the terminal aesthetic is maintained.
-14. As a visitor, I want a rotating role typewriter (`CS_STUDENT`, `DEVELOPER`, `BUILDER`, `DEBUGGER`, `PROBLEM_SOLVER`) to appear after the name types in, so that I get a quick read of who Farhan is.
-15. As a visitor, I want the hero CTA buttons and value-prop line to fade up after the name animation completes, so that the call-to-action feels like a natural conclusion to the intro sequence.
-16. As a visitor, I want a subtle dot-grid background in the hero that moves at a slower parallax rate than the content, so that there is a sense of depth when scrolling.
-17. As a visitor, I want each section to slide up over the previous one like a card being dealt on top of a deck, so that scrolling feels layered and physical.
-18. As a visitor, I want the section underneath to scale down to ~95% and dim as the new section covers it, so that the depth illusion is reinforced without being dramatic.
-19. As a visitor, I want the stacking effect to apply across Hero, Projects, Skills, each Timeline entry, Contact, and Footer, so that the motion language is consistent throughout the site.
-20. As a visitor, I want Projects to enter and exit with the stack effect, so that it does not feel disconnected from the rest of the page.
-21. As a visitor, I want the Projects carousel itself to not use the card-stacking motion internally, so that two competing scroll effects do not fight each other.
-22. As a visitor, I want Projects to use a sticky horizontal carousel that maps vertical scroll to horizontal card movement, so that I can browse projects without horizontal input.
-23. As a visitor, I want each project card to have ~1.5× the viewport height of scroll distance, so that cards advance at a comfortable reading pace.
-24. As a visitor, I want moving from one project card to the next to require slightly less than one full scroll beat, so that browsing does not feel sluggish or abruptly fast.
-25. As a visitor, I want a 20–25vh dead zone at the start of the Projects carousel that holds the first card in place, so that I don't snap into the carousel immediately on entry.
-26. As a visitor, I want a 20–25vh dead zone at the end of the Projects carousel that holds the last card in place, so that I don't snap out before I'm ready.
-27. As a visitor, I want the active project card to be centered, so that the section has a clear initial and ongoing focal point.
-28. As a visitor, I want neighboring project cards to remain partially visible to the left and right at lower opacity and subtle scale, so that I understand the carousel has more items.
-29. As a visitor, I want project cards to remain card-shaped, not become full-width rows, so that the notched card design remains central.
-30. As a visitor, I want each project card to show a ghost number, project name, concise description, colorful tags, and links, so that each card is scannable but complete.
-31. As a visitor, I want project cards to be more text-led than the current heavy white-card implementation, so that the design feels sharper.
-32. As a visitor, I want project cards to have a clipped-corner (notch) shape with a diagonal orange fill that slides in from the top-left notch to the bottom-right notch on hover or focus, so that the animation is tied to the notched shape.
-33. As a visitor, I want the centered active card to remain unfilled (not orange) by default, so that active carousel state and hover/focus fill state are visually distinct.
-34. As a visitor, I want project card text, tags, ghost numbers, and links to invert cleanly during orange fill, so that the card remains fully readable throughout the hover animation.
-35. As a visitor, I want a progress indicator (`02 / 06` with a fill bar) in the Projects carousel header, so that I know how far through the project list I am.
-36. As a visitor, I want the Projects scroll hint to be helpful but not visually dominant, so that it supports the interaction without cluttering the section.
-37. As a visitor, I want the Skills section to reveal bento-grid tiles in a deterministic designed order, so that the reveal feels intentional instead of random.
-38. As a visitor, I want the largest or most important Skills tiles to reveal first, then supporting tiles to fan out, so that the grid hierarchy is clear from the animation.
-39. As a visitor, I want the Skills reveal to be slower than the v4 reference, so that the animation feels smoother and less jumpy.
-40. As a visitor, I want the Skills bento grid to reset and re-animate if I scroll away and back, so that repeat visitors still get the animation.
-41. As a visitor, I want each Timeline entry to be its own full-screen stacked panel using the same card-deck scroll model as the rest of the site, so that each milestone gets visual weight without requiring horizontal gestures.
-42. As a visitor, I want Timeline panels in newest-first order, so that the most current and relevant experience appears first.
-43. As a visitor, I want each Timeline panel to keep the v4 metadata style (`commit`, `Author`, `Date`) with a typewriter animation when the panel becomes active, so that the terminal commit metaphor is reinforced.
-44. As a visitor, I want Timeline details to be bullet points rather than paragraph blocks, so that dense experience details are easier to scan.
-45. As a visitor, I want the typewriter speed in Timeline to be fast enough for bullet lists, so that I am not forced to wait through long lines.
-46. As a visitor, I want the `//` prefix and the section word (`EDUCATION` / `EXPERIENCE`) in Timeline panel labels to both use the pixel display font in orange, with `//` slightly smaller than the word, so that the heading matches the pixel heading system shown in the design reference.
-47. As a visitor, I want Timeline stack transitions to ease smoothly, so that moving between milestones feels intentional.
-48. As a visitor, I want the Contact section to be a full-screen CTA with large pixel text that types out `LET'S CONNECT.` with a blinking cursor when I scroll to it, so that the footer carries the same typewriter energy as the hero.
-49. As a visitor, I want copyright and footer metadata to live in a separate compact area below the full-screen CTA, so that the CTA does not feel cluttered.
-50. As a visitor, I want the final footer to be compact and calm, so that the ending feels complete without competing with the CTA.
-51. As a visitor, I want social links in the footer to be prefixed with `//` in orange and to highlight white on hover, so that they match the terminal link language used elsewhere.
-52. As a visitor on mobile, I want the same card-deck stacking effect as desktop, so that the experience feels consistent across devices.
-53. As a visitor on mobile, I want the Projects carousel to remain usable with the same core card concept adapted to the screen, so that project browsing stays focused.
-54. As a visitor on mobile, I want Timeline entries to remain full-screen stacked panels, so that each entry is readable without horizontal gestures.
-55. As a visitor, I want an orange scrollbar thumb on a graphite track throughout the page, so that even the browser chrome fits the design system.
-56. As a visitor, I want the `::selection` highlight to be orange with graphite text, so that text selection feels on-brand.
+### Loading Screen
+1. As a visitor, I want the loading screen to be full-screen graphite so that the boot sequence feels immersive and intentional.
+2. As a visitor, I want to see a pixel-font `FARHAN / MOHAMMED` identity during boot so that the brand is established before the hero loads.
+3. As a visitor, I want a thin orange progress bar that fills over roughly 2.6–3.0s so that the load pacing feels deliberate.
+4. As a visitor, I want rotating terminal status messages (`LOADING_ASSETS`, `COMPILING_MODULES`, etc.) so that the boot sequence reads as a real system init.
+5. As a visitor, I want the loading screen to fade smoothly into the hero so that there is no visual jump.
 
----
+### Navbar
+6. As a visitor, I want a fixed full-width navbar with translucent graphite background and backdrop blur so that it feels like a floating terminal bar.
+7. As a visitor, I want the logo `FM_` in pixel font on the left so that the brand mark is consistent.
+8. As a visitor, I want nav links in uppercase Space Mono with letter-spacing so that they read as terminal labels.
+9. As a visitor, I want the active nav link to show orange text and an orange underline scoped only to the label (not the caret) so that the active state is precise.
+10. As a visitor, I want the `>` caret to appear on hover only (not on active) so that hover and active feel distinct.
+11. As a visitor, I want the navbar to sit above all card-deck stack layers so that it is always accessible.
+
+### Hero
+12. As a visitor, I want the hero section to be full-viewport and full-width so that the name dominates the screen without centering constraints.
+13. As a visitor, I want `// PORTFOLIO_INIT` to type in character-by-character before the name starts so that the sequence feels like a system initializing.
+14. As a visitor, I want a short orange bar below `// PORTFOLIO_INIT` whose left edge is aligned with the `//` start so that the bar reads as an underline for that label specifically.
+15. As a visitor, I want the hero name (`FARHAN` / `MOHAMMED`) to be two separate stacked lines in Press Start 2P at `clamp(40px, 12vw, 180px)` so that the name dominates the viewport at any screen width.
+16. As a visitor, I want the name to type in line-by-line (FARHAN completes, then MOHAMMED starts) so that the sequence has rhythm.
+17. As a visitor, I want a blinking orange cursor at the end of MOHAMMED after it finishes typing so that it signals the terminal is waiting.
+18. As a visitor, I want the rotating role line (e.g. `BUILDER`) in periwinkle Space Mono at `clamp(11px, 1.1vw, 15px)` with `letter-spacing: 5px` so that it reads as a status label beneath the name.
+19. As a visitor, I want the value-prop line `// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.` in Space Mono below the role so that the one-line descriptor is readable and on-brand.
+20. As a visitor, I want the CTA buttons to appear after the value-prop types in, using rectangular sharp-edged buttons (no border-radius) so that they match the reference exactly.
+21. As a visitor, I want the fill CTA (`VIEW_WORK`) to be orange with graphite text, and the outline CTA (`VIEW_RESUME`) to be a platinum-bordered ghost button so that the hierarchy between actions is clear.
+22. As a visitor, I want the hero background to be a subtle line grid (not a dot grid) with a radial mask fade from the left so that the grid enhances depth without being decorative.
+23. As a visitor, I want hero content to use `padding: 0 5vw` so that the layout breathes at all viewport widths.
+
+### Projects Carousel
+24. As a visitor, I want the Projects section to occupy `(projectCount * 1.5 + 1) * 100vh` of scroll height so that scrolling through six projects feels paced rather than rushed.
+25. As a visitor, I want the first and last 20–25vh of the Projects scroll range to be dead zones where the carousel does not move so that entering and exiting the section is comfortable.
+26. As a visitor, I want the active project card to be horizontally centered in the viewport at all times so that focus is always clear.
+27. As a visitor, I want immediate neighbor cards to be partially visible at reduced scale and opacity so that the carousel communicates there are more cards.
+28. As a visitor, I want far cards to be visually suppressed so that attention stays on the active card.
+29. As a visitor, I want each project card to be a large notched/clipped rectangle (`clip-path` polygon corners, not rounded) in platinum so that the cards feel physically distinct from the background.
+30. As a visitor, I want a large low-opacity ghost number (`_01`, `_02`, etc.) behind the card content so that the card has depth and identity.
+31. As a visitor, I want project titles to use Press Start 2P (`clamp(20px, 2vw, 26px)`) so that the name has display weight.
+32. As a visitor, I want tags to be sharp rectangular blocks using the palette colors (yellow, fuchsia, blue, orange-outline) with no border-radius so that they match the reference tile system.
+33. As a visitor, I want project links to use `// LABEL ↗` terminal language so that the link style is consistent with the rest of the site.
+34. As a visitor, I want a hover fill that moves diagonally from the top-left notch corner toward the bottom-right so that the fill feels physical and directional.
+35. As a visitor, I want card content (title, tags, links, ghost number) to remain readable and transition to platinum-on-graphite during the hover fill so that the card is usable in both states.
+36. As a visitor, I want a section header row showing `// 01  PROJECTS` (orange `//`, orange number, pixel font section name) so that the section is labeled in the reference style.
+37. As a visitor, I want a progress counter in the header (`02 / 06`) and a thin orange progress bar so that I know where I am in the carousel.
+38. As a visitor, I want a `SCROLL →` hint at the bottom that fades once the carousel starts moving so that the scroll interaction is discoverable.
+39. As a visitor, I want edge spacers before the first and after the last card so that the first and last cards can reach the centered position.
+
+### Skills
+40. As a visitor, I want the skills section to use the exact six-column `grid-template-areas` bento layout from the reference so that Python dominates the top-left and tile sizes communicate skill importance.
+41. As a visitor, I want sharp rectangular bento tiles (no rounded corners) with strong palette blocks so that the grid feels like a physical mosaic.
+42. As a visitor, I want the palette swatch tile (four color swatches) in the bottom-right so that the design system is self-referential.
+43. As a visitor, I want tiles to reveal in deterministic largest-first order on section entry so that the cascade always feels intentional.
+44. As a visitor, I want the reveal to reset and replay when the section re-enters the viewport so that repeat visitors see the animation again.
+45. As a visitor, I want category labels in small uppercase mono and skill names in bold mono so that each tile has a consistent two-line hierarchy.
+46. As a visitor, I want the section header `// 02  SKILLS` in the reference style above the grid so that it is labeled consistently with Projects.
+
+### Timeline
+47. As a visitor, I want each timeline entry to be a full-screen sticky panel so that one entry occupies the entire viewport at a time.
+48. As a visitor, I want entries in newest-first order so that the most recent work is encountered first.
+49. As a visitor, I want the section-type label (`// EDUCATION` or `// EXPERIENCE`) to appear at the top of each panel, with `//` in Space Mono and the section word in Press Start 2P, both in orange, so that the kind of entry is immediately clear.
+50. As a visitor, I want the `//` to be visually smaller than the section word so that the hierarchy within the label is preserved.
+51. As a visitor, I want the commit metadata (`commit <hash>`, `Author`, `Date`) to type in first in orange/periwinkle mono so that the git-log framing is established before the main content.
+52. As a visitor, I want the institution/company name to type in as large Press Start 2P text (`clamp(28px, 4vw, 52px)`) so that it dominates the panel the way the hero name dominates the hero.
+53. As a visitor, I want the role/title to appear in uppercase Space Mono below the institution name so that the content hierarchy goes: label → commit meta → institution → role → bullets.
+54. As a visitor, I want each bullet to type in sequentially with a small delay between bullets so that the panel feels like a log being printed.
+55. As a visitor, I want a panel's typed content to remain visible when it deactivates (user scrolls past it) so that it does not blank during stack transitions.
+56. As a visitor, I want a section header row `// 03  TIMELINE` with a progress counter (`01 / 05`) so that the entry position is always visible.
+57. As a visitor, I want a `SCROLL ↓` hint at the bottom of each timeline panel so that the scroll direction is always clear.
+
+### Contact / CTA
+58. As a visitor, I want the contact section to be full-screen with `LET'S` on one line and `CONNECT.` on the next in Press Start 2P at `clamp(40px, 8vw, 120px)` so that the CTA dominates the viewport the same way the hero name does.
+59. As a visitor, I want the text to be centered (unlike the left-aligned hero) so that the CTA feels like a declaration.
+60. As a visitor, I want the period `.` to be orange and followed by a blinking orange block cursor so that the terminal punctuation lands as a visual beat.
+61. As a visitor, I want `SEND_MESSAGE →` as a centered orange fill button below the heading so that the primary action is unmissable.
+62. As a visitor, I want social links (`// GITHUB`, `// LINKEDIN`, `// EMAIL`, `// RESUME`) centered below the button in periwinkle mono with orange `//` prefix so that they feel like terminal directory entries.
+63. As a visitor, I want the footer metadata (`FARHAN_MOHAMMED © 2026` left, `PORTFOLIO.EXE` right) to be at the very bottom of the viewport, separated from the CTA area so that it does not crowd the CTA.
+
+### Card-Deck Stacking
+64. As a visitor, I want each major section (Hero, Projects outer, Skills, each Timeline panel, Contact) to be `position: sticky; top: 0` so that sections stack as I scroll.
+65. As a visitor, I want the outgoing section to scale down to ~0.95 and dim to ~0.75 opacity as the next section enters so that the depth layering is physically legible.
+66. As a visitor, I want no blur on stacked sections so that the visual stays clean.
+67. As a visitor, I want no border-radius on section surfaces so that the sharp edges are preserved throughout the stack.
+68. As a visitor, I want the Projects outer layer to participate in the card-deck stack while the inner carousel handles horizontal movement independently so that the two behaviors do not interfere.
+
+### Browser Chrome
+69. As a visitor, I want text selection to show orange background with graphite text so that the selection color is on-brand.
+70. As a visitor, I want the scrollbar thumb to be orange and square (no border-radius) on the graphite track so that the scrollbar is on-brand.
 
 ## Implementation Decisions
 
-### Source of truth
-`ideas/Portfolio v4.html` is the canonical visual reference for layout, typography, colors, notched cards, bento structure, and terminal tone. It is a reference, not production architecture — implementations adapt it cleanly to the React/TypeScript codebase. V4 behaviors that are explicitly **not** desired: horizontal Timeline scrolling, randomised Skills reveal.
+- **CSS anchor file.** Create `src/portfolio.css` as `@layer components { … }` containing the component rules from `ideas/Portfolio.html` lines 11–233 verbatim, adapted only to use the Tailwind v4 token variable names already defined in `src/index.css` (e.g. `var(--color-graphite)` instead of `var(--graphite)`). Import this file in `src/main.tsx`. Do not duplicate the `:root` token block.
 
-`public/resume.pdf` is the canonical content reference. Project names, project descriptions, skills, education, experience, dates, titles, links, and any biographical copy should match the resume, not the placeholder or demo content in `ideas/Portfolio v4.html`. The HTML reference informs presentation only.
+- **Class name convention.** Component rules use the same class names as `ideas/Portfolio.html`: `.hero-name`, `.pcard`, `.tl-org`, `.footer-big`, etc. React components apply these class names directly. Tailwind utilities may still be used for structural helpers not covered by `src/portfolio.css` (e.g. `flex`, `relative`, `z-10`), but must not override any property already set by a portfolio class.
 
-The page should use full-browser-width sections and full-viewport composition. Avoid reintroducing a centered page shell that makes the redesign feel boxed in.
+- **HeroSection.** The `<h1>` applies `hero-name`. Name is split into two `<span className="hero-name-line">` block elements. `// PORTFOLIO_INIT` uses `TypeIn` and gets class `hero-init`. The bar gets class `hero-bar`. Background grid element gets class `hero-grid` (line grid + radial mask fade, replaces current dot grid). Padding is set via `hero-inner` (5vw). CTA row uses `hero-cta`, buttons use `btn btn-fill` / `btn btn-outline`.
 
-### Design tokens
-The token set from the HTML reference maps directly to the existing Tailwind theme:
+- **ProjectsSection.** Header row children get `hscroll-no`, `hscroll-name`, `hscroll-rule`. Progress counter and bar are added using `hscroll-progress`, `hscroll-progress-track`, `hscroll-progress-fill`. Scroll hint uses `hscroll-hint`. Edge spacers use `proj-edge`. Card uses `pcard` + `pcard-bg` + `pcard-fill` + `pcard-body` + `pcard-ghost` + `pcard-num` + `pcard-name` + `pcard-desc` + `pcard-tags` + `pcard-links`. Tag colors use `ptag ptag-{color}`. Links use `plink`. Card dimensions come from `.pcard` CSS (`min(560px, 78vw)` × `min(640px, 76vh)`). The diagonal fill animation uses the mask-position approach from the reference.
 
-| Token | Value |
-|---|---|
-| `--graphite` | `#2A2B2A` |
-| `--graphite-lt` | `#323332` |
-| `--orange` | `#FF8547` |
-| `--platinum` | `#EFF1F3` |
-| `--peri` | `#B2B6D2` |
-| `--blue` | `#5200E0` |
-| `--fuchsia` | `#E0007F` |
-| `--yellow` | `#FFC857` |
-| Press Start 2P | display / pixel font (`--font-display`) |
-| Space Mono | body / mono font (`--font-body`) |
+- **SkillsSection.** Grid container gets class `bento`. Each tile gets `bi bi-{area} c-{color}` classes. Reveal order is a static deterministic array sorted largest-first: `['py','js','dk','re','cc','nd','nx','fl','gt','pg','fg','mn']` then palette. `transitionDelay` is derived from this array index.
 
-### Section stacking mechanism
-Each stackable section gets `position: sticky; top: 0` so it pins while the viewport scrolls over it. A scroll listener on the following section's entry drives a `scale` + `opacity` transform on the current section as the follower slides in. No border-radius — sharp edges are preserved throughout. The effect applies to every section transition. The depth should be restrained: roughly a card receding behind the next card, not a dramatic zoom. Visual depth is achieved through transform and opacity only — no blur.
+- **TimelineSection.** Section-type label uses two separate elements: `<span className="tl-section-slash">//</span>` + `<span className="tl-section-kind">{entry.kind}</span>` inside a `tl-section-tag` wrapper. Institution uses `tl-org`. Role uses `tl-title`. Bullets use `tl-bullets`. Commit/author/date use `tl-commit` / `tl-meta`. Timeline section header row uses the same `hscroll-head` / `hscroll-no` / `hscroll-name` / `hscroll-rule` / `hscroll-progress` pattern as Projects.
 
-### Navbar
-Fixed top, dark translucent graphite, backdrop blur, subtle bottom border. `FM_` logo on left, nav links on right. `>` caret is **hover-only** — it must not appear on the active item. Active state uses orange label color and orange underline scoped to the label text only (underline must not extend under the caret).
+- **ContactSection.** Merged into a single `<footer id="contact">` element. Heading uses `footer-big` and `footer-big-line` spans. Layout uses `footer-cta`. Social links use `slink` class. Footer metadata row uses `footer-copy`.
 
-Navbar hover and active transitions should be fast and subtle.
+- **Cursor rule.** A file at `.cursor/rules/portfolio-css.md` with the following constraint: all classes defined in `src/portfolio.css` are verbatim from the reference and must not be replaced with Tailwind equivalents. Any new elements must check `src/portfolio.css` before reaching for Tailwind.
 
-### Horizontal scroll hook (`useHorizontalScroll`)
-A single reusable hook takes an outer container ref and an inner content ref, reads `getBoundingClientRect` on scroll, computes a `[0, 1]` progress value, and returns `translateX` in pixels. Projects consumes it; Timeline does not (Timeline uses vertical stacking, not horizontal scroll).
+- **Scrollbar.** Remove `border-radius: 4px` from `::-webkit-scrollbar-thumb` in `src/index.css`.
 
-### Projects carousel pacing
-Total section height = `(PROJECTS.length * 1.5 + 1) * window.innerHeight`. The leading and trailing 20–25vh dead zones are modelled as clamped regions in the progress mapping: progress is held at `0` for the first ~20–25vh of the section's scroll range and at `1` for the last ~20–25vh, so the carousel holds on the first/last card during those buffers. The outer Projects layer stays visually stable once the section is active — only the cards and progress indicators move.
+- **Nav active state.** The `>` caret appears on hover only, not on active. Active state = orange label text + orange `::after` underline scoped to the label only (not the caret area). No box border on active state.
 
-### Projects card states
-Cards preserve the v4 notched-card structure and should not collapse into full-width rows. Each card includes a ghost number, project name, concise description, colorful tags, and links. The overall treatment should be text-led rather than dominated by heavy white-card surfaces.
-
-Two states are separate and must not collapse:
-- **Active/centered**: card is in focus position, readable, not orange.
-- **Hover/focus**: triggers the diagonal orange fill from top-left notch to bottom-right notch. All content (text, tags, ghost number, links) must remain legible during fill via inversion or contrast adjustment.
-
-Neighboring cards (left and right of center) remain partially visible with reduced opacity and subtle scale.
-
-### Timeline — vertical stacked panels
-Timeline is **not** a horizontal carousel. Each entry is its own full-screen stacked panel participating in the same card-deck scroll model as every other section. Panels are in newest-first order. Each panel includes the `// EXPERIENCE` or `// EDUCATION` heading, v4 metadata (`commit`, `Author`, `Date`), institution, role, and bullet-point details. The horizontal `hscroll-track` timeline behavior from v4 is explicitly not used.
-
-### Timeline section label typography
-Both the `//` and the section word (`EDUCATION` / `EXPERIENCE`) use the pixel display font (Press Start 2P) in orange. The `//` is slightly smaller than the word to preserve hierarchy while keeping both pixel-styled.
-
-### Skills reveal — deterministic order
-Remove randomised reveal. Reveal starts from the largest/anchor tiles first, then fans outward to smaller supporting tiles. Reveal speed is slower than v4 so each tile reads cleanly. The grid resets and re-animates on re-entry via IntersectionObserver.
-
-### Typewriter components
-Two distinct primitives:
-
-- **`TypeIn`** — one-shot, driven by a `start: boolean` prop. Used in Hero and Footer. Fires `onDone` when complete.
-- **`Typewriter`** — activation-driven, used in Timeline panels. Receives `active: boolean`; holds its current text when deactivated so panels don't blank during transition.
-
-**`RotatingRole`** handles the type → hold → erase → next cycle for the hero subtitle.
-
-### Parallax
-A single RAF-keyed scroll listener reads all `[data-parallax]` elements, computes section-relative scroll offset, and applies `translate3d(0, offset * factor, 0)`. Initialised once at App level. Hero grid and footer text carry the most prominent parallax factors.
-
-### Hero init label bug
-The `// PORTFOLIO_INIT` label needs enough top padding/margin to clear the 56px navbar. The orange bar below it must align to the same left edge as the start of the `//` — not to the start of `PORTFOLIO_INIT`. Label and bar are treated as one paired unit.
-
-### Mobile
-Mobile uses the same card-deck stacking effect as desktop — not a simplified fade-only alternative. No reduced-motion fallback is required in this pass.
-
----
-
-## Interaction Details
-
-### Stacked section scroll
-- Incoming section slides up over the outgoing section.
-- Outgoing section remains visible underneath for part of the transition, with subtle dimming and scale-down (~0.95×).
-- Effect applies consistently before and after Projects, not only between simpler sections.
-- Stack does not cause content overlap that makes text unreadable.
-- Navbar remains fixed above the stack at all times.
-
-### Projects carousel
-- Section enters with the first card centered.
-- 20–25vh dead zone before card movement begins.
-- Card track moves horizontally as the user scrolls vertically, at ~1.5× viewport per card.
-- Movement should feel smooth and controlled; one card-to-card advance should feel close to, but slightly less than, one full scroll beat.
-- 20–25vh dead zone at the end before the section releases.
-- Neighboring cards remain partially visible with lower opacity and subtle scale to signal more items.
-- Active centered card is readable and unfilled.
-- Hover/focus triggers diagonal orange fill from top-left to bottom-right notch.
-- Tags, ghost number, title, description, and links must remain legible during fill.
-- Progress indicator shows current card index and fill bar.
-- Scroll hint is present but visually secondary.
-
-### Skills bento
-- Six-column desktop bento, two-column mobile adaptation (matching v4).
-- Deterministic reveal: largest/anchor tiles first, supporting tiles fan out.
-- Slower reveal than v4 — each tile has time to read before the next fires.
-- Hover brightness response is restrained.
-- Grid resets and re-reveals on re-entry.
-
-### Timeline stacked panels
-- One full-screen panel per timeline entry, using the same stack-scroll model as other sections.
-- Newest-first ordering.
-- Each panel contains: `// EXPERIENCE` or `// EDUCATION` heading (both words pixel-styled, orange), `commit` hash, `Author`, `Date` metadata, institution, role, bullet-point details.
-- Typewriter animates panel content when the panel becomes active.
-- Typing speed is fast enough that bullet-list lines do not feel slow.
-- Terminal cursor visible throughout typing.
-
-### Hero alignment
-- `// PORTFOLIO_INIT` and its underline form one aligned unit.
-- The underline's left edge starts at the same position as the `//`.
-- The label sits far enough below the navbar that it reads as hero content, not nav decoration.
-
----
+- **What does not change.** React component structure, hook interfaces (`useHorizontalScroll`, `useCardDeckDepth`, `useActivePanel`), Vitest test file structure, and Framer Motion usage for card-deck depth and the Projects carousel translate offset.
 
 ## Testing Decisions
 
-Good tests cover **observable output and user-facing behaviour**, not animation implementation internals like frame counts or internal state shape.
+Good tests verify observable output (rendered DOM structure, presence of expected elements, hook return values) rather than implementation details (which internal CSS class was chosen). Do not test font-size or color values — those are browser rendering concerns verified by manual QA against the reference screenshots.
 
-### Modules to test
-
-- **`TypeIn`** — given `start=true`, emits the full text after all timeouts fire; given `start=false`, emits nothing; calls `onDone` exactly once.
-- **`Typewriter`** — given `active=true`, types to completion; given `active` toggled false mid-type, holds current text and does not continue.
-- **`RotatingRole`** — after one full cycle, the displayed text matches the second role.
-- **`useHorizontalScroll`** — given a mocked bounding rect sequence, returns the expected `tx` and `progress` values.
-- **`Navbar`** — `>` caret is absent in active state; active underline is scoped to the label element, not the caret.
-- **`HeroSection`** — the init label and orange bar share the same left-column start.
-- **`ProjectsSection`** — cards render ghost number, name, description, tags, and links; hover/focus state changes card contrast in a user-visible way; active carousel state and hover fill state are separate.
-- **`SkillsSection`** — bento renders expected tiles; reveal ordering is deterministic and consistent across renders.
-- **`TimelineSection`** — entries render in newest-first order; each entry is a separate panel; metadata fields (`commit`, `Author`, `Date`) are present; details render as bullet items, not paragraphs.
-- **`ContactSection`** — CTA region and footer metadata render as separate regions.
-
-### Prior art
-Existing tests in `src/components/*.test.tsx` use Vitest + React Testing Library with fake timers (`vi.useFakeTimers`). New tests follow the same pattern. Browser-level visual verification is required for stack transitions, Projects pacing, mobile behaviour, and viewport fit — jsdom cannot meaningfully validate scroll-driven motion.
-
----
+- `src/index-css.test.ts` — extend to assert `border-radius` is absent from the scrollbar thumb rule.
+- `HeroSection.test.tsx` — assert hero name renders two `hero-name-line` span elements; assert `hero-init` text is present; assert `hero-bar` element exists.
+- `ProjectsSection.test.tsx` — assert progress counter element is present; assert scroll hint element is present; assert each card has a `pcard-ghost` element; assert tag elements have `ptag` class.
+- `SkillsSection.test.tsx` — assert tile reveal `transitionDelay` values are identical across two renders (determinism check).
+- `TimelineSection.test.tsx` — assert `tl-section-slash` and `tl-section-kind` are separate sibling elements; assert `tl-org` element contains institution text.
+- `ContactSection.test.tsx` — assert heading element has `footer-big` class; assert social link elements have `slink` class.
+- Scroll hook behavior (`useHorizontalScroll`, `useCardDeckDepth`) is already tested; do not re-test.
+- Card-deck depth transitions and scroll motion are browser-only concerns and require manual verification against the reference screenshots.
 
 ## Out of Scope
 
-- Replacing the graphite/orange/pixel/monospace brand identity.
-- Replacing the v4 notched project card direction with plain rows.
-- Timeline horizontal scrolling (explicitly replaced by vertical stacked panels).
-- Removing the Timeline metadata concept.
-- Randomised Skills reveal (explicitly replaced by deterministic ordering).
-- Mobile simplified/fade-only fallback for stacking — mobile gets the full effect.
-- Reduced-motion fallback — not required in this pass.
-- Adding project detail pages or routing.
-- Adding a CMS or external content source.
-- Adding a contact form backend.
-- Reworking the loading screen unless necessary for layout integration.
-- Inventing new portfolio content that is not present in or directly supported by `public/resume.pdf`.
-- Accessibility audit (ARIA roles, keyboard navigation).
-- Performance optimisation (code splitting, image optimisation).
-
----
+- Contact form backend or email service integration.
+- CMS or content management for projects and resume data.
+- Mobile responsive redesign — desktop visual alignment is the current priority; mobile work begins only after the desktop view passes visual QA against the reference screenshots.
+- Accessibility audit (`aria-*` attributes, keyboard navigation beyond existing focus handling, reduced-motion media query).
+- Performance optimization (bundle splitting, image optimization, Lighthouse audit).
+- Dark/light mode toggle.
+- Internationalization.
+- Analytics beyond the existing Vercel Analytics integration.
 
 ## Further Notes
 
-- `ideas/Portfolio v4.html` is the visual reference, not production architecture. Two behaviors from v4 are explicitly overridden: horizontal Timeline scroll and randomised Skills reveal.
-- `public/resume.pdf` is the content reference. Do not copy demo names, project copy, skill lists, dates, roles, or timeline details from the v4 HTML when they conflict with the resume.
-- Screenshot notes from `2026-05-17 18-56-08` and `2026-05-17 19-00-10` are explicit acceptance references for the Hero `// PORTFOLIO_INIT` spacing/underline bug and Timeline `// EXPERIENCE` / `// EDUCATION` slash typography.
-- The loading screen runs for 2.8 s; the hero intro waits 3.2 s before starting, giving the loading screen time to fully exit. Both timings are intentional.
-- The highest-risk implementation detail is combining outer stacked sections with the inner Projects carousel. Those two motion systems must be clearly separated — the outer layer is stable while the carousel is active.
-- The v4 HTML ships all components in a single Babel script block. The React codebase splits these into individual `.tsx` files per component — that structure is preserved.
-- Scroll-snap anchors (`scroll-snap-type: y proximity` on `html`, phantom `snap-anchor` divs) may still be used to enforce hard stops inside the Projects carousel. They must co-exist cleanly with the dead-zone buffer logic.
+- **Visual source of truth.** `ideas/Portfolio.html` is the primary CSS reference. The six screenshots (`ideas/home.png`, `ideas/proj.png`, `ideas/skills.png`, `ideas/timeline.png`, `ideas/timeline 2.png`, `ideas/cta.png`) are the visual QA targets. For any ambiguity between the HTML source and a screenshot, the screenshot takes precedence since it reflects the rendered output.
+
+- **Content source of truth.** `public/resume.pdf` is the canonical content source for names, dates, roles, institutions, project descriptions, and technologies. Do not invent content to fill layouts.
+
+- **Relation to existing issues.** Issues #154–161 and #164 describe specific sub-tasks that remain valid under this PRD. This document supersedes the deleted `PRD.md` and `DESIGN.md`.
+
+- **Desktop QA gate.** Before marking any issue done, run the app in a browser and compare the implemented section against `ideas/Portfolio.html` (opened in browser) and the matching reference screenshot. Note intentional deviations explicitly. Open a follow-up issue for any unexplained deviation.
