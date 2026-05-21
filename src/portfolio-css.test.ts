@@ -73,4 +73,36 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toContain('mask-size:300% 300%')
     expect(portfolioCss).toContain('mask-position:100% 100%')
   })
+
+  it('anchors loading screen boot sequence from the reference', () => {
+    expect(portfolioCss).toMatch(/#ls\{[^}]*background:var\(--color-graphite\)/)
+    expect(portfolioCss).toContain('.ls-fill{height:1px;background:var(--color-atomic-tangerine)')
+    expect(portfolioCss).toContain('@keyframes lf{to{width:100%}}')
+  })
+
+  it('anchors scroll snap targets and snap anchors', () => {
+    expect(portfolioCss).toContain('#hero')
+    expect(portfolioCss).toContain('#skills')
+    expect(portfolioCss).toContain('#contact')
+    expect(portfolioCss).toContain('scroll-snap-align: start')
+    expect(portfolioCss).toContain('.snap-anchor')
+    expect(portfolioCss).toContain('scroll-margin-top: 56px')
+  })
+
+  it('anchors timeline panel typography and terminal caret', () => {
+    expect(portfolioCss).toContain('.tl-panel{flex-shrink:0;width:100vw')
+    expect(portfolioCss).toContain('.tl-commit{font-size:14px;color:var(--color-atomic-tangerine)')
+    expect(portfolioCss).toContain('.caret{display:inline-block')
+    expect(portfolioCss).toContain('@keyframes blink-cursor{50%{opacity:0}}')
+  })
+
+  it('includes reference mobile breakpoint overrides', () => {
+    expect(portfolioCss).toContain('@media (max-width:760px)')
+    expect(portfolioCss).toContain('.pcard{width:88vw;height:64vh}')
+    expect(portfolioCss).toContain('.bento{grid-template-columns:repeat(2,1fr)')
+  })
+
+  it('does not duplicate hero-name-line selector', () => {
+    expect(portfolioCss.match(/\.hero-name-line\{/g)).toHaveLength(1)
+  })
 })
