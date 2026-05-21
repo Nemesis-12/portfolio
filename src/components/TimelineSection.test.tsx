@@ -345,6 +345,57 @@ describe('TimelineSection', () => {
       expect(immediateText).toBe(partialText)
     })
 
+    it('each panel retains independent partial progress when switching panels', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      const { rerender } = render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const panel1Partial =
+        commitEntries[0].querySelector('[data-typewriter-line]')?.textContent ?? ''
+      expect(panel1Partial.length).toBeGreaterThan(0)
+
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [false, true, false],
+        setRef: () => () => {},
+      })
+      rerender(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      const panel1Held =
+        commitEntries[0].querySelector('[data-typewriter-line]')?.textContent ?? ''
+      const panel2Partial =
+        commitEntries[1].querySelector('[data-typewriter-line]')?.textContent ?? ''
+
+      expect(panel1Held).toBe(panel1Partial)
+      expect(panel2Partial.length).toBeGreaterThan(0)
+
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      rerender(<TimelineSection />)
+
+      const panel1Immediate =
+        commitEntries[0].querySelector('[data-typewriter-line]')?.textContent ?? ''
+      const panel2Held =
+        commitEntries[1].querySelector('[data-typewriter-line]')?.textContent ?? ''
+
+      expect(panel1Immediate).toBe(panel1Partial)
+      expect(panel2Held).toBe(panel2Partial)
+    })
+
     it('completed panel text remains when next panel activates', () => {
       vi.mocked(useActivePanel).mockReturnValue({
         active: [true, false, false],
