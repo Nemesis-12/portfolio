@@ -133,6 +133,16 @@ describe('ProjectsSection', () => {
     expect(title).not.toHaveClass('text-platinum')
   })
 
+  it('renders fill as a static layer driven by CSS mask-position (not Framer clip-path)', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const fill = document.querySelector('[data-testid="project-card-fill"]')
+    expect(fill).toBeInTheDocument()
+    expect(fill?.tagName).toBe('DIV')
+    expect(fill).toHaveClass('pcard-fill')
+    expect(fill?.getAttribute('style') ?? '').not.toMatch(/clip-path/i)
+  })
+
   it('activates a diagonal orange fill layer when a project card is hovered', async () => {
     const user = userEvent.setup()
     render(<ProjectsSection projects={mockProjects} />)

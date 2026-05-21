@@ -11,9 +11,6 @@ interface Props {
 
 const TAG_VARIANTS = ['fuchsia', 'blue', 'orange', 'yellow'] as const
 
-const FILL_CLOSED = 'polygon(0 0, 0 0, 0 0, 0 0)'
-const FILL_OPEN = 'polygon(0 0, 220% 0, 100% 220%, 0 100%)'
-const FILL_TRANSITION = { duration: 0.32, ease: 'easeOut' } as const
 const INVERTED_TAG_CLASS = 'ptag-inverted'
 
 const NEIGHBOR_SCALE = 0.92
@@ -148,14 +145,11 @@ const ProjectCard: React.FC<{ project: Project; index: number; activeIndex: numb
     >
       <div className="pcard-bg" aria-hidden="true" />
 
-      <motion.div
+      <div
         data-testid="project-card-fill"
         aria-hidden="true"
         data-active={isFillActive}
-        className="pcard-fill bg-atomic-tangerine"
-        initial={false}
-        animate={{ clipPath: isFillActive ? FILL_OPEN : FILL_CLOSED }}
-        transition={FILL_TRANSITION}
+        className="pcard-fill"
       />
 
       <span className="pcard-notch tl" aria-hidden="true" />
