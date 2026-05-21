@@ -65,12 +65,31 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
       className="relative min-h-screen px-8 bg-graphite-light origin-center transform-gpu"
       style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden', willChange: 'transform, opacity' }}
     >
-      <div data-sticky-viewport="true" className="flex flex-col justify-center py-14" style={{ position: 'sticky', top: 0, height: '100vh' }}>
+      <div data-sticky-viewport="true" className="relative flex flex-col justify-center py-14" style={{ position: 'sticky', top: 0, height: '100vh' }}>
         <div className="w-full">
           <div className="flex items-center gap-3 mb-8">
             <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 01</span>
             <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">PROJECTS</span>
             <hr className="flex-1 border-periwinkle/20" />
+            <div
+              data-testid="progress-indicator"
+              className="flex items-center gap-[10px] font-body text-periwinkle shrink-0"
+              style={{ fontSize: '9px', letterSpacing: '2px' }}
+            >
+              <span data-testid="progress-count">
+                {String(activeIndex + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
+              </span>
+              <div
+                className="relative"
+                style={{ width: '80px', height: '1px', backgroundColor: 'rgba(178,182,210,0.2)' }}
+              >
+                <div
+                  data-testid="progress-fill"
+                  className="absolute left-0 top-0 h-full bg-atomic-tangerine"
+                  style={{ width: `${progress * 100}%`, transition: 'width 0.1s linear' }}
+                />
+              </div>
+            </div>
           </div>
 
           <div ref={innerRef as React.RefObject<HTMLDivElement>} data-carousel-track="true" className="relative" style={{ transform: `translateX(${tx}px)` }}>
@@ -81,6 +100,29 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
             </div>
           </div>
         </div>
+
+        <motion.div
+          data-testid="scroll-hint"
+          data-visible={progress === 0}
+          aria-hidden="true"
+          animate={{ opacity: progress === 0 ? 0.85 : 0 }}
+          transition={{ duration: 0.3 }}
+          className="absolute font-body text-periwinkle flex items-center gap-3 pointer-events-none"
+          style={{ fontSize: '14px', letterSpacing: '3px', left: '50%', bottom: '28px', transform: 'translateX(-50%)' }}
+        >
+          SCROLL{' '}
+          <motion.span
+            animate={progress === 0 ? { x: [0, 6, 0] } : { x: 0 }}
+            transition={
+              progress === 0
+                ? { duration: 1.6, repeat: Infinity, ease: 'easeInOut' }
+                : { duration: 0 }
+            }
+            style={{ display: 'inline-block' }}
+          >
+            →
+          </motion.span>
+        </motion.div>
       </div>
     </section>
   )
