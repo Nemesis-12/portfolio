@@ -1,5 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+function computeActiveIndex(panelRefs: (HTMLElement | null)[]): number {
+  const count = panelRefs.length
+  if (count === 0) return 0
+  if (count === 1) return 0
+
+  let activeIndex = 0
+
+  for (let i = count - 1; i >= 0; i--) {
+    const ref = panelRefs[i]
+    if (!ref) continue
+
+    const rect = ref.getBoundingClientRect()
+    if (rect.top <= 0) {
+      activeIndex = i
+      break
+    }
+  }
+
+  return activeIndex
+}
+
 export function useActivePanel(panelCount: number): {
   active: boolean[]
   setRef: (index: number) => (el: HTMLElement | null) => void
@@ -7,35 +28,24 @@ export function useActivePanel(panelCount: number): {
   const [activeIndex, setActiveIndex] = useState(0)
   const panelRefs = useRef<(HTMLElement | null)[]>([])
 
+  const updateActiveIndex = useCallback(() => {
+    const next = computeActiveIndex(panelRefs.current)
+    setActiveIndex(next)
+  }, [])
+
   useEffect(() => {
     panelRefs.current = panelRefs.current.slice(0, panelCount)
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visiblePanels = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+    updateActiveIndex()
 
-        if (visiblePanels.length === 0) {
-          return
-        }
+    window.addEventListener('scroll', updateActiveIndex, { passive: true })
+    window.addEventListener('resize', updateActiveIndex)
 
-        const topmostIndex = panelRefs.current.indexOf(visiblePanels[0].target as HTMLElement)
-        if (topmostIndex !== -1) {
-          setActiveIndex(topmostIndex)
-        }
-      },
-      { threshold: [0, 0.1, 0.5, 1] },
-    )
-
-    panelRefs.current.forEach((ref) => {
-      if (ref) {
-        observer.observe(ref)
-      }
-    })
-
-    return () => observer.disconnect()
-  }, [panelCount])
+    return () => {
+      window.removeEventListener('scroll', updateActiveIndex)
+      window.removeEventListener('resize', updateActiveIndex)
+    }
+  }, [panelCount, updateActiveIndex])
 
   const setRef = useCallback((index: number) => (el: HTMLElement | null) => {
     panelRefs.current[index] = el
