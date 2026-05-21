@@ -171,10 +171,12 @@ describe('ProjectsSection', () => {
     expect(card).not.toBeNull()
 
     const fill = card!.querySelector('[data-testid="project-card-fill"]')
+    expect(card).toHaveAttribute('data-fill-active', 'false')
     expect(fill).toHaveAttribute('data-active', 'false')
 
     await user.tab()
     expect(link).toHaveFocus()
+    expect(card).toHaveAttribute('data-fill-active', 'true')
     expect(fill).toHaveAttribute('data-active', 'true')
   })
 
