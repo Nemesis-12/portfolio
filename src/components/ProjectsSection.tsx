@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useCardDeckDepth } from '../hooks/useCardDeckDepth'
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
 import type { Project } from '../data/projects'
-import { getScrollRangeVh, PROJECT_CARD_WIDTH } from './projectsGeometry'
+import { formatProjectNumber, getScrollRangeVh, PROJECT_CARD_WIDTH } from './projectsGeometry'
 
 interface Props {
   projects: Project[]
@@ -28,10 +28,6 @@ const CARD_STATE_TRANSITION = {
 
 function clampIndex(index: number, projectCount: number) {
   return Math.max(0, Math.min(projectCount - 1, index))
-}
-
-function formatProjectNumber(id: string) {
-  return `_${id.padStart(2, '0')}`
 }
 
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
@@ -143,6 +139,7 @@ const ProjectCard: React.FC<{ project: Project; index: number; activeIndex: numb
       animate={{ y: isFillActive ? -4 : 0, scale, opacity }}
       transition={CARD_STATE_TRANSITION}
       data-testid="project-card"
+      data-fill-active={isFillActive}
       data-card-state={cardState}
       data-card-scale={scale}
       data-card-opacity={opacity}
@@ -191,7 +188,7 @@ const ProjectCard: React.FC<{ project: Project; index: number; activeIndex: numb
         <div className="pcard-links">
           {project.links.map((link) => (
             <a
-              key={link.label}
+              key={`${link.label}-${link.url}`}
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"

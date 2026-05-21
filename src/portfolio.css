@@ -89,6 +89,12 @@
     line-height: 1;
     letter-spacing: -4px;
     pointer-events: none;
+    transition: color 0.35s ease, opacity 0.35s ease;
+  }
+
+  .pcard[data-fill-active='true'] .pcard-ghost {
+    color: var(--color-platinum);
+    opacity: 0.1;
   }
 
   .pcard-num {
@@ -98,6 +104,12 @@
     letter-spacing: 3px;
     position: relative;
     z-index: 2;
+    transition: color 0.35s ease, opacity 0.35s ease;
+  }
+
+  .pcard[data-fill-active='true'] .pcard-num {
+    color: var(--color-platinum);
+    opacity: 0.9;
   }
 
   .pcard-name {

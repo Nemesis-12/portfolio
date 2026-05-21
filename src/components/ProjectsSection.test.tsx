@@ -186,7 +186,7 @@ describe('ProjectsSection', () => {
     expect(link).toHaveClass('text-platinum')
   })
 
-  it('inverts project tags and ghost number during the orange fill', async () => {
+  it('inverts project tags, ghost number, and card number during the orange fill', async () => {
     const user = userEvent.setup()
     render(<ProjectsSection projects={mockProjects} />)
 
@@ -194,12 +194,17 @@ describe('ProjectsSection', () => {
     const card = title.closest('[data-testid="project-card"]')
     expect(card).not.toBeNull()
 
-    const ghostNumber = card!.querySelector('[data-testid="pcard-num"]')
+    const ghostNumber = card!.querySelector('[data-testid="pcard-ghost"]')
+    const cardNumber = card!.querySelector('[data-testid="pcard-num"]')
     const tag = screen.getByText('React')
+
+    expect(card).toHaveAttribute('data-fill-active', 'false')
 
     await user.hover(card!)
 
+    expect(card).toHaveAttribute('data-fill-active', 'true')
     expect(ghostNumber).not.toBeNull()
+    expect(cardNumber).not.toBeNull()
     expect(tag).toHaveAttribute('data-inverted', 'true')
   })
 
@@ -486,6 +491,58 @@ describe('ProjectsSection', () => {
       expect(card).toHaveClass('shrink-0')
       expect(card.querySelector('.pcard-bg')).toBeInTheDocument()
       expect(PROJECT_CARD_WIDTH).toBe(560)
+    })
+
+    it('renders notched corner accent markers on each card', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+      cards.forEach((card) => {
+        expect(card.querySelector('.pcard-notch.tl')).toBeInTheDocument()
+        expect(card.querySelector('.pcard-notch.br')).toBeInTheDocument()
+      })
+    })
+
+    it('renders card hierarchy for a single-project carousel', () => {
+      const singleProject = [mockProjects[0]]
+      render(<ProjectsSection projects={singleProject} />)
+
+      const card = document.querySelector('[data-testid="project-card"]')
+      expect(card).toBeInTheDocument()
+      expect(card?.querySelector('[data-testid="pcard-ghost"]')).toHaveTextContent('_01')
+      expect(card?.querySelector('.pcard-name')).toHaveTextContent('Project One')
+    })
+
+    it('renders empty tag and link regions without breaking card layout', () => {
+      const sparseProject = [{
+        id: '9',
+        title: 'Sparse Project',
+        description: 'No tags or links',
+        tags: [],
+        links: [],
+      }]
+      render(<ProjectsSection projects={sparseProject} />)
+
+      const card = document.querySelector('[data-testid="project-card"]')
+      expect(card?.querySelector('.pcard-tags')).toBeEmptyDOMElement()
+      expect(card?.querySelector('.pcard-links')).toBeEmptyDOMElement()
+      expect(card?.querySelector('.pcard-name')).toHaveTextContent('Sparse Project')
+      expect(card?.querySelector('[data-testid="pcard-num"]')).toHaveTextContent('_09')
+    })
+
+    it('cycles tag palette variants for projects with more than four tags', () => {
+      const manyTagsProject = [{
+        id: '1',
+        title: 'Tagged Project',
+        description: 'Many technologies',
+        tags: ['A', 'B', 'C', 'D', 'E'],
+        links: [{ label: 'Site', url: 'https://example.com' }],
+      }]
+      render(<ProjectsSection projects={manyTagsProject} />)
+
+      const tags = document.querySelectorAll('.pcard-tags .ptag')
+      expect(tags).toHaveLength(5)
+      expect(tags[4]).toHaveClass('ptag-fuchsia')
     })
 
     it('does not render dominant project screenshots inside cards', () => {
