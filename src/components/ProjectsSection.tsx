@@ -3,35 +3,19 @@ import { motion } from 'framer-motion'
 import { useCardDeckDepth } from '../hooks/useCardDeckDepth'
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
 import type { Project } from '../data/projects'
-import { getScrollRangeVh } from './projectsGeometry'
+import { getScrollRangeVh, PROJECT_CARD_WIDTH } from './projectsGeometry'
 
 interface Props {
   projects: Project[]
 }
 
-const TAG_COLORS = [
-  { bg: '#E0007F', fg: '#EFF1F3' },
-  { bg: '#5200E0', fg: '#EFF1F3' },
-  { bg: '#FF8547', fg: '#050609' },
-  { bg: '#FFC857', fg: '#050609' },
-]
+const TAG_VARIANTS = ['fuchsia', 'blue', 'orange', 'yellow'] as const
 
-const NOTCH = 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)'
 const FILL_CLOSED = 'polygon(0 0, 0 0, 0 0, 0 0)'
 const FILL_OPEN = 'polygon(0 0, 220% 0, 100% 220%, 0 100%)'
 const FILL_TRANSITION = { duration: 0.32, ease: 'easeOut' } as const
-const INVERTED_TAG_STYLE = {
-  backgroundColor: 'rgba(42, 43, 42, 0.14)',
-  color: '#2A2B2A',
-  borderColor: 'rgba(42, 43, 42, 0.38)',
-} as const
+const INVERTED_TAG_CLASS = 'ptag-inverted'
 
-function getTagStyle(tagIndex: number) {
-  const color = TAG_COLORS[tagIndex % TAG_COLORS.length]
-  return { backgroundColor: color.bg, color: color.fg }
-}
-
-const CARD_WIDTH = 480
 const NEIGHBOR_SCALE = 0.92
 const NEIGHBOR_OPACITY = 0.6
 const FAR_SCALE = 0.85
@@ -46,10 +30,14 @@ function clampIndex(index: number, projectCount: number) {
   return Math.max(0, Math.min(projectCount - 1, index))
 }
 
+function formatProjectNumber(id: string) {
+  return `_${id.padStart(2, '0')}`
+}
+
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
   const outerRef = useRef<HTMLElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
-  const { tx, progress } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>, { cardWidth: CARD_WIDTH })
+  const { tx, progress } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>, { cardWidth: PROJECT_CARD_WIDTH })
   const scrollRangeVh = getScrollRangeVh(projects.length)
   useCardDeckDepth(outerRef as React.RefObject<HTMLElement>)
 
@@ -65,12 +53,31 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
       className="relative min-h-screen px-8 bg-graphite-light origin-center transform-gpu"
       style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden', willChange: 'transform, opacity' }}
     >
-      <div data-sticky-viewport="true" className="flex flex-col justify-center py-14" style={{ position: 'sticky', top: 0, height: '100vh' }}>
+      <div data-sticky-viewport="true" className="relative flex flex-col justify-center py-14" style={{ position: 'sticky', top: 0, height: '100vh' }}>
         <div className="w-full">
           <div className="flex items-center gap-3 mb-8">
             <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 01</span>
             <span className="font-body text-xs text-periwinkle tracking-widest whitespace-nowrap">PROJECTS</span>
             <hr className="flex-1 border-periwinkle/20" />
+            <div
+              data-testid="progress-indicator"
+              className="flex items-center gap-[10px] font-body text-periwinkle shrink-0"
+              style={{ fontSize: '9px', letterSpacing: '2px' }}
+            >
+              <span data-testid="progress-count">
+                {String(activeIndex + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
+              </span>
+              <div
+                className="relative"
+                style={{ width: '80px', height: '1px', backgroundColor: 'rgba(178,182,210,0.2)' }}
+              >
+                <div
+                  data-testid="progress-fill"
+                  className="absolute left-0 top-0 h-full bg-atomic-tangerine"
+                  style={{ width: `${progress * 100}%`, transition: 'width 0.1s linear' }}
+                />
+              </div>
+            </div>
           </div>
 
           <div ref={innerRef as React.RefObject<HTMLDivElement>} data-carousel-track="true" className="relative" style={{ transform: `translateX(${tx}px)` }}>
@@ -81,6 +88,29 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
             </div>
           </div>
         </div>
+
+        <motion.div
+          data-testid="scroll-hint"
+          data-visible={progress === 0}
+          aria-hidden="true"
+          animate={{ opacity: progress === 0 ? 0.85 : 0 }}
+          transition={{ duration: 0.3 }}
+          className="absolute font-body text-periwinkle flex items-center gap-3 pointer-events-none"
+          style={{ fontSize: '14px', letterSpacing: '3px', left: '50%', bottom: '28px', transform: 'translateX(-50%)' }}
+        >
+          SCROLL{' '}
+          <motion.span
+            animate={progress === 0 ? { x: [0, 6, 0] } : { x: 0 }}
+            transition={
+              progress === 0
+                ? { duration: 1.6, repeat: Infinity, ease: 'easeInOut' }
+                : { duration: 0 }
+            }
+            style={{ display: 'inline-block' }}
+          >
+            →
+          </motion.span>
+        </motion.div>
       </div>
     </section>
   )
@@ -98,9 +128,10 @@ const ProjectCard: React.FC<{ project: Project; index: number; activeIndex: numb
 
   const scale = isActive ? 1 : isNeighbor ? NEIGHBOR_SCALE : FAR_SCALE
   const opacity = isActive ? 1 : isNeighbor ? NEIGHBOR_OPACITY : FAR_OPACITY
+  const projectNumber = formatProjectNumber(project.id)
 
   return (
-    <motion.div
+    <motion.article
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocusCapture={() => setHasFocus(true)}
@@ -115,85 +146,64 @@ const ProjectCard: React.FC<{ project: Project; index: number; activeIndex: numb
       data-card-state={cardState}
       data-card-scale={scale}
       data-card-opacity={opacity}
-      className="relative shrink-0 bg-platinum"
-      style={{
-        clipPath: NOTCH,
-        maxWidth: '480px',
-        width: '480px',
-        transformOrigin: 'center center',
-      }}
+      className="pcard shrink-0"
+      style={{ transformOrigin: 'center center' }}
     >
+      <div className="pcard-bg" aria-hidden="true" />
+
       <motion.div
         data-testid="project-card-fill"
         aria-hidden="true"
         data-active={isFillActive}
-        className="absolute inset-0 bg-atomic-tangerine"
+        className="pcard-fill bg-atomic-tangerine"
         initial={false}
         animate={{ clipPath: isFillActive ? FILL_OPEN : FILL_CLOSED }}
         transition={FILL_TRANSITION}
       />
 
-      <div className="relative z-10 p-5">
-        {project.image && (
-          <div className="mb-4 overflow-hidden" style={{ backgroundColor: '#3A3B3A' }}>
-            <img
-              src={project.image}
-              alt={`${project.title} screenshot`}
-              className="w-full h-40 object-cover"
-            />
-          </div>
-        )}
+      <span className="pcard-notch tl" aria-hidden="true" />
+      <span className="pcard-notch br" aria-hidden="true" />
 
-        <div className="flex items-center gap-3 mb-2">
-          <span className={`font-body text-xs transition-colors duration-200 ${isFillActive ? 'text-graphite' : 'text-graphite/50'}`}>
-            _{project.id.padStart(2, '0')}
-          </span>
-          <h3 className="font-body font-bold text-base text-graphite transition-colors duration-200">
-            {project.title}
-          </h3>
+      <div className="pcard-body">
+        <div className="pcard-ghost" data-testid="pcard-ghost" aria-hidden="true">
+          {projectNumber}
         </div>
-
-        <p className={`text-sm font-body leading-relaxed mb-4 transition-colors duration-200 ${isFillActive ? 'text-graphite' : 'text-graphite/70'}`}>
+        <div className="pcard-num" data-testid="pcard-num">
+          {projectNumber}
+        </div>
+        <h3 className={`pcard-name transition-colors duration-200 ${isFillActive ? 'text-platinum' : ''}`}>
+          {project.title}
+        </h3>
+        <p className={`pcard-desc transition-colors duration-200 ${isFillActive ? 'text-platinum opacity-100' : ''}`}>
           {project.description}
         </p>
-
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="pcard-tags">
           {project.tags.map((tag, tagIndex) => (
             <span
               key={tag}
               data-inverted={isFillActive}
-              className="text-xs px-2 py-0.5 font-body rounded border border-transparent transition-colors duration-200"
-              style={isFillActive ? INVERTED_TAG_STYLE : getTagStyle(tagIndex)}
+              className={`ptag ptag-${TAG_VARIANTS[tagIndex % TAG_VARIANTS.length]} ${isFillActive ? INVERTED_TAG_CLASS : ''}`}
             >
               {tag}
             </span>
           ))}
         </div>
-
-        {project.bullets && project.bullets.length > 0 && (
-          <ul className={`list-disc list-inside text-sm font-body leading-relaxed mb-4 space-y-1 transition-colors duration-200 ${isFillActive ? 'text-graphite' : 'text-graphite/70'}`}>
-            {project.bullets.map((bullet, index) => (
-              <li key={index}>{bullet}</li>
-            ))}
-          </ul>
-        )}
-
-        <div className="flex flex-col gap-1">
+        <div className="pcard-links">
           {project.links.map((link) => (
             <a
               key={link.label}
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`font-mono text-xs transition-colors ${isFillActive ? 'text-graphite hover:text-graphite' : 'text-ultrasonic-blue hover:text-atomic-tangerine'}`}
+              aria-label={`// ${link.label} ↗`}
+              className={`plink transition-colors ${isFillActive ? 'text-platinum' : ''}`}
             >
-              // {link.label} ↗
+              {link.label} <span className="plink-arrow">↗</span>
             </a>
           ))}
         </div>
       </div>
 
-      {/* Left-edge hover outline — rendered after card so it sits on top */}
       <motion.div
         className="absolute left-0 top-0 bottom-0 w-[3px] bg-atomic-tangerine"
         initial={{ scaleY: 0, opacity: 0 }}
@@ -201,7 +211,7 @@ const ProjectCard: React.FC<{ project: Project; index: number; activeIndex: numb
         style={{ transformOrigin: 'bottom' }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
       />
-    </motion.div>
+    </motion.article>
   )
 }
 
