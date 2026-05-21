@@ -133,6 +133,16 @@ describe('ProjectsSection', () => {
     expect(title).not.toHaveClass('text-platinum')
   })
 
+  it('renders fill as a static layer driven by CSS mask-position (not Framer clip-path)', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const fill = document.querySelector('[data-testid="project-card-fill"]')
+    expect(fill).toBeInTheDocument()
+    expect(fill?.tagName).toBe('DIV')
+    expect(fill).toHaveClass('pcard-fill')
+    expect(fill?.getAttribute('style') ?? '').not.toMatch(/clip-path/i)
+  })
+
   it('activates a diagonal orange fill layer when a project card is hovered', async () => {
     const user = userEvent.setup()
     render(<ProjectsSection projects={mockProjects} />)
@@ -161,10 +171,12 @@ describe('ProjectsSection', () => {
     expect(card).not.toBeNull()
 
     const fill = card!.querySelector('[data-testid="project-card-fill"]')
+    expect(card).toHaveAttribute('data-fill-active', 'false')
     expect(fill).toHaveAttribute('data-active', 'false')
 
     await user.tab()
     expect(link).toHaveFocus()
+    expect(card).toHaveAttribute('data-fill-active', 'true')
     expect(fill).toHaveAttribute('data-active', 'true')
   })
 
