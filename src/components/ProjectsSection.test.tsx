@@ -455,7 +455,6 @@ describe('ProjectsSection', () => {
   describe('progress indicator', () => {
     it('renders zero-padded current index and total count in the header', () => {
       render(<ProjectsSection projects={mockProjects} />)
-      // 2 projects, progress=0 → activeIndex=0 → "01 / 02"
       expect(screen.getByTestId('progress-count')).toHaveTextContent('01 / 02')
     })
 
@@ -496,6 +495,54 @@ describe('ProjectsSection', () => {
       render(<ProjectsSection projects={mockProjects} />)
       const progressIndicator = screen.getByTestId('progress-indicator')
       expect(progressIndicator.closest('[data-sticky-viewport="true"]')).toBeInTheDocument()
+    })
+
+    it('progress count shows 01 / 01 for a single-project list', () => {
+      render(<ProjectsSection projects={[mockProjects[0]]} />)
+      expect(screen.getByTestId('progress-count')).toHaveTextContent('01 / 01')
+    })
+
+    it('progress count advances to last card index at full scroll', () => {
+      setViewport(1000, 800)
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const projectsSection = document.getElementById('projects') as HTMLElement
+      const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
+
+      const sectionHeight = getScrollRangeVh(mockProjects.length) * 800
+      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(
+        createRect(-(sectionHeight - 800), sectionHeight),
+      )
+      Object.defineProperty(carouselTrack, 'scrollWidth', {
+        configurable: true,
+        value: 2 * (CARD_WIDTH + CARD_GAP),
+      })
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+
+      expect(screen.getByTestId('progress-count')).toHaveTextContent('02 / 02')
+    })
+
+    it('progress fill reaches 100% width at full scroll', () => {
+      setViewport(1000, 800)
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const projectsSection = document.getElementById('projects') as HTMLElement
+      const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
+
+      const sectionHeight = getScrollRangeVh(mockProjects.length) * 800
+      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(
+        createRect(-(sectionHeight - 800), sectionHeight),
+      )
+      Object.defineProperty(carouselTrack, 'scrollWidth', {
+        configurable: true,
+        value: 2 * (CARD_WIDTH + CARD_GAP),
+      })
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+
+      const fill = screen.getByTestId('progress-fill')
+      expect(parseFloat(fill.style.width)).toBe(100)
     })
   })
 
