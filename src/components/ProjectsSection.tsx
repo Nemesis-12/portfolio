@@ -36,6 +36,15 @@ const NEIGHBOR_SCALE = 0.92
 const NEIGHBOR_OPACITY = 0.6
 const FAR_SCALE = 0.85
 const FAR_OPACITY = 0.25
+const CARD_STATE_TRANSITION = {
+  y: { duration: 0.2, ease: 'easeOut' },
+  scale: { duration: 0.3, ease: 'easeOut' },
+  opacity: { duration: 0.3, ease: 'easeOut' },
+} as const
+
+function clampIndex(index: number, projectCount: number) {
+  return Math.max(0, Math.min(projectCount - 1, index))
+}
 
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
   const outerRef = useRef<HTMLElement>(null)
@@ -44,7 +53,9 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
   const scrollRangeVh = getScrollRangeVh(projects.length)
   useCardDeckDepth(outerRef as React.RefObject<HTMLElement>)
 
-  const activeIndex = projects.length > 1 ? Math.round(progress * (projects.length - 1)) : 0
+  const activeIndex = projects.length > 1
+    ? clampIndex(Math.round(progress * (projects.length - 1)), projects.length)
+    : 0
 
   return (
     <section
@@ -83,6 +94,7 @@ const ProjectCard: React.FC<{ project: Project; index: number; activeIndex: numb
   const distance = Math.abs(index - activeIndex)
   const isActive = distance === 0
   const isNeighbor = distance === 1
+  const cardState = isActive ? 'active' : isNeighbor ? 'neighbor' : 'far'
 
   const scale = isActive ? 1 : isNeighbor ? NEIGHBOR_SCALE : FAR_SCALE
   const opacity = isActive ? 1 : isNeighbor ? NEIGHBOR_OPACITY : FAR_OPACITY
@@ -97,17 +109,17 @@ const ProjectCard: React.FC<{ project: Project; index: number; activeIndex: numb
           setHasFocus(false)
         }
       }}
-      animate={{ y: isFillActive ? -4 : 0 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
+      animate={{ y: isFillActive ? -4 : 0, scale, opacity }}
+      transition={CARD_STATE_TRANSITION}
       data-testid="project-card"
+      data-card-state={cardState}
+      data-card-scale={scale}
+      data-card-opacity={opacity}
       className="relative shrink-0 bg-platinum"
       style={{
         clipPath: NOTCH,
         maxWidth: '480px',
         width: '480px',
-        transform: `scale(${scale})`,
-        opacity,
-        transition: 'transform 0.3s ease-out, opacity 0.3s ease-out',
         transformOrigin: 'center center',
       }}
     >
