@@ -32,13 +32,19 @@ function getTagStyle(tagIndex: number) {
 }
 
 const CARD_WIDTH = 480
+const NEIGHBOR_SCALE = 0.92
+const NEIGHBOR_OPACITY = 0.6
+const FAR_SCALE = 0.85
+const FAR_OPACITY = 0.25
 
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
   const outerRef = useRef<HTMLElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
-  const { tx } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>, { cardWidth: CARD_WIDTH })
+  const { tx, progress } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>, { cardWidth: CARD_WIDTH })
   const scrollRangeVh = getScrollRangeVh(projects.length)
   useCardDeckDepth(outerRef as React.RefObject<HTMLElement>)
+
+  const activeIndex = projects.length > 1 ? Math.round(progress * (projects.length - 1)) : 0
 
   return (
     <section
@@ -58,8 +64,8 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
 
           <div ref={innerRef as React.RefObject<HTMLDivElement>} data-carousel-track="true" className="relative" style={{ transform: `translateX(${tx}px)` }}>
             <div className="flex gap-6 pb-4">
-              {projects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
+              {projects.map((project, index) => (
+                <ProjectCard key={project.id} project={project} index={index} activeIndex={activeIndex} />
               ))}
             </div>
           </div>
@@ -69,10 +75,17 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
   )
 }
 
-const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
+const ProjectCard: React.FC<{ project: Project; index: number; activeIndex: number }> = ({ project, index, activeIndex }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [hasFocus, setHasFocus] = useState(false)
   const isFillActive = isHovered || hasFocus
+
+  const distance = Math.abs(index - activeIndex)
+  const isActive = distance === 0
+  const isNeighbor = distance === 1
+
+  const scale = isActive ? 1 : isNeighbor ? NEIGHBOR_SCALE : FAR_SCALE
+  const opacity = isActive ? 1 : isNeighbor ? NEIGHBOR_OPACITY : FAR_OPACITY
 
   return (
     <motion.div
@@ -88,7 +101,15 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
       transition={{ duration: 0.2, ease: 'easeOut' }}
       data-testid="project-card"
       className="relative shrink-0 bg-platinum"
-      style={{ clipPath: NOTCH, maxWidth: '480px', width: '480px' }}
+      style={{
+        clipPath: NOTCH,
+        maxWidth: '480px',
+        width: '480px',
+        transform: `scale(${scale})`,
+        opacity,
+        transition: 'transform 0.3s ease-out, opacity 0.3s ease-out',
+        transformOrigin: 'center center',
+      }}
     >
       <motion.div
         data-testid="project-card-fill"

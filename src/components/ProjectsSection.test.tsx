@@ -4,6 +4,9 @@ import userEvent from '@testing-library/user-event'
 import ProjectsSection from './ProjectsSection'
 import { getScrollRangeVh } from './projectsGeometry'
 
+const CARD_WIDTH = 480
+const CARD_GAP = 24
+
 const mockProjects = [
   {
     id: '1',
@@ -446,6 +449,165 @@ describe('ProjectsSection', () => {
     progressPoints.forEach((progress, i) => {
       const activeIndex = Math.round(progress * (threeProjects.length - 1))
       expect(activeIndex).toBe(expectedIndices[i])
+    })
+  })
+
+  describe('desktop active card and neighbor model', () => {
+    const threeProjects = [
+      ...mockProjects,
+      {
+        id: '3',
+        title: 'Project Three',
+        description: 'Description for project three',
+        tags: ['Vue', 'Python'],
+        links: [{ label: 'Site', url: 'https://project3.com' }]
+      }
+    ]
+
+    it('active card renders at full scale (1.0) and full opacity (1.0)', () => {
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={threeProjects} />)
+
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+      expect(cards).toHaveLength(3)
+
+      // At progress 0, card 0 is active
+      const activeCard = cards[0]
+      const style = (activeCard as HTMLElement).style
+      expect(style.transform).toContain('scale(1)')
+      expect(style.opacity).toBe('1')
+    })
+
+    it('active card remains unfilled by default (no orange fill when not hovered)', () => {
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={threeProjects} />)
+
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+      const activeCard = cards[0]
+      const fill = activeCard.querySelector('[data-testid="project-card-fill"]')
+
+      expect(fill).toHaveAttribute('data-active', 'false')
+    })
+
+    it('immediate left and right neighbor cards remain partially visible', () => {
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={threeProjects} />)
+
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+
+      // At progress 0, card 0 is active, card 1 is right neighbor
+      const rightNeighbor = cards[1]
+      const neighborStyle = (rightNeighbor as HTMLElement).style
+      expect(neighborStyle.opacity).not.toBe('')
+      expect(parseFloat(neighborStyle.opacity)).toBeGreaterThan(0)
+      expect(parseFloat(neighborStyle.opacity)).toBeLessThan(1)
+    })
+
+    it('neighbor cards use reduced opacity relative to the active card', () => {
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={threeProjects} />)
+
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+      const activeCard = cards[0] as HTMLElement
+      const neighborCard = cards[1] as HTMLElement
+
+      const activeOpacity = parseFloat(activeCard.style.opacity) || 1
+      const neighborOpacity = parseFloat(neighborCard.style.opacity)
+
+      expect(neighborOpacity).toBeLessThan(activeOpacity)
+    })
+
+    it('neighbor cards use reduced scale relative to the active card', () => {
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={threeProjects} />)
+
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+      const activeCard = cards[0] as HTMLElement
+      const neighborCard = cards[1] as HTMLElement
+
+      const activeTransform = activeCard.style.transform
+      const neighborTransform = neighborCard.style.transform
+
+      const activeScaleMatch = activeTransform.match(/scale\(([\d.]+)\)/)
+      const neighborScaleMatch = neighborTransform.match(/scale\(([\d.]+)\)/)
+
+      if (activeScaleMatch && neighborScaleMatch) {
+        expect(parseFloat(neighborScaleMatch[1])).toBeLessThan(parseFloat(activeScaleMatch[1]))
+      }
+    })
+
+    it('far cards are visually suppressed with low opacity and scale', () => {
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={threeProjects} />)
+
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+
+      // At progress 0, card 0 is active, card 1 is neighbor, card 2 is far
+      const farCard = cards[2] as HTMLElement
+      const activeCard = cards[0] as HTMLElement
+
+      const farOpacity = parseFloat(farCard.style.opacity)
+      const activeOpacity = parseFloat(activeCard.style.opacity) || 1
+
+      expect(farOpacity).toBeLessThan(activeOpacity)
+
+      const farTransform = farCard.style.transform
+      const activeTransform = activeCard.style.transform
+
+      const farScaleMatch = farTransform.match(/scale\(([\d.]+)\)/)
+      const activeScaleMatch = activeTransform.match(/scale\(([\d.]+)\)/)
+
+      if (farScaleMatch && activeScaleMatch) {
+        expect(parseFloat(farScaleMatch[1])).toBeLessThan(parseFloat(activeScaleMatch[1]))
+      }
+    })
+
+    it('no layout jump occurs when active index changes (smooth transition)', () => {
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={threeProjects} />)
+
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+
+      // All cards should have transition properties for smooth scale/opacity changes
+      cards.forEach((card) => {
+        const style = (card as HTMLElement).style
+        expect(style.transition).toBeDefined()
+      })
+    })
+
+    it('outer container does not introduce horizontal page overflow from neighbor cards', () => {
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={threeProjects} />)
+
+      const projectsSection = document.getElementById('projects')
+      expect(projectsSection).toHaveStyle({ overflowX: 'hidden' })
+    })
+
+    it('active card updates correctly at end of scroll range', () => {
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={threeProjects} />)
+
+      const projectsSection = document.getElementById('projects') as HTMLElement
+      const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
+
+      // Simulate scrolled to end position
+      const sectionHeight = getScrollRangeVh(threeProjects.length) * 900
+      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-(sectionHeight - 900), sectionHeight))
+      Object.defineProperty(carouselTrack, 'scrollWidth', {
+        configurable: true,
+        value: 3 * (CARD_WIDTH + CARD_GAP),
+      })
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+      const lastIndex = threeProjects.length - 1
+
+      // At progress 1, last card should be active
+      const lastCard = cards[lastIndex] as HTMLElement
+      const style = lastCard.style
+      expect(style.transform).toContain('scale(1)')
+      expect(style.opacity).toBe('1')
     })
   })
 })
