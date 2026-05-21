@@ -278,6 +278,113 @@ describe('TimelineSection', () => {
     })
   })
 
+  describe('issue #159 - preserve per-panel typewriter progress', () => {
+    it('next panel activation does not clear previous panel partial text', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      const { rerender } = render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const panel1Partial = commitEntries[0].querySelector('[data-typewriter-line]')?.textContent ?? ''
+      expect(panel1Partial.length).toBeGreaterThan(0)
+
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [false, true, false],
+        setRef: () => () => {},
+      })
+      rerender(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(5000)
+      })
+
+      const panel1Held = commitEntries[0].querySelector('[data-typewriter-line]')?.textContent ?? ''
+      expect(panel1Held).toBe(panel1Partial)
+
+      const panel2Lines = commitEntries[1].querySelectorAll('[data-typewriter-line]')
+      expect(panel2Lines.length).toBeGreaterThan(0)
+    })
+
+    it('reactivate does not blank partial text before resuming', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      const { rerender } = render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      const partialText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
+      expect(partialText.length).toBeGreaterThan(0)
+
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [false, false, false],
+        setRef: () => () => {},
+      })
+      rerender(<TimelineSection />)
+
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      rerender(<TimelineSection />)
+
+      const immediateText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
+      expect(immediateText).toBe(partialText)
+    })
+
+    it('completed panel text remains when next panel activates', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      const { rerender } = render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const panel1Texts = Array.from(
+        commitEntries[0].querySelectorAll('[data-typewriter-line]')
+      ).map((el) => el.textContent)
+
+      expect(panel1Texts).toContain('commit d4e8f2c')
+      expect(panel1Texts).toContain('NETAPP INC.')
+
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [false, true, false],
+        setRef: () => () => {},
+      })
+      rerender(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(500)
+      })
+
+      const panel1TextsAfter = Array.from(
+        commitEntries[0].querySelectorAll('[data-typewriter-line]')
+      ).map((el) => el.textContent)
+
+      expect(panel1TextsAfter).toContain('commit d4e8f2c')
+      expect(panel1TextsAfter).toContain('NETAPP INC.')
+    })
+  })
+
   describe('issue #157 - desktop sticky panel scroll contract', () => {
     it('timeline panels do not use horizontal scroll or translateX', () => {
       render(<TimelineSection />)

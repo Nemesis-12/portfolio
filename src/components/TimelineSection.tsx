@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Typewriter } from '../animations/Typewriter'
 import { useActivePanel } from '../hooks/useActivePanel'
 import { StickySection } from './StickySection'
@@ -47,14 +48,17 @@ const timelineEntries: TimelineEntry[] = [
 ]
 
 function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean }) {
-  const lines = [
-    `commit ${entry.hash}`,
-    'Author: Farhan Mohammed',
-    `Date:   ${entry.dateRange}`,
-    entry.institution,
-    entry.role,
-    ...entry.bullets,
-  ]
+  const lines = useMemo(
+    () => [
+      `commit ${entry.hash}`,
+      'Author: Farhan Mohammed',
+      `Date:   ${entry.dateRange}`,
+      entry.institution,
+      entry.role,
+      ...entry.bullets,
+    ],
+    [entry]
+  )
 
   return (
     <div className="min-h-screen py-6 font-mono" data-testid="commit-entry">

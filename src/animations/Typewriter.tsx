@@ -13,17 +13,21 @@ export function Typewriter({ active, lines, speed = 25, onDone }: TypewriterProp
   const timerRef = useRef<number | null>(null)
   const onDoneRef = useRef(onDone)
   const prevActiveRef = useRef(active)
-  const prevLinesRef = useRef(lines)
+  const linesRef = useRef(lines)
+  const linesKey = JSON.stringify(lines)
+  const prevLinesKeyRef = useRef(linesKey)
+
+  linesRef.current = lines
 
   useEffect(() => {
     onDoneRef.current = onDone
   }, [onDone])
 
   useEffect(() => {
-    const linesChanged = JSON.stringify(prevLinesRef.current) !== JSON.stringify(lines)
+    const linesChanged = linesKey !== prevLinesKeyRef.current
 
     if (linesChanged) {
-      prevLinesRef.current = lines
+      prevLinesKeyRef.current = linesKey
       stateRef.current = { lineIndex: 0, charIndex: 0, done: false }
       setDisplayedLines([])
     }
@@ -37,7 +41,9 @@ export function Typewriter({ active, lines, speed = 25, onDone }: TypewriterProp
       return
     }
 
-    if (lines.length === 0) {
+    const currentLines = linesRef.current
+
+    if (currentLines.length === 0) {
       if (!stateRef.current.done) {
         stateRef.current.done = true
         onDoneRef.current?.()
@@ -50,6 +56,7 @@ export function Typewriter({ active, lines, speed = 25, onDone }: TypewriterProp
 
     const typeNextChar = () => {
       const { lineIndex, charIndex } = stateRef.current
+      const lines = linesRef.current
 
       if (lineIndex >= lines.length) {
         stateRef.current.done = true
@@ -73,7 +80,7 @@ export function Typewriter({ active, lines, speed = 25, onDone }: TypewriterProp
         stateRef.current.lineIndex = lineIndex + 1
         stateRef.current.charIndex = 0
 
-        if (stateRef.current.lineIndex < lines.length) {
+        if (stateRef.current.lineIndex < linesRef.current.length) {
           setDisplayedLines(prev => {
             const newLines = [...prev]
             newLines[stateRef.current.lineIndex] = ''
@@ -97,7 +104,7 @@ export function Typewriter({ active, lines, speed = 25, onDone }: TypewriterProp
         timerRef.current = null
       }
     }
-  }, [active, lines, speed])
+  }, [active, linesKey, speed])
 
   useEffect(() => {
     return () => {
