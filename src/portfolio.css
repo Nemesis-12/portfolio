@@ -124,7 +124,6 @@
     .pcard[data-fill-active='true'] .plink::before{color:var(--color-platinum);opacity:.6}
 
     /* ─── HERO TYPING ──── */
-  .hero-name-line{display:block;min-height:1.1em}
   .cursor{display:inline-block;width:.55ch;height:.9em;background:var(--color-atomic-tangerine);vertical-align:-.13em;margin-left:6px;animation:blink-cursor 1.05s steps(1) infinite}
   @keyframes blink-cursor{50%{opacity:0}}
   .hero-fade{opacity:0;animation:fade-up .7s var(--ease) forwards}
