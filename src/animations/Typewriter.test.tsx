@@ -171,6 +171,20 @@ describe('Typewriter', () => {
     expect(screen.getByText('World')).toBeInTheDocument()
   })
 
+  it('does not restart when lines array reference changes with same content', () => {
+    const lines1 = ['Hello']
+    const { rerender } = render(<Typewriter active={true} lines={lines1} />)
+
+    act(() => { vi.advanceTimersByTime(30) })
+    expect(screen.getByText('H')).toBeInTheDocument()
+
+    const lines2 = ['Hello']
+    rerender(<Typewriter active={true} lines={lines2} />)
+
+    act(() => { vi.advanceTimersByTime(30) })
+    expect(screen.getByText('He')).toBeInTheDocument()
+  })
+
   it('clears old displayed lines when lines prop changes', () => {
     const { rerender } = render(<Typewriter active={true} lines={['Old Line 1', 'Old Line 2']} />)
 
