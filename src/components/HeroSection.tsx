@@ -31,10 +31,10 @@ const HeroSection: React.FC = () => {
     <StickySection id="home" className="relative flex flex-col justify-center bg-graphite">
       <div className="absolute inset-0 pointer-events-none">
         <div
-          data-testid="hero-dot-grid"
+          data-testid="hero-grid"
           data-parallax
           data-parallax-factor="0.3"
-          className="absolute inset-0 bg-[radial-gradient(#3A3B3A_1px,transparent_1px)] bg-[size:20px_20px]"
+          className="hero-grid"
         ></div>
       </div>
 
@@ -111,21 +111,18 @@ const HeroSection: React.FC = () => {
             animate="visible"
             variants={ctaVariants}
             transition={{ duration: CTA_FADE_DURATION }}
-            className="flex gap-4"
+            className="hero-cta"
           >
-            <a
-              href="#projects"
-              className="inline-block px-6 py-2 bg-atomic-tangerine text-graphite text-sm font-body hover:bg-atomic-tangerine/90 transition-colors duration-200"
-            >
-              VIEW_WORK →
+            <a href="#projects" className="btn btn-fill">
+              VIEW_WORK <span>→</span>
             </a>
             <a
               href="/resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block px-6 py-2 border border-atomic-tangerine text-atomic-tangerine text-sm font-body hover:bg-atomic-tangerine/10 transition-colors duration-200"
+              className="btn btn-outline"
             >
-              VIEW_RESUME →
+              VIEW_RESUME <span>→</span>
             </a>
           </motion.div>
         )}
