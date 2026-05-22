@@ -1,8 +1,8 @@
 # Desktop v4 QA Closeout — Issue #164
 
-**Branch audited:** `mochi/issue-164-qa-desktop-v4-gate` @ `f6c1444`  
+**Branch audited:** `mochi/issue-164-qa-desktop-v4-gate` @ `a7a4125`  
 **QA date:** 2026-05-21  
-**Reference materials:** `ideas/Portfolio.html` (repo-local, gitignored), screenshots in `ideas/`  
+**Reference materials:** `ideas/Portfolio.html` (repo-local, gitignored; issue #164 labels this `Portfolio v4.html`), screenshots in `ideas/`  
 **Live app:** `npm run build && npm run preview` @ `http://127.0.0.1:4173/` (1440×900 desktop viewport)  
 **Automated gate:** `npm run typecheck && npm run test` — **364/364 passed**
 
