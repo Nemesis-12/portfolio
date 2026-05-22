@@ -47,11 +47,9 @@ export default function Navbar() {
                   href={href}
                   className={`nav-link${isActive ? ' active' : ''}`}
                 >
-                  {!isActive && (
-                    <span className="nav-caret" data-testid="nav-caret">
-                      &gt;
-                    </span>
-                  )}
+                  <span className="nav-caret" data-testid="nav-caret">
+                    &gt;
+                  </span>
                   <span className="nav-label">{label}</span>
                 </a>
               </li>
