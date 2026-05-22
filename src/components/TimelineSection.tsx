@@ -1,16 +1,7 @@
 import { useMemo } from 'react'
-import { Typewriter } from '../animations/Typewriter'
+import { useTypewriter } from '../animations/useTypewriter'
 import { useActivePanel } from '../hooks/useActivePanel'
 import { StickySection } from './StickySection'
-
-interface TimelineEntry {
-  hash: string
-  dateRange: string
-  institution: string
-  role: string
-  bullets: string[]
-  category: 'experience' | 'education'
-}
 
 const timelineEntries: TimelineEntry[] = [
   {
@@ -47,6 +38,8 @@ const timelineEntries: TimelineEntry[] = [
   },
 ]
 
+const METADATA_LINE_COUNT = 3
+
 function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean }) {
   const lines = useMemo(
     () => [
@@ -60,9 +53,56 @@ function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean 
     [entry]
   )
 
+  const displayedLines = useTypewriter(active, lines, 16)
+
+  const institutionLine = displayedLines[METADATA_LINE_COUNT]
+  const roleLine = displayedLines[METADATA_LINE_COUNT + 1]
+  const bulletLines = entry.bullets
+    .map((_, index) => displayedLines[METADATA_LINE_COUNT + 2 + index])
+    .filter((line): line is string => line !== undefined && line !== '')
+
   return (
     <div className="min-h-screen py-6 font-mono" data-testid="commit-entry">
-      <Typewriter active={active} lines={lines} speed={16} />
+      <div data-testid="commit-metadata">
+        {displayedLines[0] !== undefined && (
+          <div data-testid="commit-hash" data-typewriter-line>
+            {displayedLines[0]}
+          </div>
+        )}
+        {displayedLines[1] !== undefined && (
+          <div data-testid="commit-author" data-typewriter-line>
+            {displayedLines[1]}
+          </div>
+        )}
+        {displayedLines[2] !== undefined && (
+          <div data-testid="commit-date" data-typewriter-line>
+            {displayedLines[2]}
+          </div>
+        )}
+      </div>
+      {institutionLine !== undefined && (
+        <h2 data-testid="commit-institution" data-typewriter-line>
+          {institutionLine}
+        </h2>
+      )}
+      {roleLine !== undefined && (
+        <p data-testid="commit-role" data-typewriter-line>
+          {roleLine}
+        </p>
+      )}
+      {bulletLines.length > 0 && (
+        <ul data-testid="commit-details">
+          {entry.bullets.map((_, index) => {
+            const line = displayedLines[METADATA_LINE_COUNT + 2 + index]
+            if (line === undefined) return null
+            return (
+              <li key={index} data-typewriter-line>
+                {line}
+              </li>
+            )
+          })}
+        </ul>
+      )}
     </div>
   )
 }
@@ -112,3 +152,14 @@ const TimelineSection: React.FC = () => {
 }
 
 export default TimelineSection
+
+export interface TimelineEntry {
+  hash: string
+  dateRange: string
+  institution: string
+  role: string
+  bullets: string[]
+  category: 'experience' | 'education'
+}
+
+export { timelineEntries }
