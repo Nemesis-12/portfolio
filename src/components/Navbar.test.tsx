@@ -121,11 +121,10 @@ describe('Navbar', () => {
       expect(skillsLink).not.toBeNull()
       const skillsLabel = screen.getByText('SKILLS')
 
-      expect(skillsLink!.className).not.toContain('border-b-2')
-      expect(skillsLink!.className).not.toContain('border-atomic-tangerine')
-      expect(skillsLabel).toHaveClass('text-atomic-tangerine')
-      expect(skillsLabel).toHaveClass('border-b-2')
-      expect(skillsLabel).toHaveClass('border-atomic-tangerine')
+      expect(skillsLink).toHaveClass('nav-link', 'active')
+      expect(skillsLabel).toHaveClass('nav-label')
+      expect(skillsLabel.className).not.toContain('border-b-2')
+      expect(skillsLabel.className).not.toContain('border-atomic-tangerine')
       expect(skillsLink!.querySelector('[data-testid="nav-caret"]')).toBeNull()
     })
 
@@ -156,99 +155,127 @@ describe('Navbar', () => {
       const projectsLabel = screen.getByText('PROJECTS')
 
       expect(skillsLink!.querySelector('[data-testid="nav-caret"]')).not.toBeNull()
-      expect(skillsLabel).not.toHaveClass('text-atomic-tangerine')
-      expect(skillsLabel).not.toHaveClass('border-b-2')
+      expect(skillsLink).not.toHaveClass('active')
+      expect(skillsLabel).toHaveClass('nav-label')
+      expect(projectsLink).toHaveClass('nav-link', 'active')
       expect(projectsLink!.querySelector('[data-testid="nav-caret"]')).toBeNull()
-      expect(projectsLabel).toHaveClass('text-atomic-tangerine')
-      expect(projectsLabel).toHaveClass('border-b-2')
+      expect(projectsLabel).toHaveClass('nav-label')
     })
   })
 
   describe('issue #38 - logo size and container alignment', () => {
-    it('FM_ logo uses text-xl', () => {
+    it('FM_ logo uses nav-logo portfolio class', () => {
       render(<Navbar />)
       const logo = screen.getByText('FM_')
-      expect(logo.className).toContain('text-xl')
+      expect(logo).toHaveClass('nav-logo')
     })
 
-    it('nav inner content spans full width without narrow shell constraint', () => {
+    it('nav spans full width without narrow shell constraint', () => {
       render(<Navbar />)
       const nav = screen.getByRole('navigation')
-      const innerContainer = nav.querySelector('div')
-      expect(innerContainer).not.toBeNull()
-      expect(innerContainer!.className).not.toContain('max-w-7xl')
-      expect(innerContainer!.className).not.toContain('mx-auto')
-      expect(innerContainer!.className).toContain('w-full')
-      expect(innerContainer!.className).toContain('px-8')
+      expect(nav).toHaveClass('nav')
+      expect(nav.className).not.toContain('max-w-7xl')
+      expect(nav.className).not.toContain('mx-auto')
     })
   })
 
-  describe('issue #103 - fixed translucent v4 chrome', () => {
-    it('navbar uses fixed top chrome above page sections', () => {
+  describe('issue #179 - v4 floating terminal bar visual spec', () => {
+    it('navbar root uses portfolio.css nav anchor class', () => {
       render(<Navbar />)
-      const nav = screen.getByRole('navigation')
-      expect(nav.className).toContain('fixed')
-      expect(nav.className).toContain('top-0')
-      expect(nav.className).toContain('z-40')
-      expect(nav.className).toContain('w-full')
+      expect(screen.getByRole('navigation')).toHaveClass('nav')
     })
 
-    it('navbar has translucent graphite background, blur, and subtle border', () => {
+    it('FM_ logo uses nav-logo portfolio class', () => {
       render(<Navbar />)
-      const nav = screen.getByRole('navigation')
-      expect(nav.className).toContain('bg-graphite/90')
-      expect(nav.className).toContain('backdrop-blur-md')
-      expect(nav.className).toContain('border-b')
-      expect(nav.className).toContain('border-graphite-light/30')
+      expect(screen.getByText('FM_')).toHaveClass('nav-logo')
     })
 
-    it('desktop links use fast restrained color transitions', () => {
+    it('desktop nav list uses nav-list portfolio class', () => {
       render(<Navbar />)
-      const homeLink = screen.getByRole('link', { name: /home/i })
-      expect(homeLink.className).toContain('transition-colors')
-      expect(homeLink.className).toContain('duration-150')
+      const nav = screen.getByRole('navigation')
+      expect(nav.querySelector('.nav-list')).toBeInTheDocument()
+    })
+
+    it('each desktop link uses nav-link and nav-label structure', () => {
+      render(<Navbar />)
+      const links = screen.getByRole('navigation').querySelectorAll('.nav-link')
+      expect(links.length).toBe(5)
+      links.forEach((link) => {
+        expect(link.querySelector('.nav-label')).toBeInTheDocument()
+      })
+    })
+
+    it('navbar does not use Tailwind chrome utilities superseding portfolio.css', () => {
+      render(<Navbar />)
+      const nav = screen.getByRole('navigation')
+      expect(nav.className).not.toContain('bg-graphite')
+      expect(nav.className).not.toContain('backdrop-blur')
+      expect(nav.className).not.toContain('border-b')
+      expect(nav.className).not.toContain('fixed')
+    })
+
+    it('active link applies active class with nav-label underline via CSS not border utilities', () => {
+      const section = document.createElement('section')
+      section.id = 'skills'
+      document.body.appendChild(section)
+      let observerCallback!: IntersectionObserverCallback
+
+      vi.stubGlobal('IntersectionObserver', vi.fn(function (cb: IntersectionObserverCallback) {
+        observerCallback = cb
+        return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() }
+      }))
+
+      try {
+        render(<Navbar />)
+
+        act(() => {
+          observerCallback(
+            [{ target: section, isIntersecting: true } as unknown as IntersectionObserverEntry],
+            {} as IntersectionObserver,
+          )
+        })
+
+        const skillsLink = screen.getByText('SKILLS').closest('a')
+        const skillsLabel = screen.getByText('SKILLS')
+
+        expect(skillsLink).toHaveClass('nav-link', 'active')
+        expect(skillsLabel).toHaveClass('nav-label')
+        expect(skillsLabel.className).not.toContain('border-b-2')
+        expect(skillsLabel.className).not.toContain('border-atomic-tangerine')
+        expect(skillsLabel.className).not.toContain('text-atomic-tangerine')
+        expect(skillsLink!.querySelector('.nav-caret')).toBeNull()
+      } finally {
+        vi.unstubAllGlobals()
+        document.body.removeChild(section)
+      }
     })
   })
 
   describe('issue #42 - > prefix on hover', () => {
-    it('nav link shows > prefix on hover', async () => {
-      const user = userEvent.setup()
+    it('nav link includes nav-caret prefix styled by portfolio.css', () => {
       render(<Navbar />)
 
       const homeLink = screen.getByRole('link', { name: /home/i })
-      const prefixSpan = homeLink.querySelector('span')
-      expect(prefixSpan).not.toBeNull()
-      expect(prefixSpan!.textContent).toBe('> ')
-      expect(prefixSpan!.style.opacity).toBe('0')
-
-      await user.hover(homeLink)
-      expect(prefixSpan!.style.opacity).toBe('1')
-
-      await user.unhover(homeLink)
-      expect(prefixSpan!.style.opacity).toBe('0')
+      const caret = homeLink.querySelector('.nav-caret')
+      expect(caret).not.toBeNull()
+      expect(caret).toHaveTextContent('>')
+      expect(caret).toHaveAttribute('data-testid', 'nav-caret')
+      expect((caret as HTMLElement).style.opacity).toBe('')
     })
 
-    it('> prefix appears on hover for all nav links', async () => {
-      const user = userEvent.setup()
+    it('> prefix is present on all inactive nav links', () => {
       render(<Navbar />)
 
       const labels = ['HOME', 'PROJECTS', 'SKILLS', 'TIMELINE', 'CONTACT']
       for (const label of labels) {
         const link = screen.getByRole('link', { name: new RegExp(label, 'i') })
-        const prefixSpan = link.querySelector('span')
-        expect(prefixSpan).not.toBeNull()
-        expect(prefixSpan!.textContent).toBe('> ')
-        expect(prefixSpan!.style.opacity).toBe('0')
-
-        await user.hover(link)
-        expect(prefixSpan!.style.opacity).toBe('1')
-
-        await user.unhover(link)
-        expect(prefixSpan!.style.opacity).toBe('0')
+        const caret = link.querySelector('.nav-caret')
+        expect(caret).not.toBeNull()
+        expect(caret).toHaveTextContent('>')
       }
     })
 
-    it('active link keeps the > prefix hidden until hover', () => {
+    it('active link keeps the > prefix absent', () => {
       const section = document.createElement('section')
       section.id = 'skills'
       document.body.appendChild(section)
@@ -270,9 +297,9 @@ describe('Navbar', () => {
         })
 
         const skillsLink = screen.getByRole('link', { name: /skills/i })
-        const labelSpan = skillsLink.querySelector('span:last-child')
+        const labelSpan = skillsLink.querySelector('.nav-label')
         const caretSpan = skillsLink.querySelector('[data-testid="nav-caret"]')
-        expect(labelSpan?.className).toContain('border-b-2')
+        expect(labelSpan).toHaveClass('nav-label')
         expect(caretSpan).toBeNull()
       } finally {
         vi.unstubAllGlobals()
