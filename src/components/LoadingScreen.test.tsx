@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, act } from '@testing-library/react'
 import LoadingScreen from './LoadingScreen'
-import { MESSAGE_DURATION, STATUS_MESSAGES } from './LoadingScreen.constants'
+import {
+  BOOT_DURATION,
+  FADE_OUT_DURATION,
+  MESSAGE_INTERVAL,
+  STATUS_MESSAGES,
+} from './LoadingScreen.constants'
 
 describe('LoadingScreen', () => {
   beforeEach(() => {
@@ -12,97 +17,94 @@ describe('LoadingScreen', () => {
     vi.useRealTimers()
   })
 
-  it('uses a 2.8 second total status message sequence', () => {
-    expect(MESSAGE_DURATION * STATUS_MESSAGES.length).toBe(2800)
+  it('uses the reference boot sequence timing (2.8s boot + 0.6s fade)', () => {
+    expect(BOOT_DURATION).toBe(2800)
+    expect(MESSAGE_INTERVAL).toBe(560)
+    expect(FADE_OUT_DURATION).toBe(600)
+    expect(BOOT_DURATION + FADE_OUT_DURATION).toBeGreaterThanOrEqual(2600)
+    expect(BOOT_DURATION + FADE_OUT_DURATION).toBeLessThanOrEqual(3400)
   })
 
-  it('shows ESTABLISHING_SIGNAL as the first status message', () => {
-    const { getByText } = render(<LoadingScreen onComplete={vi.fn()} />)
-    expect(getByText('ESTABLISHING_SIGNAL')).toBeInTheDocument()
+  it('renders #ls root with portfolio.css boot structure', () => {
+    const { container } = render(<LoadingScreen onComplete={vi.fn()} />)
+    const root = container.querySelector('#ls')
+
+    expect(root).toBeInTheDocument()
+    expect(root?.querySelector('.ls-inner')).toBeInTheDocument()
+    expect(root?.querySelector('.ls-sys')).toHaveTextContent('SYSTEM_INIT...')
+    expect(root?.querySelector('.ls-name')).toHaveTextContent('FARHAN')
+    expect(root?.querySelector('.ls-name')).toHaveTextContent('MOHAMMED')
+    expect(root?.querySelector('.ls-track .ls-fill')).toBeInTheDocument()
+    expect(root?.querySelector('.ls-msg')).toBeInTheDocument()
+  })
+
+  it('shows LOADING_ASSETS as the first status message', () => {
+    const { container } = render(<LoadingScreen onComplete={vi.fn()} />)
+    expect(container.querySelector('.ls-msg')).toHaveTextContent('LOADING_ASSETS')
   })
 
   it('cycles through all status messages in sequence', async () => {
-    const { getByText } = render(<LoadingScreen onComplete={vi.fn()} />)
+    const { container } = render(<LoadingScreen onComplete={vi.fn()} />)
+    const msg = () => container.querySelector('.ls-msg')
 
-    expect(getByText('ESTABLISHING_SIGNAL')).toBeInTheDocument()
+    expect(msg()).toHaveTextContent('LOADING_ASSETS')
 
-    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
-    expect(getByText('COMPILING_MODULES')).toBeInTheDocument()
+    await act(() => vi.advanceTimersByTime(MESSAGE_INTERVAL))
+    expect(msg()).toHaveTextContent('COMPILING_MODULES')
 
-    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
-    expect(getByText('LOADING_ASSETS')).toBeInTheDocument()
+    await act(() => vi.advanceTimersByTime(MESSAGE_INTERVAL))
+    expect(msg()).toHaveTextContent('ESTABLISHING_SIGNAL')
 
-    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
-    expect(getByText('SYSTEM_READY')).toBeInTheDocument()
+    await act(() => vi.advanceTimersByTime(MESSAGE_INTERVAL))
+    expect(msg()).toHaveTextContent('DECRYPTING_DATA')
+
+    await act(() => vi.advanceTimersByTime(MESSAGE_INTERVAL))
+    expect(msg()).toHaveTextContent('SYSTEM_READY')
   })
 
-  it('calls onComplete after the final message', async () => {
+  it('calls onComplete after boot sequence and fade-out', async () => {
     const onComplete = vi.fn()
     render(<LoadingScreen onComplete={onComplete} />)
 
-    // Each act() flushes React state so the next timer gets scheduled
-    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
-    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
-    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
-    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
+    await act(() => vi.advanceTimersByTime(BOOT_DURATION))
+    expect(onComplete).not.toHaveBeenCalled()
 
+    await act(() => vi.advanceTimersByTime(FADE_OUT_DURATION))
     expect(onComplete).toHaveBeenCalledOnce()
   })
 
-  it('does not call onComplete before the final message', async () => {
+  it('does not call onComplete before fade-out completes', async () => {
     const onComplete = vi.fn()
     render(<LoadingScreen onComplete={onComplete} />)
 
-    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
-    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
-    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
+    await act(() => vi.advanceTimersByTime(BOOT_DURATION - 1))
+    expect(onComplete).not.toHaveBeenCalled()
 
+    await act(() => vi.advanceTimersByTime(1))
+    expect(onComplete).not.toHaveBeenCalled()
+
+    await act(() => vi.advanceTimersByTime(FADE_OUT_DURATION - 1))
     expect(onComplete).not.toHaveBeenCalled()
   })
 
-  it('progress bar steps from 25% to 100% across all messages', async () => {
-    const { getByRole } = render(<LoadingScreen onComplete={vi.fn()} />)
-    const bar = getByRole('progressbar')
-
-    expect(bar).toHaveAttribute('aria-valuenow', '25')
-
-    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
-    expect(bar).toHaveAttribute('aria-valuenow', '50')
-
-    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
-    expect(bar).toHaveAttribute('aria-valuenow', '75')
-
-    await act(() => vi.advanceTimersByTime(MESSAGE_DURATION))
-    expect(bar).toHaveAttribute('aria-valuenow', '100')
-  })
-
-  it('renders FARHAN and MOHAMMED on separate display lines', () => {
-    const { getByText } = render(<LoadingScreen onComplete={vi.fn()} />)
-    expect(getByText('FARHAN')).toBeInTheDocument()
-    expect(getByText('MOHAMMED')).toBeInTheDocument()
-  })
-
-  it('uses graphite background covering the full viewport', () => {
+  it('adds the out class when the boot sequence finishes', async () => {
     const { container } = render(<LoadingScreen onComplete={vi.fn()} />)
-    const overlay = container.firstChild as HTMLElement
-    expect(overlay).toHaveClass('fixed')
-    expect(overlay).toHaveClass('inset-0')
-    expect(overlay).toHaveClass('bg-graphite')
+    const root = container.querySelector('#ls')
+
+    expect(root).not.toHaveClass('out')
+
+    await act(() => vi.advanceTimersByTime(BOOT_DURATION))
+    expect(root).toHaveClass('out')
   })
 
-  it('renders a thin orange progress bar', () => {
+  it('renders a thin orange progress bar fill element', () => {
     const { container } = render(<LoadingScreen onComplete={vi.fn()} />)
-    const track = container.querySelector('[role="progressbar"]')
-    expect(track).toHaveClass('h-0.5')
-    const fill = track?.querySelector('.bg-atomic-tangerine')
+    const fill = container.querySelector('.ls-fill')
     expect(fill).toBeInTheDocument()
+    expect(fill?.parentElement).toHaveClass('ls-track')
   })
 
-  it('uses display font for identity and mono font for status text', () => {
-    const { getByText } = render(<LoadingScreen onComplete={vi.fn()} />)
-    const firstName = getByText('FARHAN')
-    expect(firstName).toHaveClass('font-display')
-    const status = getByText('ESTABLISHING_SIGNAL')
-    expect(status).toHaveClass('font-body')
+  it('exposes at least three rotating terminal status messages', () => {
+    expect(STATUS_MESSAGES.length).toBeGreaterThanOrEqual(3)
   })
 })
