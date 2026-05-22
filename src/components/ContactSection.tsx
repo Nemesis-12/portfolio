@@ -3,10 +3,8 @@ import { motion, useInView } from 'framer-motion'
 import { TypeIn } from '../animations/TypeIn'
 import { hoverEase } from '../animations/variants'
 import { StickySection } from './StickySection'
-import { cursorVariants } from './HeroSection.constants'
 
 const EMAIL = 'famohammed@shockers.wichita.edu'
-const CONTACT_HEADING = "LET'S CONNECT."
 const CONTACT_SPEED = 50
 
 const footerLinks = [
@@ -19,29 +17,34 @@ const footerLinks = [
 export default function ContactSection() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
-  const [showCursor, setShowCursor] = useState(false)
+  const [step, setStep] = useState(0)
 
   return (
     <>
-      <StickySection id="contact" className="flex flex-col justify-center px-8 py-14 bg-graphite">
-        <div ref={ref} className="w-full">
-          <h2 className="font-display text-3xl md:text-5xl text-platinum leading-tight mb-12">
-            <TypeIn
-              start={isInView}
-              text={CONTACT_HEADING}
-              speed={CONTACT_SPEED}
-              onDone={() => setShowCursor(true)}
-            />
-            {showCursor && (
-              <motion.span
-                data-testid="contact-cursor"
-                aria-hidden="true"
-                className="inline-block w-[3px] h-[1.2em] bg-atomic-tangerine align-middle ml-1"
-                variants={cursorVariants}
-                animate="blink"
+      <StickySection as="footer" id="contact" className="bg-graphite">
+        <div ref={ref} className="footer-cta">
+          <div className="footer-big">
+            <span className="footer-big-line">
+              <TypeIn
+                start={isInView}
+                text="LET'S"
+                speed={CONTACT_SPEED}
+                onDone={() => setStep((s) => Math.max(s, 1))}
               />
-            )}
-          </h2>
+            </span>
+            <span className="footer-big-line">
+              <TypeIn
+                start={step >= 1}
+                text="CONNECT"
+                speed={CONTACT_SPEED}
+                onDone={() => setStep((s) => Math.max(s, 2))}
+              />
+              {step >= 2 && <span className="period">.</span>}
+              {step >= 2 && (
+                <span className="cursor" data-testid="contact-cursor" aria-hidden="true" />
+              )}
+            </span>
+          </div>
 
           <motion.a
             href={`mailto:${EMAIL}`}

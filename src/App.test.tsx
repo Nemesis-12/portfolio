@@ -45,7 +45,7 @@ describe('App shell', () => {
     render(<App />)
     const section = document.getElementById(id)
     expect(section).toBeInTheDocument()
-    expect(section?.tagName.toLowerCase()).toBe('section')
+    expect(section?.tagName.toLowerCase()).toBe(id === 'contact' ? 'footer' : 'section')
   })
 
   it('renders sections in the correct order', () => {
@@ -155,8 +155,8 @@ describe('App shell', () => {
     })
 
     render(<App />)
-    const footer = document.querySelector('footer') as HTMLElement
-    const footerText = document.querySelector('footer [data-parallax]') as HTMLElement
+    const footer = document.querySelector('#footer') as HTMLElement
+    const footerText = document.querySelector('#footer [data-parallax]') as HTMLElement
 
     vi.spyOn(footer, 'getBoundingClientRect').mockReturnValue(rectAtTop(-80))
     vi.spyOn(footerText, 'getBoundingClientRect').mockReturnValue(rectAtTop(-20))
