@@ -76,7 +76,7 @@ describe('App shell', () => {
     const nav = document.querySelector('nav')
     const stackSurfaces = document.querySelectorAll('[data-sticky-section="true"][id]')
 
-    expect(nav?.className).toContain('z-40')
+    expect(nav?.className).toContain('nav')
     stackSurfaces.forEach((surface) => {
       if (surface.id === 'projects') {
         expect(surface.className).toContain('relative')
@@ -84,7 +84,7 @@ describe('App shell', () => {
       } else {
         expect(surface.className).toContain('sticky')
       }
-      expect(Number((surface as HTMLElement).style.zIndex)).toBeLessThan(40)
+      expect(Number((surface as HTMLElement).style.zIndex)).toBeLessThan(100)
     })
   })
 
@@ -92,12 +92,10 @@ describe('App shell', () => {
     render(<App />)
     const nav = document.querySelector('nav')
     expect(nav).toBeInTheDocument()
-    const innerDiv = nav?.querySelector('div')
-    expect(innerDiv).not.toBeNull()
-    expect(innerDiv!.className).not.toContain('max-w-7xl')
-    expect(innerDiv!.className).not.toContain('mx-auto')
-    expect(innerDiv!.className).toContain('w-full')
-    expect(innerDiv!.className).toContain('px-8')
+    expect(nav!.className).toContain('nav')
+    expect(nav!.className).not.toContain('max-w-7xl')
+    expect(nav!.className).not.toContain('mx-auto')
+    expect(nav!.querySelector('.nav-logo')).toBeInTheDocument()
   })
 
   it('initializes one RAF-batched parallax scroll listener and cleans it up', () => {
@@ -250,7 +248,7 @@ describe('App shell', () => {
 
       filtered.forEach((panel) => {
         const zIndex = Number((panel as HTMLElement).style.zIndex)
-        expect(zIndex).toBeLessThan(40)
+        expect(zIndex).toBeLessThan(100)
         expect(zIndex).toBeGreaterThan(0)
       })
     })

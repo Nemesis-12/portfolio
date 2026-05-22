@@ -89,6 +89,19 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toContain('scroll-margin-top: 56px')
   })
 
+  it('anchors navbar floating terminal bar chrome from the reference', () => {
+    expect(portfolioCss).toMatch(/\.nav\{[^}]*position:fixed/)
+    expect(portfolioCss).toMatch(/\.nav\{[^}]*z-index:100/)
+    expect(portfolioCss).toMatch(/\.nav\{[^}]*backdrop-filter:blur\(12px\)/)
+    expect(portfolioCss).toContain('.nav-logo{font-family:var(--font-display)')
+    expect(portfolioCss).toContain('.nav-link{font-size:14px')
+    expect(portfolioCss).toContain('.nav-caret{display:inline-block')
+    expect(portfolioCss).toContain('.nav-caret{display:inline-block;color:var(--color-atomic-tangerine);opacity:0')
+    expect(portfolioCss).toContain('.nav-link:hover .nav-caret')
+    expect(portfolioCss).toContain('.nav-label::after{content')
+    expect(portfolioCss).toContain('.nav-link.active .nav-label{color:var(--color-atomic-tangerine)}')
+  })
+
   it('anchors timeline panel typography and terminal caret', () => {
     expect(portfolioCss).toContain('.tl-panel{flex-shrink:0;width:100vw')
     expect(portfolioCss).toContain('.tl-commit{font-size:14px;color:var(--color-atomic-tangerine)')
