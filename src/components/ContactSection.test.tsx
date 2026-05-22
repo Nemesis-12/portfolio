@@ -24,11 +24,12 @@ describe('ContactSection', () => {
     vi.mocked(useInView).mockReturnValue(true)
     vi.useFakeTimers()
     render(<ContactSection />)
-    act(() => { vi.advanceTimersByTime(1000) })
+    act(() => { vi.advanceTimersByTime(250) })
+    act(() => { vi.advanceTimersByTime(400) })
     const section = document.querySelector('#contact') as HTMLElement
 
     expect(section).toBeInTheDocument()
-    expect(section).toHaveTextContent("LET'S CONNECT.")
+    expect(section).toHaveTextContent("LET'SCONNECT.")
 
     const links = within(section).getAllByRole('link')
     expect(links.map((link) => link.textContent)).toEqual([
@@ -47,7 +48,8 @@ describe('ContactSection', () => {
     vi.mocked(useInView).mockReturnValue(true)
     vi.useFakeTimers()
     render(<ContactSection />)
-    act(() => { vi.advanceTimersByTime(1000) })
+    act(() => { vi.advanceTimersByTime(250) })
+    act(() => { vi.advanceTimersByTime(400) })
     const sendMessageLink = screen.getByRole('link', { name: 'SEND_MESSAGE →' })
 
     expect(sendMessageLink).toHaveAttribute('href', canonicalEmailHref)
@@ -57,7 +59,8 @@ describe('ContactSection', () => {
     vi.mocked(useInView).mockReturnValue(true)
     vi.useFakeTimers()
     render(<ContactSection />)
-    act(() => { vi.advanceTimersByTime(1000) })
+    act(() => { vi.advanceTimersByTime(250) })
+    act(() => { vi.advanceTimersByTime(400) })
     const footerLinks = ['// GITHUB', '// LINKEDIN', '// EMAIL', '// RESUME'].map((name) =>
       screen.getByRole('link', { name }),
     )
@@ -74,12 +77,55 @@ describe('ContactSection', () => {
     })
   })
 
+  describe('issue #185 - full-screen contact heading', () => {
+    it('uses footer#contact as the root contact element', () => {
+      render(<ContactSection />)
+      const contact = document.querySelector('#contact')
+
+      expect(contact?.tagName.toLowerCase()).toBe('footer')
+    })
+
+    it('applies footer-big to the contact heading', () => {
+      render(<ContactSection />)
+      const heading = document.querySelector('#contact .footer-big')
+
+      expect(heading).toBeInTheDocument()
+    })
+
+    it('splits LET\'S and CONNECT. into footer-big-line spans', () => {
+      vi.mocked(useInView).mockReturnValue(true)
+      vi.useFakeTimers()
+      render(<ContactSection />)
+      act(() => { vi.advanceTimersByTime(250) })
+      act(() => { vi.advanceTimersByTime(400) })
+
+      const lines = document.querySelectorAll('#contact .footer-big-line')
+      expect(lines).toHaveLength(2)
+      expect(lines[0]).toHaveTextContent("LET'S")
+      expect(lines[1]).toHaveTextContent('CONNECT.')
+    })
+
+    it('styles the period in orange and uses a portfolio cursor block', () => {
+      vi.mocked(useInView).mockReturnValue(true)
+      vi.useFakeTimers()
+      render(<ContactSection />)
+      act(() => { vi.advanceTimersByTime(250) })
+      act(() => { vi.advanceTimersByTime(400) })
+
+      const period = document.querySelector('#contact .footer-big .period')
+      const cursor = document.querySelector('[data-testid="contact-cursor"]')
+
+      expect(period).toHaveTextContent('.')
+      expect(cursor).toHaveClass('cursor')
+    })
+  })
+
   describe('issue #87 - LET\'S CONNECT. typewriter', () => {
     it('heading is not visible when section is out of view', () => {
       vi.mocked(useInView).mockReturnValue(false)
       render(<ContactSection />)
 
-      expect(screen.queryByText("LET'S CONNECT.")).not.toBeInTheDocument()
+      expect(screen.queryByText("LET'S")).not.toBeInTheDocument()
     })
 
     it('heading types out character by character when section enters viewport', () => {
@@ -92,9 +138,9 @@ describe('ContactSection', () => {
       act(() => { vi.advanceTimersByTime(250) })
       expect(screen.getByText("LET'S")).toBeInTheDocument()
 
-      // 14 chars × 50ms = 700ms for full text
-      act(() => { vi.advanceTimersByTime(500) })
-      expect(screen.getByText("LET'S CONNECT.")).toBeInTheDocument()
+      // 5 + 7 chars × 50ms = 600ms for full text plus period
+      act(() => { vi.advanceTimersByTime(400) })
+      expect(document.querySelector('#contact .footer-big')).toHaveTextContent("LET'SCONNECT.")
     })
 
     it('blinking cursor persists after typing completes', () => {
@@ -103,12 +149,13 @@ describe('ContactSection', () => {
 
       render(<ContactSection />)
 
-      // Wait for typing to complete: "LET'S CONNECT." = 14 chars × 50ms = 700ms + buffer
-      act(() => { vi.advanceTimersByTime(1000) })
+      // Wait for typing to complete: 12 chars × 50ms = 600ms + buffer
+      act(() => { vi.advanceTimersByTime(250) })
+      act(() => { vi.advanceTimersByTime(400) })
 
       const cursor = document.querySelector('[data-testid="contact-cursor"]')
       expect(cursor).toBeInTheDocument()
-      expect(cursor).toHaveClass('bg-atomic-tangerine')
+      expect(cursor).toHaveClass('cursor')
     })
   })
 })
@@ -117,7 +164,7 @@ describe('Footer', () => {
   it('renders a separate footer with social links and static labels', () => {
     render(<ContactSection />)
     const section = document.querySelector('#contact')
-    const footer = document.querySelector('footer')
+    const footer = document.querySelector('#footer')
 
     expect(footer).toBeInTheDocument()
     expect(section?.nextElementSibling).toBe(footer)
