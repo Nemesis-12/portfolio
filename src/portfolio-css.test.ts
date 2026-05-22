@@ -100,6 +100,7 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toContain('.nav-caret{display:inline-block')
     expect(portfolioCss).toContain('.nav-caret{display:inline-block;color:var(--color-atomic-tangerine);opacity:0')
     expect(portfolioCss).toContain('.nav-link:hover .nav-caret')
+    expect(portfolioCss).toContain('.nav-link.active .nav-caret')
     expect(portfolioCss).toContain('.nav-label::after{content')
     expect(portfolioCss).toContain('.nav-link.active .nav-label{color:var(--color-atomic-tangerine)}')
   })

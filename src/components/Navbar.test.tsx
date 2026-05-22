@@ -125,7 +125,8 @@ describe('Navbar', () => {
       expect(skillsLabel).toHaveClass('nav-label')
       expect(skillsLabel.className).not.toContain('border-b-2')
       expect(skillsLabel.className).not.toContain('border-atomic-tangerine')
-      expect(skillsLink!.querySelector('[data-testid="nav-caret"]')).toBeNull()
+      expect(skillsLink!.querySelector('[data-testid="nav-caret"]')).not.toBeNull()
+      expect(skillsLink!.querySelector('[data-testid="nav-caret"]')).toHaveTextContent('>')
     })
 
     it('restores inactive link caret and removes label underline when active section changes', () => {
@@ -158,7 +159,8 @@ describe('Navbar', () => {
       expect(skillsLink).not.toHaveClass('active')
       expect(skillsLabel).toHaveClass('nav-label')
       expect(projectsLink).toHaveClass('nav-link', 'active')
-      expect(projectsLink!.querySelector('[data-testid="nav-caret"]')).toBeNull()
+      expect(projectsLink!.querySelector('[data-testid="nav-caret"]')).not.toBeNull()
+      expect(projectsLink!.querySelector('[data-testid="nav-caret"]')).toHaveTextContent('>')
       expect(projectsLabel).toHaveClass('nav-label')
     })
   })
@@ -243,11 +245,53 @@ describe('Navbar', () => {
         expect(skillsLabel.className).not.toContain('border-b-2')
         expect(skillsLabel.className).not.toContain('border-atomic-tangerine')
         expect(skillsLabel.className).not.toContain('text-atomic-tangerine')
-        expect(skillsLink!.querySelector('.nav-caret')).toBeNull()
+        expect(skillsLink!.querySelector('.nav-caret')).not.toBeNull()
+        expect(skillsLink!.querySelector('.nav-caret')).toHaveTextContent('>')
       } finally {
         vi.unstubAllGlobals()
         document.body.removeChild(section)
       }
+    })
+  })
+
+  describe('issue #208 - active link shows caret', () => {
+    let section: HTMLElement
+    let observerCallback!: IntersectionObserverCallback
+
+    beforeEach(() => {
+      section = document.createElement('section')
+      section.id = 'skills'
+      document.body.appendChild(section)
+
+      vi.stubGlobal('IntersectionObserver', vi.fn(function (cb: IntersectionObserverCallback) {
+        observerCallback = cb
+        return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() }
+      }))
+    })
+
+    afterEach(() => {
+      vi.unstubAllGlobals()
+      document.body.removeChild(section)
+    })
+
+    it('keeps nav-caret in DOM on active link for CSS visibility', () => {
+      render(<Navbar />)
+
+      act(() => {
+        observerCallback(
+          [{ target: section, isIntersecting: true } as unknown as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        )
+      })
+
+      const skillsLink = screen.getByRole('link', { name: /skills/i })
+      const caret = skillsLink.querySelector('[data-testid="nav-caret"]')
+
+      expect(skillsLink).toHaveClass('nav-link', 'active')
+      expect(caret).not.toBeNull()
+      expect(caret).toHaveTextContent('>')
+      expect(caret).toHaveClass('nav-caret')
+      expect((caret as HTMLElement).style.opacity).toBe('')
     })
   })
 
@@ -275,7 +319,7 @@ describe('Navbar', () => {
       }
     })
 
-    it('active link keeps the > prefix absent', () => {
+    it('active link keeps the > prefix in DOM for CSS-driven visibility', () => {
       const section = document.createElement('section')
       section.id = 'skills'
       document.body.appendChild(section)
@@ -300,7 +344,8 @@ describe('Navbar', () => {
         const labelSpan = skillsLink.querySelector('.nav-label')
         const caretSpan = skillsLink.querySelector('[data-testid="nav-caret"]')
         expect(labelSpan).toHaveClass('nav-label')
-        expect(caretSpan).toBeNull()
+        expect(caretSpan).not.toBeNull()
+        expect(caretSpan).toHaveTextContent('>')
       } finally {
         vi.unstubAllGlobals()
         document.body.removeChild(section)
