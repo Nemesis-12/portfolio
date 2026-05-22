@@ -43,10 +43,11 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
       ref={outerRef}
       id="projects"
       data-sticky-section="true"
+      data-sticky-scroll-host="true"
       className="relative min-h-screen px-8 bg-graphite-light origin-center transform-gpu"
       style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden', willChange: 'transform, opacity' }}
     >
-      <div data-sticky-viewport="true" className="relative flex flex-col justify-center py-14" style={{ position: 'sticky', top: 0, height: '100vh' }}>
+      <div data-sticky-viewport="true" className="flex flex-col justify-center py-14 hscroll-sticky">
         <div className="w-full">
           <div className="flex items-center gap-3 mb-8">
             <span className="font-body text-xs text-atomic-tangerine tracking-widest whitespace-nowrap">// 01</span>

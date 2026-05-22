@@ -66,7 +66,7 @@
 
   /* ─── HORIZONTAL SCROLL SCAFFOLD ──── */
   .hscroll{position:relative;width:100vw;height:100%}
-  .hscroll-sticky{position:sticky;top:0;height:100vh;width:100vw;overflow:hidden;display:flex;flex-direction:column}
+  .hscroll-sticky,[data-sticky-viewport="true"]{position:sticky;top:0;height:100vh;width:100vw;overflow:hidden;display:flex;flex-direction:column}
   .hscroll-head{padding:74px 5vw 18px;display:flex;align-items:center;gap:18px;flex-shrink:0}
   .hscroll-no{font-size:14px;color:var(--color-atomic-tangerine);letter-spacing:3px}
   .hscroll-name{font-family:var(--font-display);font-size:18px;color:var(--color-platinum);letter-spacing:3px}
@@ -255,6 +255,10 @@
 
   /* parallax layers — transform driven by scrollY * factor in JS */
   [data-parallax]{will-change:transform}
+
+  /* ─── CARD-DECK STACK ──── */
+  [data-sticky-section="true"]:not([data-sticky-scroll-host="true"]){position:sticky;top:0;min-height:100vh;transform-origin:center center;will-change:transform,opacity}
+  [data-sticky-scroll-host="true"]{transform-origin:center center;will-change:transform,opacity}
 
   /* persistent title cursor (uses currentColor so it matches whichever text it sits next to) */
   .title-cursor{display:inline-block;width:.55ch;height:.9em;background:currentColor;vertical-align:-.13em;margin-left:6px;animation:blink-cursor 1.05s steps(1) infinite}
