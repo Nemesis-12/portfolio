@@ -32,6 +32,7 @@ describe('global CSS brand chrome', () => {
     expect(blockFor('::-webkit-scrollbar')).toContain('width: 8px;')
     expect(blockFor('::-webkit-scrollbar-track')).toContain('background: var(--graphite);')
     expect(blockFor('::-webkit-scrollbar-thumb')).toContain('background: var(--orange);')
+    expect(blockFor('::-webkit-scrollbar-thumb')).not.toContain('border-radius')
     expect(blockFor('::selection')).toContain('background-color: var(--orange);')
     expect(blockFor('::selection')).toContain('color: var(--graphite);')
   })
