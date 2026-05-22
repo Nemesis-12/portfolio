@@ -12,7 +12,7 @@ import {
 } from './HeroSection.constants'
 
 const FIRST_NAME_DURATION = FIRST_NAME.length * NAME_SPEED
-const LAST_NAME_DURATION = ` ${LAST_NAME}`.length * NAME_SPEED
+const LAST_NAME_DURATION = LAST_NAME.length * NAME_SPEED
 const ROLE_TYPE_SPEED = 40
 const ROLE_ERASE_SPEED = 30
 const ROLE_HOLD_MS = 2000
@@ -67,21 +67,35 @@ describe('HeroSection', () => {
     expect(screen.getByTestId('hero-name')).toBeInTheDocument()
   })
 
-  it('keeps the init label clear of the navbar and aligns its underline to the leading slashes', () => {
+  it('renders two stacked hero-name-line spans inside hero-name', () => {
+    render(<HeroSection />)
+
+    const heading = screen.getByTestId('hero-name')
+    const nameLines = heading.querySelectorAll('.hero-name-line')
+
+    expect(heading).toHaveClass('hero-name')
+    expect(nameLines).toHaveLength(2)
+    expect(nameLines[0]).toBeInTheDocument()
+    expect(nameLines[1]).toBeInTheDocument()
+  })
+
+  it('shows hero-init label and hero-bar aligned beneath it', () => {
+    render(<HeroSection />)
+
+    const label = screen.getByText('// PORTFOLIO_INIT')
+    const bar = document.querySelector('.hero-bar')
+
+    expect(label).toHaveClass('hero-init')
+    expect(bar).toBeInTheDocument()
+    expect(label.nextElementSibling).toBe(bar)
+  })
+
+  it('wraps hero content in hero-inner for horizontal padding', () => {
     render(<HeroSection />)
 
     const content = screen.getByTestId('hero-content')
-    const labelUnit = screen.getByTestId('hero-init-label-unit')
-    const label = screen.getByText('// PORTFOLIO_INIT')
-    const underline = screen.getByTestId('hero-init-label-underline')
-
+    expect(content).toHaveClass('hero-inner')
     expect(content).toHaveClass('pt-16')
-    expect(labelUnit).toHaveClass('w-fit')
-    expect(labelUnit).toContainElement(label)
-    expect(labelUnit).toContainElement(underline)
-    expect(label.textContent?.startsWith('//')).toBe(true)
-    expect(label.nextElementSibling).toBe(underline)
-    expect(underline).toHaveClass('ml-0')
   })
 
   it('marks the dot grid as a slow parallax layer', () => {
@@ -169,9 +183,44 @@ describe('HeroSection', () => {
 
     advanceToNameComplete()
 
-    const heading = screen.getByRole('heading')
-    expect(heading).toBeInTheDocument()
-    expect(screen.getByTestId('hero-name')).toBeInTheDocument()
+    const cursor = screen.getByTestId('hero-name-cursor')
+    const nameLines = screen.getByTestId('hero-name').querySelectorAll('.hero-name-line')
+
+    expect(cursor).toBeInTheDocument()
+    expect(nameLines[1]?.contains(cursor)).toBe(true)
+  })
+
+  it('types FARHAN completely before MOHAMMED begins', () => {
+    render(<HeroSection />)
+
+    act(() => {
+      vi.advanceTimersByTime(FIRST_NAME_DURATION - NAME_SPEED)
+    })
+
+    const nameLines = screen.getByTestId('hero-name').querySelectorAll('.hero-name-line')
+    expect(nameLines[0]?.textContent).toBe(FIRST_NAME.slice(0, -1))
+    expect(nameLines[1]?.textContent).toBe('')
+
+    act(() => {
+      vi.advanceTimersByTime(NAME_SPEED)
+    })
+
+    expect(nameLines[0]?.textContent).toBe(FIRST_NAME)
+    expect(nameLines[1]?.textContent).toBe('')
+  })
+
+  it('applies hero-role to the rotating role line', () => {
+    render(<HeroSection />)
+
+    advanceToNameComplete()
+
+    expect(screen.getByTestId('rotating-role')).toHaveClass('hero-role')
+  })
+
+  it('applies hero-tag to the value prop line', () => {
+    render(<HeroSection />)
+
+    expect(screen.getByTestId('value-prop')).toHaveClass('hero-tag')
   })
 
   it('uses a step-like one-second blink animation for the cursor', () => {

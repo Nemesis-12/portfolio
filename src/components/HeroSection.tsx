@@ -38,52 +38,53 @@ const HeroSection: React.FC = () => {
         ></div>
       </div>
 
-      <div data-testid="hero-content" className="relative z-10 px-8 pt-16 w-full space-y-6">
-        <div data-testid="hero-init-label-unit" className="space-y-2 w-fit">
-          <p className="font-body text-xs text-atomic-tangerine tracking-widest">
-            // PORTFOLIO_INIT
-          </p>
-          <div data-testid="hero-init-label-underline" className="ml-0 w-8 h-0.5 bg-atomic-tangerine" />
-        </div>
+      <div data-testid="hero-content" className="hero-inner pt-16 w-full">
+        <p className="hero-init">// PORTFOLIO_INIT</p>
+        <div className="hero-bar" />
 
-        <h1 data-testid="hero-name" className="font-display text-5xl text-platinum leading-tight">
-          <TypeIn
-            start={true}
-            text={FIRST_NAME}
-            speed={NAME_SPEED}
-            onDone={() => {
-              setFirstNameDone(true)
-            }}
-          />
-          <TypeIn
-            start={firstNameDone}
-            text={` ${LAST_NAME}`}
-            speed={NAME_SPEED}
-            onDone={() => {
-              setNameDone(true)
-              setShowNameCursor(true)
-            }}
-          />
-          {showNameCursor && (
-            <motion.span
-              data-testid="hero-name-cursor"
-              aria-hidden="true"
-              className="inline-block w-[3px] h-[1.2em] bg-atomic-tangerine align-middle ml-1"
-              variants={cursorVariants}
-              animate="blink"
+        <h1 data-testid="hero-name" className="hero-name">
+          <span className="hero-name-line">
+            <TypeIn
+              start={true}
+              text={FIRST_NAME}
+              speed={NAME_SPEED}
+              onDone={() => {
+                setFirstNameDone(true)
+              }}
             />
-          )}
+          </span>
+          <span className="hero-name-line">
+            <TypeIn
+              start={firstNameDone}
+              text={LAST_NAME}
+              speed={NAME_SPEED}
+              onDone={() => {
+                setNameDone(true)
+                setShowNameCursor(true)
+              }}
+            />
+            {showNameCursor && (
+              <motion.span
+                data-testid="hero-name-cursor"
+                aria-hidden="true"
+                className="inline-block w-[3px] h-[1.2em] bg-atomic-tangerine align-middle ml-1"
+                variants={cursorVariants}
+                animate="blink"
+              />
+            )}
+          </span>
         </h1>
 
         <RotatingRole
           roles={ROLES}
           active={nameDone}
+          className="hero-role"
           onFirstCycleComplete={() => {
             setStartValueProp(true)
           }}
         />
 
-        <p className="font-body text-lg text-periwinkle/80" data-testid="value-prop">
+        <p className="hero-tag" data-testid="value-prop">
           <TypeIn
             start={startValueProp}
             text={VALUE_PROP}

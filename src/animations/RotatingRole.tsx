@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 interface RotatingRoleProps {
   roles: string[]
   active: boolean
+  className?: string
   typeSpeed?: number
   eraseSpeed?: number
   holdMs?: number
@@ -15,6 +16,7 @@ type Phase = 'idle' | 'typing' | 'holding' | 'erasing'
 export function RotatingRole({
   roles,
   active,
+  className = '',
   typeSpeed = 40,
   eraseSpeed = 30,
   holdMs = 2000,
@@ -98,7 +100,7 @@ export function RotatingRole({
   }, [active, roles, typeSpeed, eraseSpeed, holdMs])
 
   return (
-    <div data-testid="rotating-role">
+    <div data-testid="rotating-role" className={className}>
       {displayed}
       <span style={{ opacity: showCursor ? 1 : 0 }}>▍</span>
     </div>
