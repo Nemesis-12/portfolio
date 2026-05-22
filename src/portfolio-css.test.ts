@@ -105,4 +105,8 @@ describe('portfolio.css CSS anchor', () => {
   it('does not duplicate hero-name-line selector', () => {
     expect(portfolioCss.match(/\.hero-name-line\{/g)).toHaveLength(1)
   })
+
+  it('anchors hero-inner horizontal padding from the reference', () => {
+    expect(portfolioCss).toMatch(/\.hero-inner\{[^}]*padding:0 5vw/)
+  })
 })
