@@ -98,12 +98,13 @@ describe('HeroSection', () => {
     expect(content).toHaveClass('pt-16')
   })
 
-  it('marks the dot grid as a slow parallax layer', () => {
+  it('marks the line grid as a slow parallax layer', () => {
     render(<HeroSection />)
-    const dotGrid = screen.getByTestId('hero-dot-grid')
+    const lineGrid = screen.getByTestId('hero-grid')
 
-    expect(dotGrid).toHaveAttribute('data-parallax')
-    expect(dotGrid).toHaveAttribute('data-parallax-factor', '0.3')
+    expect(lineGrid).toHaveClass('hero-grid')
+    expect(lineGrid).toHaveAttribute('data-parallax')
+    expect(lineGrid).toHaveAttribute('data-parallax-factor', '0.3')
   })
 
   it('value prop is empty initially', () => {
@@ -292,7 +293,7 @@ describe('HeroSection', () => {
     expect(viewResume).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
-  it('VIEW_WORK uses filled tangerine style, VIEW_RESUME uses outlined style', () => {
+  it('VIEW_WORK uses btn btn-fill, VIEW_RESUME uses btn btn-outline', () => {
     render(<HeroSection />)
 
     advanceToValuePropComplete()
@@ -300,10 +301,21 @@ describe('HeroSection', () => {
     const viewWork = screen.getByRole('link', { name: /VIEW_WORK →/i })
     const viewResume = screen.getByRole('link', { name: /VIEW_RESUME →/i })
 
-    expect(viewWork).toHaveClass('bg-atomic-tangerine')
-    expect(viewWork).toHaveClass('text-graphite')
-    expect(viewResume).toHaveClass('border-atomic-tangerine')
-    expect(viewResume).toHaveClass('text-atomic-tangerine')
+    expect(viewWork).toHaveClass('btn')
+    expect(viewWork).toHaveClass('btn-fill')
+    expect(viewResume).toHaveClass('btn')
+    expect(viewResume).toHaveClass('btn-outline')
+  })
+
+  it('wraps CTAs in hero-cta after value prop completes', () => {
+    render(<HeroSection />)
+
+    advanceToValuePropComplete()
+
+    const viewWork = screen.getByRole('link', { name: /VIEW_WORK →/i })
+    const ctaRow = viewWork.parentElement
+
+    expect(ctaRow).toHaveClass('hero-cta')
   })
 
   it('rotating role stays stopped until both name lines finish typing', () => {

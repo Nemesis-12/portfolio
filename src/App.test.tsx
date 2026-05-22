@@ -118,7 +118,7 @@ describe('App shell', () => {
     const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
 
     const { unmount } = render(<App />)
-    const dotGrid = document.querySelector('[data-testid="hero-dot-grid"]') as HTMLElement
+    const lineGrid = document.querySelector('[data-testid="hero-grid"]') as HTMLElement
     const homeSection = document.getElementById('home') as HTMLElement
 
     vi.spyOn(homeSection, 'getBoundingClientRect').mockReturnValue(rectAtTop(-120))
@@ -128,7 +128,7 @@ describe('App shell', () => {
       frameCallbacks.delete(1)
     })
 
-    expect(dotGrid.style.transform).toBe('translate3d(0, 36px, 0)')
+    expect(lineGrid.style.transform).toBe('translate3d(0, 36px, 0)')
     expect(addEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function), { passive: true })
     expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true })
 
