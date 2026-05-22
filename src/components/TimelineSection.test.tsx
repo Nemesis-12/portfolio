@@ -541,6 +541,62 @@ describe('TimelineSection', () => {
       expect(typedFields.length).toBeGreaterThan(0)
       expect(typedFields[0].closest('[data-testid="commit-metadata"]')).toBeTruthy()
     })
+
+    it('omits commit-details list when entry has no bullets', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [false, true, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const msPanel = commitEntries[1]
+      expect(msPanel.querySelector('[data-testid="commit-details"]')).not.toBeInTheDocument()
+      expect(msPanel.querySelector('[data-testid="commit-institution"]')?.textContent).toBe(
+        'WICHITA STATE UNIVERSITY'
+      )
+    })
+
+    it('holds partial metadata within structured fields when panel deactivates', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      const { rerender } = render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const partialHash =
+        commitEntries[0].querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      expect(partialHash.length).toBeGreaterThan(0)
+
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [false, false, false],
+        setRef: () => () => {},
+      })
+      rerender(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(5000)
+      })
+
+      const heldEntries = screen.getAllByTestId('commit-entry')
+      const heldHash =
+        heldEntries[0].querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      expect(heldHash).toBe(partialHash)
+      expect(heldEntries[0].querySelector('[data-testid="commit-institution"]')).toBeNull()
+    })
   })
 
   describe('issue #157 - desktop sticky panel scroll contract', () => {
