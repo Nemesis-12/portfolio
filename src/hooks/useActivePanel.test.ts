@@ -362,4 +362,93 @@ describe('useActivePanel', () => {
       expect(result.current).toEqual([false, true])
     })
   })
+
+  describe('issue #206 - timeline scroll progress', () => {
+    it('exposes activeIndex matching the active panel', () => {
+      setViewport(1000, 800)
+
+      const { result } = renderHook(() => {
+        const elements: HTMLElement[] = []
+        const rects = [
+          { top: -800, height: 800 },
+          { top: 0, height: 800 },
+          { top: 800, height: 800 },
+        ]
+        for (let i = 0; i < 3; i++) {
+          const el = document.createElement('div')
+          el.getBoundingClientRect = vi.fn(() =>
+            createRect(rects[i].top, rects[i].height)
+          )
+          elements.push(el)
+        }
+
+        const hook = useActivePanel(3)
+        elements.forEach((el, i) => hook.setRef(i)(el))
+
+        return hook
+      })
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+
+      expect(result.current.activeIndex).toBe(1)
+    })
+
+    it('progress is 0 at the first panel beat', () => {
+      setViewport(1000, 800)
+
+      const { result } = renderHook(() => {
+        const elements: HTMLElement[] = []
+        const rects = [
+          { top: 0, height: 800 },
+          { top: 800, height: 800 },
+          { top: 1600, height: 800 },
+        ]
+        for (let i = 0; i < 3; i++) {
+          const el = document.createElement('div')
+          el.getBoundingClientRect = vi.fn(() =>
+            createRect(rects[i].top, rects[i].height)
+          )
+          elements.push(el)
+        }
+
+        const hook = useActivePanel(3)
+        elements.forEach((el, i) => hook.setRef(i)(el))
+
+        return hook
+      })
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+
+      expect(result.current.progress).toBe(0)
+    })
+
+    it('progress reaches 1 on the last panel beat', () => {
+      setViewport(1000, 800)
+
+      const { result } = renderHook(() => {
+        const elements: HTMLElement[] = []
+        const rects = [
+          { top: -1600, height: 800 },
+          { top: -800, height: 800 },
+          { top: 0, height: 800 },
+        ]
+        for (let i = 0; i < 3; i++) {
+          const el = document.createElement('div')
+          el.getBoundingClientRect = vi.fn(() =>
+            createRect(rects[i].top, rects[i].height)
+          )
+          elements.push(el)
+        }
+
+        const hook = useActivePanel(3)
+        elements.forEach((el, i) => hook.setRef(i)(el))
+
+        return hook
+      })
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+
+      expect(result.current.progress).toBe(1)
+    })
+  })
 })

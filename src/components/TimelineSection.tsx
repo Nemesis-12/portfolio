@@ -1,7 +1,94 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTypewriter } from '../animations/useTypewriter'
 import { useActivePanel } from '../hooks/useActivePanel'
 import { StickySection } from './StickySection'
+
+const TIMELINE_SECTION_NO = '// 03'
+
+function formatPanelCount(index: number, total: number): string {
+  return `${String(index + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`
+}
+
+function useTimelineInView(entryCount: number): boolean {
+  const [inView, setInView] = useState(true)
+
+  useEffect(() => {
+    const sections = [
+      document.getElementById('timeline'),
+      ...Array.from(document.querySelectorAll('[id^="timeline-"]')),
+    ].filter((section): section is HTMLElement => section instanceof HTMLElement)
+
+    if (sections.length !== entryCount) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        setInView(entries.some((entry) => entry.isIntersecting))
+      },
+      { threshold: 0 },
+    )
+
+    sections.forEach((section) => observer.observe(section))
+    return () => observer.disconnect()
+  }, [entryCount])
+
+  return inView
+}
+
+function TimelineChrome({
+  activeIndex,
+  progress,
+  total,
+  visible,
+}: {
+  activeIndex: number
+  progress: number
+  total: number
+  visible: boolean
+}) {
+  const showScrollHint = activeIndex === 0
+
+  return (
+    <div
+      data-testid="timeline-chrome"
+      className="pointer-events-none fixed inset-0 z-50"
+      aria-hidden={!visible}
+      style={{
+        opacity: visible ? 1 : 0,
+        transition: 'opacity 0.3s',
+      }}
+    >
+      <div data-sticky-viewport="true" className="relative h-full w-full hscroll-sticky">
+        <div className="hscroll-head">
+          <span className="hscroll-no">{TIMELINE_SECTION_NO}</span>
+          <span className="hscroll-name">TIMELINE</span>
+          <div className="hscroll-rule" />
+          <div data-testid="progress-indicator" className="hscroll-progress">
+            <span data-testid="progress-count">{formatPanelCount(activeIndex, total)}</span>
+            <div className="hscroll-progress-track">
+              <div
+                data-testid="progress-fill"
+                className="hscroll-progress-fill"
+                style={{ width: `${progress * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div
+          data-testid="scroll-hint"
+          data-visible={showScrollHint}
+          aria-hidden="true"
+          className="hscroll-hint"
+          style={{ opacity: showScrollHint ? 0.85 : 0, transition: 'opacity 0.3s' }}
+        >
+          SCROLL <span>↓</span>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const timelineEntries: TimelineEntry[] = [
   {
@@ -140,10 +227,18 @@ function TimelinePanel({
 }
 
 const TimelineSection: React.FC = () => {
-  const { active, setRef } = useActivePanel(timelineEntries.length)
+  const entryCount = timelineEntries.length
+  const { active, activeIndex, progress, setRef } = useActivePanel(entryCount)
+  const inView = useTimelineInView(entryCount)
 
   return (
     <>
+      <TimelineChrome
+        activeIndex={activeIndex}
+        progress={progress}
+        total={entryCount}
+        visible={inView}
+      />
       {timelineEntries.map((entry, i) => (
         <TimelinePanel
           key={entry.hash}
