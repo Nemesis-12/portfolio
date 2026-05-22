@@ -1,6 +1,10 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { MESSAGE_DURATION, STATUS_MESSAGES } from './LoadingScreen.constants'
+import { useEffect, useState } from 'react'
+import {
+  BOOT_DURATION,
+  FADE_OUT_DURATION,
+  MESSAGE_INTERVAL,
+  STATUS_MESSAGES,
+} from './LoadingScreen.constants'
 
 interface LoadingScreenProps {
   onComplete: () => void
@@ -8,56 +12,47 @@ interface LoadingScreenProps {
 
 export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
   const [messageIndex, setMessageIndex] = useState(0)
+  const [exiting, setExiting] = useState(false)
 
   useEffect(() => {
-    const isFinalMessage = messageIndex >= STATUS_MESSAGES.length - 1
-    const timer = setTimeout(
-      () => {
-        if (isFinalMessage) {
-          onComplete()
-        } else {
-          setMessageIndex((i) => i + 1)
-        }
-      },
-      MESSAGE_DURATION,
-    )
-    return () => clearTimeout(timer)
-  }, [messageIndex, onComplete])
+    const interval = setInterval(() => {
+      setMessageIndex((index) => Math.min(index + 1, STATUS_MESSAGES.length - 1))
+    }, MESSAGE_INTERVAL)
 
-  const progress = ((messageIndex + 1) / STATUS_MESSAGES.length) * 100
+    const bootTimer = setTimeout(() => {
+      clearInterval(interval)
+      setExiting(true)
+    }, BOOT_DURATION)
+
+    return () => {
+      clearInterval(interval)
+      clearTimeout(bootTimer)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!exiting) {
+      return
+    }
+
+    const fadeTimer = setTimeout(onComplete, FADE_OUT_DURATION)
+    return () => clearTimeout(fadeTimer)
+  }, [exiting, onComplete])
 
   return (
-    <motion.div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-graphite"
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <p className="mb-4 font-display text-xs text-atomic-tangerine">
-        SYSTEM_INIT...
-      </p>
-      <h1 className="mb-8 font-display text-2xl text-platinum">
-        FARHAN
-      </h1>
-      <h2 className="-mt-6 mb-8 font-display text-2xl text-platinum">
-        MOHAMMED
-      </h2>
-      <div
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={progress}
-        className="mb-4 h-0.5 w-64 overflow-hidden rounded-none bg-periwinkle/20"
-      >
-        <motion.div
-          className="h-full bg-atomic-tangerine"
-          initial={{ width: '0%' }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-        />
+    <div id="ls" className={exiting ? 'out' : undefined}>
+      <div className="ls-inner">
+        <div className="ls-sys">SYSTEM_INIT...</div>
+        <div className="ls-name">
+          FARHAN
+          <br />
+          MOHAMMED
+        </div>
+        <div className="ls-track">
+          <div className="ls-fill" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-label="Loading progress" />
+        </div>
+        <div className="ls-msg">{STATUS_MESSAGES[messageIndex]}</div>
       </div>
-      <p className="font-body text-xs text-periwinkle">
-        {STATUS_MESSAGES[messageIndex]}
-      </p>
-    </motion.div>
+    </div>
   )
 }
