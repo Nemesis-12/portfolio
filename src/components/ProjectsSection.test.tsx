@@ -2,10 +2,11 @@ import { describe, it, expect, vi } from 'vitest'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import ProjectsSection from './ProjectsSection'
-import { getScrollRangeVh, PROJECT_CARD_WIDTH } from './projectsGeometry'
-
-const CARD_WIDTH = PROJECT_CARD_WIDTH
-const CARD_GAP = 24
+import {
+  getCarouselTrackWidth,
+  getScrollRangeVh,
+  PROJECT_CARD_WIDTH,
+} from './projectsGeometry'
 
 const mockProjects = [
   {
@@ -256,6 +257,15 @@ describe('ProjectsSection', () => {
     expect(fill).toHaveAttribute('data-active', 'false')
   })
 
+  it('renders proj-edge spacers before the first card and after the last card', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const edges = document.querySelectorAll('.proj-edge')
+    expect(edges).toHaveLength(2)
+    expect(edges[0]?.nextElementSibling).toHaveAttribute('data-testid', 'project-card')
+    expect(edges[1]?.previousElementSibling).toHaveAttribute('data-testid', 'project-card')
+  })
+
   it('renders cards in a horizontal track structure for carousel scrolling', () => {
     render(<ProjectsSection projects={mockProjects} />)
 
@@ -282,16 +292,15 @@ describe('ProjectsSection', () => {
     const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
 
     vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-800, 2400))
+    const trackWidth = getCarouselTrackWidth(mockProjects.length, 1000)
     Object.defineProperty(carouselTrack, 'scrollWidth', {
       configurable: true,
-      value: 1800,
+      value: trackWidth,
     })
 
     act(() => window.dispatchEvent(new Event('scroll')))
 
-    const centerOffset = 1000 / 2 - PROJECT_CARD_WIDTH / 2
-    const centeredTravelWidth = 1800 - PROJECT_CARD_WIDTH
-    expect(carouselTrack.style.transform).toBe(`translateX(${centerOffset - centeredTravelWidth / 2}px)`)
+    expect(carouselTrack.style.transform).toBe(`translateX(${-0.5 * (trackWidth - 1000)}px)`)
   })
 
   it('section header is separate from carousel track', () => {
@@ -471,7 +480,7 @@ describe('ProjectsSection', () => {
       vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-800, 2400))
       Object.defineProperty(carouselTrack, 'scrollWidth', {
         configurable: true,
-        value: 1800,
+        value: getCarouselTrackWidth(mockProjects.length, 1000),
       })
 
       act(() => window.dispatchEvent(new Event('scroll')))
@@ -506,7 +515,7 @@ describe('ProjectsSection', () => {
       )
       Object.defineProperty(carouselTrack, 'scrollWidth', {
         configurable: true,
-        value: 2 * (CARD_WIDTH + CARD_GAP),
+        value: getCarouselTrackWidth(mockProjects.length, 1000),
       })
 
       act(() => window.dispatchEvent(new Event('scroll')))
@@ -527,7 +536,7 @@ describe('ProjectsSection', () => {
       )
       Object.defineProperty(carouselTrack, 'scrollWidth', {
         configurable: true,
-        value: 2 * (CARD_WIDTH + CARD_GAP),
+        value: getCarouselTrackWidth(mockProjects.length, 1000),
       })
 
       act(() => window.dispatchEvent(new Event('scroll')))
@@ -561,7 +570,7 @@ describe('ProjectsSection', () => {
       vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-800, 2400))
       Object.defineProperty(carouselTrack, 'scrollWidth', {
         configurable: true,
-        value: 1800,
+        value: getCarouselTrackWidth(mockProjects.length, 1000),
       })
 
       act(() => window.dispatchEvent(new Event('scroll')))
@@ -836,7 +845,7 @@ describe('ProjectsSection', () => {
       vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-(sectionHeight - 900), sectionHeight))
       Object.defineProperty(carouselTrack, 'scrollWidth', {
         configurable: true,
-        value: 3 * (CARD_WIDTH + CARD_GAP),
+        value: getCarouselTrackWidth(threeProjects.length, 1440),
       })
 
       act(() => window.dispatchEvent(new Event('scroll')))

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useCardDeckDepth } from '../hooks/useCardDeckDepth'
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
 import type { Project } from '../data/projects'
-import { formatProjectNumber, getScrollRangeVh, PROJECT_CARD_WIDTH } from './projectsGeometry'
+import { formatProjectNumber, getScrollRangeVh } from './projectsGeometry'
 
 interface Props {
   projects: Project[]
@@ -30,7 +30,7 @@ function clampIndex(index: number, projectCount: number) {
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
   const outerRef = useRef<HTMLElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
-  const { tx, progress } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>, { cardWidth: PROJECT_CARD_WIDTH })
+  const { tx, progress } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>)
   const scrollRangeVh = getScrollRangeVh(projects.length)
   useCardDeckDepth(outerRef as React.RefObject<HTMLElement>)
 
@@ -74,10 +74,12 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
           </div>
 
           <div ref={innerRef as React.RefObject<HTMLDivElement>} data-carousel-track="true" className="relative" style={{ transform: `translateX(${tx}px)` }}>
-            <div className="flex gap-6 pb-4">
+            <div className="flex proj-track pb-4">
+              <div className="proj-edge" aria-hidden="true" />
               {projects.map((project, index) => (
                 <ProjectCard key={project.id} project={project} index={index} activeIndex={activeIndex} />
               ))}
+              <div className="proj-edge" aria-hidden="true" />
             </div>
           </div>
         </div>

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { formatProjectNumber, getScrollRangeVh, PROJECT_CARD_WIDTH } from './projectsGeometry'
+import {
+  formatProjectNumber,
+  getEdgeSpacerWidth,
+  getScrollRangeVh,
+  PROJECT_CARD_GAP,
+  PROJECT_CARD_WIDTH,
+} from './projectsGeometry'
 
 describe('projectsGeometry', () => {
   it('exports desktop card width matching pcard CSS', () => {
@@ -25,6 +31,17 @@ describe('projectsGeometry', () => {
   describe('getScrollRangeVh', () => {
     it('returns 1 when there are no projects', () => {
       expect(getScrollRangeVh(0)).toBe(1)
+    })
+  })
+
+  it('exports the reference proj-track gap in pixels', () => {
+    expect(PROJECT_CARD_GAP).toBe(56)
+  })
+
+  describe('getEdgeSpacerWidth', () => {
+    it('matches calc(50vw - min(280px, 39vw)) for desktop card width', () => {
+      expect(getEdgeSpacerWidth(1440)).toBe(440)
+      expect(getEdgeSpacerWidth(1000)).toBe(220)
     })
   })
 })
