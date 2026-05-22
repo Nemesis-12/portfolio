@@ -8,10 +8,10 @@ const EMAIL = 'famohammed@shockers.wichita.edu'
 const CONTACT_SPEED = 50
 
 const footerLinks = [
-  { prefix: '//', label: 'GITHUB', href: 'https://github.com/Nemesis-12' },
-  { prefix: '//', label: 'LINKEDIN', href: 'https://linkedin.com/in/fa-mohammed' },
-  { prefix: '//', label: 'EMAIL', href: `mailto:${EMAIL}` },
-  { prefix: '//', label: 'RESUME', href: '/resume.pdf', target: '_blank' as const },
+  { label: 'GITHUB', href: 'https://github.com/Nemesis-12' },
+  { label: 'LINKEDIN', href: 'https://linkedin.com/in/fa-mohammed' },
+  { label: 'EMAIL', href: `mailto:${EMAIL}` },
+  { label: 'RESUME', href: '/resume.pdf', target: '_blank' as const },
 ]
 
 export default function ContactSection() {
@@ -20,77 +20,68 @@ export default function ContactSection() {
   const [step, setStep] = useState(0)
 
   return (
-    <>
-      <StickySection as="footer" id="contact" className="bg-graphite">
-        <div ref={ref} className="footer-cta">
-          <div className="footer-big">
-            <span className="footer-big-line">
-              <TypeIn
-                start={isInView}
-                text="LET'S"
-                speed={CONTACT_SPEED}
-                onDone={() => setStep((s) => Math.max(s, 1))}
-              />
-            </span>
-            <span className="footer-big-line">
-              <TypeIn
-                start={step >= 1}
-                text="CONNECT"
-                speed={CONTACT_SPEED}
-                onDone={() => setStep((s) => Math.max(s, 2))}
-              />
-              {step >= 2 && <span className="period">.</span>}
-              {step >= 2 && (
-                <span className="cursor" data-testid="contact-cursor" aria-hidden="true" />
-              )}
-            </span>
-          </div>
-
-          <motion.a
-            href={`mailto:${EMAIL}`}
-            variants={hoverEase}
-            initial="idle"
-            whileHover="hover"
-            className="inline-block font-body text-sm border-2 border-platinum text-platinum px-8 py-4 hover:bg-platinum hover:text-graphite transition-colors"
-          >
-            SEND_MESSAGE →
-          </motion.a>
+    <StickySection as="footer" id="contact" className="bg-graphite">
+      <div ref={ref} className="footer-cta">
+        <div className="footer-big">
+          <span className="footer-big-line">
+            <TypeIn
+              start={isInView}
+              text="LET'S"
+              speed={CONTACT_SPEED}
+              onDone={() => setStep((s) => Math.max(s, 1))}
+            />
+          </span>
+          <span className="footer-big-line">
+            <TypeIn
+              start={step >= 1}
+              text="CONNECT"
+              speed={CONTACT_SPEED}
+              onDone={() => setStep((s) => Math.max(s, 2))}
+            />
+            {step >= 2 && <span className="period">.</span>}
+            {step >= 2 && (
+              <span className="cursor" data-testid="contact-cursor" aria-hidden="true" />
+            )}
+          </span>
         </div>
-      </StickySection>
 
-      <StickySection
-        as="footer"
-        id="footer"
-        className="flex flex-col justify-center gap-6 px-8 py-8 border-t border-periwinkle/20 text-xs font-body text-periwinkle bg-graphite"
-      >
-        <div className="flex flex-wrap gap-6">
-          {footerLinks.map(({ prefix, label, href, target }) => (
+        <motion.a
+          href={`mailto:${EMAIL}`}
+          variants={hoverEase}
+          initial="idle"
+          whileHover="hover"
+          className="btn btn-fill"
+        >
+          SEND_MESSAGE <span>→</span>
+        </motion.a>
+
+        <div className="footer-socials">
+          {footerLinks.map(({ label, href, target }) => (
             <motion.a
               key={label}
               href={href}
               target={target}
-              aria-label={`${prefix} ${label}`}
+              aria-label={`// ${label}`}
               rel={target === '_blank' ? 'noopener noreferrer' : undefined}
               variants={hoverEase}
               initial="idle"
               whileHover="hover"
-              className="group font-body text-sm"
+              className="slink"
             >
-              <span className="text-atomic-tangerine group-hover:text-white transition-colors">{prefix}{' '}</span>
-              <span className="text-periwinkle group-hover:text-white transition-colors">{label}</span>
+              {label}
             </motion.a>
           ))}
         </div>
+      </div>
 
-        <div className="flex justify-between items-center">
-          <span data-parallax data-parallax-factor="0.5">
-            FARHAN_MOHAMMED © 2026
-          </span>
-          <span data-parallax data-parallax-factor="0.5">
-            PORTFOLIO.EXE
-          </span>
-        </div>
-      </StickySection>
-    </>
+      <div className="footer-copy">
+        <span data-parallax data-parallax-factor="0.5">
+          FARHAN_MOHAMMED © 2026
+        </span>
+        <span data-parallax data-parallax-factor="0.5">
+          PORTFOLIO.EXE
+        </span>
+      </div>
+    </StickySection>
   )
 }

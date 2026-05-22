@@ -11,7 +11,6 @@ const sectionIds = [
   'timeline-a3f9d2b',
   'timeline-b7c3e1a',
   'contact',
-  'footer',
 ] as const
 const timelinePanelIds = ['timeline', 'timeline-a3f9d2b', 'timeline-b7c3e1a']
 const shellConstraintClasses = ['container', 'max-w-7xl', 'mx-auto'] as const
@@ -169,8 +168,8 @@ describe('App shell', () => {
     })
 
     render(<App />)
-    const footer = document.querySelector('#footer') as HTMLElement
-    const footerText = document.querySelector('#footer [data-parallax]') as HTMLElement
+    const footer = document.querySelector('#contact') as HTMLElement
+    const footerText = document.querySelector('#contact .footer-copy [data-parallax]') as HTMLElement
 
     vi.spyOn(footer, 'getBoundingClientRect').mockReturnValue(rectAtTop(-80))
     vi.spyOn(footerText, 'getBoundingClientRect').mockReturnValue(rectAtTop(-20))

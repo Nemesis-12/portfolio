@@ -22,6 +22,8 @@ const REFERENCE_COMPONENT_CLASSES = [
   'bento',
   'tl-org',
   'footer-big',
+  'footer-cta',
+  'footer-copy',
   'slink',
   'reveal',
   'title-cursor',
