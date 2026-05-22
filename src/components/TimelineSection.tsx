@@ -62,36 +62,39 @@ function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean 
     .filter((line): line is string => line !== undefined && line !== '')
 
   return (
-    <div className="min-h-screen py-6 font-mono" data-testid="commit-entry">
+    <div className="tl-panel" data-testid="commit-entry">
       <div data-testid="commit-metadata">
         {displayedLines[0] !== undefined && (
-          <div data-testid="commit-hash" data-typewriter-line>
+          <div className="tl-commit" data-testid="commit-hash" data-typewriter-line>
             {displayedLines[0]}
           </div>
         )}
         {displayedLines[1] !== undefined && (
-          <div data-testid="commit-author" data-typewriter-line>
+          <div className="tl-meta" data-testid="commit-author" data-typewriter-line>
             {displayedLines[1]}
           </div>
         )}
         {displayedLines[2] !== undefined && (
-          <div data-testid="commit-date" data-typewriter-line>
+          <div className="tl-meta" data-testid="commit-date" data-typewriter-line>
             {displayedLines[2]}
           </div>
         )}
       </div>
       {institutionLine !== undefined && (
-        <h2 data-testid="commit-institution" data-typewriter-line>
-          {institutionLine}
-        </h2>
+        <>
+          <div className="tl-sep" aria-hidden="true" />
+          <h2 className="tl-org" data-testid="commit-institution" data-typewriter-line>
+            {institutionLine}
+          </h2>
+        </>
       )}
       {roleLine !== undefined && (
-        <p data-testid="commit-role" data-typewriter-line>
+        <p className="tl-title" data-testid="commit-role" data-typewriter-line>
           {roleLine}
         </p>
       )}
       {bulletLines.length > 0 && (
-        <ul data-testid="commit-details">
+        <ul className="tl-bullets" data-testid="commit-details">
           {entry.bullets.map((_, index) => {
             const line = displayedLines[METADATA_LINE_COUNT + 2 + index]
             if (line === undefined) return null
@@ -120,10 +123,13 @@ function TimelinePanel({
 }) {
   return (
     <StickySection id={id} className="bg-graphite-light">
-      <div ref={panelRef} className="min-h-screen flex flex-col justify-center py-14 px-8">
-        <div data-testid="section-label" className="font-display text-atomic-tangerine mb-8">
-          <span className="text-xs">//</span>{' '}
-          <span className="text-sm">
+      <div ref={panelRef} className="relative min-h-screen">
+        <div
+          data-testid="section-label"
+          className={`tl-section-tag ${entry.category}`}
+        >
+          <span className="tl-section-slash">//</span>
+          <span className="tl-section-kind">
             {entry.category === 'experience' ? 'EXPERIENCE' : 'EDUCATION'}
           </span>
         </div>

@@ -12,12 +12,12 @@ describe('TimelineSection', () => {
     vi.useRealTimers()
   })
 
-  it('each entry has min-h-screen', () => {
+  it('each entry uses tl-panel layout class', () => {
     render(<TimelineSection />)
     const commitEntries = screen.getAllByTestId('commit-entry')
     expect(commitEntries.length).toBe(3)
     commitEntries.forEach((entry) => {
-      expect(entry).toHaveClass('min-h-screen')
+      expect(entry).toHaveClass('tl-panel')
     })
   })
 
@@ -85,30 +85,33 @@ describe('TimelineSection', () => {
       expect(sectionLabels.length).toBe(3)
 
       const labelTexts = Array.from(sectionLabels).map((el) => el.textContent)
-      expect(labelTexts).toContain('// EXPERIENCE')
-      expect(labelTexts).toContain('// EDUCATION')
+      expect(labelTexts).toContain('//EXPERIENCE')
+      expect(labelTexts.filter((t) => t === '//EDUCATION').length).toBe(2)
     })
 
-    it('section labels use font-display (pixel font) in orange', () => {
+    it('section labels use tl-section-tag with portfolio typography classes', () => {
       render(<TimelineSection />)
 
       const sectionLabels = document.querySelectorAll('[data-testid="section-label"]')
       sectionLabels.forEach((label) => {
-        expect(label.className).toContain('font-display')
-        expect(label.className).toContain('text-atomic-tangerine')
-        expect(label.className).not.toContain('font-body')
+        expect(label.className).toContain('tl-section-tag')
+        expect(label.className).not.toContain('font-display')
+        expect(label.className).not.toContain('text-atomic-tangerine')
       })
     })
 
-    it('section label // is smaller than section word', () => {
+    it('section label // and word are separate tl-section-slash and tl-section-kind siblings', () => {
       render(<TimelineSection />)
 
       const sectionLabels = document.querySelectorAll('[data-testid="section-label"]')
       sectionLabels.forEach((label) => {
-        const slash = label.querySelector('span:first-child')
-        const word = label.querySelector('span:last-child')
-        expect(slash?.className).toContain('text-xs')
-        expect(word?.className).toContain('text-sm')
+        const slash = label.querySelector('.tl-section-slash')
+        const word = label.querySelector('.tl-section-kind')
+        expect(slash?.textContent).toBe('//')
+        expect(slash?.className).toContain('tl-section-slash')
+        expect(slash?.className).not.toContain('text-xs')
+        expect(word?.className).toContain('tl-section-kind')
+        expect(word?.className).not.toContain('text-sm')
       })
     })
 
@@ -596,6 +599,111 @@ describe('TimelineSection', () => {
         heldEntries[0].querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
       expect(heldHash).toBe(partialHash)
       expect(heldEntries[0].querySelector('[data-testid="commit-institution"]')).toBeNull()
+    })
+  })
+
+  describe('issue #161 - v4 desktop panel visual hierarchy', () => {
+    it('commit hash uses tl-commit, author and date use tl-meta', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const metadata = commitEntries[0].querySelector('[data-testid="commit-metadata"]')
+      expect(metadata?.querySelector('[data-testid="commit-hash"]')).toHaveClass('tl-commit')
+      expect(metadata?.querySelector('[data-testid="commit-author"]')).toHaveClass('tl-meta')
+      expect(metadata?.querySelector('[data-testid="commit-date"]')).toHaveClass('tl-meta')
+    })
+
+    it('institution heading uses tl-org portfolio class', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const institution = commitEntries[0].querySelector('[data-testid="commit-institution"]')
+      expect(institution).toHaveClass('tl-org')
+      expect(institution?.textContent).toBe('NETAPP INC.')
+    })
+
+    it('role uses tl-title portfolio class', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const role = commitEntries[0].querySelector('[data-testid="commit-role"]')
+      expect(role).toHaveClass('tl-title')
+      expect(role?.textContent).toBe('SOFTWARE_ENGINEER_IN_TEST')
+    })
+
+    it('bullets use tl-bullets portfolio class', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const details = commitEntries[0].querySelector('[data-testid="commit-details"]')
+      expect(details).toHaveClass('tl-bullets')
+    })
+
+    it('section tag carries experience or education category class', () => {
+      render(<TimelineSection />)
+
+      const sectionLabels = document.querySelectorAll('[data-testid="section-label"]')
+      expect(sectionLabels[0].className).toContain('experience')
+      expect(sectionLabels[1].className).toContain('education')
+      expect(sectionLabels[2].className).toContain('education')
+    })
+
+    it('inserts tl-sep spacer before institution heading', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const institution = commitEntries[0].querySelector('[data-testid="commit-institution"]')
+      expect(institution?.previousElementSibling).toHaveClass('tl-sep')
     })
   })
 
