@@ -436,6 +436,169 @@ describe('TimelineSection', () => {
     })
   })
 
+  describe('issue #160 - structured resume-backed panel content', () => {
+    it('renders commit metadata as distinct fields', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const metadata = commitEntries[0].querySelector('[data-testid="commit-metadata"]')
+      expect(metadata).toBeInTheDocument()
+      expect(metadata?.querySelector('[data-testid="commit-hash"]')?.textContent).toBe(
+        'commit d4e8f2c'
+      )
+      expect(metadata?.querySelector('[data-testid="commit-author"]')?.textContent).toBe(
+        'Author: Farhan Mohammed'
+      )
+      expect(metadata?.querySelector('[data-testid="commit-date"]')?.textContent).toBe(
+        'Date:   AUG 2024 – PRESENT'
+      )
+    })
+
+    it('renders institution as its own heading', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const institution = commitEntries[0].querySelector('[data-testid="commit-institution"]')
+      expect(institution?.tagName).toBe('H2')
+      expect(institution?.textContent).toBe('NETAPP INC.')
+    })
+
+    it('renders role as its own line', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const role = commitEntries[0].querySelector('[data-testid="commit-role"]')
+      expect(role?.textContent).toBe('SOFTWARE_ENGINEER_IN_TEST')
+    })
+
+    it('renders bullets as semantic list items', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const details = commitEntries[0].querySelector('[data-testid="commit-details"]')
+      expect(details?.tagName).toBe('UL')
+
+      const items = details?.querySelectorAll('li') ?? []
+      expect(items.length).toBe(4)
+      expect(items[0].textContent).toContain('Built automated analysis pipeline')
+    })
+
+    it('preserves data-typewriter-line markers on typed fields', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(500)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const typedFields = commitEntries[0].querySelectorAll('[data-typewriter-line]')
+      expect(typedFields.length).toBeGreaterThan(0)
+      expect(typedFields[0].closest('[data-testid="commit-metadata"]')).toBeTruthy()
+    })
+
+    it('omits commit-details list when entry has no bullets', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [false, true, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const msPanel = commitEntries[1]
+      expect(msPanel.querySelector('[data-testid="commit-details"]')).not.toBeInTheDocument()
+      expect(msPanel.querySelector('[data-testid="commit-institution"]')?.textContent).toBe(
+        'WICHITA STATE UNIVERSITY'
+      )
+    })
+
+    it('holds partial metadata within structured fields when panel deactivates', () => {
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [true, false, false],
+        setRef: () => () => {},
+      })
+      vi.useFakeTimers()
+
+      const { rerender } = render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      const commitEntries = screen.getAllByTestId('commit-entry')
+      const partialHash =
+        commitEntries[0].querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      expect(partialHash.length).toBeGreaterThan(0)
+
+      vi.mocked(useActivePanel).mockReturnValue({
+        active: [false, false, false],
+        setRef: () => () => {},
+      })
+      rerender(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(5000)
+      })
+
+      const heldEntries = screen.getAllByTestId('commit-entry')
+      const heldHash =
+        heldEntries[0].querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      expect(heldHash).toBe(partialHash)
+      expect(heldEntries[0].querySelector('[data-testid="commit-institution"]')).toBeNull()
+    })
+  })
+
   describe('issue #157 - desktop sticky panel scroll contract', () => {
     it('timeline panels do not use horizontal scroll or translateX', () => {
       render(<TimelineSection />)
