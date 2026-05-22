@@ -1,29 +1,7 @@
-import { motion, useInView } from 'framer-motion'
-import { useRef } from 'react'
-import { hoverEase } from '../animations/variants'
+import { useEffect, useRef, useState } from 'react'
 import { StickySection } from './StickySection'
 
-const TILE_REVEAL_STEP = 0.12
-const TILE_REVEAL_DURATION = 0.5
-
-const tileStagger = {
-  hidden: { opacity: 0, scale: 0.95 },
-  visible: (order: number) => ({
-    opacity: 1,
-    scale: 1,
-    transition: { delay: order * TILE_REVEAL_STEP, duration: TILE_REVEAL_DURATION, ease: 'easeOut' as const },
-  }),
-}
-
-const gridStagger = {
-  hidden: {},
-  visible: {},
-}
-
-const tileVariants = {
-  ...tileStagger,
-  hover: hoverEase.hover,
-}
+const TILE_REVEAL_STEP_S = 0.12
 
 type Category = 'LANGUAGE' | 'FRAMEWORK' | 'TOOL' | 'ML / DL' | 'DATA'
 type TileColor = 'orange' | 'blue' | 'fuchsia' | 'peri' | 'dark' | 'platinum' | 'yellow'
@@ -51,11 +29,16 @@ const tiles: SkillTile[] = [
   { area: 'mn', category: 'TOOL', name: 'Git', color: 'dark' },
 ]
 
-const REVEAL_ORDER = ['py', 'js', 'dk', 're', 'cc', 'nd', 'nx', 'fl', 'gt', 'pg', 'fg', 'mn', 'pal'] as const
+export const REVEAL_ORDER = ['py', 'js', 'dk', 're', 'cc', 'nd', 'nx', 'fl', 'gt', 'pg', 'fg', 'mn', 'pal'] as const
 
 const revealOrderByArea = new Map<string, number>(
   REVEAL_ORDER.map((area, index) => [area, index]),
 )
+
+export function revealTransitionDelay(area: string): string {
+  const index = revealOrderByArea.get(area) ?? 0
+  return `${index * TILE_REVEAL_STEP_S}s`
+}
 
 const PALETTE = [
   'var(--color-atomic-tangerine)',
@@ -64,42 +47,52 @@ const PALETTE = [
   'var(--color-ultrasonic-blue)',
 ] as const
 
-function SkillTileCard({ tile }: { tile: SkillTile }) {
-  const revealOrder = revealOrderByArea.get(tile.area) ?? 0
-
+function SkillTileCard({ tile, visible }: { tile: SkillTile; visible: boolean }) {
   return (
-    <motion.div
-      variants={tileVariants}
-      custom={revealOrder}
-      whileHover="hover"
-      className={`bi bi-${tile.area} c-${tile.color}${tile.large ? ' bi-lg' : ''}`}
+    <div
+      className={`bi bi-${tile.area} c-${tile.color}${tile.large ? ' bi-lg' : ''}${visible ? ' in' : ''}`}
+      style={{ transitionDelay: revealTransitionDelay(tile.area) }}
     >
       <div className="bi-cat">{tile.category}</div>
       <div className="bi-name">{tile.name}</div>
-    </motion.div>
+    </div>
   )
 }
 
-function PaletteTile() {
-  const revealOrder = revealOrderByArea.get('pal') ?? 12
-
+function PaletteTile({ visible }: { visible: boolean }) {
   return (
-    <motion.div
-      variants={tileVariants}
-      custom={revealOrder}
-      className="bi bi-pal"
+    <div
+      className={`bi bi-pal${visible ? ' in' : ''}`}
+      style={{ transitionDelay: revealTransitionDelay('pal') }}
       data-testid="skills-palette"
     >
       {PALETTE.map((color, index) => (
         <div key={index} className="pswatch" style={{ background: color }} />
       ))}
-    </motion.div>
+    </div>
   )
 }
 
 export function SkillsSection() {
   const gridRef = useRef<HTMLDivElement>(null)
-  const isInView = useInView(gridRef, { margin: '-10% 0px -10% 0px' })
+  const [isInView, setIsInView] = useState(false)
+
+  useEffect(() => {
+    const grid = gridRef.current
+    if (!grid) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting)
+      },
+      { rootMargin: '-10% 0px -10% 0px' },
+    )
+
+    observer.observe(grid)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <StickySection id="skills" className="flex flex-col justify-center py-14 px-8 bg-graphite">
@@ -110,19 +103,12 @@ export function SkillsSection() {
           <div className="hscroll-rule" />
         </div>
 
-        <motion.div
-          ref={gridRef}
-          data-testid="skills-grid"
-          variants={gridStagger}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-          className="bento"
-        >
+        <div ref={gridRef} data-testid="skills-grid" className="bento">
           {tiles.map((tile) => (
-            <SkillTileCard key={tile.area} tile={tile} />
+            <SkillTileCard key={tile.area} tile={tile} visible={isInView} />
           ))}
-          <PaletteTile />
-        </motion.div>
+          <PaletteTile visible={isInView} />
+        </div>
       </div>
     </StickySection>
   )

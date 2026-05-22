@@ -1,108 +1,68 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
-import type { ReactElement, ReactNode } from 'react'
-import { SkillsSection } from './SkillsSection'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { act, render, screen } from '@testing-library/react'
+import { REVEAL_ORDER, SkillsSection, revealTransitionDelay } from './SkillsSection'
 
-const motionMock = vi.hoisted(() => ({
-  isInView: false,
-  divProps: [] as Array<Record<string, unknown>>,
-  useInView: vi.fn(),
-}))
+let observerCallback!: IntersectionObserverCallback
+let observedElement: Element | undefined
+let intersectionObserverOptions: IntersectionObserverInit | undefined
 
-vi.mock('framer-motion', async () => {
-  const React = await vi.importActual<typeof import('react')>('react')
-
-  function getText(children: unknown): string {
-    if (children == null || typeof children === 'boolean') {
-      return ''
+function stubIntersectionObserver() {
+  vi.stubGlobal('IntersectionObserver', vi.fn(function (
+    cb: IntersectionObserverCallback,
+    options?: IntersectionObserverInit,
+  ) {
+    observerCallback = cb
+    intersectionObserverOptions = options
+    return {
+      observe: vi.fn((element: Element) => {
+        observedElement = element
+      }),
+      disconnect: vi.fn(),
+      unobserve: vi.fn(),
     }
-
-    if (typeof children === 'string' || typeof children === 'number') {
-      return String(children)
-    }
-
-    if (Array.isArray(children)) {
-      return children.map(getText).join('')
-    }
-
-    if (React.isValidElement(children)) {
-      const element = children as ReactElement<{ children?: unknown }>
-      return getText(element.props.children)
-    }
-
-    return ''
-  }
-
-  function createMotionComponent(tagName: 'div' | 'section') {
-    return React.forwardRef<HTMLElement, Record<string, unknown>>(function MockMotionComponent(props, ref) {
-      const {
-        animate,
-        children,
-        custom,
-        initial,
-        transition,
-        variants,
-        whileHover,
-        ...domProps
-      } = props
-
-      if (tagName === 'div') {
-        motionMock.divProps.push({
-          animate,
-          custom,
-          initial,
-          text: getText(children),
-          transition,
-          variants,
-          whileHover,
-          'data-testid': domProps['data-testid'],
-        })
-      }
-
-      return React.createElement(tagName, { ...domProps, ref }, children as ReactNode)
-    })
-  }
-
-  return {
-    motion: {
-      div: createMotionComponent('div'),
-      section: createMotionComponent('section'),
-    },
-    useInView: motionMock.useInView.mockImplementation(() => motionMock.isInView),
-  }
-})
+  }))
+}
 
 function getSkillTile(name: string) {
   const tile = screen.getByText(name).closest('.bi')
   expect(tile).not.toBeNull()
-  return tile!
+  return tile as HTMLElement
 }
 
-function getSkillAnimation(name: string) {
-  const animation = motionMock.divProps.find(props => String(props.text).includes(name))
-  expect(animation).toBeDefined()
-  return animation!
+function getTileTransitionDelay(name: string) {
+  return getSkillTile(name).style.transitionDelay
 }
 
-function getGridAnimation() {
-  const animations = motionMock.divProps.filter(props => props['data-testid'] === 'skills-grid')
-  const animation = animations[animations.length - 1]
-  expect(animation).toBeDefined()
-  return animation!
+function parseTransitionDelaySeconds(delay: string) {
+  return Number.parseFloat(delay)
 }
 
-function getLatestTileRevealOrder() {
-  return motionMock.divProps
-    .filter(props => props.text !== undefined && props.text !== '')
-    .slice(-12)
-    .map(props => [props.text, props.custom])
+function getLatestSkillTileTransitionDelays() {
+  const grid = screen.getByTestId('skills-grid')
+  return Array.from(grid.querySelectorAll('.bi')).map((tile) => {
+    const name = tile.querySelector('.bi-name')?.textContent ?? 'palette'
+    return [name, (tile as HTMLElement).style.transitionDelay] as const
+  })
+}
+
+function fireIntersection(isIntersecting: boolean) {
+  act(() => {
+    observerCallback(
+      [{ target: observedElement!, isIntersecting } as unknown as IntersectionObserverEntry],
+      {} as IntersectionObserver,
+    )
+  })
 }
 
 describe('SkillsSection', () => {
   beforeEach(() => {
-    motionMock.isInView = false
-    motionMock.divProps = []
-    motionMock.useInView.mockClear()
+    observedElement = undefined
+    intersectionObserverOptions = undefined
+    stubIntersectionObserver()
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
   })
 
   it('renders a section element with id="skills"', () => {
@@ -210,28 +170,33 @@ describe('SkillsSection', () => {
   it('reveals larger anchor skill tiles before smaller supporting tiles', () => {
     render(<SkillsSection />)
 
-    expect(getSkillAnimation('Python').custom).toBeLessThan(getSkillAnimation('Docker').custom as number)
-    expect(getSkillAnimation('PyTorch').custom).toBeLessThan(getSkillAnimation('Git').custom as number)
+    expect(parseTransitionDelaySeconds(getTileTransitionDelay('Python')))
+      .toBeLessThan(parseTransitionDelaySeconds(getTileTransitionDelay('Docker')))
+    expect(parseTransitionDelaySeconds(getTileTransitionDelay('PyTorch')))
+      .toBeLessThan(parseTransitionDelaySeconds(getTileTransitionDelay('Git')))
   })
 
   it('assigns every skill tile one deterministic reveal position across renders', () => {
     const { unmount } = render(<SkillsSection />)
 
-    const firstOrder = motionMock.divProps
-      .filter(props => props.text !== undefined && props.text !== '')
-      .map(props => [props.text, props.custom])
+    const firstOrder = getLatestSkillTileTransitionDelays()
 
     unmount()
-    motionMock.divProps = []
 
     render(<SkillsSection />)
 
-    const secondOrder = motionMock.divProps
-      .filter(props => props.text !== undefined && props.text !== '')
-      .map(props => [props.text, props.custom])
+    const secondOrder = getLatestSkillTileTransitionDelays()
 
-    expect(new Set(firstOrder.map(([, order]) => order)).size).toBe(12)
+    expect(new Set(firstOrder.map(([, delay]) => delay)).size).toBe(13)
     expect(firstOrder).toEqual(secondOrder)
+  })
+
+  it('derives transitionDelay values from the static reveal-order array index', () => {
+    render(<SkillsSection />)
+
+    for (const [index, area] of REVEAL_ORDER.entries()) {
+      expect(revealTransitionDelay(area)).toBe(`${index * 0.12}s`)
+    }
   })
 
   it('skill tiles use sharp edges (no rounded corners)', () => {
@@ -252,80 +217,48 @@ describe('SkillsSection', () => {
     expect(children[children.length - 1]).toHaveAttribute('data-testid', 'skills-palette')
   })
 
-  it('tiles animate from hidden opacity and scale to visible opacity and scale', () => {
+  it('keeps tiles hidden until the skills grid enters the viewport', () => {
     render(<SkillsSection />)
 
-    const tileAnimations = motionMock.divProps.filter(props => props.text !== undefined && props.text !== '')
-
-    expect(tileAnimations).toHaveLength(12)
-
-    for (const tileAnimation of tileAnimations) {
-      const variants = tileAnimation.variants as {
-        hidden: unknown
-        visible: (order: number) => unknown
-      }
-
-      expect(variants).toMatchObject({
-        hidden: { opacity: 0, scale: 0.95 },
-      })
-      expect(variants.visible(tileAnimation.custom as number)).toMatchObject({
-        opacity: 1,
-        scale: 1,
-        transition: { delay: (tileAnimation.custom as number) * 0.12, duration: 0.5, ease: 'easeOut' },
-      })
-      expect(tileAnimation.initial).toBeUndefined()
-      expect(tileAnimation.whileHover).toBe('hover')
+    for (const tile of document.querySelectorAll('.bi')) {
+      expect(tile).not.toHaveClass('in')
     }
   })
 
-  it('grid switches to visible on viewport entry while tiles handle their own reveal delays', () => {
-    motionMock.isInView = true
-
+  it('observes the skills grid with IntersectionObserver root margin', () => {
     render(<SkillsSection />)
 
-    const gridAnimation = getGridAnimation()
-
-    expect(gridAnimation).toMatchObject({
-      animate: 'visible',
-      initial: 'hidden',
-      variants: {
-        hidden: {},
-        visible: {},
-      },
-    })
-    expect(motionMock.useInView).toHaveBeenCalledWith(
-      expect.objectContaining({ current: expect.any(HTMLElement) }),
-      { margin: '-10% 0px -10% 0px' },
-    )
+    expect(observedElement).toBe(screen.getByTestId('skills-grid'))
+    expect(intersectionObserverOptions).toEqual({ rootMargin: '-10% 0px -10% 0px' })
   })
 
-  it('keeps tile animation hidden until the skills grid enters the viewport', () => {
+  it('reveals tiles when the grid enters the viewport', () => {
     render(<SkillsSection />)
 
-    const gridAnimation = getGridAnimation()
+    fireIntersection(true)
 
-    expect(gridAnimation).toMatchObject({
-      animate: 'hidden',
-      initial: 'hidden',
-    })
+    for (const tile of document.querySelectorAll('.bi')) {
+      expect(tile).toHaveClass('in')
+    }
   })
 
   it('resets to hidden after leaving the viewport and replays the deterministic order on re-entry', () => {
-    motionMock.isInView = true
-    const { rerender } = render(<SkillsSection />)
+    render(<SkillsSection />)
 
-    const firstRevealOrder = getLatestTileRevealOrder()
-    expect(getGridAnimation()).toMatchObject({ animate: 'visible' })
+    fireIntersection(true)
 
-    motionMock.isInView = false
-    rerender(<SkillsSection />)
+    const firstRevealOrder = getLatestSkillTileTransitionDelays()
+    expect(document.querySelectorAll('.bi.in')).toHaveLength(13)
 
-    expect(getGridAnimation()).toMatchObject({ animate: 'hidden' })
+    fireIntersection(false)
 
-    motionMock.isInView = true
-    rerender(<SkillsSection />)
+    for (const tile of document.querySelectorAll('.bi')) {
+      expect(tile).not.toHaveClass('in')
+    }
 
-    expect(getGridAnimation()).toMatchObject({ animate: 'visible' })
-    expect(getLatestTileRevealOrder()).toEqual(firstRevealOrder)
+    fireIntersection(true)
+
+    expect(document.querySelectorAll('.bi.in')).toHaveLength(13)
+    expect(getLatestSkillTileTransitionDelays()).toEqual(firstRevealOrder)
   })
 })
