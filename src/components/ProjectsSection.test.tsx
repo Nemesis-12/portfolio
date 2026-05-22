@@ -303,6 +303,18 @@ describe('ProjectsSection', () => {
     expect(carouselTrack.style.transform).toBe(`translateX(${-0.5 * (trackWidth - 1000)}px)`)
   })
 
+  it('section header uses hscroll classes with orange slash and pixel font name', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    expect(document.querySelector('.hscroll-head')).toBeInTheDocument()
+    expect(document.querySelector('.hscroll-no')?.textContent).toBe('// 01')
+    expect(document.querySelector('.hscroll-name')?.textContent).toBe('PROJECTS')
+    expect(document.querySelector('.hscroll-rule')).toBeInTheDocument()
+    expect(screen.getByTestId('progress-indicator')).toHaveClass('hscroll-progress')
+    expect(screen.getByTestId('progress-fill')).toHaveClass('hscroll-progress-fill')
+    expect(screen.getByTestId('progress-fill').parentElement).toHaveClass('hscroll-progress-track')
+  })
+
   it('section header is separate from carousel track', () => {
     render(<ProjectsSection projects={mockProjects} />)
 
