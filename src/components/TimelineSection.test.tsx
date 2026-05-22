@@ -3,13 +3,29 @@ import { render, screen, act } from '@testing-library/react'
 import TimelineSection from './TimelineSection'
 import { useActivePanel } from '../hooks/useActivePanel'
 
+const noopSetRef = () => () => {}
+
+function mockActivePanelState(
+  active: boolean[],
+  options: { activeIndex?: number; progress?: number } = {},
+) {
+  const detectedIndex = active.findIndex(Boolean)
+  return {
+    active,
+    activeIndex: options.activeIndex ?? (detectedIndex === -1 ? 0 : detectedIndex),
+    progress: options.progress ?? 0,
+    setRef: noopSetRef,
+  }
+}
+
 vi.mock('../hooks/useActivePanel', () => ({
-  useActivePanel: vi.fn(() => ({ active: [false, false, false], setRef: () => () => {} })),
+  useActivePanel: vi.fn(() => mockActivePanelState([false, false, false])),
 }))
 
 describe('TimelineSection', () => {
   afterEach(() => {
     vi.useRealTimers()
+    vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, false, false]))
   })
 
   it('each entry uses tl-panel layout class', () => {
@@ -22,10 +38,7 @@ describe('TimelineSection', () => {
   })
 
   it('entries start empty when no panel is active', () => {
-    vi.mocked(useActivePanel).mockReturnValue({
-      active: [false, false, false],
-      setRef: () => () => {},
-    })
+    vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, false, false]))
 
     render(<TimelineSection />)
 
@@ -35,10 +48,7 @@ describe('TimelineSection', () => {
 
   describe('issue #78 - newest-first ordering', () => {
     it('entries render in newest-first order (NetApp before M.S. before B.S.)', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, true, true],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, true, true]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -116,10 +126,7 @@ describe('TimelineSection', () => {
     })
 
     it('Typewriter types commit metadata when panel becomes active', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -135,10 +142,7 @@ describe('TimelineSection', () => {
     })
 
     it('Typewriter types all fields to completion when panel stays active', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -158,10 +162,7 @@ describe('TimelineSection', () => {
     })
 
     it('Typewriter types bullets when present', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -177,10 +178,7 @@ describe('TimelineSection', () => {
     })
 
     it('inactive panels remain empty', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -196,10 +194,7 @@ describe('TimelineSection', () => {
     })
 
     it('Typewriter holds position when panel is scrolled away mid-type', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -210,10 +205,7 @@ describe('TimelineSection', () => {
 
       const partialText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
 
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [false, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, false, false]))
       rerender(<TimelineSection />)
 
       act(() => {
@@ -225,10 +217,7 @@ describe('TimelineSection', () => {
     })
 
     it('Typewriter resumes from held position when panel becomes active again', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -238,19 +227,13 @@ describe('TimelineSection', () => {
       })
       const partialText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
 
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [false, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, false, false]))
       rerender(<TimelineSection />)
       act(() => {
         vi.advanceTimersByTime(1000)
       })
 
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       rerender(<TimelineSection />)
       act(() => {
         vi.advanceTimersByTime(500)
@@ -261,10 +244,7 @@ describe('TimelineSection', () => {
     })
 
     it('issue #98 - longest bullet completes within 2.5s', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -283,10 +263,7 @@ describe('TimelineSection', () => {
 
   describe('issue #159 - preserve per-panel typewriter progress', () => {
     it('next panel activation does not clear previous panel partial text', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -299,10 +276,7 @@ describe('TimelineSection', () => {
       const panel1Partial = commitEntries[0].querySelector('[data-typewriter-line]')?.textContent ?? ''
       expect(panel1Partial.length).toBeGreaterThan(0)
 
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [false, true, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, true, false]))
       rerender(<TimelineSection />)
 
       act(() => {
@@ -317,10 +291,7 @@ describe('TimelineSection', () => {
     })
 
     it('reactivate does not blank partial text before resuming', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -332,16 +303,10 @@ describe('TimelineSection', () => {
       const partialText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
       expect(partialText.length).toBeGreaterThan(0)
 
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [false, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, false, false]))
       rerender(<TimelineSection />)
 
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       rerender(<TimelineSection />)
 
       const immediateText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
@@ -349,10 +314,7 @@ describe('TimelineSection', () => {
     })
 
     it('each panel retains independent partial progress when switching panels', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -366,10 +328,7 @@ describe('TimelineSection', () => {
         commitEntries[0].querySelector('[data-typewriter-line]')?.textContent ?? ''
       expect(panel1Partial.length).toBeGreaterThan(0)
 
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [false, true, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, true, false]))
       rerender(<TimelineSection />)
 
       act(() => {
@@ -384,10 +343,7 @@ describe('TimelineSection', () => {
       expect(panel1Held).toBe(panel1Partial)
       expect(panel2Partial.length).toBeGreaterThan(0)
 
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       rerender(<TimelineSection />)
 
       const panel1Immediate =
@@ -400,10 +356,7 @@ describe('TimelineSection', () => {
     })
 
     it('completed panel text remains when next panel activates', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -420,10 +373,7 @@ describe('TimelineSection', () => {
       expect(panel1Texts).toContain('commit d4e8f2c')
       expect(panel1Texts).toContain('NETAPP INC.')
 
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [false, true, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, true, false]))
       rerender(<TimelineSection />)
 
       act(() => {
@@ -441,10 +391,7 @@ describe('TimelineSection', () => {
 
   describe('issue #160 - structured resume-backed panel content', () => {
     it('renders commit metadata as distinct fields', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -468,10 +415,7 @@ describe('TimelineSection', () => {
     })
 
     it('renders institution as its own heading', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -487,10 +431,7 @@ describe('TimelineSection', () => {
     })
 
     it('renders role as its own line', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -505,10 +446,7 @@ describe('TimelineSection', () => {
     })
 
     it('renders bullets as semantic list items', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -527,10 +465,7 @@ describe('TimelineSection', () => {
     })
 
     it('preserves data-typewriter-line markers on typed fields', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -546,10 +481,7 @@ describe('TimelineSection', () => {
     })
 
     it('omits commit-details list when entry has no bullets', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [false, true, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, true, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -567,10 +499,7 @@ describe('TimelineSection', () => {
     })
 
     it('holds partial metadata within structured fields when panel deactivates', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -584,10 +513,7 @@ describe('TimelineSection', () => {
         commitEntries[0].querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
       expect(partialHash.length).toBeGreaterThan(0)
 
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [false, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, false, false]))
       rerender(<TimelineSection />)
 
       act(() => {
@@ -604,10 +530,7 @@ describe('TimelineSection', () => {
 
   describe('issue #161 - v4 desktop panel visual hierarchy', () => {
     it('commit hash uses tl-commit, author and date use tl-meta', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -624,10 +547,7 @@ describe('TimelineSection', () => {
     })
 
     it('institution heading uses tl-org portfolio class', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -643,10 +563,7 @@ describe('TimelineSection', () => {
     })
 
     it('role uses tl-title portfolio class', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -662,10 +579,7 @@ describe('TimelineSection', () => {
     })
 
     it('bullets use tl-bullets portfolio class', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -689,10 +603,7 @@ describe('TimelineSection', () => {
     })
 
     it('inserts tl-sep spacer before institution heading', () => {
-      vi.mocked(useActivePanel).mockReturnValue({
-        active: [true, false, false],
-        setRef: () => () => {},
-      })
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -786,6 +697,87 @@ describe('TimelineSection', () => {
       stickyPanels.forEach((panel) => {
         expect((panel as HTMLElement).style.willChange).toBe('transform, opacity')
       })
+    })
+  })
+
+  describe('issue #206 - timeline section chrome', () => {
+    it('renders // 03 TIMELINE header with hscroll classes', () => {
+      render(<TimelineSection />)
+
+      expect(document.querySelector('.hscroll-head')).toBeInTheDocument()
+      expect(document.querySelector('.hscroll-no')?.textContent).toBe('// 03')
+      expect(document.querySelector('.hscroll-name')?.textContent).toBe('TIMELINE')
+      expect(document.querySelector('.hscroll-rule')).toBeInTheDocument()
+    })
+
+    it('renders progress counter with resume entry count 01 / 03', () => {
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+
+      render(<TimelineSection />)
+
+      expect(screen.getByTestId('progress-count')).toHaveTextContent('01 / 03')
+    })
+
+    it('progress counter advances with active panel index', () => {
+      vi.mocked(useActivePanel).mockReturnValue(
+        mockActivePanelState([false, true, false], { activeIndex: 1, progress: 0.5 }),
+      )
+
+      render(<TimelineSection />)
+
+      expect(screen.getByTestId('progress-count')).toHaveTextContent('02 / 03')
+    })
+
+    it('progress fill width reflects scroll progress', () => {
+      vi.mocked(useActivePanel).mockReturnValue(
+        mockActivePanelState([false, true, false], { activeIndex: 1, progress: 0.5 }),
+      )
+
+      render(<TimelineSection />)
+
+      expect(screen.getByTestId('progress-fill')).toHaveStyle({ width: '50%' })
+    })
+
+    it('uses hscroll-progress classes for counter and bar', () => {
+      render(<TimelineSection />)
+
+      expect(document.querySelector('.hscroll-progress')).toBeInTheDocument()
+      expect(document.querySelector('.hscroll-progress-track')).toBeInTheDocument()
+      expect(document.querySelector('.hscroll-progress-fill')).toBeInTheDocument()
+    })
+
+    it('section chrome renders once not per panel', () => {
+      render(<TimelineSection />)
+
+      expect(document.querySelectorAll('.hscroll-head')).toHaveLength(1)
+    })
+
+    it('renders SCROLL ↓ hint when on first panel', () => {
+      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+
+      render(<TimelineSection />)
+
+      const hint = screen.getByTestId('scroll-hint')
+      expect(hint).toHaveTextContent(/SCROLL/)
+      expect(hint).toHaveTextContent(/↓/)
+      expect(hint).toHaveAttribute('data-visible', 'true')
+      expect(hint).toHaveClass('hscroll-hint')
+    })
+
+    it('hides scroll hint after first panel beat', () => {
+      vi.mocked(useActivePanel).mockReturnValue(
+        mockActivePanelState([false, true, false], { activeIndex: 1, progress: 0.5 }),
+      )
+
+      render(<TimelineSection />)
+
+      expect(screen.getByTestId('scroll-hint')).toHaveAttribute('data-visible', 'false')
+    })
+
+    it('scroll hint is visually secondary (aria-hidden)', () => {
+      render(<TimelineSection />)
+
+      expect(screen.getByTestId('scroll-hint')).toHaveAttribute('aria-hidden', 'true')
     })
   })
 })
