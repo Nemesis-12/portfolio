@@ -340,11 +340,14 @@ describe('ProjectsSection', () => {
     const projectsSection = document.getElementById('projects')
     const stickyViewport = projectsSection?.querySelector('[data-sticky-viewport="true"]')
     expect(stickyViewport).toBeInTheDocument()
+    expect(stickyViewport).toHaveClass('hscroll-sticky')
+  })
 
-    const style = window.getComputedStyle(stickyViewport!)
-    expect(style.height).toBe('100vh')
-    expect(style.top).toBe('0px')
-    expect(style.position).toBe('sticky')
+  it('marks the outer projects wrapper as a card-deck scroll host', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const projectsSection = document.getElementById('projects')
+    expect(projectsSection).toHaveAttribute('data-sticky-scroll-host', 'true')
   })
 
   it('section header is outside the carousel track and remains pinned', () => {

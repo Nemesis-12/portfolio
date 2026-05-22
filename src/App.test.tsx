@@ -36,6 +36,20 @@ function rectAtTop(top: number): DOMRect {
   }
 }
 
+function rectWithHeight(top: number, height: number): DOMRect {
+  return {
+    top,
+    right: 1000,
+    bottom: top + height,
+    left: 0,
+    width: 1000,
+    height,
+    x: 0,
+    y: top,
+    toJSON: () => ({}),
+  }
+}
+
 describe('App shell', () => {
   afterEach(() => {
     vi.restoreAllMocks()
@@ -294,6 +308,117 @@ describe('App shell', () => {
         expect(panel).toHaveClass('sticky')
         expect(panel).toHaveClass('top-0')
       })
+    })
+  })
+
+  describe('issue #187 - card-deck stacking across all sections', () => {
+    const stickyMajorSectionIds = ['home', 'skills', 'contact'] as const
+    const timelinePanelIds = ['timeline', 'timeline-a3f9d2b', 'timeline-b7c3e1a'] as const
+
+    it.each([...stickyMajorSectionIds, ...timelinePanelIds])(
+      '%s carries sticky top-0 positioning',
+      (id) => {
+        render(<App />)
+        const section = document.getElementById(id)
+
+        expect(section).toBeInTheDocument()
+        expect(section).toHaveClass('sticky')
+        expect(section).toHaveClass('top-0')
+      },
+    )
+
+    it('projects outer scroll host pins the carousel viewport at top: 0 independently', () => {
+      render(<App />)
+
+      const projects = document.getElementById('projects')
+      const stickyViewport = projects?.querySelector('[data-sticky-viewport="true"]')
+
+      expect(projects).toHaveAttribute('data-sticky-scroll-host', 'true')
+      expect(stickyViewport).toHaveClass('hscroll-sticky')
+    })
+
+    it('stack surfaces stay sharp with no blur or border-radius styling', () => {
+      render(<App />)
+
+      document.querySelectorAll('[data-sticky-section="true"]').forEach((surface) => {
+        const element = surface as HTMLElement
+
+        expect(element.className).not.toMatch(/blur|rounded/)
+        expect(element.style.filter).toBe('')
+        expect(element.style.borderRadius).toBe('')
+      })
+    })
+
+    it('scales and dims outgoing sections as the next section enters', async () => {
+      render(<App />)
+
+      const home = document.getElementById('home') as HTMLElement
+      const projects = document.getElementById('projects') as HTMLElement
+
+      vi.spyOn(projects, 'getBoundingClientRect').mockReturnValue(rectAtTop(400))
+      Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        value: 800,
+      })
+
+      await act(async () => {
+        window.dispatchEvent(new Event('scroll'))
+      })
+
+      expect(home.style.transform).toBe('scale(0.975)')
+      expect(home.style.opacity).toBe('0.875')
+      expect(home.style.filter).toBe('')
+    })
+
+    it('clamps outgoing section depth once the next section passes the viewport top', async () => {
+      render(<App />)
+
+      const home = document.getElementById('home') as HTMLElement
+      const projects = document.getElementById('projects') as HTMLElement
+
+      vi.spyOn(projects, 'getBoundingClientRect').mockReturnValue(rectAtTop(-200))
+      Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        value: 800,
+      })
+
+      await act(async () => {
+        window.dispatchEvent(new Event('scroll'))
+      })
+
+      expect(home.style.transform).toBe('scale(0.95)')
+      expect(home.style.opacity).toBe('0.75')
+    })
+
+    it('keeps projects carousel translateX independent from card-deck depth transforms', async () => {
+      render(<App />)
+
+      const projects = document.getElementById('projects') as HTMLElement
+      const skills = document.getElementById('skills') as HTMLElement
+      const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
+
+      vi.spyOn(skills, 'getBoundingClientRect').mockReturnValue(rectAtTop(400))
+      vi.spyOn(projects, 'getBoundingClientRect').mockReturnValue(rectWithHeight(-800, 3200))
+      Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        value: 800,
+      })
+      Object.defineProperty(carouselTrack, 'scrollWidth', {
+        configurable: true,
+        value: 2000,
+      })
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        value: 1000,
+      })
+
+      await act(async () => {
+        window.dispatchEvent(new Event('scroll'))
+      })
+
+      expect(projects.style.transform).toBe('scale(0.975)')
+      expect(projects.style.transform).not.toContain('translateX')
+      expect(carouselTrack.style.transform).toContain('translateX')
     })
   })
 })
