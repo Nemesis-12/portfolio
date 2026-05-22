@@ -450,5 +450,34 @@ describe('useActivePanel', () => {
 
       expect(result.current.progress).toBe(1)
     })
+
+    it('progress interpolates between panel beats', () => {
+      setViewport(1000, 800)
+
+      const { result } = renderHook(() => {
+        const elements: HTMLElement[] = []
+        const rects = [
+          { top: -400, height: 800 },
+          { top: 400, height: 800 },
+          { top: 1200, height: 800 },
+        ]
+        for (let i = 0; i < 3; i++) {
+          const el = document.createElement('div')
+          el.getBoundingClientRect = vi.fn(() =>
+            createRect(rects[i].top, rects[i].height)
+          )
+          elements.push(el)
+        }
+
+        const hook = useActivePanel(3)
+        elements.forEach((el, i) => hook.setRef(i)(el))
+
+        return hook
+      })
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+
+      expect(result.current.progress).toBeCloseTo(0.25)
+    })
   })
 })

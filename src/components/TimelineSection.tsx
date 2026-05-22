@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTypewriter } from '../animations/useTypewriter'
 import { useActivePanel } from '../hooks/useActivePanel'
 import { StickySection } from './StickySection'
@@ -11,6 +11,7 @@ function formatPanelCount(index: number, total: number): string {
 
 function useTimelineInView(entryCount: number): boolean {
   const [inView, setInView] = useState(true)
+  const visibilityRef = useRef(new Map<Element, boolean>())
 
   useEffect(() => {
     const sections = [
@@ -22,9 +23,14 @@ function useTimelineInView(entryCount: number): boolean {
       return
     }
 
+    visibilityRef.current = new Map(sections.map((section) => [section, true]))
+
     const observer = new IntersectionObserver(
       (entries) => {
-        setInView(entries.some((entry) => entry.isIntersecting))
+        entries.forEach((entry) => {
+          visibilityRef.current.set(entry.target, entry.isIntersecting)
+        })
+        setInView(Array.from(visibilityRef.current.values()).some(Boolean))
       },
       { threshold: 0 },
     )

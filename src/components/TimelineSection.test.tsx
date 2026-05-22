@@ -25,6 +25,7 @@ vi.mock('../hooks/useActivePanel', () => ({
 describe('TimelineSection', () => {
   afterEach(() => {
     vi.useRealTimers()
+    vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, false, false]))
   })
 
   it('each entry uses tl-panel layout class', () => {

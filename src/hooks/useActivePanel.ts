@@ -21,11 +21,13 @@ function computeActiveIndex(panelRefs: (HTMLElement | null)[]): number {
   return activeIndex
 }
 
-export function computeTimelineProgress(panelRefs: (HTMLElement | null)[]): number {
+export function computeTimelineProgress(
+  panelRefs: (HTMLElement | null)[],
+  activeIndex: number,
+): number {
   const count = panelRefs.length
   if (count <= 1) return 0
 
-  const activeIndex = computeActiveIndex(panelRefs)
   const activeRef = panelRefs[activeIndex]
   if (!activeRef) return activeIndex / (count - 1)
 
@@ -51,7 +53,7 @@ export function useActivePanel(panelCount: number): {
   const updateActiveIndex = useCallback(() => {
     const next = computeActiveIndex(panelRefs.current)
     setActiveIndex(next)
-    setProgress(computeTimelineProgress(panelRefs.current))
+    setProgress(computeTimelineProgress(panelRefs.current, next))
   }, [])
 
   useEffect(() => {
