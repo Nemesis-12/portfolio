@@ -36,11 +36,23 @@ describe('issue #214 - card-deck depth regression guard', () => {
     expect(offenders).toEqual([])
   })
 
+  it('does not mark major sections with data-sticky-section in source', () => {
+    const sourceFiles = collectSourceFiles(srcDir)
+    const offenders = sourceFiles.filter((filePath) =>
+      readFileSync(filePath, 'utf8').includes('data-sticky-section'),
+    )
+
+    expect(offenders).toEqual([])
+  })
+
   it('does not style global sticky section surfaces for card-deck depth', () => {
     const portfolioCss = readFileSync(join(srcDir, 'portfolio.css'), 'utf8')
 
     expect(portfolioCss).not.toMatch(
       /\[data-sticky-section="true"\]:not\(\[data-sticky-scroll-host="true"\]\)\{[^}]*position:sticky/,
+    )
+    expect(portfolioCss).not.toMatch(
+      /\[data-sticky-scroll-host="true"\]\{[^}]*will-change:transform,opacity/,
     )
   })
 })

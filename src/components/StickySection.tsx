@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useRef, type ElementType, type ReactNode } from 'react'
+import { forwardRef, type ElementType, type ReactNode } from 'react'
 
 interface Props {
   id: string
@@ -9,29 +9,13 @@ interface Props {
 
 export const StickySection = forwardRef<HTMLElement, Props>(function StickySection(
   { id, children, className = '', as = 'section' },
-  forwardedRef
+  ref,
 ) {
-  const sectionRef = useRef<HTMLElement>(null)
   const Component = as as ElementType
-  const setSectionRef = useCallback(
-    (node: HTMLElement | null) => {
-      sectionRef.current = node
-
-      if (typeof forwardedRef === 'function') {
-        forwardedRef(node)
-        return
-      }
-
-      if (forwardedRef) {
-        forwardedRef.current = node
-      }
-    },
-    [forwardedRef]
-  )
 
   return (
     <Component
-      ref={setSectionRef}
+      ref={ref}
       id={id}
       className={`min-h-screen ${className}`.trim()}
     >
