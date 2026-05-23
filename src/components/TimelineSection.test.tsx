@@ -1,7 +1,18 @@
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, act } from '@testing-library/react'
 import TimelineSection from './TimelineSection'
+import { getTimelineTrackTranslate } from './timelineGeometry'
 import { useTimelineScroll } from '../hooks/useTimelineScroll'
+
+const timelineSectionSource = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), 'TimelineSection.tsx'),
+  'utf8',
+)
+
+const DEFAULT_ACTIVE = [true, false, false] as const
 
 function mockTimelineScrollState(
   active: boolean[],
@@ -15,12 +26,12 @@ function mockTimelineScrollState(
     active,
     activeIndex,
     progress: options.progress ?? (entryCount <= 1 ? 0 : activeIndex / (entryCount - 1)),
-    tx: options.tx ?? 0,
+    tx: options.tx ?? getTimelineTrackTranslate(activeIndex, entryCount, 1000),
   }
 }
 
 vi.mock('../hooks/useTimelineScroll', () => ({
-  useTimelineScroll: vi.fn(() => mockTimelineScrollState([false, false, false])),
+  useTimelineScroll: vi.fn(() => mockTimelineScrollState([...DEFAULT_ACTIVE])),
 }))
 
 function getTimelinePanel(contentIndex: number) {
@@ -30,7 +41,7 @@ function getTimelinePanel(contentIndex: number) {
 describe('TimelineSection', () => {
   afterEach(() => {
     vi.useRealTimers()
-    vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, false, false]))
+    vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([...DEFAULT_ACTIVE]))
   })
 
   it('each entry uses tl-panel layout class', () => {
@@ -42,7 +53,7 @@ describe('TimelineSection', () => {
     })
   })
 
-  it('entries start empty when no panel is active', () => {
+  it('entries stay empty when scroll state marks every panel inactive', () => {
     vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, false, false]))
 
     render(<TimelineSection />)
@@ -780,6 +791,155 @@ describe('TimelineSection', () => {
       render(<TimelineSection />)
 
       expect(screen.getByTestId('scroll-hint')).toHaveAttribute('aria-hidden', 'true')
+    })
+  })
+
+  describe('issue #221 - active panel progression and typewriter persistence', () => {
+    it('activates the newest entry by default from useTimelineScroll', () => {
+      render(<TimelineSection />)
+
+      expect(useTimelineScroll).toHaveBeenCalledWith(expect.objectContaining({ current: null }), 3)
+      expect(getTimelinePanel(0).getAttribute('data-content-index')).toBe('0')
+      expect(getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')).toBeNull()
+    })
+
+    it('derives active panels from useTimelineScroll instead of useActivePanel', () => {
+      expect(timelineSectionSource).toContain('useTimelineScroll')
+      expect(timelineSectionSource).not.toContain('useActivePanel')
+    })
+
+    it('maps scroll progression to older content indexes and track translate', () => {
+      const scenarios = [
+        {
+          active: [true, false, false] as boolean[],
+          activeIndex: 0,
+          progress: 0,
+          tx: -2000,
+        },
+        {
+          active: [false, true, false] as boolean[],
+          activeIndex: 1,
+          progress: 0.5,
+          tx: -1000,
+        },
+        {
+          active: [false, false, true] as boolean[],
+          activeIndex: 2,
+          progress: 1,
+          tx: 0,
+        },
+      ] as const
+
+      for (const scenario of scenarios) {
+        vi.mocked(useTimelineScroll).mockReturnValue(
+          mockTimelineScrollState([...scenario.active], {
+            activeIndex: scenario.activeIndex,
+            progress: scenario.progress,
+            tx: scenario.tx,
+          }),
+        )
+
+        const { unmount } = render(<TimelineSection />)
+
+        expect(screen.getByTestId('progress-count')).toHaveTextContent(
+          `${String(scenario.activeIndex + 1).padStart(2, '0')} / 03`,
+        )
+        expect(document.querySelector('[data-timeline-track="true"]')).toHaveStyle({
+          transform: `translateX(${scenario.tx}px)`,
+        })
+
+        const activePanel = document.querySelector(
+          `[data-content-index="${scenario.activeIndex}"]`,
+        )
+        expect(activePanel?.querySelector('[data-testid="commit-hash"]')).toBeNull()
+
+        unmount()
+      }
+    })
+
+    it('keeps typed content visible when the active panel deactivates', () => {
+      vi.useFakeTimers()
+
+      const { rerender } = render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      const partialHash =
+        getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      expect(partialHash.length).toBeGreaterThan(0)
+
+      vi.mocked(useTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([false, true, false], { activeIndex: 1, progress: 0.5, tx: -1000 }),
+      )
+      rerender(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(5000)
+      })
+
+      const heldHash =
+        getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      expect(heldHash).toBe(partialHash)
+    })
+
+    it('starts typewriter on the newest panel at section entry', () => {
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      const newestPartial =
+        getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      const middlePartial =
+        getTimelinePanel(1).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+
+      expect(newestPartial.length).toBeGreaterThan(0)
+      expect(middlePartial).toBe('')
+    })
+
+    it('resumes typing on a panel when scroll reactivates it', () => {
+      vi.useFakeTimers()
+
+      const { rerender } = render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      const partialHash =
+        getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      expect(partialHash.length).toBeGreaterThan(0)
+
+      vi.mocked(useTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([false, true, false], { activeIndex: 1, progress: 0.5, tx: -1000 }),
+      )
+      rerender(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(5000)
+      })
+
+      const heldHash =
+        getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      expect(heldHash).toBe(partialHash)
+
+      vi.mocked(useTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([true, false, false], { activeIndex: 0, progress: 0, tx: -2000 }),
+      )
+      rerender(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(200)
+      })
+
+      const resumedHash =
+        getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      expect(resumedHash.length).toBeGreaterThan(partialHash.length)
     })
   })
 })
