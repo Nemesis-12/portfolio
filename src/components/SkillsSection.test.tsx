@@ -264,6 +264,33 @@ describe('SkillsSection', () => {
     }
   })
 
+  it('clears transition delays after leaving the viewport', () => {
+    render(<SkillsSection />)
+
+    fireIntersection(true)
+    expect(new Set(getLatestSkillTileTransitionDelays().map(([, delay]) => delay)).size).toBe(13)
+
+    fireIntersection(false)
+
+    for (const [, delay] of getLatestSkillTileTransitionDelays()) {
+      expect(delay).toBe('0s')
+    }
+  })
+
+  it('keeps the same reveal order while the grid stays in the viewport', () => {
+    const random = vi.spyOn(Math, 'random')
+    random.mockReturnValue(0)
+
+    render(<SkillsSection />)
+
+    fireIntersection(true)
+    const firstDelays = getLatestSkillTileTransitionDelays()
+
+    fireIntersection(true)
+    expect(getLatestSkillTileTransitionDelays()).toEqual(firstDelays)
+    expect(random).toHaveBeenCalledTimes(12)
+  })
+
   it('generates a fresh reveal order on each viewport entry and replays the reveal', () => {
     const random = vi.spyOn(Math, 'random')
     random.mockReturnValue(0)

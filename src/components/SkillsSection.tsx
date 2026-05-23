@@ -112,7 +112,7 @@ export function SkillsSection() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setRevealOrder(createShuffledRevealOrder())
+          setRevealOrder((current) => current ?? createShuffledRevealOrder())
           setIsInView(true)
           return
         }
