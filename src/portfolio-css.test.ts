@@ -126,23 +126,11 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toMatch(/\.hero-inner\{[^}]*padding:0 5vw/)
   })
 
-  it('anchors card-deck sticky stack surfaces without blur or border-radius', () => {
-    expect(portfolioCss).toContain('[data-sticky-section="true"]')
-    expect(portfolioCss).toMatch(
+  it('does not anchor global card-deck sticky stack surfaces', () => {
+    expect(portfolioCss).not.toContain('CARD-DECK STACK')
+    expect(portfolioCss).not.toMatch(
       /\[data-sticky-section="true"\]:not\(\[data-sticky-scroll-host="true"\]\)\{[^}]*position:sticky/,
     )
-    expect(portfolioCss).toMatch(
-      /\[data-sticky-section="true"\]:not\(\[data-sticky-scroll-host="true"\]\)\{[^}]*top:0/,
-    )
-    expect(portfolioCss).toMatch(
-      /\[data-sticky-section="true"\]:not\(\[data-sticky-scroll-host="true"\]\)\{[^}]*min-height:100vh/,
-    )
-    expect(portfolioCss).toMatch(
-      /\[data-sticky-section="true"\]:not\(\[data-sticky-scroll-host="true"\]\)\{[^}]*transform-origin:center/,
-    )
-    expect(portfolioCss).toContain('[data-sticky-scroll-host="true"]')
     expect(portfolioCss).toContain('[data-sticky-viewport="true"]')
-    expect(portfolioCss).not.toMatch(/\[data-sticky-section="true"\]\{[^}]*filter:blur/)
-    expect(portfolioCss).not.toMatch(/\[data-sticky-section="true"\]\{[^}]*border-radius/)
   })
 })

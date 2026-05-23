@@ -49,6 +49,18 @@ function rectWithHeight(top: number, height: number): DOMRect {
   }
 }
 
+function getMajorSectionElements() {
+  return sectionIds
+    .map((id) => document.getElementById(id))
+    .filter((section): section is HTMLElement => section instanceof HTMLElement)
+}
+
+function getTimelinePanels() {
+  return timelinePanelIds
+    .map((id) => document.getElementById(id))
+    .filter((panel): panel is HTMLElement => panel instanceof HTMLElement)
+}
+
 describe('App shell', () => {
   afterEach(() => {
     vi.restoreAllMocks()
@@ -63,14 +75,12 @@ describe('App shell', () => {
 
   it('renders sections in the correct order', () => {
     render(<App />)
-    const renderedStackIds = document.querySelectorAll('[data-sticky-section="true"][id]')
-    expect(Array.from(renderedStackIds).map((s) => s.id)).toEqual([...sectionIds])
+    expect(getMajorSectionElements().map((section) => section.id)).toEqual([...sectionIds])
   })
 
-  it('stack surfaces span the full browser width', () => {
+  it('major sections span the full browser width', () => {
     render(<App />)
-    const stackSurfaces = document.querySelectorAll('[data-sticky-section="true"][id]')
-    stackSurfaces.forEach((surface) => {
+    getMajorSectionElements().forEach((surface) => {
       expectNoShellConstraint(surface)
       expect(surface.className).toContain('min-h-screen')
     })
@@ -84,20 +94,19 @@ describe('App shell', () => {
     expectNoShellConstraint(main as Element)
   })
 
-  it('keeps the navbar above the sticky section stack', () => {
+  it('keeps the navbar above page sections without card-deck z-index stacking', () => {
     render(<App />)
     const nav = document.querySelector('nav')
-    const stackSurfaces = document.querySelectorAll('[data-sticky-section="true"][id]')
 
     expect(nav?.className).toContain('nav')
-    stackSurfaces.forEach((surface) => {
-      if (surface.id === 'projects') {
-        expect(surface.className).toContain('relative')
-        expect(surface.querySelector('[data-sticky-viewport="true"]')).toBeInTheDocument()
-      } else {
-        expect(surface.className).toContain('sticky')
-      }
-      expect(Number((surface as HTMLElement).style.zIndex)).toBeLessThan(100)
+
+    const projects = document.getElementById('projects')
+    expect(projects?.className).toContain('relative')
+    expect(projects?.querySelector('[data-sticky-viewport="true"]')).toBeInTheDocument()
+
+    getMajorSectionElements().forEach((surface) => {
+      expect(surface).not.toHaveAttribute('data-sticky-section')
+      expect((surface as HTMLElement).style.zIndex).toBe('')
     })
   })
 
@@ -160,7 +169,7 @@ describe('App shell', () => {
     expect(cancelAnimationFrameSpy).toHaveBeenCalledWith(2)
   })
 
-  it('uses stack surface geometry for footer parallax layers', () => {
+  it('uses section geometry for footer parallax layers', () => {
     const frameCallbacks = new Map<number, FrameRequestCallback>()
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
       frameCallbacks.set(1, callback)
@@ -181,7 +190,7 @@ describe('App shell', () => {
     expect(footerText.style.transform).toBe('translate3d(0, 40px, 0)')
   })
 
-  it('uses element geometry for parallax layers outside stack surfaces', () => {
+  it('uses element geometry for parallax layers outside major sections', () => {
     const frameCallbacks = new Map<number, FrameRequestCallback>()
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
       frameCallbacks.set(1, callback)
@@ -239,116 +248,46 @@ describe('App shell', () => {
     }
   })
 
-  describe('issue #157 - Timeline sticky panel scroll contract', () => {
-    it('timeline panels are part of the global sticky section stack', () => {
+  describe('issue #214 - global scroll shell regression', () => {
+    const majorSectionIds = ['home', 'projects', 'skills', 'contact', ...timelinePanelIds] as const
+
+    it('does not mount a global sticky section stack', () => {
       render(<App />)
 
-      const allStickySections = document.querySelectorAll('[data-sticky-section="true"]')
-      const timelinePanels = Array.from(allStickySections).filter((s) =>
-        timelinePanelIds.includes(s.id)
-      )
-
-      expect(timelinePanels.length).toBe(3)
+      expect(document.querySelectorAll('[data-sticky-section="true"]')).toHaveLength(0)
     })
 
-    it('timeline panels have z-index below navbar', () => {
+    it.each(majorSectionIds)('%s flows as a normal major section without card-deck depth', (id) => {
+      render(<App />)
+      const section = document.getElementById(id) as HTMLElement
+
+      expect(section).toBeInTheDocument()
+      expect(section).not.toHaveAttribute('data-sticky-section')
+      expect(section).not.toHaveClass('sticky', 'top-0')
+      expect(section.style.transform).toBe('')
+      expect(section.style.opacity).toBe('')
+      expect(section.style.zIndex).toBe('')
+    })
+
+    it('timeline panels render in newest-first document order', () => {
       render(<App />)
 
-      const timelinePanels = document.querySelectorAll('[data-sticky-section="true"]')
-      const filtered = Array.from(timelinePanels).filter((s) =>
-        timelinePanelIds.includes(s.id)
-      )
-
-      filtered.forEach((panel) => {
-        const zIndex = Number((panel as HTMLElement).style.zIndex)
-        expect(zIndex).toBeLessThan(100)
-        expect(zIndex).toBeGreaterThan(0)
-      })
+      const ids = getTimelinePanels().map((panel) => panel.id)
+      expect(ids).toEqual([...timelinePanelIds])
     })
 
-    it('timeline panels do not use horizontal scroll behavior', () => {
-      render(<App />)
-
-      const timelinePanels = document.querySelectorAll('[data-sticky-section="true"]')
-      const filtered = Array.from(timelinePanels).filter((s) =>
-        timelinePanelIds.includes(s.id)
-      )
-
-      filtered.forEach((panel) => {
-        const style = (panel as HTMLElement).style
-        expect(style.transform).not.toContain('translateX')
-      })
-    })
-
-    it('timeline panels render in newest-first order in the global stack', () => {
-      render(<App />)
-
-      const allStickySections = document.querySelectorAll('[data-sticky-section="true"][id]')
-      const ids = Array.from(allStickySections).map((s) => s.id)
-
-      const timelineIndex = ids.indexOf('timeline')
-      const msIndex = ids.indexOf('timeline-a3f9d2b')
-      const bsIndex = ids.indexOf('timeline-b7c3e1a')
-
-      expect(timelineIndex).toBeLessThan(msIndex)
-      expect(msIndex).toBeLessThan(bsIndex)
-    })
-
-    it('each timeline panel occupies full viewport height in the stack', () => {
-      render(<App />)
-
-      const allStickySections = document.querySelectorAll('[data-sticky-section="true"]')
-      const timelinePanels = Array.from(allStickySections).filter((s) =>
-        timelinePanelIds.includes(s.id)
-      )
-
-      timelinePanels.forEach((panel) => {
-        expect(panel).toHaveClass('min-h-screen')
-        expect(panel).toHaveClass('sticky')
-        expect(panel).toHaveClass('top-0')
-      })
-    })
-  })
-
-  describe('issue #187 - card-deck stacking across all sections', () => {
-    const stickyMajorSectionIds = ['home', 'skills', 'contact'] as const
-    const timelinePanelIds = ['timeline', 'timeline-a3f9d2b', 'timeline-b7c3e1a'] as const
-
-    it.each([...stickyMajorSectionIds, ...timelinePanelIds])(
-      '%s carries sticky top-0 positioning',
-      (id) => {
-        render(<App />)
-        const section = document.getElementById(id)
-
-        expect(section).toBeInTheDocument()
-        expect(section).toHaveClass('sticky')
-        expect(section).toHaveClass('top-0')
-      },
-    )
-
-    it('projects outer scroll host pins the carousel viewport at top: 0 independently', () => {
+    it('projects outer scroll host keeps an internal sticky viewport only', () => {
       render(<App />)
 
       const projects = document.getElementById('projects')
       const stickyViewport = projects?.querySelector('[data-sticky-viewport="true"]')
 
       expect(projects).toHaveAttribute('data-sticky-scroll-host', 'true')
+      expect(projects).not.toHaveAttribute('data-sticky-section')
       expect(stickyViewport).toHaveClass('hscroll-sticky')
     })
 
-    it('stack surfaces stay sharp with no blur or border-radius styling', () => {
-      render(<App />)
-
-      document.querySelectorAll('[data-sticky-section="true"]').forEach((surface) => {
-        const element = surface as HTMLElement
-
-        expect(element.className).not.toMatch(/blur|rounded/)
-        expect(element.style.filter).toBe('')
-        expect(element.style.borderRadius).toBe('')
-      })
-    })
-
-    it('scales and dims outgoing sections as the next section enters', async () => {
+    it('does not scale or dim outgoing sections on scroll', async () => {
       render(<App />)
 
       const home = document.getElementById('home') as HTMLElement
@@ -364,32 +303,12 @@ describe('App shell', () => {
         window.dispatchEvent(new Event('scroll'))
       })
 
-      expect(home.style.transform).toBe('scale(0.975)')
-      expect(home.style.opacity).toBe('0.875')
+      expect(home.style.transform).toBe('')
+      expect(home.style.opacity).toBe('')
       expect(home.style.filter).toBe('')
     })
 
-    it('clamps outgoing section depth once the next section passes the viewport top', async () => {
-      render(<App />)
-
-      const home = document.getElementById('home') as HTMLElement
-      const projects = document.getElementById('projects') as HTMLElement
-
-      vi.spyOn(projects, 'getBoundingClientRect').mockReturnValue(rectAtTop(-200))
-      Object.defineProperty(window, 'innerHeight', {
-        configurable: true,
-        value: 800,
-      })
-
-      await act(async () => {
-        window.dispatchEvent(new Event('scroll'))
-      })
-
-      expect(home.style.transform).toBe('scale(0.95)')
-      expect(home.style.opacity).toBe('0.75')
-    })
-
-    it('keeps projects carousel translateX independent from card-deck depth transforms', async () => {
+    it('keeps projects carousel translateX independent from section transforms', async () => {
       render(<App />)
 
       const projects = document.getElementById('projects') as HTMLElement
@@ -415,7 +334,7 @@ describe('App shell', () => {
         window.dispatchEvent(new Event('scroll'))
       })
 
-      expect(projects.style.transform).toBe('scale(0.975)')
+      expect(projects.style.transform).toBe('')
       expect(projects.style.transform).not.toContain('translateX')
       expect(carouselTrack.style.transform).toContain('translateX')
     })

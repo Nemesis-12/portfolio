@@ -22,8 +22,8 @@ function App() {
       const parallaxLayers = Array.from(document.querySelectorAll<HTMLElement>('[data-parallax]'))
       const layerUpdates = parallaxLayers.map((layer) => {
         const factor = Number(layer.dataset.parallaxFactor ?? 0)
-        const stackSurface = layer.closest('[data-sticky-section="true"]')
-        const surfaceRect = stackSurface?.getBoundingClientRect()
+        const sectionSurface = layer.closest('section, footer')
+        const surfaceRect = sectionSurface?.getBoundingClientRect()
         const scrollOffset = surfaceRect ? -surfaceRect.top : -layer.getBoundingClientRect().top
 
         return {

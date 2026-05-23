@@ -191,13 +191,14 @@ describe('ContactSection', () => {
       })
     })
 
-    it('keeps contact as a stackable sticky surface', () => {
+    it('keeps contact as a full-viewport footer section', () => {
       render(<ContactSection />)
       const contact = document.querySelector('#contact')
 
       expect(contact?.tagName.toLowerCase()).toBe('footer')
-      expect(contact).toHaveAttribute('data-sticky-section', 'true')
-      expect(contact).toHaveClass('sticky', 'top-0', 'min-h-screen')
+      expect(contact).toHaveClass('min-h-screen')
+      expect(contact).not.toHaveAttribute('data-sticky-section')
+      expect(contact).not.toHaveClass('sticky', 'top-0')
     })
   })
 })

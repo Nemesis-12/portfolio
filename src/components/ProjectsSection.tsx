@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { useCardDeckDepth } from '../hooks/useCardDeckDepth'
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
 import type { Project } from '../data/projects'
 import { formatProjectNumber, getScrollRangeVh } from './projectsGeometry'
@@ -32,7 +31,6 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
   const innerRef = useRef<HTMLDivElement>(null)
   const { tx, progress } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>)
   const scrollRangeVh = getScrollRangeVh(projects.length)
-  useCardDeckDepth(outerRef as React.RefObject<HTMLElement>)
 
   const activeIndex = projects.length > 1
     ? clampIndex(Math.round(progress * (projects.length - 1)), projects.length)
@@ -42,10 +40,9 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
     <section
       ref={outerRef}
       id="projects"
-      data-sticky-section="true"
       data-sticky-scroll-host="true"
-      className="relative min-h-screen px-8 bg-graphite-light origin-center transform-gpu"
-      style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden', willChange: 'transform, opacity' }}
+      className="relative min-h-screen px-8 bg-graphite-light"
+      style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden' }}
     >
       <div data-sticky-viewport="true" className="flex flex-col justify-center py-14 hscroll-sticky">
         <div className="w-full">

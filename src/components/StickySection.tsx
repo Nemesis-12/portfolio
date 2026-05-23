@@ -1,5 +1,4 @@
-import { forwardRef, useCallback, useRef, type ElementType, type ReactNode } from 'react'
-import { useCardDeckDepth } from '../hooks/useCardDeckDepth'
+import { forwardRef, type ElementType, type ReactNode } from 'react'
 
 interface Props {
   id: string
@@ -10,35 +9,15 @@ interface Props {
 
 export const StickySection = forwardRef<HTMLElement, Props>(function StickySection(
   { id, children, className = '', as = 'section' },
-  forwardedRef
+  ref,
 ) {
-  const sectionRef = useRef<HTMLElement>(null)
   const Component = as as ElementType
-  const setSectionRef = useCallback(
-    (node: HTMLElement | null) => {
-      sectionRef.current = node
-
-      if (typeof forwardedRef === 'function') {
-        forwardedRef(node)
-        return
-      }
-
-      if (forwardedRef) {
-        forwardedRef.current = node
-      }
-    },
-    [forwardedRef]
-  )
-
-  useCardDeckDepth(sectionRef)
 
   return (
     <Component
-      ref={setSectionRef}
+      ref={ref}
       id={id}
-      data-sticky-section="true"
-      className={`sticky top-0 min-h-screen origin-center transform-gpu ${className}`.trim()}
-      style={{ willChange: 'transform, opacity' }}
+      className={`min-h-screen ${className}`.trim()}
     >
       {children}
     </Component>
