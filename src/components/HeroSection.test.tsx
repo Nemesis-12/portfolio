@@ -353,4 +353,38 @@ describe('HeroSection', () => {
       })
     })
   })
+
+  it('does not start name typing until introReady is true', () => {
+    render(<HeroSection introReady={false} />)
+
+    const nameLines = screen.getByTestId('hero-name').querySelectorAll('.hero-name-line')
+
+    act(() => {
+      vi.advanceTimersByTime(FIRST_NAME_DURATION + LAST_NAME_DURATION)
+    })
+
+    expect(nameLines[0]?.textContent).toBe('')
+    expect(nameLines[1]?.textContent).toBe('')
+    expect(screen.queryByTestId('hero-name-cursor')).not.toBeInTheDocument()
+  })
+
+  it('starts name typing from the beginning when introReady becomes true', () => {
+    const { rerender } = render(<HeroSection introReady={false} />)
+    const nameLines = screen.getByTestId('hero-name').querySelectorAll('.hero-name-line')
+
+    act(() => {
+      vi.advanceTimersByTime(FIRST_NAME_DURATION)
+    })
+
+    expect(nameLines[0]?.textContent).toBe('')
+
+    rerender(<HeroSection introReady={true} />)
+
+    act(() => {
+      vi.advanceTimersByTime(NAME_SPEED)
+    })
+
+    expect(nameLines[0]?.textContent).toBe(FIRST_NAME.slice(0, 1))
+    expect(nameLines[1]?.textContent).toBe('')
+  })
 })

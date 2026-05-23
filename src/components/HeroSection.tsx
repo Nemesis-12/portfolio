@@ -19,7 +19,11 @@ const ctaVariants = {
   visible: { opacity: 1, y: 0 },
 }
 
-const HeroSection: React.FC = () => {
+interface HeroSectionProps {
+  introReady?: boolean
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
   const [firstNameDone, setFirstNameDone] = useState(false)
   const [nameDone, setNameDone] = useState(false)
   const [showNameCursor, setShowNameCursor] = useState(false)
@@ -45,7 +49,7 @@ const HeroSection: React.FC = () => {
         <h1 data-testid="hero-name" className="hero-name">
           <span className="hero-name-line">
             <TypeIn
-              start={true}
+              start={introReady}
               text={FIRST_NAME}
               speed={NAME_SPEED}
               onDone={() => {

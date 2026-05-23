@@ -69,7 +69,7 @@ function App() {
       </AnimatePresence>
       <Navbar />
       <main>
-        <HeroSection />
+        <HeroSection introReady={!loading} />
         <ProjectsSection projects={projects} />
         <SkillsSection />
         <TimelineSection />
