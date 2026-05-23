@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { TypeIn } from '../animations/TypeIn'
 import { hoverEase } from '../animations/variants'
@@ -16,8 +16,14 @@ const footerLinks = [
 
 export default function ContactSection() {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
+  const isInView = useInView(ref)
   const [step, setStep] = useState(0)
+
+  useEffect(() => {
+    if (!isInView) {
+      setStep(0)
+    }
+  }, [isInView])
 
   return (
     <StickySection as="footer" id="contact" className="bg-graphite">
@@ -33,13 +39,13 @@ export default function ContactSection() {
           </span>
           <span className="footer-big-line">
             <TypeIn
-              start={step >= 1}
+              start={isInView && step >= 1}
               text="CONNECT"
               speed={CONTACT_SPEED}
               onDone={() => setStep((s) => Math.max(s, 2))}
             />
-            {step >= 2 && <span className="period">.</span>}
-            {step >= 2 && (
+            {isInView && step >= 2 && <span className="period">.</span>}
+            {isInView && step >= 2 && (
               <span className="cursor" data-testid="contact-cursor" aria-hidden="true" />
             )}
           </span>
