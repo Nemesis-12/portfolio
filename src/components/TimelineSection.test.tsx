@@ -815,21 +815,18 @@ describe('TimelineSection', () => {
           activeIndex: 0,
           progress: 0,
           tx: -2000,
-          visibleHash: 'd4e8f2c',
         },
         {
           active: [false, true, false] as boolean[],
           activeIndex: 1,
           progress: 0.5,
           tx: -1000,
-          visibleHash: 'a3f9d2b',
         },
         {
           active: [false, false, true] as boolean[],
           activeIndex: 2,
           progress: 1,
           tx: 0,
-          visibleHash: 'b7c3e1a',
         },
       ] as const
 
@@ -903,6 +900,46 @@ describe('TimelineSection', () => {
 
       expect(newestPartial.length).toBeGreaterThan(0)
       expect(middlePartial).toBe('')
+    })
+
+    it('resumes typing on a panel when scroll reactivates it', () => {
+      vi.useFakeTimers()
+
+      const { rerender } = render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      const partialHash =
+        getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      expect(partialHash.length).toBeGreaterThan(0)
+
+      vi.mocked(useTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([false, true, false], { activeIndex: 1, progress: 0.5, tx: -1000 }),
+      )
+      rerender(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(5000)
+      })
+
+      const heldHash =
+        getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      expect(heldHash).toBe(partialHash)
+
+      vi.mocked(useTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([true, false, false], { activeIndex: 0, progress: 0, tx: -2000 }),
+      )
+      rerender(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(200)
+      })
+
+      const resumedHash =
+        getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      expect(resumedHash.length).toBeGreaterThan(partialHash.length)
     })
   })
 })

@@ -59,6 +59,17 @@ describe('useTypewriter', () => {
       expect(result.current[0]?.length ?? 0).toBeGreaterThan(partialLength)
     })
 
+    it('stays empty when never activated', () => {
+      const lines = ['commit abc123']
+      const { result } = renderHook(() => useTypewriter(false, lines, 16))
+
+      act(() => {
+        vi.advanceTimersByTime(5000)
+      })
+
+      expect(result.current).toEqual([])
+    })
+
     it('keeps completed lines visible after deactivation', () => {
       const lines = ['Done']
       const { result, rerender } = renderHook(
