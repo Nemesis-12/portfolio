@@ -747,7 +747,7 @@ describe('ProjectsSection', () => {
     })
   })
 
-  describe('desktop active card and neighbor model', () => {
+  describe('issue #218 - no scroll-driven card scale or opacity state', () => {
     const threeProjects = [
       ...mockProjects,
       {
@@ -759,139 +759,101 @@ describe('ProjectsSection', () => {
       }
     ]
 
-    it('active card renders at full scale (1.0) and full opacity (1.0)', () => {
+    function expectNoScrollDrivenCardDepthState(cards: NodeListOf<Element>) {
+      cards.forEach((card) => {
+        expect(card).not.toHaveAttribute('data-card-state')
+        expect(card).not.toHaveAttribute('data-card-scale')
+        expect(card).not.toHaveAttribute('data-card-opacity')
+      })
+    }
+
+    it('cards do not expose active/neighbor/far scale or opacity attributes on initial render', () => {
       setViewport(1440, 900)
       render(<ProjectsSection projects={threeProjects} />)
 
       const cards = document.querySelectorAll('[data-testid="project-card"]')
       expect(cards).toHaveLength(3)
-
-      // At progress 0, card 0 is active
-      const activeCard = cards[0]
-      expect(activeCard).toHaveAttribute('data-card-state', 'active')
-      expect(activeCard).toHaveAttribute('data-card-scale', '1')
-      expect(activeCard).toHaveAttribute('data-card-opacity', '1')
+      expectNoScrollDrivenCardDepthState(cards)
     })
 
-    it('active card remains unfilled by default (no orange fill when not hovered)', () => {
+    function simulateProjectsScroll(projectCount: number, scrolledPx: number, viewportWidth = 1440, viewportHeight = 900) {
+      setViewport(viewportWidth, viewportHeight)
+      const projectsSection = document.getElementById('projects') as HTMLElement
+      const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
+      const sectionHeight = getScrollRangeVh(projectCount) * viewportHeight
+
+      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(
+        createRect(-scrolledPx, sectionHeight),
+      )
+      Object.defineProperty(carouselTrack, 'scrollWidth', {
+        configurable: true,
+        value: getCarouselTrackWidth(projectCount, viewportWidth),
+      })
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+    }
+
+    it('scroll position does not add active/neighbor/far scale or opacity attributes at end of range', () => {
       setViewport(1440, 900)
       render(<ProjectsSection projects={threeProjects} />)
 
-      const cards = document.querySelectorAll('[data-testid="project-card"]')
-      const activeCard = cards[0]
-      const fill = activeCard.querySelector('[data-testid="project-card-fill"]')
+      const sectionHeight = getScrollRangeVh(threeProjects.length) * 900
+      simulateProjectsScroll(threeProjects.length, sectionHeight - 900)
 
-      expect(fill).toHaveAttribute('data-active', 'false')
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+      expectNoScrollDrivenCardDepthState(cards)
     })
 
-    it('immediate left and right neighbor cards remain partially visible', () => {
+    it('scroll position does not add active/neighbor/far scale or opacity attributes at mid range', () => {
       setViewport(1440, 900)
       render(<ProjectsSection projects={threeProjects} />)
 
-      const cards = document.querySelectorAll('[data-testid="project-card"]')
+      const scrollRangePx = (getScrollRangeVh(threeProjects.length) - 1) * 900
+      simulateProjectsScroll(threeProjects.length, scrollRangePx / 2)
 
-      // At progress 0, card 0 is active, card 1 is right neighbor
-      const rightNeighbor = cards[1]
-      const neighborOpacity = Number(rightNeighbor.getAttribute('data-card-opacity'))
-      expect(neighborOpacity).toBeGreaterThan(0)
-      expect(neighborOpacity).toBeLessThan(1)
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+      expectNoScrollDrivenCardDepthState(cards)
     })
 
-    it('neighbor cards use reduced opacity relative to the active card', () => {
+    it('cards remain unfilled by default regardless of scroll position', () => {
       setViewport(1440, 900)
       render(<ProjectsSection projects={threeProjects} />)
 
-      const cards = document.querySelectorAll('[data-testid="project-card"]')
-      const activeCard = cards[0]
-      const neighborCard = cards[1]
-
-      const activeOpacity = Number(activeCard.getAttribute('data-card-opacity'))
-      const neighborOpacity = Number(neighborCard.getAttribute('data-card-opacity'))
-
-      expect(neighborOpacity).toBeLessThan(activeOpacity)
-    })
-
-    it('neighbor cards use reduced scale relative to the active card', () => {
-      setViewport(1440, 900)
-      render(<ProjectsSection projects={threeProjects} />)
+      const sectionHeight = getScrollRangeVh(threeProjects.length) * 900
+      simulateProjectsScroll(threeProjects.length, sectionHeight - 900)
 
       const cards = document.querySelectorAll('[data-testid="project-card"]')
-      const activeCard = cards[0]
-      const neighborCard = cards[1]
-
-      const activeScale = Number(activeCard.getAttribute('data-card-scale'))
-      const neighborScale = Number(neighborCard.getAttribute('data-card-scale'))
-
-      expect(neighborScale).toBeLessThan(activeScale)
-    })
-
-    it('far cards are visually suppressed with low opacity and scale', () => {
-      setViewport(1440, 900)
-      render(<ProjectsSection projects={threeProjects} />)
-
-      const cards = document.querySelectorAll('[data-testid="project-card"]')
-
-      // At progress 0, card 0 is active, card 1 is neighbor, card 2 is far
-      const farCard = cards[2]
-      const activeCard = cards[0]
-
-      const farOpacity = Number(farCard.getAttribute('data-card-opacity'))
-      const activeOpacity = Number(activeCard.getAttribute('data-card-opacity'))
-
-      expect(farOpacity).toBeLessThan(activeOpacity)
-
-      const farScale = Number(farCard.getAttribute('data-card-scale'))
-      const activeScale = Number(activeCard.getAttribute('data-card-scale'))
-
-      expect(farScale).toBeLessThan(activeScale)
-    })
-
-    it('no layout jump occurs when active index changes (smooth transition)', () => {
-      setViewport(1440, 900)
-      render(<ProjectsSection projects={threeProjects} />)
-
-      const cards = document.querySelectorAll('[data-testid="project-card"]')
-
-      // All cards should have transition properties for smooth scale/opacity changes
       cards.forEach((card) => {
-        const style = (card as HTMLElement).style
-        expect(style.transition).toBeDefined()
+        expect(card).toHaveAttribute('data-fill-active', 'false')
+        expect(card.querySelector('[data-testid="project-card-fill"]')).toHaveAttribute('data-active', 'false')
       })
     })
 
-    it('outer container does not introduce horizontal page overflow from neighbor cards', () => {
+    it('hover fill still activates after scrolling', async () => {
+      const user = userEvent.setup()
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={threeProjects} />)
+
+      const sectionHeight = getScrollRangeVh(threeProjects.length) * 900
+      simulateProjectsScroll(threeProjects.length, sectionHeight - 900)
+
+      const card = screen.getByRole('heading', { name: 'Project Three' }).closest('[data-testid="project-card"]')
+      expect(card).not.toBeNull()
+
+      const fill = card!.querySelector('[data-testid="project-card-fill"]')
+      expect(fill).toHaveAttribute('data-active', 'false')
+
+      await user.hover(card!)
+      expect(card).toHaveAttribute('data-fill-active', 'true')
+      expect(fill).toHaveAttribute('data-active', 'true')
+    })
+
+    it('outer container does not introduce horizontal page overflow from carousel cards', () => {
       setViewport(1440, 900)
       render(<ProjectsSection projects={threeProjects} />)
 
       const projectsSection = document.getElementById('projects')
       expect(projectsSection).toHaveStyle({ overflowX: 'hidden' })
-    })
-
-    it('active card updates correctly at end of scroll range', () => {
-      setViewport(1440, 900)
-      render(<ProjectsSection projects={threeProjects} />)
-
-      const projectsSection = document.getElementById('projects') as HTMLElement
-      const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
-
-      // Simulate scrolled to end position
-      const sectionHeight = getScrollRangeVh(threeProjects.length) * 900
-      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-(sectionHeight - 900), sectionHeight))
-      Object.defineProperty(carouselTrack, 'scrollWidth', {
-        configurable: true,
-        value: getCarouselTrackWidth(threeProjects.length, 1440),
-      })
-
-      act(() => window.dispatchEvent(new Event('scroll')))
-
-      const cards = document.querySelectorAll('[data-testid="project-card"]')
-      const lastIndex = threeProjects.length - 1
-
-      // At progress 1, last card should be active
-      const lastCard = cards[lastIndex]
-      expect(lastCard).toHaveAttribute('data-card-state', 'active')
-      expect(lastCard).toHaveAttribute('data-card-scale', '1')
-      expect(lastCard).toHaveAttribute('data-card-opacity', '1')
     })
   })
 })

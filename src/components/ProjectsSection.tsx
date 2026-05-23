@@ -12,14 +12,8 @@ const TAG_VARIANTS = ['fuchsia', 'blue', 'orange', 'yellow'] as const
 
 const INVERTED_TAG_CLASS = 'ptag-inverted'
 
-const NEIGHBOR_SCALE = 0.92
-const NEIGHBOR_OPACITY = 0.6
-const FAR_SCALE = 0.85
-const FAR_OPACITY = 0.25
-const CARD_STATE_TRANSITION = {
+const CARD_HOVER_TRANSITION = {
   y: { duration: 0.2, ease: 'easeOut' },
-  scale: { duration: 0.3, ease: 'easeOut' },
-  opacity: { duration: 0.3, ease: 'easeOut' },
 } as const
 
 function clampIndex(index: number, projectCount: number) {
@@ -81,8 +75,8 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
             style={{ transform: `translateX(${tx}px)` }}
           >
             <div className="proj-edge" aria-hidden="true" />
-            {projects.map((project, index) => (
-              <ProjectCard key={project.id} project={project} index={index} activeIndex={activeIndex} />
+            {projects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
             ))}
             <div className="proj-edge" aria-hidden="true" />
           </div>
@@ -115,18 +109,10 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
   )
 }
 
-const ProjectCard: React.FC<{ project: Project; index: number; activeIndex: number }> = ({ project, index, activeIndex }) => {
+const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [hasFocus, setHasFocus] = useState(false)
   const isFillActive = isHovered || hasFocus
-
-  const distance = Math.abs(index - activeIndex)
-  const isActive = distance === 0
-  const isNeighbor = distance === 1
-  const cardState = isActive ? 'active' : isNeighbor ? 'neighbor' : 'far'
-
-  const scale = isActive ? 1 : isNeighbor ? NEIGHBOR_SCALE : FAR_SCALE
-  const opacity = isActive ? 1 : isNeighbor ? NEIGHBOR_OPACITY : FAR_OPACITY
   const projectNumber = formatProjectNumber(project.id)
 
   return (
@@ -139,15 +125,11 @@ const ProjectCard: React.FC<{ project: Project; index: number; activeIndex: numb
           setHasFocus(false)
         }
       }}
-      animate={{ y: isFillActive ? -4 : 0, scale, opacity }}
-      transition={CARD_STATE_TRANSITION}
+      animate={{ y: isFillActive ? -4 : 0 }}
+      transition={CARD_HOVER_TRANSITION}
       data-testid="project-card"
       data-fill-active={isFillActive}
-      data-card-state={cardState}
-      data-card-scale={scale}
-      data-card-opacity={opacity}
       className="pcard shrink-0"
-      style={{ transformOrigin: 'center center' }}
     >
       <div className="pcard-bg" aria-hidden="true" />
 
