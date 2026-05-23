@@ -1,6 +1,11 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import { act, render } from '@testing-library/react'
 import App from './App'
+import {
+  BOOT_DURATION,
+  FADE_OUT_DURATION,
+} from './components/LoadingScreen.constants'
+import { FIRST_NAME, NAME_SPEED } from './components/HeroSection.constants'
 
 const sections = ['home', 'projects', 'skills', 'timeline', 'contact'] as const
 const sectionIds = [
@@ -337,6 +342,53 @@ describe('App shell', () => {
       expect(projects.style.transform).toBe('')
       expect(projects.style.transform).not.toContain('translateX')
       expect(carouselTrack.style.transform).toContain('translateX')
+    })
+  })
+
+  describe('issue #216 - loader-to-hero intro handoff', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('does not advance hero type-in while the loading screen is visible', () => {
+      render(<App />)
+
+      expect(document.getElementById('ls')).toBeInTheDocument()
+
+      act(() => {
+        vi.advanceTimersByTime(BOOT_DURATION + FADE_OUT_DURATION - 1)
+      })
+
+      const nameLines = document.getElementById('home')?.querySelectorAll('.hero-name-line')
+      expect(nameLines?.[0]?.textContent).toBe('')
+      expect(nameLines?.[1]?.textContent).toBe('')
+    })
+
+    it('starts hero intro from the beginning after loading completes', async () => {
+      render(<App />)
+
+      await act(async () => {
+        vi.advanceTimersByTime(BOOT_DURATION)
+      })
+      await act(async () => {
+        vi.advanceTimersByTime(FADE_OUT_DURATION)
+      })
+
+      expect(document.getElementById('ls')).not.toBeInTheDocument()
+
+      const nameLines = document.getElementById('home')?.querySelectorAll('.hero-name-line')
+      expect(nameLines?.[0]?.textContent).toBe('')
+
+      act(() => {
+        vi.advanceTimersByTime(NAME_SPEED)
+      })
+
+      expect(nameLines?.[0]?.textContent).toBe(FIRST_NAME.slice(0, 1))
+      expect(nameLines?.[1]?.textContent).toBe('')
     })
   })
 })
