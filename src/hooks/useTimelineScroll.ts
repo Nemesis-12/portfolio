@@ -16,8 +16,17 @@ function getTimelineScrollState(
   outer: HTMLElement | null,
   entryCount: number,
 ): TimelineScrollState {
-  if (!outer || entryCount === 0) {
+  if (entryCount === 0) {
     return { active: [], activeIndex: 0, progress: 0, tx: 0 }
+  }
+
+  if (!outer) {
+    return {
+      active: Array.from({ length: entryCount }, (_, index) => index === 0),
+      activeIndex: 0,
+      progress: 0,
+      tx: getTimelineTrackTranslate(0, entryCount, window.innerWidth),
+    }
   }
 
   const rect = outer.getBoundingClientRect()

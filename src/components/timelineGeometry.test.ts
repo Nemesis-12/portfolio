@@ -19,6 +19,12 @@ describe('timelineGeometry', () => {
     expect(getTimelineActiveIndex(1, 3)).toBe(2)
   })
 
+  it('keeps the sole entry active when only one timeline entry exists', () => {
+    expect(getTimelineActiveIndex(0, 1)).toBe(0)
+    expect(getTimelineActiveIndex(0.75, 1)).toBe(0)
+    expect(getTimelineTrackTranslate(0, 1, 1000)).toBe(0)
+  })
+
   it('computes raw vertical progress from section geometry', () => {
     expect(getTimelineScrollProgress(800, 2400, 800)).toBe(0)
     expect(getTimelineScrollProgress(-800, 2400, 800)).toBe(0.5)

@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { useTypewriter } from '../animations/useTypewriter'
 import { useTimelineScroll } from '../hooks/useTimelineScroll'
-import { getTimelineScrollRangeVh } from './timelineGeometry'
+import { getTimelineScrollRangeVh, getTimelineSnapAnchorTopVh } from './timelineGeometry'
 
 const TIMELINE_SECTION_NO = '// 03'
 
@@ -165,7 +165,7 @@ const TimelineSection: React.FC = () => {
           key={entry.hash}
           data-testid="timeline-snap-anchor"
           className="snap-anchor"
-          style={{ top: `${index * 100}vh` }}
+          style={{ top: `${getTimelineSnapAnchorTopVh(index)}vh` }}
           aria-hidden="true"
         />
       ))}

@@ -50,6 +50,39 @@ describe('useTimelineScroll', () => {
     expect(result.current.tx).toBe(-2000)
   })
 
+  it('defaults to the newest panel before the section ref attaches', () => {
+    setViewport(1000, 800)
+
+    const { result } = renderHook(() => {
+      const outerRef = useRef<HTMLElement>(null)
+      return useTimelineScroll(outerRef, 3)
+    })
+
+    expect(result.current.activeIndex).toBe(0)
+    expect(result.current.active).toEqual([true, false, false])
+    expect(result.current.progress).toBe(0)
+    expect(result.current.tx).toBe(-2000)
+  })
+
+  it('selects the middle panel at mid-section scroll progress', () => {
+    setViewport(1000, 800)
+
+    const outer = document.createElement('section')
+    outer.getBoundingClientRect = vi.fn(() => createRect(-800, 2400))
+
+    const { result } = renderHook(() => {
+      const outerRef = useRef<HTMLElement>(outer)
+      return useTimelineScroll(outerRef, 3)
+    })
+
+    act(() => window.dispatchEvent(new Event('scroll')))
+
+    expect(result.current.activeIndex).toBe(1)
+    expect(result.current.active).toEqual([false, true, false])
+    expect(result.current.progress).toBe(0.5)
+    expect(result.current.tx).toBe(-1000)
+  })
+
   it('advances to older panels as the section scrolls', () => {
     setViewport(1000, 800)
 
