@@ -32,6 +32,13 @@ describe('projectsGeometry', () => {
     it('returns 1 when there are no projects', () => {
       expect(getScrollRangeVh(0)).toBe(1)
     })
+
+    it('returns one viewport per project', () => {
+      expect(getScrollRangeVh(1)).toBe(1)
+      expect(getScrollRangeVh(2)).toBe(2)
+      expect(getScrollRangeVh(3)).toBe(3)
+      expect(getScrollRangeVh(6)).toBe(6)
+    })
   })
 
   it('exports the reference proj-track gap in pixels', () => {

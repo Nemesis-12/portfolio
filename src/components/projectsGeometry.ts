@@ -4,9 +4,6 @@ export const PROJECT_CARD_WIDTH = 560
 /** Gap between project cards in the carousel track (matches `.proj-track` CSS). */
 export const PROJECT_CARD_GAP = 56
 
-/** Fraction of viewport height reserved as entry/exit dead zones in the Projects scroll range. */
-export const DEAD_ZONE_VIEWPORT_RATIO = 0.25
-
 /** Returns edge spacer width in px (matches `.proj-edge` calc for a fixed card width). */
 export function getEdgeSpacerWidth(viewportWidth: number, cardWidth = PROJECT_CARD_WIDTH) {
   return viewportWidth / 2 - Math.min(cardWidth / 2, viewportWidth * 0.39)
@@ -28,9 +25,9 @@ export function getCarouselTrackWidth(
   return edgeWidth * 2 + cardsWidth
 }
 
-/** Returns the Projects section height multiplier in viewport-height units. */
+/** Returns the Projects section height multiplier in viewport-height units (one viewport per project). */
 export function getScrollRangeVh(projectCount: number) {
-  return projectCount * 1.5 + 1
+  return Math.max(projectCount, 1)
 }
 
 /** Formats a project id as the v4 card number prefix (e.g. "1" → "_01"). */

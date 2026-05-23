@@ -276,12 +276,13 @@ describe('ProjectsSection', () => {
     expect(cards).toHaveLength(2)
   })
 
-  it('carousel track has relative positioning for horizontal layout', () => {
+  it('carousel track uses hscroll-track layout classes', () => {
     render(<ProjectsSection projects={mockProjects} />)
 
     const carouselTrack = document.querySelector('[data-carousel-track="true"]')
     expect(carouselTrack).toBeInTheDocument()
-    expect(carouselTrack).toHaveClass('relative')
+    expect(carouselTrack).toHaveClass('hscroll-track')
+    expect(carouselTrack).toHaveClass('proj-track')
   })
 
   it('translates the carousel track from the projects section scroll position', () => {
@@ -291,7 +292,7 @@ describe('ProjectsSection', () => {
     const projectsSection = document.getElementById('projects') as HTMLElement
     const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
 
-    vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-800, 2400))
+    vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-400, 1600))
     const trackWidth = getCarouselTrackWidth(mockProjects.length, 1000)
     Object.defineProperty(carouselTrack, 'scrollWidth', {
       configurable: true,
@@ -335,15 +336,26 @@ describe('ProjectsSection', () => {
     expect(screen.queryByText('First bullet point for project one')).not.toBeInTheDocument()
   })
 
-  it('outer container uses the scroll range formula (projects.length * 1.5 + 1) * 100vh', () => {
+  it('outer container height is one viewport per project', () => {
     setViewport(1000, 800)
     render(<ProjectsSection projects={mockProjects} />)
 
     const projectsSection = document.getElementById('projects')
     expect(projectsSection).toBeInTheDocument()
 
-    const expectedHeightVh = mockProjects.length * 1.5 + 1
+    const expectedHeightVh = Math.max(mockProjects.length, 1)
     expect(projectsSection).toHaveStyle({ height: `${expectedHeightVh * 100}vh` })
+  })
+
+  it('renders one snap-anchor per project at expected vertical landing points', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const anchors = document.querySelectorAll('.snap-anchor')
+    expect(anchors).toHaveLength(mockProjects.length)
+
+    anchors.forEach((anchor, index) => {
+      expect(anchor).toHaveStyle({ top: `${index * 100}vh` })
+    })
   })
 
   it('sticky viewport child has 100vh height and top: 0', () => {
@@ -407,21 +419,21 @@ describe('ProjectsSection', () => {
     expect(projectsSection.style.opacity).toBe('')
   })
 
-  it('scroll range calculation matches the desktop geometry contract', () => {
+  it('scroll range calculation matches the one-viewport-per-project contract', () => {
     const projectCount = 2
     const viewportHeight = 800
-    const expectedScrollRangeVh = projectCount * 1.5 + 1
-    const expectedScrollRangePx = expectedScrollRangeVh * viewportHeight
+    const expectedScrollRangeVh = projectCount
+    const expectedScrollRangePx = (expectedScrollRangeVh - 1) * viewportHeight
 
-    expect(expectedScrollRangeVh).toBe(4)
-    expect(expectedScrollRangePx).toBe(3200)
+    expect(expectedScrollRangeVh).toBe(2)
+    expect(expectedScrollRangePx).toBe(800)
   })
 
-  it('getScrollRangeVh returns correct vh multiplier for various project counts', () => {
-    expect(getScrollRangeVh(1)).toBe(2.5)
-    expect(getScrollRangeVh(2)).toBe(4)
-    expect(getScrollRangeVh(3)).toBe(5.5)
-    expect(getScrollRangeVh(4)).toBe(7)
+  it('getScrollRangeVh returns one viewport per project', () => {
+    expect(getScrollRangeVh(1)).toBe(1)
+    expect(getScrollRangeVh(2)).toBe(2)
+    expect(getScrollRangeVh(3)).toBe(3)
+    expect(getScrollRangeVh(4)).toBe(4)
     expect(getScrollRangeVh(0)).toBe(1)
   })
 
@@ -492,7 +504,7 @@ describe('ProjectsSection', () => {
       const projectsSection = document.getElementById('projects') as HTMLElement
       const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
 
-      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-800, 2400))
+      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-400, 1600))
       Object.defineProperty(carouselTrack, 'scrollWidth', {
         configurable: true,
         value: getCarouselTrackWidth(mockProjects.length, 1000),
@@ -582,7 +594,7 @@ describe('ProjectsSection', () => {
       const projectsSection = document.getElementById('projects') as HTMLElement
       const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
 
-      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-800, 2400))
+      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-400, 1600))
       Object.defineProperty(carouselTrack, 'scrollWidth', {
         configurable: true,
         value: getCarouselTrackWidth(mockProjects.length, 1000),
