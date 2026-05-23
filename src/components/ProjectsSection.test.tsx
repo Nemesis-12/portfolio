@@ -776,23 +776,40 @@ describe('ProjectsSection', () => {
       expectNoScrollDrivenCardDepthState(cards)
     })
 
-    it('scroll position does not add active/neighbor/far scale or opacity attributes', () => {
-      setViewport(1440, 900)
-      render(<ProjectsSection projects={threeProjects} />)
-
+    function simulateProjectsScroll(projectCount: number, scrolledPx: number, viewportWidth = 1440, viewportHeight = 900) {
+      setViewport(viewportWidth, viewportHeight)
       const projectsSection = document.getElementById('projects') as HTMLElement
       const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
+      const sectionHeight = getScrollRangeVh(projectCount) * viewportHeight
 
-      const sectionHeight = getScrollRangeVh(threeProjects.length) * 900
       vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(
-        createRect(-(sectionHeight - 900), sectionHeight),
+        createRect(-scrolledPx, sectionHeight),
       )
       Object.defineProperty(carouselTrack, 'scrollWidth', {
         configurable: true,
-        value: getCarouselTrackWidth(threeProjects.length, 1440),
+        value: getCarouselTrackWidth(projectCount, viewportWidth),
       })
 
       act(() => window.dispatchEvent(new Event('scroll')))
+    }
+
+    it('scroll position does not add active/neighbor/far scale or opacity attributes at end of range', () => {
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={threeProjects} />)
+
+      const sectionHeight = getScrollRangeVh(threeProjects.length) * 900
+      simulateProjectsScroll(threeProjects.length, sectionHeight - 900)
+
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+      expectNoScrollDrivenCardDepthState(cards)
+    })
+
+    it('scroll position does not add active/neighbor/far scale or opacity attributes at mid range', () => {
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={threeProjects} />)
+
+      const scrollRangePx = (getScrollRangeVh(threeProjects.length) - 1) * 900
+      simulateProjectsScroll(threeProjects.length, scrollRangePx / 2)
 
       const cards = document.querySelectorAll('[data-testid="project-card"]')
       expectNoScrollDrivenCardDepthState(cards)
@@ -802,25 +819,33 @@ describe('ProjectsSection', () => {
       setViewport(1440, 900)
       render(<ProjectsSection projects={threeProjects} />)
 
-      const projectsSection = document.getElementById('projects') as HTMLElement
-      const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
-
       const sectionHeight = getScrollRangeVh(threeProjects.length) * 900
-      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(
-        createRect(-(sectionHeight - 900), sectionHeight),
-      )
-      Object.defineProperty(carouselTrack, 'scrollWidth', {
-        configurable: true,
-        value: getCarouselTrackWidth(threeProjects.length, 1440),
-      })
-
-      act(() => window.dispatchEvent(new Event('scroll')))
+      simulateProjectsScroll(threeProjects.length, sectionHeight - 900)
 
       const cards = document.querySelectorAll('[data-testid="project-card"]')
       cards.forEach((card) => {
         expect(card).toHaveAttribute('data-fill-active', 'false')
         expect(card.querySelector('[data-testid="project-card-fill"]')).toHaveAttribute('data-active', 'false')
       })
+    })
+
+    it('hover fill still activates after scrolling', async () => {
+      const user = userEvent.setup()
+      setViewport(1440, 900)
+      render(<ProjectsSection projects={threeProjects} />)
+
+      const sectionHeight = getScrollRangeVh(threeProjects.length) * 900
+      simulateProjectsScroll(threeProjects.length, sectionHeight - 900)
+
+      const card = screen.getByRole('heading', { name: 'Project Three' }).closest('[data-testid="project-card"]')
+      expect(card).not.toBeNull()
+
+      const fill = card!.querySelector('[data-testid="project-card-fill"]')
+      expect(fill).toHaveAttribute('data-active', 'false')
+
+      await user.hover(card!)
+      expect(card).toHaveAttribute('data-fill-active', 'true')
+      expect(fill).toHaveAttribute('data-active', 'true')
     })
 
     it('outer container does not introduce horizontal page overflow from carousel cards', () => {
