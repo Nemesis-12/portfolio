@@ -41,9 +41,19 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
       ref={outerRef}
       id="projects"
       data-sticky-scroll-host="true"
-      className="relative min-h-screen px-8 bg-graphite-light"
+      className="relative hscroll min-h-screen px-8 bg-graphite-light"
       style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden' }}
     >
+      {projects.map((_, index) => (
+        <div
+          key={`snap-${index}`}
+          className="snap-anchor"
+          style={{ top: `${index * 100}vh` }}
+          aria-hidden="true"
+          data-testid="snap-anchor"
+        />
+      ))}
+
       <div data-sticky-viewport="true" className="flex flex-col justify-center py-14 hscroll-sticky">
         <div className="w-full">
           <div className="hscroll-head">
@@ -64,14 +74,17 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
             </div>
           </div>
 
-          <div ref={innerRef as React.RefObject<HTMLDivElement>} data-carousel-track="true" className="relative" style={{ transform: `translateX(${tx}px)` }}>
-            <div className="flex proj-track pb-4">
-              <div className="proj-edge" aria-hidden="true" />
-              {projects.map((project, index) => (
-                <ProjectCard key={project.id} project={project} index={index} activeIndex={activeIndex} />
-              ))}
-              <div className="proj-edge" aria-hidden="true" />
-            </div>
+          <div
+            ref={innerRef as React.RefObject<HTMLDivElement>}
+            data-carousel-track="true"
+            className="hscroll-track proj-track pb-4"
+            style={{ transform: `translateX(${tx}px)` }}
+          >
+            <div className="proj-edge" aria-hidden="true" />
+            {projects.map((project, index) => (
+              <ProjectCard key={project.id} project={project} index={index} activeIndex={activeIndex} />
+            ))}
+            <div className="proj-edge" aria-hidden="true" />
           </div>
         </div>
 
