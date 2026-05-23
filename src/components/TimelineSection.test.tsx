@@ -1,31 +1,36 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, act } from '@testing-library/react'
 import TimelineSection from './TimelineSection'
-import { useActivePanel } from '../hooks/useActivePanel'
+import { useTimelineScroll } from '../hooks/useTimelineScroll'
 
-const noopSetRef = () => () => {}
-
-function mockActivePanelState(
+function mockTimelineScrollState(
   active: boolean[],
-  options: { activeIndex?: number; progress?: number } = {},
+  options: { activeIndex?: number; progress?: number; tx?: number } = {},
 ) {
   const detectedIndex = active.findIndex(Boolean)
+  const activeIndex = options.activeIndex ?? (detectedIndex === -1 ? 0 : detectedIndex)
+  const entryCount = active.length
+
   return {
     active,
-    activeIndex: options.activeIndex ?? (detectedIndex === -1 ? 0 : detectedIndex),
-    progress: options.progress ?? 0,
-    setRef: noopSetRef,
+    activeIndex,
+    progress: options.progress ?? (entryCount <= 1 ? 0 : activeIndex / (entryCount - 1)),
+    tx: options.tx ?? 0,
   }
 }
 
-vi.mock('../hooks/useActivePanel', () => ({
-  useActivePanel: vi.fn(() => mockActivePanelState([false, false, false])),
+vi.mock('../hooks/useTimelineScroll', () => ({
+  useTimelineScroll: vi.fn(() => mockTimelineScrollState([false, false, false])),
 }))
+
+function getTimelinePanel(contentIndex: number) {
+  return document.querySelector(`[data-content-index="${contentIndex}"]`) as HTMLElement
+}
 
 describe('TimelineSection', () => {
   afterEach(() => {
     vi.useRealTimers()
-    vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, false, false]))
+    vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, false, false]))
   })
 
   it('each entry uses tl-panel layout class', () => {
@@ -38,7 +43,7 @@ describe('TimelineSection', () => {
   })
 
   it('entries start empty when no panel is active', () => {
-    vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, false, false]))
+    vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, false, false]))
 
     render(<TimelineSection />)
 
@@ -47,8 +52,8 @@ describe('TimelineSection', () => {
   })
 
   describe('issue #78 - newest-first ordering', () => {
-    it('entries render in newest-first order (NetApp before M.S. before B.S.)', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, true, true]))
+    it('newest entry is the first user-facing panel at section start', () => {
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -56,37 +61,29 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const allLines = document.querySelectorAll('[data-typewriter-line]')
-      const texts = Array.from(allLines)
-        .map((el) => el.textContent)
-        .filter((t) => t !== '')
-
-      expect(texts[0]).toBe('commit d4e8f2c')
-      expect(texts[3]).toBe('NETAPP INC.')
-      expect(texts[4]).toBe('SOFTWARE_ENGINEER_IN_TEST')
-
-      expect(texts[9]).toBe('commit a3f9d2b')
-      expect(texts[12]).toBe('WICHITA STATE UNIVERSITY')
-      expect(texts[13]).toBe('ACCELERATED_M.S._COMPUTER_SCIENCE')
-
-      expect(texts[14]).toBe('commit b7c3e1a')
-      expect(texts[17]).toBe('WICHITA STATE UNIVERSITY')
-      expect(texts[18]).toBe('B.S._COMPUTER_SCIENCE')
+      const newestPanel = document.querySelector('[data-content-index="0"]')
+      expect(newestPanel?.querySelector('[data-testid="commit-hash"]')?.textContent).toBe(
+        'commit d4e8f2c',
+      )
+      expect(newestPanel?.querySelector('[data-testid="commit-institution"]')?.textContent).toBe(
+        'NETAPP INC.',
+      )
     })
   })
 
   describe('issue #97 - full-screen stacked panels', () => {
-    it('each timeline entry is its own full-viewport section panel', () => {
+    it('timeline entries are full-viewport panels inside one horizontal track', () => {
       render(<TimelineSection />)
 
-      const panelIds = ['timeline', 'timeline-a3f9d2b', 'timeline-b7c3e1a']
-      const panels = panelIds.map((id) => document.getElementById(id))
-      expect(panels.every(Boolean)).toBe(true)
+      const timelineSection = document.getElementById('timeline')
+      const track = document.querySelector('[data-timeline-track="true"]')
+      const panels = document.querySelectorAll('[data-testid="timeline-panel"]')
 
+      expect(timelineSection).toBeInTheDocument()
+      expect(track).toBeInTheDocument()
+      expect(panels).toHaveLength(3)
       panels.forEach((panel) => {
-        expect(panel).toHaveClass('min-h-screen')
-        expect(panel).not.toHaveClass('sticky', 'top-0')
-        expect(panel).not.toHaveAttribute('data-sticky-section')
+        expect(panel.querySelector('.tl-panel')).toBeInTheDocument()
       })
     })
 
@@ -128,7 +125,7 @@ describe('TimelineSection', () => {
     })
 
     it('Typewriter types commit metadata when panel becomes active', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -144,7 +141,7 @@ describe('TimelineSection', () => {
     })
 
     it('Typewriter types all fields to completion when panel stays active', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -164,7 +161,7 @@ describe('TimelineSection', () => {
     })
 
     it('Typewriter types bullets when present', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -180,7 +177,7 @@ describe('TimelineSection', () => {
     })
 
     it('inactive panels remain empty', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -188,15 +185,14 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(100)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
-      const panel2Lines = commitEntries[1].querySelectorAll('[data-typewriter-line]')
-      const panel3Lines = commitEntries[2].querySelectorAll('[data-typewriter-line]')
+      const panel1Lines = getTimelinePanel(1).querySelectorAll('[data-typewriter-line]')
+      const panel2Lines = getTimelinePanel(2).querySelectorAll('[data-typewriter-line]')
+      expect(panel1Lines.length).toBe(0)
       expect(panel2Lines.length).toBe(0)
-      expect(panel3Lines.length).toBe(0)
     })
 
     it('Typewriter holds position when panel is scrolled away mid-type', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -207,7 +203,7 @@ describe('TimelineSection', () => {
 
       const partialText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
 
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, false, false]))
       rerender(<TimelineSection />)
 
       act(() => {
@@ -219,7 +215,7 @@ describe('TimelineSection', () => {
     })
 
     it('Typewriter resumes from held position when panel becomes active again', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -229,13 +225,13 @@ describe('TimelineSection', () => {
       })
       const partialText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
 
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, false, false]))
       rerender(<TimelineSection />)
       act(() => {
         vi.advanceTimersByTime(1000)
       })
 
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       rerender(<TimelineSection />)
       act(() => {
         vi.advanceTimersByTime(500)
@@ -246,7 +242,7 @@ describe('TimelineSection', () => {
     })
 
     it('issue #98 - longest bullet completes within 2.5s', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -265,7 +261,7 @@ describe('TimelineSection', () => {
 
   describe('issue #159 - preserve per-panel typewriter progress', () => {
     it('next panel activation does not clear previous panel partial text', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -274,26 +270,27 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(100)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
-      const panel1Partial = commitEntries[0].querySelector('[data-typewriter-line]')?.textContent ?? ''
+      const panel1Partial =
+        getTimelinePanel(0).querySelector('[data-typewriter-line]')?.textContent ?? ''
       expect(panel1Partial.length).toBeGreaterThan(0)
 
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, true, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, true, false]))
       rerender(<TimelineSection />)
 
       act(() => {
         vi.advanceTimersByTime(5000)
       })
 
-      const panel1Held = commitEntries[0].querySelector('[data-typewriter-line]')?.textContent ?? ''
+      const panel1Held =
+        getTimelinePanel(0).querySelector('[data-typewriter-line]')?.textContent ?? ''
       expect(panel1Held).toBe(panel1Partial)
 
-      const panel2Lines = commitEntries[1].querySelectorAll('[data-typewriter-line]')
+      const panel2Lines = getTimelinePanel(1).querySelectorAll('[data-typewriter-line]')
       expect(panel2Lines.length).toBeGreaterThan(0)
     })
 
     it('reactivate does not blank partial text before resuming', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -305,10 +302,10 @@ describe('TimelineSection', () => {
       const partialText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
       expect(partialText.length).toBeGreaterThan(0)
 
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, false, false]))
       rerender(<TimelineSection />)
 
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       rerender(<TimelineSection />)
 
       const immediateText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
@@ -316,7 +313,7 @@ describe('TimelineSection', () => {
     })
 
     it('each panel retains independent partial progress when switching panels', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -325,12 +322,11 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(100)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
       const panel1Partial =
-        commitEntries[0].querySelector('[data-typewriter-line]')?.textContent ?? ''
+        getTimelinePanel(0).querySelector('[data-typewriter-line]')?.textContent ?? ''
       expect(panel1Partial.length).toBeGreaterThan(0)
 
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, true, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, true, false]))
       rerender(<TimelineSection />)
 
       act(() => {
@@ -338,27 +334,27 @@ describe('TimelineSection', () => {
       })
 
       const panel1Held =
-        commitEntries[0].querySelector('[data-typewriter-line]')?.textContent ?? ''
+        getTimelinePanel(0).querySelector('[data-typewriter-line]')?.textContent ?? ''
       const panel2Partial =
-        commitEntries[1].querySelector('[data-typewriter-line]')?.textContent ?? ''
+        getTimelinePanel(1).querySelector('[data-typewriter-line]')?.textContent ?? ''
 
       expect(panel1Held).toBe(panel1Partial)
       expect(panel2Partial.length).toBeGreaterThan(0)
 
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       rerender(<TimelineSection />)
 
       const panel1Immediate =
-        commitEntries[0].querySelector('[data-typewriter-line]')?.textContent ?? ''
+        getTimelinePanel(0).querySelector('[data-typewriter-line]')?.textContent ?? ''
       const panel2Held =
-        commitEntries[1].querySelector('[data-typewriter-line]')?.textContent ?? ''
+        getTimelinePanel(1).querySelector('[data-typewriter-line]')?.textContent ?? ''
 
       expect(panel1Immediate).toBe(panel1Partial)
       expect(panel2Held).toBe(panel2Partial)
     })
 
     it('completed panel text remains when next panel activates', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -367,15 +363,14 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
       const panel1Texts = Array.from(
-        commitEntries[0].querySelectorAll('[data-typewriter-line]')
+        getTimelinePanel(0).querySelectorAll('[data-typewriter-line]'),
       ).map((el) => el.textContent)
 
       expect(panel1Texts).toContain('commit d4e8f2c')
       expect(panel1Texts).toContain('NETAPP INC.')
 
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, true, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, true, false]))
       rerender(<TimelineSection />)
 
       act(() => {
@@ -383,7 +378,7 @@ describe('TimelineSection', () => {
       })
 
       const panel1TextsAfter = Array.from(
-        commitEntries[0].querySelectorAll('[data-typewriter-line]')
+        getTimelinePanel(0).querySelectorAll('[data-typewriter-line]'),
       ).map((el) => el.textContent)
 
       expect(panel1TextsAfter).toContain('commit d4e8f2c')
@@ -393,7 +388,7 @@ describe('TimelineSection', () => {
 
   describe('issue #160 - structured resume-backed panel content', () => {
     it('renders commit metadata as distinct fields', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -402,8 +397,7 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
-      const metadata = commitEntries[0].querySelector('[data-testid="commit-metadata"]')
+      const metadata = getTimelinePanel(0).querySelector('[data-testid="commit-metadata"]')
       expect(metadata).toBeInTheDocument()
       expect(metadata?.querySelector('[data-testid="commit-hash"]')?.textContent).toBe(
         'commit d4e8f2c'
@@ -417,7 +411,7 @@ describe('TimelineSection', () => {
     })
 
     it('renders institution as its own heading', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -426,14 +420,13 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
-      const institution = commitEntries[0].querySelector('[data-testid="commit-institution"]')
+      const institution = getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')
       expect(institution?.tagName).toBe('H2')
       expect(institution?.textContent).toBe('NETAPP INC.')
     })
 
     it('renders role as its own line', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -442,13 +435,12 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
-      const role = commitEntries[0].querySelector('[data-testid="commit-role"]')
+      const role = getTimelinePanel(0).querySelector('[data-testid="commit-role"]')
       expect(role?.textContent).toBe('SOFTWARE_ENGINEER_IN_TEST')
     })
 
     it('renders bullets as semantic list items', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -457,8 +449,7 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
-      const details = commitEntries[0].querySelector('[data-testid="commit-details"]')
+      const details = getTimelinePanel(0).querySelector('[data-testid="commit-details"]')
       expect(details?.tagName).toBe('UL')
 
       const items = details?.querySelectorAll('li') ?? []
@@ -467,7 +458,7 @@ describe('TimelineSection', () => {
     })
 
     it('preserves data-typewriter-line markers on typed fields', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -476,14 +467,13 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(500)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
-      const typedFields = commitEntries[0].querySelectorAll('[data-typewriter-line]')
+      const typedFields = getTimelinePanel(0).querySelectorAll('[data-typewriter-line]')
       expect(typedFields.length).toBeGreaterThan(0)
       expect(typedFields[0].closest('[data-testid="commit-metadata"]')).toBeTruthy()
     })
 
     it('omits commit-details list when entry has no bullets', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, true, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, true, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -492,8 +482,7 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
-      const msPanel = commitEntries[1]
+      const msPanel = getTimelinePanel(1)
       expect(msPanel.querySelector('[data-testid="commit-details"]')).not.toBeInTheDocument()
       expect(msPanel.querySelector('[data-testid="commit-institution"]')?.textContent).toBe(
         'WICHITA STATE UNIVERSITY'
@@ -501,7 +490,7 @@ describe('TimelineSection', () => {
     })
 
     it('holds partial metadata within structured fields when panel deactivates', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -510,29 +499,27 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(100)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
       const partialHash =
-        commitEntries[0].querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+        getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
       expect(partialHash.length).toBeGreaterThan(0)
 
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([false, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, false, false]))
       rerender(<TimelineSection />)
 
       act(() => {
         vi.advanceTimersByTime(5000)
       })
 
-      const heldEntries = screen.getAllByTestId('commit-entry')
       const heldHash =
-        heldEntries[0].querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+        getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
       expect(heldHash).toBe(partialHash)
-      expect(heldEntries[0].querySelector('[data-testid="commit-institution"]')).toBeNull()
+      expect(getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')).toBeNull()
     })
   })
 
   describe('issue #161 - v4 desktop panel visual hierarchy', () => {
     it('commit hash uses tl-commit, author and date use tl-meta', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -541,15 +528,14 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
-      const metadata = commitEntries[0].querySelector('[data-testid="commit-metadata"]')
+      const metadata = getTimelinePanel(0).querySelector('[data-testid="commit-metadata"]')
       expect(metadata?.querySelector('[data-testid="commit-hash"]')).toHaveClass('tl-commit')
       expect(metadata?.querySelector('[data-testid="commit-author"]')).toHaveClass('tl-meta')
       expect(metadata?.querySelector('[data-testid="commit-date"]')).toHaveClass('tl-meta')
     })
 
     it('institution heading uses tl-org portfolio class', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -558,14 +544,13 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
-      const institution = commitEntries[0].querySelector('[data-testid="commit-institution"]')
+      const institution = getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')
       expect(institution).toHaveClass('tl-org')
       expect(institution?.textContent).toBe('NETAPP INC.')
     })
 
     it('role uses tl-title portfolio class', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -574,14 +559,13 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
-      const role = commitEntries[0].querySelector('[data-testid="commit-role"]')
+      const role = getTimelinePanel(0).querySelector('[data-testid="commit-role"]')
       expect(role).toHaveClass('tl-title')
       expect(role?.textContent).toBe('SOFTWARE_ENGINEER_IN_TEST')
     })
 
     it('bullets use tl-bullets portfolio class', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -590,22 +574,26 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
-      const details = commitEntries[0].querySelector('[data-testid="commit-details"]')
+      const details = getTimelinePanel(0).querySelector('[data-testid="commit-details"]')
       expect(details).toHaveClass('tl-bullets')
     })
 
     it('section tag carries experience or education category class', () => {
       render(<TimelineSection />)
 
-      const sectionLabels = document.querySelectorAll('[data-testid="section-label"]')
-      expect(sectionLabels[0].className).toContain('experience')
-      expect(sectionLabels[1].className).toContain('education')
-      expect(sectionLabels[2].className).toContain('education')
+      expect(getTimelinePanel(0).querySelector('[data-testid="section-label"]')?.className).toContain(
+        'experience',
+      )
+      expect(getTimelinePanel(1).querySelector('[data-testid="section-label"]')?.className).toContain(
+        'education',
+      )
+      expect(getTimelinePanel(2).querySelector('[data-testid="section-label"]')?.className).toContain(
+        'education',
+      )
     })
 
     it('inserts tl-sep spacer before institution heading', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -614,79 +602,103 @@ describe('TimelineSection', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const commitEntries = screen.getAllByTestId('commit-entry')
-      const institution = commitEntries[0].querySelector('[data-testid="commit-institution"]')
+      const institution = getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')
       expect(institution?.previousElementSibling).toHaveClass('tl-sep')
     })
   })
 
   describe('issue #214 - timeline scroll shell regression', () => {
-    const timelinePanelIds = ['timeline', 'timeline-a3f9d2b', 'timeline-b7c3e1a'] as const
-
-    function getTimelinePanels() {
-      return timelinePanelIds
-        .map((id) => document.getElementById(id))
-        .filter((panel): panel is HTMLElement => panel instanceof HTMLElement)
-    }
-
-    it('timeline panels do not use horizontal scroll or translateX on section surfaces', () => {
+    it('timeline is one major section without per-entry global sticky surfaces', () => {
       render(<TimelineSection />)
 
-      getTimelinePanels().forEach((panel) => {
-        expect(panel.style.transform).not.toContain('translateX')
-        expect(panel.style.transform).not.toContain('translate3d')
-      })
-    })
-
-    it('timeline panels do not have a horizontal track element', () => {
-      render(<TimelineSection />)
-
-      getTimelinePanels().forEach((panel) => {
-        const children = panel.querySelectorAll('[data-testid]')
-        const hasTrack = Array.from(children).some(
-          (child) =>
-            child.getAttribute('data-testid')?.includes('track') ||
-            child.getAttribute('data-testid')?.includes('carousel')
-        )
-        expect(hasTrack).toBe(false)
-      })
-    })
-
-    it('timeline panels do not participate in global card-deck stack depth', () => {
-      render(<TimelineSection />)
-
+      expect(document.getElementById('timeline')).toBeInTheDocument()
+      expect(document.getElementById('timeline-a3f9d2b')).not.toBeInTheDocument()
+      expect(document.getElementById('timeline-b7c3e1a')).not.toBeInTheDocument()
       expect(document.querySelectorAll('[data-sticky-section="true"]')).toHaveLength(0)
-
-      getTimelinePanels().forEach((panel) => {
-        expect(panel.style.zIndex).toBe('')
-        expect(panel.style.transform).toBe('')
-        expect(panel.style.opacity).toBe('')
-      })
     })
 
-    it('each timeline panel occupies a full desktop viewport beat (min-h-screen)', () => {
+    it('timeline outer section keeps an internal sticky viewport only', () => {
       render(<TimelineSection />)
 
-      getTimelinePanels().forEach((panel) => {
-        expect(panel).toHaveClass('min-h-screen')
-        expect(panel).not.toHaveClass('sticky', 'top-0')
-      })
+      const timeline = document.getElementById('timeline')
+      const stickyViewport = timeline?.querySelector('[data-sticky-viewport="true"]')
+
+      expect(timeline).toHaveAttribute('data-sticky-scroll-host', 'true')
+      expect(timeline).not.toHaveAttribute('data-sticky-section')
+      expect(stickyViewport).toHaveClass('hscroll-sticky')
     })
 
-    it('timeline panels are in DOM order matching newest-first scroll progression', () => {
+    it('timeline track translateX is independent from the outer section transform', () => {
+      vi.mocked(useTimelineScroll).mockReturnValue({
+        active: [false, true, false],
+        activeIndex: 1,
+        progress: 0.5,
+        tx: -1000,
+      })
+
       render(<TimelineSection />)
 
-      const ids = getTimelinePanels().map((panel) => panel.id)
-      expect(ids).toEqual([...timelinePanelIds])
+      const timeline = document.getElementById('timeline') as HTMLElement
+      const track = document.querySelector('[data-timeline-track="true"]') as HTMLElement
+
+      expect(timeline.style.transform).toBe('')
+      expect(track.style.transform).toContain('translateX(-1000px)')
+    })
+  })
+
+  describe('issue #220 - one internal horizontal track', () => {
+    it('renders one major section with id timeline', () => {
+      render(<TimelineSection />)
+
+      const sections = document.querySelectorAll('#timeline')
+      expect(sections).toHaveLength(1)
+      expect(sections[0]?.tagName.toLowerCase()).toBe('section')
     })
 
-    it('timeline panels do not carry card-deck animation classes or inline compositing hints', () => {
+    it('places all entries as panels inside one horizontal track', () => {
       render(<TimelineSection />)
 
-      getTimelinePanels().forEach((panel) => {
-        expect(panel).not.toHaveClass('origin-center', 'transform-gpu')
-        expect(panel.style.willChange).toBe('')
-      })
+      const track = document.querySelector('[data-timeline-track="true"]')
+      const panels = track?.querySelectorAll('[data-testid="timeline-panel"]')
+
+      expect(track).toHaveClass('hscroll-track')
+      expect(panels).toHaveLength(3)
+    })
+
+    it('renders one snap anchor per timeline entry', () => {
+      render(<TimelineSection />)
+
+      const timeline = document.getElementById('timeline')
+      const anchors = timeline?.querySelectorAll('.snap-anchor')
+
+      expect(anchors).toHaveLength(3)
+      expect(anchors?.[0]).toHaveStyle({ top: '0vh' })
+      expect(anchors?.[1]).toHaveStyle({ top: '100vh' })
+      expect(anchors?.[2]).toHaveStyle({ top: '200vh' })
+    })
+
+    it('uses one viewport of section height per entry', () => {
+      render(<TimelineSection />)
+
+      const timeline = document.getElementById('timeline')
+      expect(timeline).toHaveStyle({ height: '300vh' })
+    })
+
+    it('does not render each entry as a separate global sticky section', () => {
+      render(<TimelineSection />)
+
+      expect(document.querySelectorAll('section[id^="timeline-"]')).toHaveLength(0)
+      expect(document.querySelectorAll('[data-sticky-section="true"]')).toHaveLength(0)
+    })
+
+    it('renders track panels oldest-to-newest while newest is the first user-facing panel', () => {
+      render(<TimelineSection />)
+
+      const panels = Array.from(document.querySelectorAll('[data-testid="timeline-panel"]'))
+      const contentIndexes = panels.map((panel) => panel.getAttribute('data-content-index'))
+
+      expect(contentIndexes).toEqual(['2', '1', '0'])
+      expect(panels[2]?.getAttribute('data-content-index')).toBe('0')
     })
   })
 
@@ -701,7 +713,7 @@ describe('TimelineSection', () => {
     })
 
     it('renders progress counter with resume entry count 01 / 03', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
 
       render(<TimelineSection />)
 
@@ -709,8 +721,8 @@ describe('TimelineSection', () => {
     })
 
     it('progress counter advances with active panel index', () => {
-      vi.mocked(useActivePanel).mockReturnValue(
-        mockActivePanelState([false, true, false], { activeIndex: 1, progress: 0.5 }),
+      vi.mocked(useTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([false, true, false], { activeIndex: 1, progress: 0.5 }),
       )
 
       render(<TimelineSection />)
@@ -719,8 +731,8 @@ describe('TimelineSection', () => {
     })
 
     it('progress fill width reflects scroll progress', () => {
-      vi.mocked(useActivePanel).mockReturnValue(
-        mockActivePanelState([false, true, false], { activeIndex: 1, progress: 0.5 }),
+      vi.mocked(useTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([false, true, false], { activeIndex: 1, progress: 0.5 }),
       )
 
       render(<TimelineSection />)
@@ -743,7 +755,7 @@ describe('TimelineSection', () => {
     })
 
     it('renders SCROLL ↓ hint when on first panel', () => {
-      vi.mocked(useActivePanel).mockReturnValue(mockActivePanelState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
 
       render(<TimelineSection />)
 
@@ -755,8 +767,8 @@ describe('TimelineSection', () => {
     })
 
     it('hides scroll hint after first panel beat', () => {
-      vi.mocked(useActivePanel).mockReturnValue(
-        mockActivePanelState([false, true, false], { activeIndex: 1, progress: 0.5 }),
+      vi.mocked(useTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([false, true, false], { activeIndex: 1, progress: 0.5 }),
       )
 
       render(<TimelineSection />)
