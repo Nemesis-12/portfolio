@@ -1,99 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import { useTypewriter } from '../animations/useTypewriter'
-import { useActivePanel } from '../hooks/useActivePanel'
-import { StickySection } from './StickySection'
+import { useTimelineScroll } from '../hooks/useTimelineScroll'
+import { getTimelineScrollRangeVh, getTimelineSnapAnchorTopVh } from './timelineGeometry'
 
 const TIMELINE_SECTION_NO = '// 03'
 
 function formatPanelCount(index: number, total: number): string {
   return `${String(index + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`
-}
-
-function useTimelineInView(entryCount: number): boolean {
-  const [inView, setInView] = useState(true)
-  const visibilityRef = useRef(new Map<Element, boolean>())
-
-  useEffect(() => {
-    const sections = [
-      document.getElementById('timeline'),
-      ...Array.from(document.querySelectorAll('[id^="timeline-"]')),
-    ].filter((section): section is HTMLElement => section instanceof HTMLElement)
-
-    if (sections.length !== entryCount) {
-      return
-    }
-
-    visibilityRef.current = new Map(sections.map((section) => [section, true]))
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          visibilityRef.current.set(entry.target, entry.isIntersecting)
-        })
-        setInView(Array.from(visibilityRef.current.values()).some(Boolean))
-      },
-      { threshold: 0 },
-    )
-
-    sections.forEach((section) => observer.observe(section))
-    return () => observer.disconnect()
-  }, [entryCount])
-
-  return inView
-}
-
-function TimelineChrome({
-  activeIndex,
-  progress,
-  total,
-  visible,
-}: {
-  activeIndex: number
-  progress: number
-  total: number
-  visible: boolean
-}) {
-  const showScrollHint = activeIndex === 0
-
-  return (
-    <div
-      data-testid="timeline-chrome"
-      className="pointer-events-none fixed inset-0 z-50"
-      aria-hidden={!visible}
-      style={{
-        opacity: visible ? 1 : 0,
-        transition: 'opacity 0.3s',
-      }}
-    >
-      <div data-sticky-viewport="true" className="relative h-full w-full hscroll-sticky">
-        <div className="hscroll-head">
-          <span className="hscroll-no">{TIMELINE_SECTION_NO}</span>
-          <span className="hscroll-name">TIMELINE</span>
-          <div className="hscroll-rule" />
-          <div data-testid="progress-indicator" className="hscroll-progress">
-            <span data-testid="progress-count">{formatPanelCount(activeIndex, total)}</span>
-            <div className="hscroll-progress-track">
-              <div
-                data-testid="progress-fill"
-                className="hscroll-progress-fill"
-                style={{ width: `${progress * 100}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div
-          data-testid="scroll-hint"
-          data-visible={showScrollHint}
-          aria-hidden="true"
-          className="hscroll-hint"
-          style={{ opacity: showScrollHint ? 0.85 : 0, transition: 'opacity 0.3s' }}
-        >
-          SCROLL <span>↓</span>
-        </div>
-      </div>
-    </div>
-  )
 }
 
 const timelineEntries: TimelineEntry[] = [
@@ -143,7 +56,7 @@ function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean 
       entry.role,
       ...entry.bullets,
     ],
-    [entry]
+    [entry],
   )
 
   const displayedLines = useTypewriter(active, lines, 16)
@@ -206,55 +119,106 @@ function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean 
 function TimelinePanel({
   entry,
   active,
-  panelRef,
-  id,
+  contentIndex,
 }: {
   entry: TimelineEntry
   active: boolean
-  panelRef: (el: HTMLElement | null) => void
-  id: string
+  contentIndex: number
 }) {
   return (
-    <StickySection id={id} className="bg-graphite-light">
-      <div ref={panelRef} className="relative min-h-screen">
-        <div
-          data-testid="section-label"
-          className={`tl-section-tag ${entry.category}`}
-        >
-          <span className="tl-section-slash">//</span>
-          <span className="tl-section-kind">
-            {entry.category === 'experience' ? 'EXPERIENCE' : 'EDUCATION'}
-          </span>
-        </div>
-        <CommitEntry entry={entry} active={active} />
+    <div
+      data-testid="timeline-panel"
+      data-content-index={contentIndex}
+      className="relative shrink-0"
+    >
+      <div
+        data-testid="section-label"
+        className={`tl-section-tag ${entry.category}`}
+      >
+        <span className="tl-section-slash">//</span>
+        <span className="tl-section-kind">
+          {entry.category === 'experience' ? 'EXPERIENCE' : 'EDUCATION'}
+        </span>
       </div>
-    </StickySection>
+      <CommitEntry entry={entry} active={active} />
+    </div>
   )
 }
 
 const TimelineSection: React.FC = () => {
+  const outerRef = useRef<HTMLElement>(null)
   const entryCount = timelineEntries.length
-  const { active, activeIndex, progress, setRef } = useActivePanel(entryCount)
-  const inView = useTimelineInView(entryCount)
+  const scrollRangeVh = getTimelineScrollRangeVh(entryCount)
+  const { active, activeIndex, progress, tx } = useTimelineScroll(outerRef, entryCount)
+  const trackEntries = useMemo(() => [...timelineEntries].reverse(), [])
 
   return (
-    <>
-      <TimelineChrome
-        activeIndex={activeIndex}
-        progress={progress}
-        total={entryCount}
-        visible={inView}
-      />
-      {timelineEntries.map((entry, i) => (
-        <TimelinePanel
+    <section
+      ref={outerRef}
+      id="timeline"
+      data-sticky-scroll-host="true"
+      className="relative min-h-screen bg-graphite-light"
+      style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden' }}
+    >
+      {timelineEntries.map((entry, index) => (
+        <div
           key={entry.hash}
-          entry={entry}
-          active={active[i]}
-          panelRef={setRef(i)}
-          id={i === 0 ? 'timeline' : `timeline-${entry.hash}`}
+          data-testid="timeline-snap-anchor"
+          className="snap-anchor"
+          style={{ top: `${getTimelineSnapAnchorTopVh(index)}vh` }}
+          aria-hidden="true"
         />
       ))}
-    </>
+
+      <div data-sticky-viewport="true" className="hscroll-sticky flex flex-col">
+        <div className="hscroll-head">
+          <span className="hscroll-no">{TIMELINE_SECTION_NO}</span>
+          <span className="hscroll-name">TIMELINE</span>
+          <div className="hscroll-rule" />
+          <div data-testid="progress-indicator" className="hscroll-progress">
+            <span data-testid="progress-count">{formatPanelCount(activeIndex, entryCount)}</span>
+            <div className="hscroll-progress-track">
+              <div
+                data-testid="progress-fill"
+                className="hscroll-progress-fill"
+                style={{ width: `${progress * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div
+          data-timeline-track="true"
+          className="hscroll-track"
+          style={{
+            transform: `translateX(${tx}px)`,
+            transition: 'transform 0.35s var(--ease)',
+          }}
+        >
+          {trackEntries.map((entry, reversedIndex) => {
+            const contentIndex = entryCount - 1 - reversedIndex
+            return (
+              <TimelinePanel
+                key={entry.hash}
+                entry={entry}
+                active={active[contentIndex]}
+                contentIndex={contentIndex}
+              />
+            )
+          })}
+        </div>
+
+        <div
+          data-testid="scroll-hint"
+          data-visible={activeIndex === 0}
+          aria-hidden="true"
+          className="hscroll-hint"
+          style={{ opacity: activeIndex === 0 ? 0.85 : 0, transition: 'opacity 0.3s' }}
+        >
+          SCROLL <span>↓</span>
+        </div>
+      </div>
+    </section>
   )
 }
 

@@ -13,11 +13,8 @@ const sectionIds = [
   'projects',
   'skills',
   'timeline',
-  'timeline-a3f9d2b',
-  'timeline-b7c3e1a',
   'contact',
 ] as const
-const timelinePanelIds = ['timeline', 'timeline-a3f9d2b', 'timeline-b7c3e1a']
 const shellConstraintClasses = ['container', 'max-w-7xl', 'mx-auto'] as const
 
 function expectNoShellConstraint(element: Element) {
@@ -58,12 +55,6 @@ function getMajorSectionElements() {
   return sectionIds
     .map((id) => document.getElementById(id))
     .filter((section): section is HTMLElement => section instanceof HTMLElement)
-}
-
-function getTimelinePanels() {
-  return timelinePanelIds
-    .map((id) => document.getElementById(id))
-    .filter((panel): panel is HTMLElement => panel instanceof HTMLElement)
 }
 
 describe('App shell', () => {
@@ -254,7 +245,7 @@ describe('App shell', () => {
   })
 
   describe('issue #214 - global scroll shell regression', () => {
-    const majorSectionIds = ['home', 'projects', 'skills', 'contact', ...timelinePanelIds] as const
+    const majorSectionIds = ['home', 'projects', 'skills', 'timeline', 'contact'] as const
 
     it('does not mount a global sticky section stack', () => {
       render(<App />)
@@ -274,11 +265,14 @@ describe('App shell', () => {
       expect(section.style.zIndex).toBe('')
     })
 
-    it('timeline panels render in newest-first document order', () => {
+    it('timeline is one major section with an internal horizontal track', () => {
       render(<App />)
 
-      const ids = getTimelinePanels().map((panel) => panel.id)
-      expect(ids).toEqual([...timelinePanelIds])
+      const timeline = document.getElementById('timeline')
+      expect(timeline).toBeInTheDocument()
+      expect(document.getElementById('timeline-a3f9d2b')).not.toBeInTheDocument()
+      expect(timeline?.querySelector('[data-timeline-track="true"]')).toBeInTheDocument()
+      expect(timeline?.querySelectorAll('.snap-anchor')).toHaveLength(3)
     })
 
     it('projects outer scroll host keeps an internal sticky viewport only', () => {
