@@ -111,6 +111,33 @@ describe('computeActiveMajorSection', () => {
     }
   })
 
+  it('detects contact when the probe is inside the footer element', () => {
+    mockSection('home', -4000, viewportHeight)
+    mockSection('projects', -3000, viewportHeight * 6)
+    mockSection('skills', -800, viewportHeight)
+    mockSection('timeline', -400, viewportHeight * 3)
+    const contact = document.createElement('footer')
+    contact.id = 'contact'
+    vi.spyOn(contact, 'getBoundingClientRect').mockReturnValue(rectWithHeight(0, viewportHeight))
+    document.body.appendChild(contact)
+
+    expect(
+      computeActiveMajorSection(MAJOR_SECTION_IDS, (id) => document.getElementById(id), viewportHeight),
+    ).toBe('contact')
+  })
+
+  it('falls back to the first section when the probe is below all sections', () => {
+    mockSection('home', -1000, 200)
+    mockSection('projects', -800, 400)
+    mockSection('skills', -400, 400)
+    mockSection('timeline', -100, 80)
+    mockSection('contact', -50, 40)
+
+    expect(
+      computeActiveMajorSection(MAJOR_SECTION_IDS, (id) => document.getElementById(id), viewportHeight),
+    ).toBe('home')
+  })
+
   it('does not switch active section based on internal snap anchors or panels', () => {
     const projectsHeight = viewportHeight * 4
     const projects = mockSection('projects', -viewportHeight, projectsHeight)
@@ -160,6 +187,25 @@ describe('useActiveMajorSection', () => {
     })
 
     expect(result.current).toBe('projects')
+  })
+
+  it('updates active section on resize when viewport height changes', () => {
+    mockSection('home', 0, 500)
+    mockSection('skills', 250, 800)
+
+    const { result } = renderHook(() => useActiveMajorSection())
+
+    expect(result.current).toBe('skills')
+
+    act(() => {
+      Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        value: 600,
+      })
+      window.dispatchEvent(new Event('resize'))
+    })
+
+    expect(result.current).toBe('home')
   })
 
   it('cleans up scroll and resize listeners on unmount', () => {

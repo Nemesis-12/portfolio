@@ -26,7 +26,7 @@ export function computeActiveMajorSection(
 }
 
 export function useActiveMajorSection(): string {
-  const [activeSection, setActiveSection] = useState('')
+  const [activeSection, setActiveSection] = useState<string>(MAJOR_SECTION_IDS[0])
 
   useEffect(() => {
     const updateActiveSection = () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { smoothScrollToSection } from './smoothScrollTo'
+import { handleSectionLinkClick, smoothScrollToSection } from './smoothScrollTo'
 
 describe('smoothScrollToSection', () => {
   afterEach(() => {
@@ -26,5 +26,28 @@ describe('smoothScrollToSection', () => {
     smoothScrollToSection('missing')
 
     expect(scrollToSpy).not.toHaveBeenCalled()
+  })
+})
+
+describe('handleSectionLinkClick', () => {
+  afterEach(() => {
+    document.body.innerHTML = ''
+    vi.restoreAllMocks()
+  })
+
+  it('prevents default navigation and smooth-scrolls to the section', () => {
+    const section = document.createElement('section')
+    section.id = 'skills'
+    Object.defineProperty(section, 'offsetTop', { configurable: true, value: 1800 })
+    document.body.appendChild(section)
+
+    const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    const preventDefault = vi.fn()
+    const event = { preventDefault } as unknown as Parameters<typeof handleSectionLinkClick>[0]
+
+    handleSectionLinkClick(event, 'skills')
+
+    expect(preventDefault).toHaveBeenCalled()
+    expect(scrollToSpy).toHaveBeenCalledWith({ top: 1800, behavior: 'smooth' })
   })
 })
