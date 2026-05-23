@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { hoverEase } from '../animations/variants'
+import { handleSectionLinkClick } from '../utils/smoothScrollTo'
 
 interface NavLink {
   label: string
@@ -45,7 +46,10 @@ export default function MobileMenu({ isOpen, onClose, links }: MobileMenuProps) 
               <li key={label}>
                 <motion.a
                   href={href}
-                  onClick={onClose}
+                  onClick={(event) => {
+                    handleSectionLinkClick(event, href.slice(1))
+                    onClose()
+                  }}
                   variants={hoverEase}
                   initial="idle"
                   whileHover="hover"
