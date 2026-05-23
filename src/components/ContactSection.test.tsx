@@ -70,6 +70,48 @@ describe('ContactSection', () => {
     })
   })
 
+  describe('issue #222 - reset and replay type-in on re-entry', () => {
+    it('resets heading and cursor when section leaves view and replays from start on re-entry', () => {
+      let inView = false
+      vi.mocked(useInView).mockImplementation(() => inView)
+      vi.useFakeTimers()
+
+      const { rerender } = render(<ContactSection />)
+
+      expect(screen.queryByText("LET'S")).not.toBeInTheDocument()
+
+      inView = true
+      rerender(<ContactSection />)
+
+      act(() => { vi.advanceTimersByTime(250) })
+      expect(screen.getByText("LET'S")).toBeInTheDocument()
+
+      act(() => { vi.advanceTimersByTime(400) })
+      expect(document.querySelector('#contact .footer-big')).toHaveTextContent("LET'SCONNECT.")
+      expect(document.querySelector('[data-testid="contact-cursor"]')).toBeInTheDocument()
+
+      inView = false
+      rerender(<ContactSection />)
+
+      expect(screen.queryByText("LET'S")).not.toBeInTheDocument()
+      expect(document.querySelector('[data-testid="contact-cursor"]')).not.toBeInTheDocument()
+      expect(document.querySelector('#contact .period')).not.toBeInTheDocument()
+
+      inView = true
+      rerender(<ContactSection />)
+
+      expect(screen.queryByText("LET'S")).not.toBeInTheDocument()
+
+      act(() => { vi.advanceTimersByTime(250) })
+      expect(screen.getByText("LET'S")).toBeInTheDocument()
+      expect(screen.queryByText('CONNECT')).not.toBeInTheDocument()
+
+      act(() => { vi.advanceTimersByTime(400) })
+      expect(document.querySelector('#contact .footer-big')).toHaveTextContent("LET'SCONNECT.")
+      expect(document.querySelector('[data-testid="contact-cursor"]')).toBeInTheDocument()
+    })
+  })
+
   describe('issue #87 - LET\'S CONNECT. typewriter', () => {
     it('heading is not visible when section is out of view', () => {
       vi.mocked(useInView).mockReturnValue(false)
