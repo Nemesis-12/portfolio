@@ -29,14 +29,21 @@ const tiles: SkillTile[] = [
   { area: 'mn', category: 'TOOL', name: 'Git', color: 'dark' },
 ]
 
-export const REVEAL_ORDER = ['py', 'js', 'dk', 're', 'cc', 'nd', 'nx', 'fl', 'gt', 'pg', 'fg', 'mn', 'pal'] as const
+export const REVEAL_AREAS = ['py', 'js', 'dk', 're', 'cc', 'nd', 'nx', 'fl', 'gt', 'pg', 'fg', 'mn', 'pal'] as const
 
-const revealOrderByArea = new Map<string, number>(
-  REVEAL_ORDER.map((area, index) => [area, index]),
-)
+export function createShuffledRevealOrder(
+  random: () => number = Math.random,
+): Map<string, number> {
+  const areas = [...REVEAL_AREAS]
+  for (let i = areas.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1))
+    ;[areas[i], areas[j]] = [areas[j], areas[i]]
+  }
+  return new Map(areas.map((area, index) => [area, index]))
+}
 
-export function revealTransitionDelay(area: string): string {
-  const index = revealOrderByArea.get(area) ?? 0
+export function revealTransitionDelay(area: string, revealOrder: Map<string, number>): string {
+  const index = revealOrder.get(area) ?? 0
   return `${index * TILE_REVEAL_STEP_S}s`
 }
 
@@ -47,11 +54,21 @@ const PALETTE = [
   'var(--color-ultrasonic-blue)',
 ] as const
 
-function SkillTileCard({ tile, visible }: { tile: SkillTile; visible: boolean }) {
+function SkillTileCard({
+  tile,
+  visible,
+  revealOrder,
+}: {
+  tile: SkillTile
+  visible: boolean
+  revealOrder: Map<string, number> | null
+}) {
   return (
     <div
       className={`bi bi-${tile.area} c-${tile.color}${tile.large ? ' bi-lg' : ''}${visible ? ' in' : ''}`}
-      style={{ transitionDelay: revealTransitionDelay(tile.area) }}
+      style={{
+        transitionDelay: revealOrder ? revealTransitionDelay(tile.area, revealOrder) : '0s',
+      }}
     >
       <div className="bi-cat">{tile.category}</div>
       <div className="bi-name">{tile.name}</div>
@@ -59,11 +76,19 @@ function SkillTileCard({ tile, visible }: { tile: SkillTile; visible: boolean })
   )
 }
 
-function PaletteTile({ visible }: { visible: boolean }) {
+function PaletteTile({
+  visible,
+  revealOrder,
+}: {
+  visible: boolean
+  revealOrder: Map<string, number> | null
+}) {
   return (
     <div
       className={`bi bi-pal${visible ? ' in' : ''}`}
-      style={{ transitionDelay: revealTransitionDelay('pal') }}
+      style={{
+        transitionDelay: revealOrder ? revealTransitionDelay('pal', revealOrder) : '0s',
+      }}
       data-testid="skills-palette"
     >
       {PALETTE.map((color, index) => (
@@ -76,6 +101,7 @@ function PaletteTile({ visible }: { visible: boolean }) {
 export function SkillsSection() {
   const gridRef = useRef<HTMLDivElement>(null)
   const [isInView, setIsInView] = useState(false)
+  const [revealOrder, setRevealOrder] = useState<Map<string, number> | null>(null)
 
   useEffect(() => {
     const grid = gridRef.current
@@ -85,7 +111,14 @@ export function SkillsSection() {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsInView(entry.isIntersecting)
+        if (entry.isIntersecting) {
+          setRevealOrder(createShuffledRevealOrder())
+          setIsInView(true)
+          return
+        }
+
+        setIsInView(false)
+        setRevealOrder(null)
       },
       { rootMargin: '-10% 0px -10% 0px' },
     )
@@ -105,9 +138,9 @@ export function SkillsSection() {
 
         <div ref={gridRef} data-testid="skills-grid" className="bento">
           {tiles.map((tile) => (
-            <SkillTileCard key={tile.area} tile={tile} visible={isInView} />
+            <SkillTileCard key={tile.area} tile={tile} visible={isInView} revealOrder={revealOrder} />
           ))}
-          <PaletteTile visible={isInView} />
+          <PaletteTile visible={isInView} revealOrder={revealOrder} />
         </div>
       </div>
     </StickySection>

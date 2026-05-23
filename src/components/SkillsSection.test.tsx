@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { act, render, screen } from '@testing-library/react'
-import { REVEAL_ORDER, SkillsSection, revealTransitionDelay } from './SkillsSection'
+import {
+  REVEAL_AREAS,
+  SkillsSection,
+  createShuffledRevealOrder,
+  revealTransitionDelay,
+} from './SkillsSection'
 
 let observerCallback!: IntersectionObserverCallback
 let observedElement: Element | undefined
@@ -29,14 +34,6 @@ function getSkillTile(name: string) {
   return tile as HTMLElement
 }
 
-function getTileTransitionDelay(name: string) {
-  return getSkillTile(name).style.transitionDelay
-}
-
-function parseTransitionDelaySeconds(delay: string) {
-  return Number.parseFloat(delay)
-}
-
 function getLatestSkillTileTransitionDelays() {
   const grid = screen.getByTestId('skills-grid')
   return Array.from(grid.querySelectorAll('.bi')).map((tile) => {
@@ -54,6 +51,40 @@ function fireIntersection(isIntersecting: boolean) {
   })
 }
 
+describe('createShuffledRevealOrder', () => {
+  it('assigns every area a unique index from 0 through n - 1', () => {
+    const order = createShuffledRevealOrder(() => 0)
+
+    expect(order.size).toBe(REVEAL_AREAS.length)
+    expect([...order.values()].sort((a, b) => a - b)).toEqual(
+      REVEAL_AREAS.map((_, index) => index),
+    )
+  })
+
+  it('can produce a different order when randomness changes', () => {
+    const firstOrder = createShuffledRevealOrder(() => 0)
+    let call = 0
+    const secondOrder = createShuffledRevealOrder(() => {
+      call += 1
+      return call === 1 ? 0.99 : 0
+    })
+
+    expect([...firstOrder.entries()]).not.toEqual([...secondOrder.entries()])
+  })
+})
+
+describe('revealTransitionDelay', () => {
+  it('derives delay from the provided reveal-order index', () => {
+    const order = new Map([
+      ['py', 2],
+      ['pal', 5],
+    ])
+
+    expect(revealTransitionDelay('py', order)).toBe('0.24s')
+    expect(revealTransitionDelay('pal', order)).toBe('0.6s')
+  })
+})
+
 describe('SkillsSection', () => {
   beforeEach(() => {
     observedElement = undefined
@@ -63,6 +94,7 @@ describe('SkillsSection', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals()
+    vi.restoreAllMocks()
   })
 
   it('renders a section element with id="skills"', () => {
@@ -167,38 +199,6 @@ describe('SkillsSection', () => {
     expect(pythonTile.className).toContain('bi-lg')
   })
 
-  it('reveals larger anchor skill tiles before smaller supporting tiles', () => {
-    render(<SkillsSection />)
-
-    expect(parseTransitionDelaySeconds(getTileTransitionDelay('Python')))
-      .toBeLessThan(parseTransitionDelaySeconds(getTileTransitionDelay('Docker')))
-    expect(parseTransitionDelaySeconds(getTileTransitionDelay('PyTorch')))
-      .toBeLessThan(parseTransitionDelaySeconds(getTileTransitionDelay('Git')))
-  })
-
-  it('assigns every skill tile one deterministic reveal position across renders', () => {
-    const { unmount } = render(<SkillsSection />)
-
-    const firstOrder = getLatestSkillTileTransitionDelays()
-
-    unmount()
-
-    render(<SkillsSection />)
-
-    const secondOrder = getLatestSkillTileTransitionDelays()
-
-    expect(new Set(firstOrder.map(([, delay]) => delay)).size).toBe(13)
-    expect(firstOrder).toEqual(secondOrder)
-  })
-
-  it('derives transitionDelay values from the static reveal-order array index', () => {
-    render(<SkillsSection />)
-
-    for (const [index, area] of REVEAL_ORDER.entries()) {
-      expect(revealTransitionDelay(area)).toBe(`${index * 0.12}s`)
-    }
-  })
-
   it('skill tiles use sharp edges (no rounded corners)', () => {
     render(<SkillsSection />)
     const grid = screen.getByTestId('skills-grid')
@@ -242,12 +242,19 @@ describe('SkillsSection', () => {
     }
   })
 
-  it('resets to hidden after leaving the viewport and replays the deterministic order on re-entry', () => {
+  it('assigns every tile a unique reveal delay when the grid enters the viewport', () => {
     render(<SkillsSection />)
 
     fireIntersection(true)
 
-    const firstRevealOrder = getLatestSkillTileTransitionDelays()
+    const delays = getLatestSkillTileTransitionDelays().map(([, delay]) => delay)
+    expect(new Set(delays).size).toBe(13)
+  })
+
+  it('resets to hidden after leaving the viewport', () => {
+    render(<SkillsSection />)
+
+    fireIntersection(true)
     expect(document.querySelectorAll('.bi.in')).toHaveLength(13)
 
     fireIntersection(false)
@@ -255,10 +262,33 @@ describe('SkillsSection', () => {
     for (const tile of document.querySelectorAll('.bi')) {
       expect(tile).not.toHaveClass('in')
     }
+  })
+
+  it('generates a fresh reveal order on each viewport entry and replays the reveal', () => {
+    const random = vi.spyOn(Math, 'random')
+    random.mockReturnValue(0)
+
+    render(<SkillsSection />)
 
     fireIntersection(true)
-
+    const firstDelays = getLatestSkillTileTransitionDelays()
     expect(document.querySelectorAll('.bi.in')).toHaveLength(13)
-    expect(getLatestSkillTileTransitionDelays()).toEqual(firstRevealOrder)
+
+    fireIntersection(false)
+    for (const tile of document.querySelectorAll('.bi')) {
+      expect(tile).not.toHaveClass('in')
+    }
+
+    let call = 0
+    random.mockImplementation(() => {
+      call += 1
+      return call === 1 ? 0.99 : 0
+    })
+
+    fireIntersection(true)
+    expect(document.querySelectorAll('.bi.in')).toHaveLength(13)
+
+    const secondDelays = getLatestSkillTileTransitionDelays()
+    expect(secondDelays).not.toEqual(firstDelays)
   })
 })
