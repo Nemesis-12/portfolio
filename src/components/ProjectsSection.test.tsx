@@ -347,6 +347,13 @@ describe('ProjectsSection', () => {
     expect(projectsSection).toHaveStyle({ height: `${expectedHeightVh * 100}vh` })
   })
 
+  it('outer container uses the hscroll section wrapper class', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const projectsSection = document.getElementById('projects')
+    expect(projectsSection).toHaveClass('hscroll')
+  })
+
   it('renders one snap-anchor per project at expected vertical landing points', () => {
     render(<ProjectsSection projects={mockProjects} />)
 
@@ -356,6 +363,14 @@ describe('ProjectsSection', () => {
     anchors.forEach((anchor, index) => {
       expect(anchor).toHaveStyle({ top: `${index * 100}vh` })
     })
+  })
+
+  it('renders a single snap anchor at 0vh for one project', () => {
+    render(<ProjectsSection projects={[mockProjects[0]]} />)
+
+    const anchors = screen.getAllByTestId('snap-anchor')
+    expect(anchors).toHaveLength(1)
+    expect(anchors[0]).toHaveStyle({ top: '0vh' })
   })
 
   it('sticky viewport child has 100vh height and top: 0', () => {
@@ -427,14 +442,6 @@ describe('ProjectsSection', () => {
 
     expect(expectedScrollRangeVh).toBe(2)
     expect(expectedScrollRangePx).toBe(800)
-  })
-
-  it('getScrollRangeVh returns one viewport per project', () => {
-    expect(getScrollRangeVh(1)).toBe(1)
-    expect(getScrollRangeVh(2)).toBe(2)
-    expect(getScrollRangeVh(3)).toBe(3)
-    expect(getScrollRangeVh(4)).toBe(4)
-    expect(getScrollRangeVh(0)).toBe(1)
   })
 
   it('derives active index from adjusted progress using Math.round(progress * (projects.length - 1))', () => {

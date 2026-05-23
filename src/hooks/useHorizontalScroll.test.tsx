@@ -126,6 +126,20 @@ describe('useHorizontalScroll', () => {
     expect(result.current).toEqual({ progress: 1, tx: -1600 })
   })
 
+  it('clamps progress to 1 when scrolled past the section end', () => {
+    setViewport(1000, 800)
+
+    const { result } = renderHorizontalScrollHook({
+      outerTop: -1200,
+      outerHeight: 1600,
+      innerScrollWidth: 2600,
+    })
+
+    act(() => window.dispatchEvent(new Event('scroll')))
+
+    expect(result.current).toEqual({ progress: 1, tx: -1600 })
+  })
+
   it('returns zero translate when the inner track does not overflow the viewport', () => {
     setViewport(1000, 800)
 
