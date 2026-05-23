@@ -76,15 +76,17 @@ describe('TimelineSection', () => {
   })
 
   describe('issue #97 - full-screen stacked panels', () => {
-    it('each timeline entry is its own sticky section panel', () => {
+    it('each timeline entry is its own full-viewport section panel', () => {
       render(<TimelineSection />)
 
-      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
-      expect(stickyPanels.length).toBe(3)
+      const panelIds = ['timeline', 'timeline-a3f9d2b', 'timeline-b7c3e1a']
+      const panels = panelIds.map((id) => document.getElementById(id))
+      expect(panels.every(Boolean)).toBe(true)
 
-      stickyPanels.forEach((panel) => {
+      panels.forEach((panel) => {
         expect(panel).toHaveClass('min-h-screen')
-        expect(panel).toHaveClass('sticky')
+        expect(panel).not.toHaveClass('sticky', 'top-0')
+        expect(panel).not.toHaveAttribute('data-sticky-section')
       })
     })
 
@@ -618,23 +620,28 @@ describe('TimelineSection', () => {
     })
   })
 
-  describe('issue #157 - desktop sticky panel scroll contract', () => {
-    it('timeline panels do not use horizontal scroll or translateX', () => {
+  describe('issue #214 - timeline scroll shell regression', () => {
+    const timelinePanelIds = ['timeline', 'timeline-a3f9d2b', 'timeline-b7c3e1a'] as const
+
+    function getTimelinePanels() {
+      return timelinePanelIds
+        .map((id) => document.getElementById(id))
+        .filter((panel): panel is HTMLElement => panel instanceof HTMLElement)
+    }
+
+    it('timeline panels do not use horizontal scroll or translateX on section surfaces', () => {
       render(<TimelineSection />)
 
-      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
-      stickyPanels.forEach((panel) => {
-        const style = (panel as HTMLElement).style
-        expect(style.transform).not.toContain('translateX')
-        expect(style.transform).not.toContain('translate3d')
+      getTimelinePanels().forEach((panel) => {
+        expect(panel.style.transform).not.toContain('translateX')
+        expect(panel.style.transform).not.toContain('translate3d')
       })
     })
 
     it('timeline panels do not have a horizontal track element', () => {
       render(<TimelineSection />)
 
-      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
-      stickyPanels.forEach((panel) => {
+      getTimelinePanels().forEach((panel) => {
         const children = panel.querySelectorAll('[data-testid]')
         const hasTrack = Array.from(children).some(
           (child) =>
@@ -645,57 +652,40 @@ describe('TimelineSection', () => {
       })
     })
 
-    it('each timeline panel participates in card-deck stack with z-index', () => {
+    it('timeline panels do not participate in global card-deck stack depth', () => {
       render(<TimelineSection />)
 
-      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
-      expect(stickyPanels.length).toBe(3)
+      expect(document.querySelectorAll('[data-sticky-section="true"]')).toHaveLength(0)
 
-      stickyPanels.forEach((panel) => {
-        const zIndex = (panel as HTMLElement).style.zIndex
-        expect(zIndex).toBeTruthy()
-        expect(Number(zIndex)).toBeGreaterThan(0)
+      getTimelinePanels().forEach((panel) => {
+        expect(panel.style.zIndex).toBe('')
+        expect(panel.style.transform).toBe('')
+        expect(panel.style.opacity).toBe('')
       })
     })
 
     it('each timeline panel occupies a full desktop viewport beat (min-h-screen)', () => {
       render(<TimelineSection />)
 
-      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
-      stickyPanels.forEach((panel) => {
+      getTimelinePanels().forEach((panel) => {
         expect(panel).toHaveClass('min-h-screen')
-        expect(panel).toHaveClass('sticky')
-        expect(panel).toHaveClass('top-0')
+        expect(panel).not.toHaveClass('sticky', 'top-0')
       })
     })
 
     it('timeline panels are in DOM order matching newest-first scroll progression', () => {
       render(<TimelineSection />)
 
-      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"][id]')
-      const ids = Array.from(stickyPanels).map((p) => p.id)
-
-      expect(ids[0]).toBe('timeline')
-      expect(ids[1]).toBe('timeline-a3f9d2b')
-      expect(ids[2]).toBe('timeline-b7c3e1a')
+      const ids = getTimelinePanels().map((panel) => panel.id)
+      expect(ids).toEqual([...timelinePanelIds])
     })
 
-    it('timeline panels have origin-center and transform-gpu for card-deck animations', () => {
+    it('timeline panels do not carry card-deck animation classes or inline compositing hints', () => {
       render(<TimelineSection />)
 
-      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
-      stickyPanels.forEach((panel) => {
-        expect(panel).toHaveClass('origin-center')
-        expect(panel).toHaveClass('transform-gpu')
-      })
-    })
-
-    it('timeline panels have willChange set for GPU compositing', () => {
-      render(<TimelineSection />)
-
-      const stickyPanels = document.querySelectorAll('[data-sticky-section="true"]')
-      stickyPanels.forEach((panel) => {
-        expect((panel as HTMLElement).style.willChange).toBe('transform, opacity')
+      getTimelinePanels().forEach((panel) => {
+        expect(panel).not.toHaveClass('origin-center', 'transform-gpu')
+        expect(panel.style.willChange).toBe('')
       })
     })
   })

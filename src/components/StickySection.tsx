@@ -1,5 +1,4 @@
 import { forwardRef, useCallback, useRef, type ElementType, type ReactNode } from 'react'
-import { useCardDeckDepth } from '../hooks/useCardDeckDepth'
 
 interface Props {
   id: string
@@ -30,15 +29,11 @@ export const StickySection = forwardRef<HTMLElement, Props>(function StickySecti
     [forwardedRef]
   )
 
-  useCardDeckDepth(sectionRef)
-
   return (
     <Component
       ref={setSectionRef}
       id={id}
-      data-sticky-section="true"
-      className={`sticky top-0 min-h-screen origin-center transform-gpu ${className}`.trim()}
-      style={{ willChange: 'transform, opacity' }}
+      className={`min-h-screen ${className}`.trim()}
     >
       {children}
     </Component>

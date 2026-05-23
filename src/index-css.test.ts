@@ -41,4 +41,14 @@ describe('global CSS brand chrome', () => {
     expect(blockFor('@theme')).toContain("--font-display: 'Press Start 2P', monospace;")
     expect(blockFor('@theme')).toContain("--font-body: 'Space Mono', monospace;")
   })
+
+  it('clips horizontal overflow on the document body', () => {
+    expect(blockFor('body')).toContain('overflow-x: hidden;')
+  })
+
+  it('uses proximity vertical scroll snap on html', () => {
+    expect(blockFor('html')).toContain('scroll-snap-type: y proximity;')
+    expect(blockFor('html')).toContain('scroll-padding-top: 56px;')
+    expect(blockFor('html')).not.toContain('scroll-behavior: smooth')
+  })
 })

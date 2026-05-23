@@ -383,11 +383,11 @@ describe('ProjectsSection', () => {
     expect(projectsSection).toHaveStyle({ overflowX: 'hidden' })
   })
 
-  it('outer container participates in card-deck stack depth', () => {
+  it('outer container does not participate in global card-deck stack depth', () => {
     render(
       <>
         <ProjectsSection projects={mockProjects} />
-        <section data-sticky-section="true" id="skills" />
+        <section id="skills" />
       </>,
     )
 
@@ -401,10 +401,10 @@ describe('ProjectsSection', () => {
 
     act(() => window.dispatchEvent(new Event('scroll')))
 
-    expect(projectsSection).toHaveAttribute('data-sticky-section', 'true')
-    expect(projectsSection.style.zIndex).toBe('1')
-    expect(projectsSection.style.transform).toBe('scale(0.975)')
-    expect(projectsSection.style.opacity).toBe('0.875')
+    expect(projectsSection).not.toHaveAttribute('data-sticky-section')
+    expect(projectsSection.style.zIndex).toBe('')
+    expect(projectsSection.style.transform).toBe('')
+    expect(projectsSection.style.opacity).toBe('')
   })
 
   it('scroll range calculation matches the desktop geometry contract', () => {

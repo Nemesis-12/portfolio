@@ -256,10 +256,6 @@
   /* parallax layers — transform driven by scrollY * factor in JS */
   [data-parallax]{will-change:transform}
 
-  /* ─── CARD-DECK STACK ──── */
-  [data-sticky-section="true"]:not([data-sticky-scroll-host="true"]){position:sticky;top:0;min-height:100vh;transform-origin:center center;will-change:transform,opacity}
-  [data-sticky-scroll-host="true"]{transform-origin:center center;will-change:transform,opacity}
-
   /* persistent title cursor (uses currentColor so it matches whichever text it sits next to) */
   .title-cursor{display:inline-block;width:.55ch;height:.9em;background:currentColor;vertical-align:-.13em;margin-left:6px;animation:blink-cursor 1.05s steps(1) infinite}
 
