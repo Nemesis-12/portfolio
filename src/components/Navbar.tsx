@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { hoverEase } from '../animations/variants'
+import { useActiveMajorSection } from '../hooks/useActiveMajorSection'
+import { handleSectionLinkClick, smoothScrollToSection } from '../utils/smoothScrollTo'
 import MobileMenu from './MobileMenu'
 
 const NAV_LINKS = [
@@ -12,40 +14,33 @@ const NAV_LINKS = [
 ]
 
 export default function Navbar() {
-  const [activeSection, setActiveSection] = useState<string>('')
+  const activeSection = useActiveMajorSection()
   const [menuOpen, setMenuOpen] = useState(false)
-
-  useEffect(() => {
-    const sections = document.querySelectorAll('section[id]')
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id)
-          }
-        }
-      },
-      { threshold: 0.5 }
-    )
-    sections.forEach((section) => observer.observe(section))
-    return () => observer.disconnect()
-  }, [])
 
   return (
     <>
       <nav className="nav">
-        <a href="#" className="nav-logo">
+        <a
+          href="#"
+          className="nav-logo"
+          onClick={(event) => {
+            event.preventDefault()
+            smoothScrollToSection('home')
+          }}
+        >
           FM_
         </a>
 
         <ul className="nav-list hidden md:flex">
           {NAV_LINKS.map(({ label, href }) => {
-            const isActive = activeSection === href.slice(1)
+            const sectionId = href.slice(1)
+            const isActive = activeSection === sectionId
             return (
               <li key={label}>
                 <a
                   href={href}
                   className={`nav-link${isActive ? ' active' : ''}`}
+                  onClick={(event) => handleSectionLinkClick(event, sectionId)}
                 >
                   <span className="nav-caret" data-testid="nav-caret">
                     &gt;

@@ -13,6 +13,7 @@ import {
   VALUE_PROP_SPEED,
   cursorVariants,
 } from './HeroSection.constants'
+import { handleSectionLinkClick } from '../utils/smoothScrollTo'
 
 const ctaVariants = {
   hidden: { opacity: 0, y: 8 },
@@ -117,7 +118,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
             transition={{ duration: CTA_FADE_DURATION }}
             className="hero-cta"
           >
-            <a href="#projects" className="btn btn-fill">
+            <a
+              href="#projects"
+              className="btn btn-fill"
+              onClick={(event) => handleSectionLinkClick(event, 'projects')}
+            >
               VIEW_WORK <span>→</span>
             </a>
             <a

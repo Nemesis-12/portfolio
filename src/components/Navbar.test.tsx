@@ -3,7 +3,48 @@ import { render, screen, waitFor, within, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Navbar from './Navbar'
 
+const VIEWPORT_HEIGHT = 800
+
+function rectWithHeight(top: number, height: number): DOMRect {
+  return {
+    top,
+    right: 1000,
+    bottom: top + height,
+    left: 0,
+    width: 1000,
+    height,
+    x: 0,
+    y: top,
+    toJSON: () => ({}),
+  }
+}
+
+function mockMajorSection(id: string, top: number, height: number): HTMLElement {
+  const section = document.createElement(id === 'contact' ? 'footer' : 'section')
+  section.id = id
+  vi.spyOn(section, 'getBoundingClientRect').mockReturnValue(rectWithHeight(top, height))
+  document.body.appendChild(section)
+  return section
+}
+
+function dispatchScrollUpdate() {
+  act(() => {
+    window.dispatchEvent(new Event('scroll'))
+  })
+}
+
 describe('Navbar', () => {
+  beforeEach(() => {
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: VIEWPORT_HEIGHT,
+    })
+  })
+
+  afterEach(() => {
+    document.body.innerHTML = ''
+    vi.restoreAllMocks()
+  })
   it('renders FM_ logo that links to page top', () => {
     render(<Navbar />)
     const logo = screen.getByText('FM_')
@@ -87,35 +128,10 @@ describe('Navbar', () => {
   })
 
   describe('active section highlighting', () => {
-    let section: HTMLElement
-    let observerCallback!: IntersectionObserverCallback
-
-    beforeEach(() => {
-      section = document.createElement('section')
-      section.id = 'skills'
-      document.body.appendChild(section)
-
-      vi.stubGlobal('IntersectionObserver', vi.fn(function (cb: IntersectionObserverCallback) {
-        observerCallback = cb
-        return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() }
-      }))
-    })
-
-    afterEach(() => {
-      vi.unstubAllGlobals()
-      document.body.removeChild(section)
-      document.getElementById('projects')?.remove()
-    })
-
     it('scopes active color and underline to the label span only', () => {
+      mockMajorSection('skills', 0, VIEWPORT_HEIGHT)
       render(<Navbar />)
-
-      act(() => {
-        observerCallback(
-          [{ target: section, isIntersecting: true } as unknown as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        )
-      })
+      dispatchScrollUpdate()
 
       const skillsLink = screen.getByText('SKILLS').closest('a')
       expect(skillsLink).not.toBeNull()
@@ -130,25 +146,17 @@ describe('Navbar', () => {
     })
 
     it('restores inactive link caret and removes label underline when active section changes', () => {
-      const projectsSection = document.createElement('section')
-      projectsSection.id = 'projects'
-      document.body.appendChild(projectsSection)
+      mockMajorSection('skills', VIEWPORT_HEIGHT, VIEWPORT_HEIGHT)
+      const projectsSection = mockMajorSection('projects', -1600, VIEWPORT_HEIGHT * 6)
 
       render(<Navbar />)
 
-      act(() => {
-        observerCallback(
-          [{ target: section, isIntersecting: true } as unknown as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        )
-      })
+      dispatchScrollUpdate()
 
-      act(() => {
-        observerCallback(
-          [{ target: projectsSection, isIntersecting: true } as unknown as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        )
-      })
+      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(
+        rectWithHeight(-1600, VIEWPORT_HEIGHT * 6),
+      )
+      dispatchScrollUpdate()
 
       const skillsLink = screen.getByText('SKILLS').closest('a')
       const skillsLabel = screen.getByText('SKILLS')
@@ -217,72 +225,28 @@ describe('Navbar', () => {
     })
 
     it('active link applies active class with nav-label underline via CSS not border utilities', () => {
-      const section = document.createElement('section')
-      section.id = 'skills'
-      document.body.appendChild(section)
-      let observerCallback!: IntersectionObserverCallback
+      mockMajorSection('skills', 0, VIEWPORT_HEIGHT)
+      render(<Navbar />)
+      dispatchScrollUpdate()
 
-      vi.stubGlobal('IntersectionObserver', vi.fn(function (cb: IntersectionObserverCallback) {
-        observerCallback = cb
-        return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() }
-      }))
+      const skillsLink = screen.getByText('SKILLS').closest('a')
+      const skillsLabel = screen.getByText('SKILLS')
 
-      try {
-        render(<Navbar />)
-
-        act(() => {
-          observerCallback(
-            [{ target: section, isIntersecting: true } as unknown as IntersectionObserverEntry],
-            {} as IntersectionObserver,
-          )
-        })
-
-        const skillsLink = screen.getByText('SKILLS').closest('a')
-        const skillsLabel = screen.getByText('SKILLS')
-
-        expect(skillsLink).toHaveClass('nav-link', 'active')
-        expect(skillsLabel).toHaveClass('nav-label')
-        expect(skillsLabel.className).not.toContain('border-b-2')
-        expect(skillsLabel.className).not.toContain('border-atomic-tangerine')
-        expect(skillsLabel.className).not.toContain('text-atomic-tangerine')
-        expect(skillsLink!.querySelector('.nav-caret')).not.toBeNull()
-        expect(skillsLink!.querySelector('.nav-caret')).toHaveTextContent('>')
-      } finally {
-        vi.unstubAllGlobals()
-        document.body.removeChild(section)
-      }
+      expect(skillsLink).toHaveClass('nav-link', 'active')
+      expect(skillsLabel).toHaveClass('nav-label')
+      expect(skillsLabel.className).not.toContain('border-b-2')
+      expect(skillsLabel.className).not.toContain('border-atomic-tangerine')
+      expect(skillsLabel.className).not.toContain('text-atomic-tangerine')
+      expect(skillsLink!.querySelector('.nav-caret')).not.toBeNull()
+      expect(skillsLink!.querySelector('.nav-caret')).toHaveTextContent('>')
     })
   })
 
   describe('issue #208 - active link shows caret', () => {
-    let section: HTMLElement
-    let observerCallback!: IntersectionObserverCallback
-
-    beforeEach(() => {
-      section = document.createElement('section')
-      section.id = 'skills'
-      document.body.appendChild(section)
-
-      vi.stubGlobal('IntersectionObserver', vi.fn(function (cb: IntersectionObserverCallback) {
-        observerCallback = cb
-        return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() }
-      }))
-    })
-
-    afterEach(() => {
-      vi.unstubAllGlobals()
-      document.body.removeChild(section)
-    })
-
     it('keeps nav-caret in DOM on active link for CSS visibility', () => {
+      mockMajorSection('skills', 0, VIEWPORT_HEIGHT)
       render(<Navbar />)
-
-      act(() => {
-        observerCallback(
-          [{ target: section, isIntersecting: true } as unknown as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        )
-      })
+      dispatchScrollUpdate()
 
       const skillsLink = screen.getByRole('link', { name: /skills/i })
       const caret = skillsLink.querySelector('[data-testid="nav-caret"]')
@@ -320,36 +284,94 @@ describe('Navbar', () => {
     })
 
     it('active link keeps the > prefix in DOM for CSS-driven visibility', () => {
-      const section = document.createElement('section')
-      section.id = 'skills'
-      document.body.appendChild(section)
-      let observerCallback!: IntersectionObserverCallback
+      mockMajorSection('skills', 0, VIEWPORT_HEIGHT)
+      render(<Navbar />)
+      dispatchScrollUpdate()
 
-      vi.stubGlobal('IntersectionObserver', vi.fn(function (cb: IntersectionObserverCallback) {
-        observerCallback = cb
-        return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() }
-      }))
+      const skillsLink = screen.getByRole('link', { name: /skills/i })
+      const labelSpan = skillsLink.querySelector('.nav-label')
+      const caretSpan = skillsLink.querySelector('[data-testid="nav-caret"]')
+      expect(labelSpan).toHaveClass('nav-label')
+      expect(caretSpan).not.toBeNull()
+      expect(caretSpan).toHaveTextContent('>')
+    })
+  })
 
-      try {
-        render(<Navbar />)
+  describe('issue #215 - active section tracking and smooth jumps', () => {
+    it('keeps PROJECTS active across the full internal scroll range', () => {
+      mockMajorSection('home', -VIEWPORT_HEIGHT, VIEWPORT_HEIGHT)
+      const projects = mockMajorSection('projects', -VIEWPORT_HEIGHT * 3, VIEWPORT_HEIGHT * 6)
+      mockMajorSection('skills', VIEWPORT_HEIGHT * 4, VIEWPORT_HEIGHT)
 
-        act(() => {
-          observerCallback(
-            [{ target: section, isIntersecting: true } as unknown as IntersectionObserverEntry],
-            {} as IntersectionObserver,
-          )
-        })
+      render(<Navbar />)
 
-        const skillsLink = screen.getByRole('link', { name: /skills/i })
-        const labelSpan = skillsLink.querySelector('.nav-label')
-        const caretSpan = skillsLink.querySelector('[data-testid="nav-caret"]')
-        expect(labelSpan).toHaveClass('nav-label')
-        expect(caretSpan).not.toBeNull()
-        expect(caretSpan).toHaveTextContent('>')
-      } finally {
-        vi.unstubAllGlobals()
-        document.body.removeChild(section)
+      for (const top of [-VIEWPORT_HEIGHT, -VIEWPORT_HEIGHT * 3, -(VIEWPORT_HEIGHT * 6 - VIEWPORT_HEIGHT)]) {
+        vi.spyOn(projects, 'getBoundingClientRect').mockReturnValue(
+          rectWithHeight(top, VIEWPORT_HEIGHT * 6),
+        )
+        dispatchScrollUpdate()
+
+        expect(screen.getByText('PROJECTS').closest('a')).toHaveClass('active')
       }
+    })
+
+    it('keeps TIMELINE active across the full internal scroll range', () => {
+      mockMajorSection('home', -VIEWPORT_HEIGHT * 2, VIEWPORT_HEIGHT)
+      mockMajorSection('projects', -VIEWPORT_HEIGHT * 8, VIEWPORT_HEIGHT * 6)
+      mockMajorSection('skills', -VIEWPORT_HEIGHT, VIEWPORT_HEIGHT)
+      const timeline = mockMajorSection('timeline', -VIEWPORT_HEIGHT * 2, VIEWPORT_HEIGHT * 3)
+      mockMajorSection('contact', VIEWPORT_HEIGHT * 2, VIEWPORT_HEIGHT)
+
+      render(<Navbar />)
+
+      for (const top of [0, -VIEWPORT_HEIGHT, -(VIEWPORT_HEIGHT * 3 - VIEWPORT_HEIGHT)]) {
+        vi.spyOn(timeline, 'getBoundingClientRect').mockReturnValue(
+          rectWithHeight(top, VIEWPORT_HEIGHT * 3),
+        )
+        dispatchScrollUpdate()
+
+        expect(screen.getByText('TIMELINE').closest('a')).toHaveClass('active')
+      }
+    })
+
+    it('desktop nav clicks smooth-scroll to the target section', async () => {
+      const user = userEvent.setup()
+      const projects = mockMajorSection('projects', 0, VIEWPORT_HEIGHT)
+      Object.defineProperty(projects, 'offsetTop', { configurable: true, value: 900 })
+      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+
+      render(<Navbar />)
+
+      await user.click(screen.getByRole('link', { name: /projects/i }))
+
+      expect(scrollToSpy).toHaveBeenCalledWith({ top: 900, behavior: 'smooth' })
+    })
+
+    it('logo click smooth-scrolls to home', async () => {
+      const user = userEvent.setup()
+      const home = mockMajorSection('home', 0, VIEWPORT_HEIGHT)
+      Object.defineProperty(home, 'offsetTop', { configurable: true, value: 0 })
+      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+
+      render(<Navbar />)
+
+      await user.click(screen.getByText('FM_'))
+
+      expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' })
+    })
+
+    it('mobile menu nav clicks smooth-scroll to the target section', async () => {
+      const user = userEvent.setup()
+      const timeline = mockMajorSection('timeline', 0, VIEWPORT_HEIGHT)
+      Object.defineProperty(timeline, 'offsetTop', { configurable: true, value: 2400 })
+      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+
+      render(<Navbar />)
+
+      await user.click(screen.getByRole('button', { name: /open menu/i }))
+      await user.click(within(screen.getByRole('dialog')).getByRole('link', { name: 'TIMELINE' }))
+
+      expect(scrollToSpy).toHaveBeenCalledWith({ top: 2400, behavior: 'smooth' })
     })
   })
 })
