@@ -225,7 +225,7 @@ describe('TimelineSection', () => {
       expect(heldText).toBe(partialText)
     })
 
-    it('Typewriter resumes from held position when panel becomes active again', () => {
+    it('Typewriter restarts from the first line when panel becomes active again', () => {
       vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
@@ -245,11 +245,12 @@ describe('TimelineSection', () => {
       vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       rerender(<TimelineSection />)
       act(() => {
-        vi.advanceTimersByTime(500)
+        vi.advanceTimersByTime(100)
       })
 
-      const resumedText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
-      expect(resumedText.length).toBeGreaterThan(partialText.length)
+      const restartedText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
+      expect(restartedText).toBe(partialText)
+      expect(getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')).toBeNull()
     })
 
     it('issue #98 - longest bullet completes within 2.5s', () => {
@@ -300,7 +301,7 @@ describe('TimelineSection', () => {
       expect(panel2Lines.length).toBeGreaterThan(0)
     })
 
-    it('reactivate does not blank partial text before resuming', () => {
+    it('deactivation keeps partial text visible before a later restart', () => {
       vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()
 
@@ -316,11 +317,22 @@ describe('TimelineSection', () => {
       vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, false, false]))
       rerender(<TimelineSection />)
 
+      act(() => {
+        vi.advanceTimersByTime(1000)
+      })
+
+      const inactiveText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
+      expect(inactiveText).toBe(partialText)
+
       vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       rerender(<TimelineSection />)
 
-      const immediateText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
-      expect(immediateText).toBe(partialText)
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      const restartedText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
+      expect(restartedText).toBe(partialText)
     })
 
     it('each panel retains independent partial progress when switching panels', () => {
@@ -355,12 +367,16 @@ describe('TimelineSection', () => {
       vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       rerender(<TimelineSection />)
 
-      const panel1Immediate =
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      const panel1Restarted =
         getTimelinePanel(0).querySelector('[data-typewriter-line]')?.textContent ?? ''
       const panel2Held =
         getTimelinePanel(1).querySelector('[data-typewriter-line]')?.textContent ?? ''
 
-      expect(panel1Immediate).toBe(panel1Partial)
+      expect(panel1Restarted).toBe(panel1Partial)
       expect(panel2Held).toBe(panel2Partial)
     })
 
@@ -794,6 +810,58 @@ describe('TimelineSection', () => {
     )
   })
 
+  describe('issue #238 - HTML-reference typewriter pacing', () => {
+    it('preserves inactive text but restarts from the first line when reactivated', () => {
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
+      vi.useFakeTimers()
+
+      const { rerender } = render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      expect(getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')).toHaveTextContent(
+        'commit d4e8f2c',
+      )
+      expect(getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')).toHaveTextContent(
+        'NETAPP INC.',
+      )
+
+      vi.mocked(useTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([false, true, false], { activeIndex: 1, progress: 0.5, tx: -1000 }),
+      )
+      rerender(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(500)
+      })
+
+      expect(getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')).toHaveTextContent(
+        'commit d4e8f2c',
+      )
+      expect(getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')).toHaveTextContent(
+        'NETAPP INC.',
+      )
+
+      vi.mocked(useTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([true, false, false], { activeIndex: 0, progress: 0, tx: -2000 }),
+      )
+      rerender(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      expect(getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')).toHaveTextContent(
+        'commit d4e8f2c',
+      )
+      expect(
+        getTimelinePanel(0).querySelector('[data-testid="commit-institution"]'),
+      ).not.toBeInTheDocument()
+    })
+  })
+
   describe('issue #235 - restore timeline sticky scroll shell', () => {
     it('outer timeline scroll host uses the shared hscroll shell class', () => {
       render(<TimelineSection />)
@@ -995,7 +1063,7 @@ describe('TimelineSection', () => {
       expect(middlePartial).toBe('')
     })
 
-    it('resumes typing on a panel when scroll reactivates it', () => {
+    it('restarts typing on a panel when scroll reactivates it', () => {
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -1032,7 +1100,8 @@ describe('TimelineSection', () => {
 
       const resumedHash =
         getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
-      expect(resumedHash.length).toBeGreaterThan(partialHash.length)
+      expect(resumedHash).toBe(partialHash)
+      expect(getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')).toBeNull()
     })
   })
 })
