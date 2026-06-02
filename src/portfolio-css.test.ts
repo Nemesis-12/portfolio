@@ -9,6 +9,30 @@ const srcDir = dirname(fileURLToPath(import.meta.url))
 const portfolioCss = readFileSync(join(srcDir, 'portfolio.css'), 'utf8')
 const indexCss = readFileSync(join(srcDir, 'index.css'), 'utf8')
 
+function blockFor(selector: string) {
+  const selectorIndex = portfolioCss.indexOf(selector)
+  expect(selectorIndex).toBeGreaterThanOrEqual(0)
+
+  const blockStart = portfolioCss.indexOf('{', selectorIndex)
+  expect(blockStart).toBeGreaterThanOrEqual(0)
+
+  let depth = 0
+  for (let index = blockStart; index < portfolioCss.length; index += 1) {
+    const char = portfolioCss[index]
+    if (char === '{') {
+      depth += 1
+    }
+    if (char === '}') {
+      depth -= 1
+      if (depth === 0) {
+        return portfolioCss.slice(blockStart + 1, index)
+      }
+    }
+  }
+
+  throw new Error(`Missing closing brace for ${selector}`)
+}
+
 const REFERENCE_COMPONENT_CLASSES = [
   'ls-inner',
   'nav',
@@ -64,6 +88,15 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toContain("[data-fill-active='true']")
     expect(portfolioCss).toContain('.pcard:hover .pcard-fill')
     expect(portfolioCss).toContain('.ptag-inverted')
+  })
+
+  it('does not prepare project cards for active/neighbor/far scale or opacity suppression', () => {
+    const projectCardRule = blockFor('.pcard')
+
+    expect(portfolioCss).not.toMatch(/data-card-state|card-state|neighbor|far/)
+    expect(projectCardRule).not.toMatch(/\bscale\(/)
+    expect(projectCardRule).not.toMatch(/transition:[^;}]*opacity/)
+    expect(projectCardRule).not.toMatch(/will-change:[^;}]*opacity/)
   })
 
   it('defines the shared easing token for transitions', () => {
