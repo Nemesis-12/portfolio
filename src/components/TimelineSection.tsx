@@ -129,7 +129,7 @@ function TimelinePanel({
     <div
       data-testid="timeline-panel"
       data-content-index={contentIndex}
-      className="relative shrink-0"
+      className="tl-panel-shell"
     >
       <div
         data-testid="section-label"

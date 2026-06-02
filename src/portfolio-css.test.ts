@@ -139,7 +139,7 @@ describe('portfolio.css CSS anchor', () => {
   })
 
   it('anchors timeline panel typography and terminal caret', () => {
-    expect(portfolioCss).toContain('.tl-panel{flex-shrink:0;width:100vw')
+    expect(portfolioCss).toContain('.tl-panel{height:calc(100vh - 160px)')
     expect(portfolioCss).toContain('.tl-commit{font-size:14px;color:var(--color-atomic-tangerine)')
     expect(portfolioCss).toContain('.caret{display:inline-block')
     expect(portfolioCss).toContain('@keyframes blink-cursor{50%{opacity:0}}')
@@ -165,5 +165,21 @@ describe('portfolio.css CSS anchor', () => {
       /\[data-sticky-section="true"\]:not\(\[data-sticky-scroll-host="true"\]\)\{[^}]*position:sticky/,
     )
     expect(portfolioCss).toContain('[data-sticky-viewport="true"]')
+  })
+
+  it('avoids scrollbar-induced document overflow from full-width surfaces', () => {
+    expect(blockFor('#hero{')).toContain('width:100%')
+    expect(blockFor('.hscroll')).toContain('width:100%')
+    expect(blockFor('#skills{')).toContain('width:100%')
+    expect(blockFor('footer')).toContain('width:100%')
+    expect(portfolioCss).not.toMatch(/width:100vw/)
+  })
+
+  it('clips internal horizontal tracks inside sticky viewports', () => {
+    const stickyViewportRule = blockFor('.hscroll-sticky,[data-sticky-viewport="true"]')
+
+    expect(stickyViewportRule).toContain('width:100%')
+    expect(stickyViewportRule).toContain('max-width:100%')
+    expect(stickyViewportRule).toContain('overflow:hidden')
   })
 })
