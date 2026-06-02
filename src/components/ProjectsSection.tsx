@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
 import type { Project } from '../data/projects'
-import { formatProjectNumber, getScrollRangeVh } from './projectsGeometry'
+import { formatProjectNumber, getProjectsScrollRunwayPx, getScrollRangeVh } from './projectsGeometry'
 
 interface Props {
   projects: Project[]
@@ -12,14 +12,8 @@ const TAG_VARIANTS = ['fuchsia', 'blue', 'orange', 'yellow'] as const
 
 const INVERTED_TAG_CLASS = 'ptag-inverted'
 
-const NEIGHBOR_SCALE = 0.92
-const NEIGHBOR_OPACITY = 0.6
-const FAR_SCALE = 0.85
-const FAR_OPACITY = 0.25
-const CARD_STATE_TRANSITION = {
+const CARD_HOVER_TRANSITION = {
   y: { duration: 0.2, ease: 'easeOut' },
-  scale: { duration: 0.3, ease: 'easeOut' },
-  opacity: { duration: 0.3, ease: 'easeOut' },
 } as const
 
 function clampIndex(index: number, projectCount: number) {
@@ -29,12 +23,20 @@ function clampIndex(index: number, projectCount: number) {
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
   const outerRef = useRef<HTMLElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
-  const { tx, progress } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>)
   const scrollRangeVh = getScrollRangeVh(projects.length)
+  const scrollOptions = useMemo(() => ({
+    getScrollRangePx: ({ viewportHeight }: { viewportHeight: number }) => getProjectsScrollRunwayPx(projects.length, viewportHeight),
+  }), [projects.length])
+  const { tx, progress } = useHorizontalScroll(
+    outerRef as React.RefObject<HTMLElement>,
+    innerRef as React.RefObject<HTMLElement>,
+    scrollOptions,
+  )
 
   const activeIndex = projects.length > 1
     ? clampIndex(Math.round(progress * (projects.length - 1)), projects.length)
     : 0
+  const visibleProjectIndex = projects.length === 0 ? 0 : activeIndex + 1
 
   return (
     <section
@@ -42,7 +44,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
       id="projects"
       data-sticky-scroll-host="true"
       className="relative hscroll min-h-screen px-8 bg-graphite-light"
-      style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden' }}
+      style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'clip' }}
     >
       {projects.map((_, index) => (
         <div
@@ -54,38 +56,36 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
         />
       ))}
 
-      <div data-sticky-viewport="true" className="flex flex-col justify-center py-14 hscroll-sticky">
-        <div className="w-full">
-          <div className="hscroll-head">
-            <span className="hscroll-no">// 01</span>
-            <span className="hscroll-name">PROJECTS</span>
-            <div className="hscroll-rule" />
-            <div data-testid="progress-indicator" className="hscroll-progress">
-              <span data-testid="progress-count">
-                {String(activeIndex + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
-              </span>
-              <div className="hscroll-progress-track">
-                <div
-                  data-testid="progress-fill"
-                  className="hscroll-progress-fill"
-                  style={{ width: `${progress * 100}%` }}
-                />
-              </div>
+      <div data-sticky-viewport="true" className="hscroll-sticky flex flex-col">
+        <div className="hscroll-head">
+          <span className="hscroll-no">// 01</span>
+          <span className="hscroll-name">PROJECTS</span>
+          <div className="hscroll-rule" />
+          <div data-testid="progress-indicator" className="hscroll-progress">
+            <span data-testid="progress-count">
+              {String(visibleProjectIndex).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
+            </span>
+            <div className="hscroll-progress-track">
+              <div
+                data-testid="progress-fill"
+                className="hscroll-progress-fill"
+                style={{ width: `${progress * 100}%` }}
+              />
             </div>
           </div>
+        </div>
 
-          <div
-            ref={innerRef as React.RefObject<HTMLDivElement>}
-            data-carousel-track="true"
-            className="hscroll-track proj-track pb-4"
-            style={{ transform: `translateX(${tx}px)` }}
-          >
-            <div className="proj-edge" aria-hidden="true" />
-            {projects.map((project, index) => (
-              <ProjectCard key={project.id} project={project} index={index} activeIndex={activeIndex} />
-            ))}
-            <div className="proj-edge" aria-hidden="true" />
-          </div>
+        <div
+          ref={innerRef as React.RefObject<HTMLDivElement>}
+          data-carousel-track="true"
+          className="hscroll-track proj-track pb-4"
+          style={{ transform: `translateX(${tx}px)` }}
+        >
+          <div className="proj-edge" aria-hidden="true" />
+          {projects.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
+          <div className="proj-edge" aria-hidden="true" />
         </div>
 
         <motion.div
@@ -94,8 +94,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
           aria-hidden="true"
           animate={{ opacity: progress === 0 ? 0.85 : 0 }}
           transition={{ duration: 0.3 }}
-          className="absolute font-body text-periwinkle flex items-center gap-3 pointer-events-none"
-          style={{ fontSize: '14px', letterSpacing: '3px', left: '50%', bottom: '28px', transform: 'translateX(-50%)' }}
+          className="hscroll-hint pointer-events-none"
         >
           SCROLL{' '}
           <motion.span
@@ -115,18 +114,10 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
   )
 }
 
-const ProjectCard: React.FC<{ project: Project; index: number; activeIndex: number }> = ({ project, index, activeIndex }) => {
+const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [hasFocus, setHasFocus] = useState(false)
   const isFillActive = isHovered || hasFocus
-
-  const distance = Math.abs(index - activeIndex)
-  const isActive = distance === 0
-  const isNeighbor = distance === 1
-  const cardState = isActive ? 'active' : isNeighbor ? 'neighbor' : 'far'
-
-  const scale = isActive ? 1 : isNeighbor ? NEIGHBOR_SCALE : FAR_SCALE
-  const opacity = isActive ? 1 : isNeighbor ? NEIGHBOR_OPACITY : FAR_OPACITY
   const projectNumber = formatProjectNumber(project.id)
 
   return (
@@ -139,15 +130,11 @@ const ProjectCard: React.FC<{ project: Project; index: number; activeIndex: numb
           setHasFocus(false)
         }
       }}
-      animate={{ y: isFillActive ? -4 : 0, scale, opacity }}
-      transition={CARD_STATE_TRANSITION}
+      animate={{ y: isFillActive ? -4 : 0 }}
+      transition={CARD_HOVER_TRANSITION}
       data-testid="project-card"
       data-fill-active={isFillActive}
-      data-card-state={cardState}
-      data-card-scale={scale}
-      data-card-opacity={opacity}
       className="pcard shrink-0"
-      style={{ transformOrigin: 'center center' }}
     >
       <div className="pcard-bg" aria-hidden="true" />
 

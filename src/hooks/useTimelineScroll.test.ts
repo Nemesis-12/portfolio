@@ -101,4 +101,51 @@ describe('useTimelineScroll', () => {
     expect(result.current.progress).toBe(1)
     expect(result.current.tx).toEqual(0)
   })
+
+  describe('issue #221 - active panel progression', () => {
+    it('maps section scroll progress to active index in newest-to-oldest order', () => {
+      setViewport(1000, 800)
+
+      const scenarios = [
+        { top: 0, activeIndex: 0, active: [true, false, false], tx: -2000 },
+        { top: -800, activeIndex: 1, active: [false, true, false], tx: -1000 },
+        { top: -1600, activeIndex: 2, active: [false, false, true], tx: 0 },
+      ] as const
+
+      for (const scenario of scenarios) {
+        const outer = document.createElement('section')
+        outer.getBoundingClientRect = vi.fn(() => createRect(scenario.top, 2400))
+
+        const { result, unmount } = renderHook(() => {
+          const outerRef = useRef<HTMLElement>(outer)
+          return useTimelineScroll(outerRef, 3)
+        })
+
+        act(() => window.dispatchEvent(new Event('scroll')))
+
+        expect(result.current.activeIndex).toBe(scenario.activeIndex)
+        expect(result.current.active).toEqual(scenario.active)
+        expect(result.current.tx).toBe(scenario.tx)
+
+        unmount()
+      }
+    })
+
+    it('derives active state from section geometry rather than panel refs', () => {
+      setViewport(1000, 800)
+
+      const outer = document.createElement('section')
+      outer.getBoundingClientRect = vi.fn(() => createRect(-800, 2400))
+
+      const { result } = renderHook(() => {
+        const outerRef = useRef<HTMLElement>(outer)
+        return useTimelineScroll(outerRef, 3)
+      })
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+
+      expect(result.current.activeIndex).toBe(1)
+      expect(result.current.progress).toBe(0.5)
+    })
+  })
 })

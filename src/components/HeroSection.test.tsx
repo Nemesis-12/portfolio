@@ -307,6 +307,26 @@ describe('HeroSection', () => {
     expect(viewResume).toHaveClass('btn-outline')
   })
 
+  it('VIEW_WORK click smooth-scrolls to the projects section', () => {
+    const projects = document.createElement('section')
+    projects.id = 'projects'
+    Object.defineProperty(projects, 'offsetTop', { configurable: true, value: 1200 })
+    document.body.appendChild(projects)
+    const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+
+    try {
+      render(<HeroSection />)
+      advanceToValuePropComplete()
+
+      screen.getByRole('link', { name: /VIEW_WORK →/i }).click()
+
+      expect(scrollToSpy).toHaveBeenCalledWith({ top: 1200, behavior: 'smooth' })
+    } finally {
+      projects.remove()
+      scrollToSpy.mockRestore()
+    }
+  })
+
   it('wraps CTAs in hero-cta after value prop completes', () => {
     render(<HeroSection />)
 

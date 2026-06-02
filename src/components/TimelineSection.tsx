@@ -129,7 +129,7 @@ function TimelinePanel({
     <div
       data-testid="timeline-panel"
       data-content-index={contentIndex}
-      className="relative shrink-0"
+      className="tl-panel-shell"
     >
       <div
         data-testid="section-label"
@@ -157,8 +157,8 @@ const TimelineSection: React.FC = () => {
       ref={outerRef}
       id="timeline"
       data-sticky-scroll-host="true"
-      className="relative min-h-screen bg-graphite-light"
-      style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden' }}
+      className="relative hscroll min-h-screen bg-graphite-light"
+      style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'clip' }}
     >
       {timelineEntries.map((entry, index) => (
         <div
