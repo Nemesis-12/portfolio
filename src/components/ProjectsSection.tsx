@@ -36,7 +36,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
       id="projects"
       data-sticky-scroll-host="true"
       className="relative hscroll min-h-screen px-8 bg-graphite-light"
-      style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden' }}
+      style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'clip' }}
     >
       {projects.map((_, index) => (
         <div

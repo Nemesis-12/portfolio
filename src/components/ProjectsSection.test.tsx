@@ -416,12 +416,12 @@ describe('ProjectsSection', () => {
     expect(scrollHint).toHaveClass('hscroll-hint')
   })
 
-  it('outer container does not introduce horizontal overflow', () => {
+  it('outer container clips horizontal overflow without creating a sticky-breaking scroll container', () => {
     setViewport(1000, 800)
     render(<ProjectsSection projects={mockProjects} />)
 
     const projectsSection = document.getElementById('projects')
-    expect(projectsSection).toHaveStyle({ overflowX: 'hidden' })
+    expect(projectsSection).toHaveStyle({ overflowX: 'clip' })
   })
 
   it('outer container does not participate in global card-deck stack depth', () => {
@@ -862,12 +862,12 @@ describe('ProjectsSection', () => {
       expect(fill).toHaveAttribute('data-active', 'true')
     })
 
-    it('outer container does not introduce horizontal page overflow from carousel cards', () => {
+    it('outer container clips horizontal page overflow from carousel cards without breaking sticky', () => {
       setViewport(1440, 900)
       render(<ProjectsSection projects={threeProjects} />)
 
       const projectsSection = document.getElementById('projects')
-      expect(projectsSection).toHaveStyle({ overflowX: 'hidden' })
+      expect(projectsSection).toHaveStyle({ overflowX: 'clip' })
     })
   })
 })
