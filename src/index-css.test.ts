@@ -42,8 +42,9 @@ describe('global CSS brand chrome', () => {
     expect(blockFor('@theme')).toContain("--font-body: 'Space Mono', monospace;")
   })
 
-  it('clips horizontal overflow on the document body', () => {
-    expect(blockFor('body')).toContain('overflow-x: hidden;')
+  it('clips horizontal overflow on the full document', () => {
+    expect(blockFor('html')).toContain('overflow-x: clip;')
+    expect(blockFor('body')).toContain('overflow-x: clip;')
   })
 
   it('uses proximity vertical scroll snap on html', () => {
