@@ -713,6 +713,18 @@ describe('TimelineSection', () => {
     })
   })
 
+  describe('issue #235 - restore timeline sticky scroll shell', () => {
+    it('outer timeline scroll host uses the shared hscroll shell class', () => {
+      render(<TimelineSection />)
+
+      const timeline = document.getElementById('timeline')
+      const stickyViewport = timeline?.querySelector('[data-sticky-viewport="true"]')
+
+      expect(timeline).toHaveClass('hscroll')
+      expect(stickyViewport).toHaveClass('hscroll-sticky')
+    })
+  })
+
   describe('issue #206 - timeline section chrome', () => {
     it('renders // 03 TIMELINE header with hscroll classes', () => {
       render(<TimelineSection />)

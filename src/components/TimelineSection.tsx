@@ -157,7 +157,7 @@ const TimelineSection: React.FC = () => {
       ref={outerRef}
       id="timeline"
       data-sticky-scroll-host="true"
-      className="relative min-h-screen bg-graphite-light"
+      className="relative hscroll min-h-screen bg-graphite-light"
       style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden' }}
     >
       {timelineEntries.map((entry, index) => (
