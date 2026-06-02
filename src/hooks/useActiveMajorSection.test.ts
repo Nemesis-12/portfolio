@@ -83,6 +83,18 @@ describe('computeActiveMajorSection', () => {
     }
   })
 
+  it('keeps projects active when the probe is in the Projects-owned runway gap', () => {
+    const projectCount = 6
+    const projectsHeight = viewportHeight * projectCount
+    mockSection('home', -viewportHeight, viewportHeight)
+    mockSection('projects', -(projectsHeight + 24), projectsHeight)
+    mockSection('skills', probeY + 120, viewportHeight)
+
+    expect(
+      computeActiveMajorSection(MAJOR_SECTION_IDS, (id) => document.getElementById(id), viewportHeight),
+    ).toBe('projects')
+  })
+
   it('keeps timeline active across the full internal scroll range', () => {
     const entryCount = 3
     const timelineHeight = viewportHeight * entryCount
@@ -111,6 +123,20 @@ describe('computeActiveMajorSection', () => {
     }
   })
 
+  it('keeps timeline active when the probe is in the Timeline-owned runway gap', () => {
+    const entryCount = 3
+    const timelineHeight = viewportHeight * entryCount
+    mockSection('home', -viewportHeight * 4, viewportHeight)
+    mockSection('projects', -viewportHeight * 3, viewportHeight)
+    mockSection('skills', -viewportHeight * 2, viewportHeight)
+    mockSection('timeline', -(timelineHeight + 24), timelineHeight)
+    mockSection('contact', probeY + 120, viewportHeight)
+
+    expect(
+      computeActiveMajorSection(MAJOR_SECTION_IDS, (id) => document.getElementById(id), viewportHeight),
+    ).toBe('timeline')
+  })
+
   it('detects contact when the probe is inside the footer element', () => {
     mockSection('home', -4000, viewportHeight)
     mockSection('projects', -3000, viewportHeight * 6)
@@ -126,7 +152,7 @@ describe('computeActiveMajorSection', () => {
     ).toBe('contact')
   })
 
-  it('falls back to the first section when the probe is below all sections', () => {
+  it('keeps the nearest entered major section when the probe is below all sections', () => {
     mockSection('home', -1000, 200)
     mockSection('projects', -800, 400)
     mockSection('skills', -400, 400)
@@ -135,7 +161,7 @@ describe('computeActiveMajorSection', () => {
 
     expect(
       computeActiveMajorSection(MAJOR_SECTION_IDS, (id) => document.getElementById(id), viewportHeight),
-    ).toBe('home')
+    ).toBe('contact')
   })
 
   it('does not switch active section based on internal snap anchors or panels', () => {
