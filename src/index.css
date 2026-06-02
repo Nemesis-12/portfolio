@@ -23,6 +23,7 @@
 html {
   scroll-snap-type: y proximity;
   scroll-padding-top: 56px;
+  overflow-x: clip;
 }
 
 ::-webkit-scrollbar {
@@ -47,7 +48,7 @@ body {
   font-family: var(--font-body);
   background-color: var(--color-graphite);
   color: var(--color-periwinkle);
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
