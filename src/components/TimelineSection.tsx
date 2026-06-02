@@ -59,7 +59,10 @@ function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean 
     [entry],
   )
 
-  const displayedLines = useTypewriter(active, lines, 16)
+  const displayedLines = useTypewriter(active, lines, 80, undefined, {
+    mode: 'line',
+    restartOnActivate: true,
+  })
 
   const institutionLine = displayedLines[METADATA_LINE_COUNT]
   const roleLine = displayedLines[METADATA_LINE_COUNT + 1]

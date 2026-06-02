@@ -1,11 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
 
+interface UseTypewriterOptions {
+  mode?: 'character' | 'line'
+  restartOnActivate?: boolean
+}
+
 export function useTypewriter(
   active: boolean,
   lines: string[],
   speed = 25,
-  onDone?: () => void
+  onDone?: () => void,
+  options: UseTypewriterOptions = {},
 ) {
+  const { mode = 'character', restartOnActivate = false } = options
   const [displayedLines, setDisplayedLines] = useState<string[]>([])
   const stateRef = useRef({ lineIndex: 0, charIndex: 0, done: false })
   const timerRef = useRef<number | null>(null)
@@ -13,6 +20,7 @@ export function useTypewriter(
   const linesRef = useRef(lines)
   const linesKey = JSON.stringify(lines)
   const prevLinesKeyRef = useRef(linesKey)
+  const prevActiveRef = useRef(active)
 
   linesRef.current = lines
 
@@ -22,9 +30,14 @@ export function useTypewriter(
 
   useEffect(() => {
     const linesChanged = linesKey !== prevLinesKeyRef.current
+    const activated = active && !prevActiveRef.current
+    prevActiveRef.current = active
 
     if (linesChanged) {
       prevLinesKeyRef.current = linesKey
+      stateRef.current = { lineIndex: 0, charIndex: 0, done: false }
+      setDisplayedLines([])
+    } else if (activated && restartOnActivate) {
       stateRef.current = { lineIndex: 0, charIndex: 0, done: false }
       setDisplayedLines([])
     }
@@ -60,6 +73,25 @@ export function useTypewriter(
       }
 
       const currentLine = lines[lineIndex]
+
+      if (mode === 'line') {
+        setDisplayedLines(prev => {
+          const newLines = [...prev]
+          newLines[lineIndex] = currentLine
+          return newLines
+        })
+
+        stateRef.current.lineIndex = lineIndex + 1
+        stateRef.current.charIndex = 0
+
+        if (stateRef.current.lineIndex < linesRef.current.length) {
+          timerRef.current = window.setTimeout(typeNextChar, speed)
+        } else {
+          stateRef.current.done = true
+          onDoneRef.current?.()
+        }
+        return
+      }
 
       if (charIndex < currentLine.length) {
         setDisplayedLines(prev => {
@@ -97,7 +129,7 @@ export function useTypewriter(
         timerRef.current = null
       }
     }
-  }, [active, linesKey, speed])
+  }, [active, linesKey, mode, restartOnActivate, speed])
 
   useEffect(() => {
     return () => {
