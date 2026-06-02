@@ -12,7 +12,7 @@
     scroll-snap-align: start;
   }
 
-  .snap-anchor {
+  [data-sticky-scroll-host="true"] > .snap-anchor {
     position: absolute;
     left: 0;
     width: 100%;
