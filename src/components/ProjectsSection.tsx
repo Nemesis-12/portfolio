@@ -36,7 +36,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
       id="projects"
       data-sticky-scroll-host="true"
       className="relative hscroll min-h-screen px-8 bg-graphite-light"
-      style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'hidden' }}
+      style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'clip' }}
     >
       {projects.map((_, index) => (
         <div
@@ -48,38 +48,36 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
         />
       ))}
 
-      <div data-sticky-viewport="true" className="flex flex-col justify-center py-14 hscroll-sticky">
-        <div className="w-full">
-          <div className="hscroll-head">
-            <span className="hscroll-no">// 01</span>
-            <span className="hscroll-name">PROJECTS</span>
-            <div className="hscroll-rule" />
-            <div data-testid="progress-indicator" className="hscroll-progress">
-              <span data-testid="progress-count">
-                {String(activeIndex + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
-              </span>
-              <div className="hscroll-progress-track">
-                <div
-                  data-testid="progress-fill"
-                  className="hscroll-progress-fill"
-                  style={{ width: `${progress * 100}%` }}
-                />
-              </div>
+      <div data-sticky-viewport="true" className="hscroll-sticky flex flex-col">
+        <div className="hscroll-head">
+          <span className="hscroll-no">// 01</span>
+          <span className="hscroll-name">PROJECTS</span>
+          <div className="hscroll-rule" />
+          <div data-testid="progress-indicator" className="hscroll-progress">
+            <span data-testid="progress-count">
+              {String(activeIndex + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
+            </span>
+            <div className="hscroll-progress-track">
+              <div
+                data-testid="progress-fill"
+                className="hscroll-progress-fill"
+                style={{ width: `${progress * 100}%` }}
+              />
             </div>
           </div>
+        </div>
 
-          <div
-            ref={innerRef as React.RefObject<HTMLDivElement>}
-            data-carousel-track="true"
-            className="hscroll-track proj-track pb-4"
-            style={{ transform: `translateX(${tx}px)` }}
-          >
-            <div className="proj-edge" aria-hidden="true" />
-            {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-            <div className="proj-edge" aria-hidden="true" />
-          </div>
+        <div
+          ref={innerRef as React.RefObject<HTMLDivElement>}
+          data-carousel-track="true"
+          className="hscroll-track proj-track pb-4"
+          style={{ transform: `translateX(${tx}px)` }}
+        >
+          <div className="proj-edge" aria-hidden="true" />
+          {projects.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
+          <div className="proj-edge" aria-hidden="true" />
         </div>
 
         <motion.div
@@ -88,8 +86,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
           aria-hidden="true"
           animate={{ opacity: progress === 0 ? 0.85 : 0 }}
           transition={{ duration: 0.3 }}
-          className="absolute font-body text-periwinkle flex items-center gap-3 pointer-events-none"
-          style={{ fontSize: '14px', letterSpacing: '3px', left: '50%', bottom: '28px', transform: 'translateX(-50%)' }}
+          className="hscroll-hint pointer-events-none"
         >
           SCROLL{' '}
           <motion.span

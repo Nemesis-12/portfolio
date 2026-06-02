@@ -402,12 +402,26 @@ describe('ProjectsSection', () => {
     expect(carouselTrack?.closest('[data-sticky-viewport="true"]')).toBeInTheDocument()
   })
 
-  it('outer container does not introduce horizontal overflow', () => {
+  it('restores the reference sticky viewport shell with direct header, track, and scroll hint children', () => {
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const stickyViewport = document.querySelector('[data-sticky-viewport="true"]')
+    const header = document.querySelector('.hscroll-head')
+    const carouselTrack = document.querySelector('[data-carousel-track="true"]')
+    const scrollHint = screen.getByTestId('scroll-hint')
+
+    expect(header?.parentElement).toBe(stickyViewport)
+    expect(carouselTrack?.parentElement).toBe(stickyViewport)
+    expect(scrollHint.parentElement).toBe(stickyViewport)
+    expect(scrollHint).toHaveClass('hscroll-hint')
+  })
+
+  it('outer container clips horizontal overflow without creating a sticky-breaking scroll container', () => {
     setViewport(1000, 800)
     render(<ProjectsSection projects={mockProjects} />)
 
     const projectsSection = document.getElementById('projects')
-    expect(projectsSection).toHaveStyle({ overflowX: 'hidden' })
+    expect(projectsSection).toHaveStyle({ overflowX: 'clip' })
   })
 
   it('outer container does not participate in global card-deck stack depth', () => {
@@ -848,12 +862,12 @@ describe('ProjectsSection', () => {
       expect(fill).toHaveAttribute('data-active', 'true')
     })
 
-    it('outer container does not introduce horizontal page overflow from carousel cards', () => {
+    it('outer container clips horizontal page overflow from carousel cards without breaking sticky', () => {
       setViewport(1440, 900)
       render(<ProjectsSection projects={threeProjects} />)
 
       const projectsSection = document.getElementById('projects')
-      expect(projectsSection).toHaveStyle({ overflowX: 'hidden' })
+      expect(projectsSection).toHaveStyle({ overflowX: 'clip' })
     })
   })
 })
