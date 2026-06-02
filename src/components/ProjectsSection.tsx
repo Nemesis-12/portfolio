@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
 import type { Project } from '../data/projects'
-import { formatProjectNumber, getScrollRangeVh } from './projectsGeometry'
+import { formatProjectNumber, getProjectsScrollRunwayPx, getScrollRangeVh } from './projectsGeometry'
 
 interface Props {
   projects: Project[]
@@ -23,12 +23,20 @@ function clampIndex(index: number, projectCount: number) {
 const ProjectsSection: React.FC<Props> = ({ projects }) => {
   const outerRef = useRef<HTMLElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
-  const { tx, progress } = useHorizontalScroll(outerRef as React.RefObject<HTMLElement>, innerRef as React.RefObject<HTMLElement>)
   const scrollRangeVh = getScrollRangeVh(projects.length)
+  const scrollOptions = useMemo(() => ({
+    getScrollRangePx: ({ viewportHeight }: { viewportHeight: number }) => getProjectsScrollRunwayPx(projects.length, viewportHeight),
+  }), [projects.length])
+  const { tx, progress } = useHorizontalScroll(
+    outerRef as React.RefObject<HTMLElement>,
+    innerRef as React.RefObject<HTMLElement>,
+    scrollOptions,
+  )
 
   const activeIndex = projects.length > 1
     ? clampIndex(Math.round(progress * (projects.length - 1)), projects.length)
     : 0
+  const visibleProjectIndex = projects.length === 0 ? 0 : activeIndex + 1
 
   return (
     <section
@@ -55,7 +63,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
           <div className="hscroll-rule" />
           <div data-testid="progress-indicator" className="hscroll-progress">
             <span data-testid="progress-count">
-              {String(activeIndex + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
+              {String(visibleProjectIndex).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
             </span>
             <div className="hscroll-progress-track">
               <div

@@ -304,6 +304,43 @@ describe('ProjectsSection', () => {
     expect(carouselTrack.style.transform).toBe(`translateX(${-0.5 * (trackWidth - 1000)}px)`)
   })
 
+  it('uses the Projects runway instead of raw section height for progress math', () => {
+    const fourProjects = [
+      ...mockProjects,
+      {
+        id: '3',
+        title: 'Project Three',
+        description: 'Description for project three',
+        tags: ['Vue', 'Python'],
+        links: [{ label: 'Site', url: 'https://project3.com' }],
+      },
+      {
+        id: '4',
+        title: 'Project Four',
+        description: 'Description for project four',
+        tags: ['Go', 'Postgres'],
+        links: [{ label: 'Repo', url: 'https://github.com/project4' }],
+      },
+    ]
+
+    setViewport(1200, 900)
+    render(<ProjectsSection projects={fourProjects} />)
+
+    const projectsSection = document.getElementById('projects') as HTMLElement
+    const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
+
+    vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-1350, 9999))
+    Object.defineProperty(carouselTrack, 'scrollWidth', {
+      configurable: true,
+      value: 3200,
+    })
+
+    act(() => window.dispatchEvent(new Event('scroll')))
+
+    expect(carouselTrack.style.transform).toBe('translateX(-1000px)')
+    expect(screen.getByTestId('progress-fill')).toHaveStyle({ width: '50%' })
+  })
+
   it('section header uses hscroll classes with orange slash and pixel font name', () => {
     render(<ProjectsSection projects={mockProjects} />)
 
@@ -548,6 +585,11 @@ describe('ProjectsSection', () => {
     it('progress count shows 01 / 01 for a single-project list', () => {
       render(<ProjectsSection projects={[mockProjects[0]]} />)
       expect(screen.getByTestId('progress-count')).toHaveTextContent('01 / 01')
+    })
+
+    it('progress count shows 00 / 00 for an empty project list', () => {
+      render(<ProjectsSection projects={[]} />)
+      expect(screen.getByTestId('progress-count')).toHaveTextContent('00 / 00')
     })
 
     it('progress count advances to last card index at full scroll', () => {

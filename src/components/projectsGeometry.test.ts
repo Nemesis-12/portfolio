@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   formatProjectNumber,
+  getProjectsScrollProgress,
+  getProjectsTrackState,
+  getProjectsTrackTranslate,
   getEdgeSpacerWidth,
   getScrollRangeVh,
   PROJECT_CARD_GAP,
@@ -49,6 +52,46 @@ describe('projectsGeometry', () => {
     it('matches calc(50vw - min(280px, 39vw)) for desktop card width', () => {
       expect(getEdgeSpacerWidth(1440)).toBe(440)
       expect(getEdgeSpacerWidth(1000)).toBe(220)
+    })
+  })
+
+  describe('Projects track progress math', () => {
+    it('starts with zero progress and the first card centered', () => {
+      expect(getProjectsTrackState(0, 4, 900, 3200, 1200)).toEqual({
+        progress: 0,
+        tx: 0,
+      })
+    })
+
+    it('maps the middle of the vertical runway to the middle of the horizontal overflow', () => {
+      expect(getProjectsTrackState(-1350, 4, 900, 3200, 1200)).toEqual({
+        progress: 0.5,
+        tx: -1000,
+      })
+    })
+
+    it('ends at full progress with the last card centered', () => {
+      expect(getProjectsTrackState(-2700, 4, 900, 3200, 1200)).toEqual({
+        progress: 1,
+        tx: -2000,
+      })
+    })
+
+    it('recomputes progress from the current viewport height after resize', () => {
+      expect(getProjectsScrollProgress(-1350, 4, 900)).toBe(0.5)
+      expect(getProjectsScrollProgress(-1350, 4, 600)).toBe(0.75)
+    })
+
+    it('recomputes translation from the current viewport width after resize', () => {
+      expect(getProjectsTrackTranslate(0.5, 2600, 1000)).toBe(-800)
+      expect(getProjectsTrackTranslate(0.5, 2600, 1200)).toBe(-700)
+    })
+
+    it('keeps progress while suppressing translation when the track does not overflow', () => {
+      expect(getProjectsTrackState(-1350, 4, 900, 1000, 1200)).toEqual({
+        progress: 0.5,
+        tx: 0,
+      })
     })
   })
 })

@@ -30,6 +30,55 @@ export function getScrollRangeVh(projectCount: number) {
   return Math.max(projectCount, 1)
 }
 
+function clamp01(value: number) {
+  return Math.min(Math.max(value, 0), 1)
+}
+
+/** Returns the vertical Projects scroll runway in pixels. */
+export function getProjectsScrollRunwayPx(projectCount: number, viewportHeight: number) {
+  return Math.max(getScrollRangeVh(projectCount) - 1, 0) * viewportHeight
+}
+
+/** Returns Projects vertical scroll progress from section top and runway geometry. */
+export function getProjectsScrollProgress(
+  sectionTop: number,
+  projectCount: number,
+  viewportHeight: number,
+) {
+  const scrollRunway = getProjectsScrollRunwayPx(projectCount, viewportHeight)
+  if (scrollRunway === 0) {
+    return 0
+  }
+
+  return clamp01(-sectionTop / scrollRunway)
+}
+
+/** Returns Projects track translation for the actual horizontal overflow. */
+export function getProjectsTrackTranslate(progress: number, trackWidth: number, viewportWidth: number) {
+  const horizontalDistance = Math.max(trackWidth - viewportWidth, 0)
+  if (horizontalDistance === 0 || progress === 0) {
+    return 0
+  }
+
+  return -(clamp01(progress) * horizontalDistance)
+}
+
+/** Maps Projects section scroll geometry to track progress and translation. */
+export function getProjectsTrackState(
+  sectionTop: number,
+  projectCount: number,
+  viewportHeight: number,
+  trackWidth: number,
+  viewportWidth: number,
+) {
+  const progress = getProjectsScrollProgress(sectionTop, projectCount, viewportHeight)
+
+  return {
+    progress,
+    tx: getProjectsTrackTranslate(progress, trackWidth, viewportWidth),
+  }
+}
+
 /** Formats a project id as the v4 card number prefix (e.g. "1" → "_01"). */
 export function formatProjectNumber(id: string) {
   return `_${id.padStart(2, '0')}`
