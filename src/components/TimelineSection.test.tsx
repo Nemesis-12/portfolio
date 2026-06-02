@@ -639,6 +639,15 @@ describe('TimelineSection', () => {
       expect(stickyViewport).toHaveClass('hscroll-sticky')
     })
 
+    it('clips timeline host overflow without creating an overflow container around sticky content', () => {
+      render(<TimelineSection />)
+
+      const timeline = document.getElementById('timeline')
+
+      expect(timeline).toHaveStyle({ overflowX: 'clip' })
+      expect(timeline).not.toHaveStyle({ overflowX: 'hidden' })
+    })
+
     it('timeline track translateX is independent from the outer section transform', () => {
       vi.mocked(useTimelineScroll).mockReturnValue({
         active: [false, true, false],
