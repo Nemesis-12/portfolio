@@ -587,6 +587,11 @@ describe('ProjectsSection', () => {
       expect(screen.getByTestId('progress-count')).toHaveTextContent('01 / 01')
     })
 
+    it('progress count shows 00 / 00 for an empty project list', () => {
+      render(<ProjectsSection projects={[]} />)
+      expect(screen.getByTestId('progress-count')).toHaveTextContent('00 / 00')
+    })
+
     it('progress count advances to last card index at full scroll', () => {
       setViewport(1000, 800)
       render(<ProjectsSection projects={mockProjects} />)

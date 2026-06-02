@@ -36,6 +36,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
   const activeIndex = projects.length > 1
     ? clampIndex(Math.round(progress * (projects.length - 1)), projects.length)
     : 0
+  const visibleProjectIndex = projects.length === 0 ? 0 : activeIndex + 1
 
   return (
     <section
@@ -62,7 +63,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
           <div className="hscroll-rule" />
           <div data-testid="progress-indicator" className="hscroll-progress">
             <span data-testid="progress-count">
-              {String(activeIndex + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
+              {String(visibleProjectIndex).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
             </span>
             <div className="hscroll-progress-track">
               <div
