@@ -10,7 +10,8 @@ export function computeActiveMajorSection(
   viewportHeight: number,
 ): string {
   const probeY = viewportHeight * ACTIVE_SECTION_SAMPLE_RATIO
-  let current = sectionIds[0] ?? ''
+  let containingSection: string | null = null
+  let latestEnteredSection = sectionIds[0] ?? ''
 
   for (const id of sectionIds) {
     const element = getElement(id)
@@ -18,11 +19,15 @@ export function computeActiveMajorSection(
 
     const rect = element.getBoundingClientRect()
     if (rect.top <= probeY && rect.bottom > probeY) {
-      current = id
+      containingSection = id
+    }
+
+    if (rect.top <= probeY) {
+      latestEnteredSection = id
     }
   }
 
-  return current
+  return containingSection ?? latestEnteredSection
 }
 
 export function useActiveMajorSection(): string {

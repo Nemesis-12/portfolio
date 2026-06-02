@@ -171,6 +171,32 @@ describe('Navbar', () => {
       expect(projectsLink!.querySelector('[data-testid="nav-caret"]')).toHaveTextContent('>')
       expect(projectsLabel).toHaveClass('nav-label')
     })
+
+    it('keeps PROJECTS active for its owning scroll runway when no internal panel owns the sample line', () => {
+      mockMajorSection('home', -VIEWPORT_HEIGHT, VIEWPORT_HEIGHT)
+      mockMajorSection('projects', -(VIEWPORT_HEIGHT * 6 + 24), VIEWPORT_HEIGHT * 6)
+      mockMajorSection('skills', VIEWPORT_HEIGHT * 0.4 + 120, VIEWPORT_HEIGHT)
+
+      render(<Navbar />)
+      dispatchScrollUpdate()
+
+      expect(screen.getByText('PROJECTS').closest('a')).toHaveClass('active')
+      expect(screen.getByText('SKILLS').closest('a')).not.toHaveClass('active')
+    })
+
+    it('keeps TIMELINE active for its owning scroll runway when no internal panel owns the sample line', () => {
+      mockMajorSection('home', -VIEWPORT_HEIGHT * 4, VIEWPORT_HEIGHT)
+      mockMajorSection('projects', -VIEWPORT_HEIGHT * 3, VIEWPORT_HEIGHT)
+      mockMajorSection('skills', -VIEWPORT_HEIGHT * 2, VIEWPORT_HEIGHT)
+      mockMajorSection('timeline', -(VIEWPORT_HEIGHT * 3 + 24), VIEWPORT_HEIGHT * 3)
+      mockMajorSection('contact', VIEWPORT_HEIGHT * 0.4 + 120, VIEWPORT_HEIGHT)
+
+      render(<Navbar />)
+      dispatchScrollUpdate()
+
+      expect(screen.getByText('TIMELINE').closest('a')).toHaveClass('active')
+      expect(screen.getByText('CONTACT').closest('a')).not.toHaveClass('active')
+    })
   })
 
   describe('issue #38 - logo size and container alignment', () => {
