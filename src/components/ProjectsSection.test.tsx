@@ -394,10 +394,12 @@ describe('ProjectsSection', () => {
   it('renders one snap-anchor per project at expected vertical landing points', () => {
     render(<ProjectsSection projects={mockProjects} />)
 
+    const projectsSection = document.getElementById('projects')
     const anchors = document.querySelectorAll('.snap-anchor')
     expect(anchors).toHaveLength(mockProjects.length)
 
     anchors.forEach((anchor, index) => {
+      expect(anchor.parentElement).toBe(projectsSection)
       expect(anchor).toHaveStyle({ top: `${index * 100}vh` })
     })
   })

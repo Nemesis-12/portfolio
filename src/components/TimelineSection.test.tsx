@@ -692,6 +692,9 @@ describe('TimelineSection', () => {
       const anchors = timeline?.querySelectorAll('.snap-anchor')
 
       expect(anchors).toHaveLength(3)
+      anchors?.forEach((anchor) => {
+        expect(anchor.parentElement).toBe(timeline)
+      })
       expect(anchors?.[0]).toHaveStyle({ top: '0vh' })
       expect(anchors?.[1]).toHaveStyle({ top: '100vh' })
       expect(anchors?.[2]).toHaveStyle({ top: '200vh' })
