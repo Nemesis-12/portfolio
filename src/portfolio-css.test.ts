@@ -10,9 +10,27 @@ const portfolioCss = readFileSync(join(srcDir, 'portfolio.css'), 'utf8')
 const indexCss = readFileSync(join(srcDir, 'index.css'), 'utf8')
 
 function blockFor(selector: string) {
-  const match = portfolioCss.match(new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`))
-  expect(match).not.toBeNull()
-  return match?.[1] ?? ''
+  const selectorIndex = portfolioCss.indexOf(selector)
+  expect(selectorIndex).toBeGreaterThanOrEqual(0)
+
+  const blockStart = portfolioCss.indexOf('{', selectorIndex)
+  expect(blockStart).toBeGreaterThanOrEqual(0)
+
+  let depth = 0
+  for (let index = blockStart; index < portfolioCss.length; index += 1) {
+    const char = portfolioCss[index]
+    if (char === '{') {
+      depth += 1
+    }
+    if (char === '}') {
+      depth -= 1
+      if (depth === 0) {
+        return portfolioCss.slice(blockStart + 1, index)
+      }
+    }
+  }
+
+  throw new Error(`Missing closing brace for ${selector}`)
 }
 
 const REFERENCE_COMPONENT_CLASSES = [
