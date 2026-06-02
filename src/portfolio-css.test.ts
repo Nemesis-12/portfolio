@@ -124,6 +124,14 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toContain('scroll-margin-top: 56px')
   })
 
+  it('scopes snap anchor ownership to internal sticky scroll hosts', () => {
+    const internalSnapAnchorRule = blockFor('[data-sticky-scroll-host="true"] > .snap-anchor')
+
+    expect(internalSnapAnchorRule).toContain('scroll-snap-align: start')
+    expect(internalSnapAnchorRule).toContain('scroll-snap-stop: always')
+    expect(portfolioCss).not.toMatch(/(^|\})\s*\.snap-anchor\s*\{[^}]*scroll-snap-align/)
+  })
+
   it('anchors navbar floating terminal bar chrome from the reference', () => {
     expect(portfolioCss).toMatch(/\.nav\{[^}]*position:fixed/)
     expect(portfolioCss).toMatch(/\.nav\{[^}]*z-index:100/)
