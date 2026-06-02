@@ -83,7 +83,7 @@
   .proj-track{gap:56px}
   .proj-edge{flex-shrink:0;width:calc(50vw - min(280px, 39vw))}
   .pcard{--notch:22px;flex-shrink:0;width:min(560px,78vw);height:min(640px,76vh);position:relative;cursor:pointer;
-    transition:transform .35s var(--ease),opacity .35s var(--ease);will-change:transform,opacity}
+    transition:transform .35s var(--ease);will-change:transform}
   .pcard-bg{position:absolute;inset:0;background:var(--color-platinum);
     clip-path:polygon(var(--notch) 0, 100% 0, 100% calc(100% - var(--notch)), calc(100% - var(--notch)) 100%, 0 100%, 0 var(--notch));
     transition:transform .35s var(--ease)}

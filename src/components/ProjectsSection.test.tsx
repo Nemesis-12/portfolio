@@ -747,7 +747,7 @@ describe('ProjectsSection', () => {
     })
   })
 
-  describe('issue #218 - no scroll-driven card scale or opacity state', () => {
+  describe('issue #233 - no active/neighbor/far card suppression state', () => {
     const threeProjects = [
       ...mockProjects,
       {

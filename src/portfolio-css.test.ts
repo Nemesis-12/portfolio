@@ -9,6 +9,12 @@ const srcDir = dirname(fileURLToPath(import.meta.url))
 const portfolioCss = readFileSync(join(srcDir, 'portfolio.css'), 'utf8')
 const indexCss = readFileSync(join(srcDir, 'index.css'), 'utf8')
 
+function blockFor(selector: string) {
+  const match = portfolioCss.match(new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`))
+  expect(match).not.toBeNull()
+  return match?.[1] ?? ''
+}
+
 const REFERENCE_COMPONENT_CLASSES = [
   'ls-inner',
   'nav',
@@ -64,6 +70,15 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toContain("[data-fill-active='true']")
     expect(portfolioCss).toContain('.pcard:hover .pcard-fill')
     expect(portfolioCss).toContain('.ptag-inverted')
+  })
+
+  it('does not prepare project cards for active/neighbor/far scale or opacity suppression', () => {
+    const projectCardRule = blockFor('.pcard')
+
+    expect(portfolioCss).not.toMatch(/data-card-state|card-state|neighbor|far/)
+    expect(projectCardRule).not.toMatch(/\bscale\(/)
+    expect(projectCardRule).not.toMatch(/transition:[^;}]*opacity/)
+    expect(projectCardRule).not.toMatch(/will-change:[^;}]*opacity/)
   })
 
   it('defines the shared easing token for transitions', () => {
