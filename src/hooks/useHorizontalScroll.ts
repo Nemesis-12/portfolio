@@ -5,6 +5,16 @@ interface HorizontalScrollState {
   progress: number
 }
 
+interface HorizontalScrollOptions {
+  getScrollRangePx?: (geometry: {
+    sectionTop: number
+    sectionHeight: number
+    viewportHeight: number
+  }) => number
+}
+
+const DEFAULT_HORIZONTAL_SCROLL_OPTIONS: HorizontalScrollOptions = {}
+
 export function clamp01(value: number) {
   return Math.min(Math.max(value, 0), 1)
 }
@@ -12,6 +22,7 @@ export function clamp01(value: number) {
 function getHorizontalScrollState(
   outer: HTMLElement | null,
   inner: HTMLElement | null,
+  options: HorizontalScrollOptions = DEFAULT_HORIZONTAL_SCROLL_OPTIONS,
 ): HorizontalScrollState {
   if (!outer || !inner) {
     return { tx: 0, progress: 0 }
@@ -20,7 +31,14 @@ function getHorizontalScrollState(
   const rect = outer.getBoundingClientRect()
   const viewportWidth = window.innerWidth
   const viewportHeight = window.innerHeight
-  const scrollRange = Math.max(rect.height - viewportHeight, 0)
+  const defaultScrollRange = Math.max(rect.height - viewportHeight, 0)
+  const scrollRange = options.getScrollRangePx
+    ? Math.max(options.getScrollRangePx({
+      sectionTop: rect.top,
+      sectionHeight: rect.height,
+      viewportHeight,
+    }), 0)
+    : defaultScrollRange
   const progress = scrollRange === 0 ? 0 : clamp01(-rect.top / scrollRange)
   const trackWidth = Math.max(inner.scrollWidth - viewportWidth, 0)
   const tx = progress === 0 || trackWidth === 0 ? 0 : -(progress * trackWidth)
@@ -34,12 +52,13 @@ function getHorizontalScrollState(
 export function useHorizontalScroll(
   outerRef: RefObject<HTMLElement>,
   innerRef: RefObject<HTMLElement>,
+  options: HorizontalScrollOptions = DEFAULT_HORIZONTAL_SCROLL_OPTIONS,
 ): HorizontalScrollState {
   const [state, setState] = useState<HorizontalScrollState>({ tx: 0, progress: 0 })
 
   useEffect(() => {
     const update = () => {
-      setState(getHorizontalScrollState(outerRef.current, innerRef.current))
+      setState(getHorizontalScrollState(outerRef.current, innerRef.current, options))
     }
 
     update()
@@ -51,7 +70,7 @@ export function useHorizontalScroll(
       window.removeEventListener('scroll', update)
       window.removeEventListener('resize', update)
     }
-  }, [outerRef, innerRef])
+  }, [outerRef, innerRef, options])
 
   return state
 }
