@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, act } from '@testing-library/react'
-import TimelineSection, { timelineEntries } from './TimelineSection'
+import TimelineSection from './TimelineSection'
 import { useTimelineScroll } from '../hooks/useTimelineScroll'
 
 function mockTimelineScrollState(
@@ -703,16 +703,25 @@ describe('TimelineSection', () => {
   })
 
   describe('issue #237 - newest-to-oldest slide direction', () => {
-    it('keeps timeline content semantics newest-first while rendering the track reversed', () => {
+    it('renders the track oldest-to-newest while preserving newest-first content semantics', () => {
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, true, true]))
+      vi.useFakeTimers()
+
       render(<TimelineSection />)
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
 
-      const semanticHashes = timelineEntries.map((entry) => entry.hash)
-      const renderedContentIndexes = Array.from(
-        document.querySelectorAll('[data-testid="timeline-panel"]'),
-      ).map((panel) => panel.getAttribute('data-content-index'))
+      const renderedPanels = Array.from(document.querySelectorAll('[data-testid="timeline-panel"]'))
+      const renderedContentIndexes = renderedPanels.map((panel) =>
+        panel.getAttribute('data-content-index'),
+      )
+      const renderedHashes = renderedPanels.map(
+        (panel) => panel.querySelector('[data-testid="commit-hash"]')?.textContent,
+      )
 
-      expect(semanticHashes).toEqual(['d4e8f2c', 'a3f9d2b', 'b7c3e1a'])
       expect(renderedContentIndexes).toEqual(['2', '1', '0'])
+      expect(renderedHashes).toEqual(['commit b7c3e1a', 'commit a3f9d2b', 'commit d4e8f2c'])
     })
 
     it.each([
