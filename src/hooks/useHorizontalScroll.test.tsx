@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { useRef } from 'react'
+import { getEdgeSpacerWidth, PROJECT_CARD_GAP } from '../components/projectsGeometry'
 import { useHorizontalScroll, clamp01 } from './useHorizontalScroll'
 
 function setViewport(width: number, height: number) {
@@ -191,8 +192,8 @@ describe('useHorizontalScroll', () => {
     setViewport(1000, 800)
 
     const cardWidth = 480
-    const cardGap = 56
-    const edgeWidth = 1000 / 2 - Math.min(cardWidth / 2, 1000 * 0.39)
+    const cardGap = PROJECT_CARD_GAP
+    const edgeWidth = getEdgeSpacerWidth(1000, cardWidth)
     const innerScrollWidth = edgeWidth * 2 + cardWidth * 2 + cardGap
 
     const { result } = renderHorizontalScrollHook({
@@ -212,8 +213,8 @@ describe('useHorizontalScroll', () => {
     setViewport(1000, 800)
 
     const cardWidth = 480
-    const cardGap = 56
-    const edgeWidth = 1000 / 2 - Math.min(cardWidth / 2, 1000 * 0.39)
+    const cardGap = PROJECT_CARD_GAP
+    const edgeWidth = getEdgeSpacerWidth(1000, cardWidth)
     const innerScrollWidth = edgeWidth * 2 + cardWidth * 2 + cardGap
 
     const { result } = renderHorizontalScrollHook({

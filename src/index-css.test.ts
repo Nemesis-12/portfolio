@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { NAV_HEIGHT } from './data/layout'
 
 const cssPath = join(dirname(fileURLToPath(import.meta.url)), 'index.css')
 const css = readFileSync(cssPath, 'utf8')
@@ -49,7 +50,7 @@ describe('global CSS brand chrome', () => {
 
   it('uses proximity vertical scroll snap on html', () => {
     expect(blockFor('html')).toContain('scroll-snap-type: y proximity;')
-    expect(blockFor('html')).toContain('scroll-padding-top: 56px;')
+    expect(blockFor('html')).toContain(`scroll-padding-top: ${NAV_HEIGHT}px;`)
     expect(blockFor('html')).not.toContain('scroll-behavior: smooth')
   })
 })

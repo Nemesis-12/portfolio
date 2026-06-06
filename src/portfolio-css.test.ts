@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
+import { NAV_HEIGHT } from './data/layout'
 
 const srcDir = dirname(fileURLToPath(import.meta.url))
 const portfolioCss = readFileSync(join(srcDir, 'portfolio.css'), 'utf8')
@@ -121,7 +122,7 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toContain('#contact')
     expect(portfolioCss).toContain('scroll-snap-align: start')
     expect(portfolioCss).toContain('.snap-anchor')
-    expect(portfolioCss).toContain('scroll-margin-top: 56px')
+    expect(portfolioCss).toContain(`scroll-margin-top: ${NAV_HEIGHT}px`)
   })
 
   it('scopes snap anchor ownership to internal sticky scroll hosts', () => {

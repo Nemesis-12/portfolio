@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  EDGE_SPACER_MAX_VW_FRACTION,
   formatProjectNumber,
   getProjectsScrollProgress,
   getProjectsTrackState,
@@ -46,6 +47,10 @@ describe('projectsGeometry', () => {
 
   it('exports the reference proj-track gap in pixels', () => {
     expect(PROJECT_CARD_GAP).toBe(56)
+  })
+
+  it('exports the edge spacer viewport fraction matching proj-edge CSS', () => {
+    expect(EDGE_SPACER_MAX_VW_FRACTION).toBe(0.39)
   })
 
   describe('getEdgeSpacerWidth', () => {

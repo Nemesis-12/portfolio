@@ -877,6 +877,78 @@ describe('TimelineSection', () => {
     })
   })
 
+  describe('issue #237 - newest-to-oldest slide direction', () => {
+    it('renders the track oldest-to-newest while preserving newest-first content semantics', () => {
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, true, true]))
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const renderedPanels = Array.from(document.querySelectorAll('[data-testid="timeline-panel"]'))
+      const renderedContentIndexes = renderedPanels.map((panel) =>
+        panel.getAttribute('data-content-index'),
+      )
+      const renderedHashes = renderedPanels.map(
+        (panel) => panel.querySelector('[data-testid="commit-hash"]')?.textContent,
+      )
+
+      expect(renderedContentIndexes).toEqual(['2', '1', '0'])
+      expect(renderedHashes).toEqual(['commit b7c3e1a', 'commit a3f9d2b', 'commit d4e8f2c'])
+    })
+
+    it.each([
+      {
+        active: [true, false, false],
+        activeIndex: 0,
+        expectedHash: 'commit d4e8f2c',
+        expectedCount: '01 / 03',
+        expectedTx: 'translateX(-2000px)',
+      },
+      {
+        active: [false, true, false],
+        activeIndex: 1,
+        expectedHash: 'commit a3f9d2b',
+        expectedCount: '02 / 03',
+        expectedTx: 'translateX(-1000px)',
+      },
+      {
+        active: [false, false, true],
+        activeIndex: 2,
+        expectedHash: 'commit b7c3e1a',
+        expectedCount: '03 / 03',
+        expectedTx: 'translateX(0px)',
+      },
+    ])(
+      'centers panel $activeIndex with the matching counter and track translation',
+      ({ active, activeIndex, expectedHash, expectedCount, expectedTx }) => {
+        vi.mocked(useTimelineScroll).mockReturnValue(
+          mockTimelineScrollState(active, {
+            activeIndex,
+            tx: activeIndex === 0 ? -2000 : activeIndex === 1 ? -1000 : 0,
+          }),
+        )
+        vi.useFakeTimers()
+
+        render(<TimelineSection />)
+        act(() => {
+          vi.advanceTimersByTime(15000)
+        })
+
+        const activePanel = getTimelinePanel(activeIndex)
+        const track = document.querySelector('[data-timeline-track="true"]') as HTMLElement
+
+        expect(activePanel.querySelector('[data-testid="commit-hash"]')).toHaveTextContent(
+          expectedHash,
+        )
+        expect(screen.getByTestId('progress-count')).toHaveTextContent(expectedCount)
+        expect(track.style.transform).toContain(expectedTx)
+      },
+    )
+  })
+
   describe('issue #206 - timeline section chrome', () => {
     it('renders // 03 TIMELINE header with hscroll classes', () => {
       render(<TimelineSection />)
