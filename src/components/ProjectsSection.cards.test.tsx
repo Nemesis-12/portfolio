@@ -231,8 +231,11 @@ describe('ProjectsSection cards', () => {
       const clip = card!.querySelector('.pcard-clip')
       expect(clip).toBeInTheDocument()
 
+      const bg = card!.querySelector('.pcard-bg')
       const fill = card!.querySelector('[data-testid="project-card-fill"]')
+      expect(bg).toBeInTheDocument()
       expect(fill).toBeInTheDocument()
+      expect(clip!.contains(bg)).toBe(true)
       expect(clip!.contains(fill)).toBe(true)
 
       const notches = card!.querySelectorAll('.pcard-notch')

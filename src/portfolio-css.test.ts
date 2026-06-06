@@ -112,11 +112,17 @@ describe('portfolio.css CSS anchor', () => {
 
   it('clips pcard fill inside card silhouette via pcard-clip wrapper', () => {
     const clipRule = blockFor('.pcard-clip')
+    const cardRule = blockFor('.pcard')
+    const bgRule = blockFor('.pcard-bg')
+    const fillRule = blockFor('.pcard-fill')
 
     expect(clipRule).toContain('overflow:hidden')
     expect(clipRule).toContain('clip-path:polygon(var(--notch) 0')
     expect(clipRule).toContain('position:absolute')
     expect(clipRule).toContain('inset:0')
+    expect(cardRule).not.toContain('overflow:hidden')
+    expect(bgRule).not.toContain('clip-path')
+    expect(fillRule).not.toContain('clip-path')
   })
 
   it('anchors loading screen boot sequence from the reference', () => {
