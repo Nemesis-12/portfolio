@@ -81,7 +81,8 @@
 
   /* ─── PROJECTS ──── */
   .proj-track{gap:56px}
-  .proj-edge{flex-shrink:0;width:calc(50vw - min(280px, 39vw))}
+  .proj-edge-lead{flex-shrink:0;width:calc(50vw - min(280px, 39vw))}
+  .proj-edge-trail{flex-shrink:0;width:calc(50% - min(280px, 39vw))}
   .pcard{--notch:22px;flex-shrink:0;width:min(560px,78vw);height:min(640px,76vh);position:relative;cursor:pointer;
     transition:transform .35s var(--ease);will-change:transform}
   .pcard-bg{position:absolute;inset:0;background:var(--color-platinum);

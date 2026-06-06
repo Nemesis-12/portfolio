@@ -1,7 +1,12 @@
 import { renderHook, act } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { useRef } from 'react'
-import { getEdgeSpacerWidth, PROJECT_CARD_GAP } from '../components/projectsGeometry'
+import {
+  getEdgeSpacerWidth,
+  getProjectsCarouselViewportWidth,
+  getTrailingEdgeSpacerWidth,
+  PROJECT_CARD_GAP,
+} from '../components/projectsGeometry'
 import { useHorizontalScroll } from './useHorizontalScroll'
 
 function setViewport(width: number, height: number) {
@@ -68,6 +73,10 @@ function cardCenterX(
   return tx + edgeWidth + cardIndex * (cardWidth + cardGap) + cardWidth / 2
 }
 
+function horizontalDistance(innerScrollWidth: number, viewportWidth: number) {
+  return innerScrollWidth - getProjectsCarouselViewportWidth(viewportWidth)
+}
+
 describe('useHorizontalScroll', () => {
   it('returns 0.5 progress and half the horizontal offset midway through the section', () => {
     setViewport(1000, 800)
@@ -81,7 +90,7 @@ describe('useHorizontalScroll', () => {
     act(() => window.dispatchEvent(new Event('scroll')))
 
     expect(result.current.progress).toBe(0.5)
-    expect(result.current.tx).toBe(-800)
+    expect(result.current.tx).toBe(-0.5 * horizontalDistance(2600, 1000))
   })
 
   it('returns zero progress and translate before the outer container enters the viewport', () => {
@@ -110,7 +119,7 @@ describe('useHorizontalScroll', () => {
     act(() => window.dispatchEvent(new Event('scroll')))
 
     expect(result.current.progress).toBeCloseTo(0.2, 4)
-    expect(result.current.tx).toBeCloseTo(-320, 0)
+    expect(result.current.tx).toBeCloseTo(-0.2 * horizontalDistance(2600, 1000), 0)
   })
 
   it('returns full progress and max translate after the outer container scrolls fully past', () => {
@@ -124,7 +133,7 @@ describe('useHorizontalScroll', () => {
 
     act(() => window.dispatchEvent(new Event('scroll')))
 
-    expect(result.current).toEqual({ progress: 1, tx: -1600 })
+    expect(result.current).toEqual({ progress: 1, tx: -horizontalDistance(2600, 1000) })
   })
 
   it('clamps progress to 1 when scrolled past the section end', () => {
@@ -138,7 +147,7 @@ describe('useHorizontalScroll', () => {
 
     act(() => window.dispatchEvent(new Event('scroll')))
 
-    expect(result.current).toEqual({ progress: 1, tx: -1600 })
+    expect(result.current).toEqual({ progress: 1, tx: -horizontalDistance(2600, 1000) })
   })
 
   it('returns zero translate when the inner track does not overflow the viewport', () => {
@@ -180,12 +189,12 @@ describe('useHorizontalScroll', () => {
     })
 
     act(() => window.dispatchEvent(new Event('scroll')))
-    expect(result.current).toEqual({ progress: 0.5, tx: -800 })
+    expect(result.current).toEqual({ progress: 0.5, tx: -0.5 * horizontalDistance(2600, 1000) })
 
     setViewport(1200, 800)
     act(() => window.dispatchEvent(new Event('resize')))
 
-    expect(result.current).toEqual({ progress: 0.5, tx: -700 })
+    expect(result.current).toEqual({ progress: 0.5, tx: -0.5 * horizontalDistance(2600, 1200) })
   })
 
   it('keeps the first card centered at progress 0 when proj-edge spacers are included in scroll width', () => {
@@ -194,7 +203,8 @@ describe('useHorizontalScroll', () => {
     const cardWidth = 480
     const cardGap = PROJECT_CARD_GAP
     const edgeWidth = getEdgeSpacerWidth(1000, cardWidth)
-    const innerScrollWidth = edgeWidth * 2 + cardWidth * 2 + cardGap
+    const trailingEdgeWidth = getTrailingEdgeSpacerWidth(1000, cardWidth)
+    const innerScrollWidth = edgeWidth + trailingEdgeWidth + cardWidth * 2 + cardGap
 
     const { result } = renderHorizontalScrollHook({
       outerTop: 0,
@@ -215,7 +225,8 @@ describe('useHorizontalScroll', () => {
     const cardWidth = 480
     const cardGap = PROJECT_CARD_GAP
     const edgeWidth = getEdgeSpacerWidth(1000, cardWidth)
-    const innerScrollWidth = edgeWidth * 2 + cardWidth * 2 + cardGap
+    const trailingEdgeWidth = getTrailingEdgeSpacerWidth(1000, cardWidth)
+    const innerScrollWidth = edgeWidth + trailingEdgeWidth + cardWidth * 2 + cardGap
 
     const { result } = renderHorizontalScrollHook({
       outerTop: -800,
@@ -226,6 +237,8 @@ describe('useHorizontalScroll', () => {
     act(() => window.dispatchEvent(new Event('scroll')))
 
     expect(result.current.progress).toBe(1)
-    expect(cardCenterX(result.current.tx, 1, cardWidth, cardGap, edgeWidth)).toBe(1000 / 2)
+    expect(cardCenterX(result.current.tx, 1, cardWidth, cardGap, edgeWidth)).toBe(
+      getProjectsCarouselViewportWidth(1000) / 2,
+    )
   })
 })

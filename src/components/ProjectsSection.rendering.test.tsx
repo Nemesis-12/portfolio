@@ -61,10 +61,12 @@ describe('ProjectsSection rendering', () => {
   it('renders proj-edge spacers before the first card and after the last card', () => {
     render(<ProjectsSection projects={mockProjects} />)
 
-    const edges = document.querySelectorAll('.proj-edge')
-    expect(edges).toHaveLength(2)
-    expect(edges[0]?.nextElementSibling).toHaveAttribute('data-testid', 'project-card')
-    expect(edges[1]?.previousElementSibling).toHaveAttribute('data-testid', 'project-card')
+    const leadEdge = document.querySelector('.proj-edge-lead')
+    const trailEdge = document.querySelector('.proj-edge-trail')
+    expect(leadEdge).toBeInTheDocument()
+    expect(trailEdge).toBeInTheDocument()
+    expect(leadEdge?.nextElementSibling).toHaveAttribute('data-testid', 'project-card')
+    expect(trailEdge?.previousElementSibling).toHaveAttribute('data-testid', 'project-card')
   })
 
   it('renders cards in a horizontal track structure for carousel scrolling', () => {

@@ -1,4 +1,5 @@
 import { useMemo, type RefObject } from 'react'
+import { getProjectsCarouselViewportWidth } from '../components/projectsGeometry'
 import { useScrollProgress } from './useScrollProgress'
 
 interface HorizontalScrollState {
@@ -25,7 +26,8 @@ function getHorizontalTranslate(
     return 0
   }
 
-  const trackWidth = Math.max(inner.scrollWidth - viewportWidth, 0)
+  const carouselViewportWidth = getProjectsCarouselViewportWidth(viewportWidth)
+  const trackWidth = Math.max(inner.scrollWidth - carouselViewportWidth, 0)
   return progress === 0 || trackWidth === 0 ? 0 : -(progress * trackWidth)
 }
 

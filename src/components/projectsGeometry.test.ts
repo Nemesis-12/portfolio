@@ -2,13 +2,18 @@ import { describe, expect, it } from 'vitest'
 import {
   EDGE_SPACER_MAX_VW_FRACTION,
   formatProjectNumber,
+  getCarouselTrackWidth,
+  getProjectCardCenterX,
+  getProjectsCarouselViewportWidth,
   getProjectsScrollProgress,
   getProjectsTrackState,
   getProjectsTrackTranslate,
   getEdgeSpacerWidth,
   getScrollRangeVh,
+  getTrailingEdgeSpacerWidth,
   PROJECT_CARD_GAP,
   PROJECT_CARD_WIDTH,
+  PROJECTS_SECTION_PADDING_X,
 } from './projectsGeometry'
 
 describe('projectsGeometry', () => {
@@ -53,6 +58,10 @@ describe('projectsGeometry', () => {
     expect(EDGE_SPACER_MAX_VW_FRACTION).toBe(0.39)
   })
 
+  it('exports the projects section horizontal padding matching px-8', () => {
+    expect(PROJECTS_SECTION_PADDING_X).toBe(32)
+  })
+
   describe('getEdgeSpacerWidth', () => {
     it('matches calc(50vw - min(280px, 39vw)) for desktop card width', () => {
       expect(getEdgeSpacerWidth(1440)).toBe(440)
@@ -60,26 +69,69 @@ describe('projectsGeometry', () => {
     })
   })
 
+  describe('getTrailingEdgeSpacerWidth', () => {
+    it('matches calc(50% - min(280px, 39vw)) inside the padded sticky viewport', () => {
+      expect(getTrailingEdgeSpacerWidth(1440)).toBe(408)
+      expect(getTrailingEdgeSpacerWidth(1000)).toBe(188)
+    })
+  })
+
+  describe('getCarouselTrackWidth', () => {
+    it('uses asymmetric leading and trailing edge spacers', () => {
+      expect(getCarouselTrackWidth(4, 1200)).toBe(3016)
+    })
+  })
+
   describe('Projects track progress math', () => {
+    const viewportWidth = 1200
+    const viewportHeight = 900
+    const projectCount = 4
+    const trackWidth = getCarouselTrackWidth(projectCount, viewportWidth)
+    const carouselViewportWidth = getProjectsCarouselViewportWidth(viewportWidth)
+
     it('starts with zero progress and the first card centered', () => {
-      expect(getProjectsTrackState(0, 4, 900, 3200, 1200)).toEqual({
+      expect(getProjectsTrackState(0, projectCount, viewportHeight, trackWidth, viewportWidth)).toEqual({
         progress: 0,
         tx: 0,
       })
+      expect(getProjectCardCenterX(0, 0, viewportWidth)).toBe(viewportWidth / 2)
     })
 
     it('maps the middle of the vertical runway to the middle of the horizontal overflow', () => {
-      expect(getProjectsTrackState(-1350, 4, 900, 3200, 1200)).toEqual({
+      expect(getProjectsTrackState(-1350, projectCount, viewportHeight, trackWidth, viewportWidth)).toEqual({
         progress: 0.5,
-        tx: -1000,
+        tx: -0.5 * (trackWidth - carouselViewportWidth),
       })
     })
 
     it('ends at full progress with the last card centered', () => {
-      expect(getProjectsTrackState(-2700, 4, 900, 3200, 1200)).toEqual({
-        progress: 1,
-        tx: -2000,
-      })
+      const { progress, tx } = getProjectsTrackState(-2700, projectCount, viewportHeight, trackWidth, viewportWidth)
+      expect(progress).toBe(1)
+      expect(tx).toBe(-(trackWidth - carouselViewportWidth))
+      expect(getProjectCardCenterX(tx, projectCount - 1, viewportWidth)).toBe(
+        carouselViewportWidth / 2,
+      )
+    })
+
+    it('centers the last card for five projects at a 1440px viewport', () => {
+      const desktopViewportWidth = 1440
+      const fiveProjectCount = 5
+      const fiveProjectTrackWidth = getCarouselTrackWidth(fiveProjectCount, desktopViewportWidth)
+      const fiveProjectCarouselViewportWidth = getProjectsCarouselViewportWidth(desktopViewportWidth)
+      const runwayPx = (fiveProjectCount - 1) * 900
+      const { progress, tx } = getProjectsTrackState(
+        -runwayPx,
+        fiveProjectCount,
+        900,
+        fiveProjectTrackWidth,
+        desktopViewportWidth,
+      )
+
+      expect(progress).toBe(1)
+      expect(tx).toBe(-(fiveProjectTrackWidth - fiveProjectCarouselViewportWidth))
+      expect(getProjectCardCenterX(tx, fiveProjectCount - 1, desktopViewportWidth)).toBe(
+        fiveProjectCarouselViewportWidth / 2,
+      )
     })
 
     it('recomputes progress from the current viewport height after resize', () => {
@@ -88,8 +140,8 @@ describe('projectsGeometry', () => {
     })
 
     it('recomputes translation from the current viewport width after resize', () => {
-      expect(getProjectsTrackTranslate(0.5, 2600, 1000)).toBe(-800)
-      expect(getProjectsTrackTranslate(0.5, 2600, 1200)).toBe(-700)
+      expect(getProjectsTrackTranslate(0.5, 2600, 1000)).toBe(-0.5 * (2600 - getProjectsCarouselViewportWidth(1000)))
+      expect(getProjectsTrackTranslate(0.5, 2600, 1200)).toBe(-0.5 * (2600 - getProjectsCarouselViewportWidth(1200)))
     })
 
     it('keeps progress while suppressing translation when the track does not overflow', () => {
