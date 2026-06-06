@@ -1,3 +1,5 @@
+import { clamp01 } from '../utils/math'
+
 /**
  * Layout token contract — CSS values that MUST stay in sync with these constants:
  *
@@ -45,10 +47,6 @@ export function getCarouselTrackWidth(
 /** Returns the Projects section height multiplier in viewport-height units (one viewport per project). */
 export function getScrollRangeVh(projectCount: number) {
   return Math.max(projectCount, 1)
-}
-
-function clamp01(value: number) {
-  return Math.min(Math.max(value, 0), 1)
 }
 
 /** Returns the vertical Projects scroll runway in pixels. */

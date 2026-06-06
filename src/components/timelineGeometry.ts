@@ -1,4 +1,4 @@
-import { clamp01 } from '../hooks/useHorizontalScroll'
+import { clamp01 } from '../utils/math'
 
 /** Returns the Timeline section height multiplier in viewport-height units. */
 export function getTimelineScrollRangeVh(entryCount: number) {

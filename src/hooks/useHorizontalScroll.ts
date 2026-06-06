@@ -1,4 +1,5 @@
-import { useEffect, useState, type RefObject } from 'react'
+import { useMemo, type RefObject } from 'react'
+import { useScrollProgress } from './useScrollProgress'
 
 interface HorizontalScrollState {
   tx: number
@@ -15,38 +16,17 @@ interface HorizontalScrollOptions {
 
 const DEFAULT_HORIZONTAL_SCROLL_OPTIONS: HorizontalScrollOptions = {}
 
-export function clamp01(value: number) {
-  return Math.min(Math.max(value, 0), 1)
-}
-
-function getHorizontalScrollState(
-  outer: HTMLElement | null,
+function getHorizontalTranslate(
   inner: HTMLElement | null,
-  options: HorizontalScrollOptions = DEFAULT_HORIZONTAL_SCROLL_OPTIONS,
-): HorizontalScrollState {
-  if (!outer || !inner) {
-    return { tx: 0, progress: 0 }
+  progress: number,
+  viewportWidth: number,
+): number {
+  if (!inner) {
+    return 0
   }
 
-  const rect = outer.getBoundingClientRect()
-  const viewportWidth = window.innerWidth
-  const viewportHeight = window.innerHeight
-  const defaultScrollRange = Math.max(rect.height - viewportHeight, 0)
-  const scrollRange = options.getScrollRangePx
-    ? Math.max(options.getScrollRangePx({
-      sectionTop: rect.top,
-      sectionHeight: rect.height,
-      viewportHeight,
-    }), 0)
-    : defaultScrollRange
-  const progress = scrollRange === 0 ? 0 : clamp01(-rect.top / scrollRange)
   const trackWidth = Math.max(inner.scrollWidth - viewportWidth, 0)
-  const tx = progress === 0 || trackWidth === 0 ? 0 : -(progress * trackWidth)
-
-  return {
-    progress,
-    tx,
-  }
+  return progress === 0 || trackWidth === 0 ? 0 : -(progress * trackWidth)
 }
 
 export function useHorizontalScroll(
@@ -54,23 +34,12 @@ export function useHorizontalScroll(
   innerRef: RefObject<HTMLElement>,
   options: HorizontalScrollOptions = DEFAULT_HORIZONTAL_SCROLL_OPTIONS,
 ): HorizontalScrollState {
-  const [state, setState] = useState<HorizontalScrollState>({ tx: 0, progress: 0 })
+  const { progress, viewportWidth } = useScrollProgress(outerRef, options)
 
-  useEffect(() => {
-    const update = () => {
-      setState(getHorizontalScrollState(outerRef.current, innerRef.current, options))
-    }
+  const tx = useMemo(
+    () => getHorizontalTranslate(innerRef.current, progress, viewportWidth),
+    [innerRef, progress, viewportWidth],
+  )
 
-    update()
-
-    window.addEventListener('scroll', update, { passive: true })
-    window.addEventListener('resize', update)
-
-    return () => {
-      window.removeEventListener('scroll', update)
-      window.removeEventListener('resize', update)
-    }
-  }, [outerRef, innerRef, options])
-
-  return state
+  return { progress, tx }
 }
