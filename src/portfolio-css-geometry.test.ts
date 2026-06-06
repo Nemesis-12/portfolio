@@ -62,6 +62,11 @@ describe('portfolio.css geometry token contract', () => {
     expect(projEdgeRule).toContain(`${edgeSpacerVw}vw`)
   })
 
+  it('keeps proj-edge half-viewport term in sync with getEdgeSpacerWidth', () => {
+    const projEdgeRule = blockFor(portfolioCss, '.proj-edge')
+    expect(projEdgeRule).toContain('50vw')
+  })
+
   it('keeps nav height in sync with NAV_HEIGHT', () => {
     const navRule = blockFor(portfolioCss, '.nav')
     expect(navRule).toContain(`height:${NAV_HEIGHT}px`)
