@@ -9,11 +9,11 @@
 
 import { createElement, useRef } from 'react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, within, renderHook, act } from '@testing-library/react'
+import { render, screen, within, renderHook, act, cleanup } from '@testing-library/react'
 import { SECTIONS } from './data/sections'
 import Navbar from './components/Navbar'
 import {
-  ACTIVE_SECTION_SAMPLE_RATIO,
+  MAJOR_SECTION_IDS,
   computeActiveMajorSection,
 } from './hooks/useActiveMajorSection'
 import { useScrollProgress } from './hooks/useScrollProgress'
@@ -86,6 +86,7 @@ describe('maintainability smoke path (issue #261)', () => {
   })
 
   afterEach(() => {
+    cleanup()
     document.body.innerHTML = ''
     vi.restoreAllMocks()
   })
@@ -108,7 +109,7 @@ describe('maintainability smoke path (issue #261)', () => {
     expect(sectionLinks).toHaveLength(SECTIONS.length)
 
     // Contract 2 — Section registry → active-section
-    expect(VIEWPORT_HEIGHT * ACTIVE_SECTION_SAMPLE_RATIO).toBe(320)
+    expect(SECTION_IDS).toEqual(MAJOR_SECTION_IDS)
 
     for (const targetSection of SECTIONS) {
       document.body.innerHTML = ''
@@ -152,18 +153,27 @@ describe('maintainability smoke path (issue #261)', () => {
       ] as const,
     }))
 
-    const { default: NavbarWithRegistry } = await import('./components/Navbar')
+    try {
+      const { default: NavbarWithRegistry } = await import('./components/Navbar')
 
-    render(createElement(NavbarWithRegistry))
+      render(createElement(NavbarWithRegistry))
 
-    const nav = screen.getByRole('navigation')
-    const links = within(nav).getAllByRole('link')
+      const nav = screen.getByRole('navigation')
+      const links = within(nav).getAllByRole('link')
+      const sectionLinks = links.filter((link) => {
+        const href = link.getAttribute('href') ?? ''
+        return href.startsWith('#') && href !== '#'
+      })
 
-    expect(screen.getByText('ABOUT US')).toBeInTheDocument()
-    expect(links.some((link) => link.getAttribute('href') === '#about')).toBe(true)
-    expect(links.filter((link) => link.getAttribute('href') === '#home')).toHaveLength(1)
-
-    vi.doUnmock('./data/sections')
-    vi.resetModules()
+      expect(sectionLinks).toHaveLength(2)
+      expect(screen.getByText('ABOUT US')).toBeInTheDocument()
+      expect(links.some((link) => link.getAttribute('href') === '#about')).toBe(true)
+      expect(links.filter((link) => link.getAttribute('href') === '#home')).toHaveLength(1)
+      expect(screen.queryByText('PROJECTS')).not.toBeInTheDocument()
+      expect(screen.queryByText('TIMELINE')).not.toBeInTheDocument()
+    } finally {
+      vi.doUnmock('./data/sections')
+      vi.resetModules()
+    }
   })
 })
