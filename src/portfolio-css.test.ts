@@ -116,7 +116,7 @@ describe('portfolio.css CSS anchor', () => {
   })
 
   it('anchors scroll snap targets and snap anchors', () => {
-    expect(portfolioCss).toContain('#hero')
+    expect(portfolioCss).toContain('#home')
     expect(portfolioCss).toContain('#skills')
     expect(portfolioCss).toContain('#contact')
     expect(portfolioCss).toContain('scroll-snap-align: start')
@@ -176,7 +176,7 @@ describe('portfolio.css CSS anchor', () => {
   })
 
   it('avoids scrollbar-induced document overflow from full-width surfaces', () => {
-    expect(blockFor('#hero{')).toContain('width:100%')
+    expect(blockFor('#home{')).toContain('width:100%')
     expect(blockFor('.hscroll')).toContain('width:100%')
     expect(blockFor('#skills{')).toContain('width:100%')
     expect(blockFor('footer')).toContain('width:100%')
