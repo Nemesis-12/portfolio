@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+import { SECTIONS, type SectionId } from '../data/sections'
 
-export const MAJOR_SECTION_IDS = ['home', 'projects', 'skills', 'timeline', 'contact'] as const
+export const MAJOR_SECTION_IDS: readonly SectionId[] = SECTIONS.map((section) => section.id)
 
 export const ACTIVE_SECTION_SAMPLE_RATIO = 0.4
 

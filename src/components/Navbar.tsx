@@ -1,17 +1,15 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { hoverEase } from '../animations/variants'
+import { SECTIONS } from '../data/sections'
 import { useActiveMajorSection } from '../hooks/useActiveMajorSection'
 import { handleSectionLinkClick, smoothScrollToSection } from '../utils/smoothScrollTo'
 import MobileMenu from './MobileMenu'
 
-const NAV_LINKS = [
-  { label: 'HOME', href: '#home' },
-  { label: 'PROJECTS', href: '#projects' },
-  { label: 'SKILLS', href: '#skills' },
-  { label: 'TIMELINE', href: '#timeline' },
-  { label: 'CONTACT', href: '#contact' },
-]
+const NAV_LINKS = SECTIONS.map(({ id, navLabel }) => ({
+  label: navLabel,
+  href: `#${id}`,
+}))
 
 export default function Navbar() {
   const activeSection = useActiveMajorSection()

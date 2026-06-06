@@ -6,15 +6,10 @@ import {
   FADE_OUT_DURATION,
 } from './components/LoadingScreen.constants'
 import { FIRST_NAME, NAME_SPEED } from './components/HeroSection.constants'
+import { SECTIONS, type SectionId } from './data/sections'
 
-const sections = ['home', 'projects', 'skills', 'timeline', 'contact'] as const
-const sectionIds = [
-  'home',
-  'projects',
-  'skills',
-  'timeline',
-  'contact',
-] as const
+const sectionIds = SECTIONS.map((section) => section.id)
+const sections = sectionIds satisfies readonly SectionId[]
 const shellConstraintClasses = ['container', 'max-w-7xl', 'mx-auto'] as const
 
 function expectNoShellConstraint(element: Element) {
@@ -245,7 +240,7 @@ describe('App shell', () => {
   })
 
   describe('issue #214 - global scroll shell regression', () => {
-    const majorSectionIds = ['home', 'projects', 'skills', 'timeline', 'contact'] as const
+    const majorSectionIds = sectionIds
 
     it('does not mount a global sticky section stack', () => {
       render(<App />)

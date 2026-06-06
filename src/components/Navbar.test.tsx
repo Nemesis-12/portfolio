@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, within, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { SECTIONS } from '../data/sections'
 import Navbar from './Navbar'
+
+const expectedNavHrefs = SECTIONS.map((section) => `#${section.id}`)
+const expectedNavLabels = SECTIONS.map((section) => section.navLabel)
 
 const VIEWPORT_HEIGHT = 800
 
@@ -52,21 +56,19 @@ describe('Navbar', () => {
     expect(logo.closest('a')).toHaveAttribute('href', '#')
   })
 
-  it('renders all five nav links in the desktop nav', () => {
+  it('renders all registry nav links in the desktop nav', () => {
     render(<Navbar />)
     const nav = screen.getByRole('navigation')
     const links = within(nav).getAllByRole('link')
     const hrefs = links.map((l) => l.getAttribute('href'))
-    expect(hrefs).toContain('#home')
-    expect(hrefs).toContain('#projects')
-    expect(hrefs).toContain('#skills')
-    expect(hrefs).toContain('#timeline')
-    expect(hrefs).toContain('#contact')
+    for (const href of expectedNavHrefs) {
+      expect(hrefs).toContain(href)
+    }
   })
 
-  it('shows label text for all five nav links', () => {
+  it('shows label text for all registry nav links', () => {
     render(<Navbar />)
-    for (const label of ['HOME', 'PROJECTS', 'SKILLS', 'TIMELINE', 'CONTACT']) {
+    for (const label of expectedNavLabels) {
       expect(screen.getByText(label)).toBeInTheDocument()
     }
   })
