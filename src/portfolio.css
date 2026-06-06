@@ -23,7 +23,7 @@
     pointer-events: none;
     scroll-snap-align: start;
     scroll-snap-stop: always;
-    scroll-margin-top: 56px;
+    scroll-margin-top: var(--nav-height);
   }
 
   #ls{position:fixed;inset:0;background:var(--color-graphite);z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity .5s}
@@ -270,6 +270,5 @@
     .bento{grid-template-columns:repeat(2,1fr);grid-template-rows:none;grid-template-areas:none}
     .bi{grid-area:auto !important;min-height:120px}
     .pcard{width:88vw;height:64vh}
-    .hscroll-head{padding-top:var(--section-top-offset)}
   }
 }

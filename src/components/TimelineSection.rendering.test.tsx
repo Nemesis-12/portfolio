@@ -28,8 +28,6 @@ describe('TimelineSection rendering', () => {
   })
 
   it('top-aligns timeline panel content instead of vertical centering', () => {
-    render(<TimelineSection />)
-
     const portfolioCss = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), '../portfolio.css'),
       'utf8',

@@ -105,6 +105,8 @@ describe('portfolio.css CSS anchor', () => {
   })
 
   it('defines shared section top offset tokens aligned with layout.ts', () => {
+    expect(portfolioCss).toContain(`--nav-height: ${NAV_HEIGHT}px`)
+    expect(portfolioCss).toContain(`--section-top-gap: ${SECTION_TOP_GAP}px`)
     expect(portfolioCss).toContain('--section-top-offset: calc(var(--nav-height) + var(--section-top-gap))')
     expect(SECTION_TOP_OFFSET).toBe(NAV_HEIGHT + SECTION_TOP_GAP)
     expect(blockFor('#skills{')).toContain('padding:var(--section-top-offset) 5vw 80px')
@@ -137,7 +139,7 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toContain('#contact')
     expect(portfolioCss).toContain('scroll-snap-align: start')
     expect(portfolioCss).toContain('.snap-anchor')
-    expect(portfolioCss).toContain(`scroll-margin-top: ${NAV_HEIGHT}px`)
+    expect(portfolioCss).toContain('scroll-margin-top: var(--nav-height)')
   })
 
   it('scopes snap anchor ownership to internal sticky scroll hosts', () => {

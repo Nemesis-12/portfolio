@@ -74,7 +74,7 @@ describe('portfolio.css geometry token contract', () => {
 
   it('keeps snap-anchor scroll margin in sync with NAV_HEIGHT', () => {
     const snapAnchorRule = blockFor(portfolioCss, '.snap-anchor')
-    expect(snapAnchorRule).toContain(`scroll-margin-top: ${NAV_HEIGHT}px`)
+    expect(snapAnchorRule).toContain('scroll-margin-top: var(--nav-height)')
   })
 
   it('keeps html scroll padding in sync with NAV_HEIGHT', () => {
