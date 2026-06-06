@@ -136,14 +136,14 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
       data-fill-active={isFillActive}
       className="pcard shrink-0"
     >
-      <div className="pcard-bg" aria-hidden="true" />
-
-      <div
-        data-testid="project-card-fill"
-        aria-hidden="true"
-        data-active={isFillActive}
-        className="pcard-fill"
-      />
+      <div className="pcard-clip" aria-hidden="true">
+        <div className="pcard-bg" />
+        <div
+          data-testid="project-card-fill"
+          data-active={isFillActive}
+          className="pcard-fill"
+        />
+      </div>
 
       <span className="pcard-notch tl" aria-hidden="true" />
       <span className="pcard-notch br" aria-hidden="true" />

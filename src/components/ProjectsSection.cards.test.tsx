@@ -44,9 +44,10 @@ describe('ProjectsSection cards', () => {
     const card = screen.getByRole('heading', { name: 'Project One' }).closest('[data-testid="project-card"]')
     expect(card).not.toBeNull()
 
+    const clip = card!.querySelector('.pcard-clip')
     const fill = card!.querySelector('[data-testid="project-card-fill"]')
+    expect(clip).toHaveAttribute('aria-hidden', 'true')
     expect(fill).toBeInTheDocument()
-    expect(fill).toHaveAttribute('aria-hidden', 'true')
     expect(fill).toHaveAttribute('data-active', 'false')
 
     await user.hover(card!)
@@ -219,6 +220,45 @@ describe('ProjectsSection cards', () => {
         expect(card.querySelector('.pcard-notch.tl')).toBeInTheDocument()
         expect(card.querySelector('.pcard-notch.br')).toBeInTheDocument()
       })
+    })
+
+    it('nests fill layer inside pcard-clip while notches stay outside', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const card = document.querySelector('[data-testid="project-card"]')
+      expect(card).not.toBeNull()
+
+      const clip = card!.querySelector('.pcard-clip')
+      expect(clip).toBeInTheDocument()
+
+      const fill = card!.querySelector('[data-testid="project-card-fill"]')
+      expect(fill).toBeInTheDocument()
+      expect(clip!.contains(fill)).toBe(true)
+
+      const notches = card!.querySelectorAll('.pcard-notch')
+      expect(notches).toHaveLength(2)
+      notches.forEach((notch) => {
+        expect(clip!.contains(notch)).toBe(false)
+      })
+    })
+
+    it('toggles data-fill-active on card for mask-position fill reveal', async () => {
+      const user = userEvent.setup()
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const card = screen.getByRole('heading', { name: 'Project One' }).closest('[data-testid="project-card"]')
+      expect(card).not.toBeNull()
+
+      const fill = card!.querySelector('[data-testid="project-card-fill"]')
+      expect(card).toHaveAttribute('data-fill-active', 'false')
+
+      await user.hover(card!)
+      expect(card).toHaveAttribute('data-fill-active', 'true')
+      expect(fill).toHaveAttribute('data-active', 'true')
+
+      await user.unhover(card!)
+      expect(card).toHaveAttribute('data-fill-active', 'false')
+      expect(fill).toHaveAttribute('data-active', 'false')
     })
 
     it('renders card hierarchy for a single-project carousel', () => {

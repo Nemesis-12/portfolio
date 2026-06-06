@@ -110,6 +110,15 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toContain('mask-position:100% 100%')
   })
 
+  it('clips pcard fill inside card silhouette via pcard-clip wrapper', () => {
+    const clipRule = blockFor('.pcard-clip')
+
+    expect(clipRule).toContain('overflow:hidden')
+    expect(clipRule).toContain('clip-path:polygon(var(--notch) 0')
+    expect(clipRule).toContain('position:absolute')
+    expect(clipRule).toContain('inset:0')
+  })
+
   it('anchors loading screen boot sequence from the reference', () => {
     expect(portfolioCss).toMatch(/#ls\{[^}]*background:var\(--color-graphite\)/)
     expect(portfolioCss).toContain('.ls-fill{height:1px;background:var(--color-atomic-tangerine)')
