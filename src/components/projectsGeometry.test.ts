@@ -74,9 +74,19 @@ describe('projectsGeometry', () => {
       expect(getTrailingEdgeSpacerWidth(1440)).toBe(408)
       expect(getTrailingEdgeSpacerWidth(1000)).toBe(188)
     })
+
+    it('is narrower than the leading spacer by the section horizontal padding', () => {
+      expect(getEdgeSpacerWidth(1440) - getTrailingEdgeSpacerWidth(1440)).toBe(
+        PROJECTS_SECTION_PADDING_X,
+      )
+    })
   })
 
   describe('getCarouselTrackWidth', () => {
+    it('returns zero when there are no projects', () => {
+      expect(getCarouselTrackWidth(0, 1440)).toBe(0)
+    })
+
     it('uses asymmetric leading and trailing edge spacers', () => {
       expect(getCarouselTrackWidth(4, 1200)).toBe(3016)
     })
@@ -95,6 +105,9 @@ describe('projectsGeometry', () => {
         tx: 0,
       })
       expect(getProjectCardCenterX(0, 0, viewportWidth)).toBe(viewportWidth / 2)
+      expect(
+        getProjectCardCenterX(0, 0, viewportWidth) - getProjectsCarouselViewportWidth(viewportWidth) / 2,
+      ).toBe(PROJECTS_SECTION_PADDING_X)
     })
 
     it('maps the middle of the vertical runway to the middle of the horizontal overflow', () => {
