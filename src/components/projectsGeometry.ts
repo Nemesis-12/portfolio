@@ -1,12 +1,29 @@
+/**
+ * Layout token contract — CSS values that MUST stay in sync with these constants:
+ *
+ * | TS constant / formula              | CSS location |
+ * |------------------------------------|--------------|
+ * | PROJECT_CARD_WIDTH (560)           | `.pcard { width: min(560px, 78vw) }` |
+ * | PROJECT_CARD_GAP (56)              | `.proj-track { gap: 56px }` |
+ * | PROJECT_CARD_WIDTH / 2 (280)       | `.proj-edge { min(280px, …) }` |
+ * | EDGE_SPACER_MAX_VW_FRACTION (0.39) | `.proj-edge { min(…, 39vw) }` |
+ * | viewport * 0.5 (50vw)              | `.proj-edge { calc(50vw - …) }` |
+ *
+ * Sync is enforced by `src/portfolio-css-geometry.test.ts`.
+ */
+
 /** Desktop project card width used for carousel centering (matches `.pcard` CSS). */
 export const PROJECT_CARD_WIDTH = 560
 
 /** Gap between project cards in the carousel track (matches `.proj-track` CSS). */
 export const PROJECT_CARD_GAP = 56
 
+/** Max half-card width as a fraction of viewport width (matches `39vw` in `.proj-edge`). */
+export const EDGE_SPACER_MAX_VW_FRACTION = 0.39
+
 /** Returns edge spacer width in px (matches `.proj-edge` calc for a fixed card width). */
 export function getEdgeSpacerWidth(viewportWidth: number, cardWidth = PROJECT_CARD_WIDTH) {
-  return viewportWidth / 2 - Math.min(cardWidth / 2, viewportWidth * 0.39)
+  return viewportWidth / 2 - Math.min(cardWidth / 2, viewportWidth * EDGE_SPACER_MAX_VW_FRACTION)
 }
 
 /** Returns the total horizontal scroll width of a project carousel track. */
