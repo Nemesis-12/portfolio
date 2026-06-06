@@ -67,7 +67,16 @@ function findExportedCanonicalDatasets(componentSource: string): string[] {
     exportedNames.add(match[1])
   }
 
+  // Match const declarations later re-exported via `export { name }`, not inline
+  // `export const` arrays (e.g. SkillsSection REVEAL_AREAS) which are render helpers.
   return [...moduleLevelConstArraysOrObjects].filter((name) => exportedNames.has(name))
+}
+
+function parseImportSymbols(bindingList: string): string[] {
+  return bindingList
+    .split(',')
+    .map((binding) => binding.trim().split(/\s+as\s+/)[0]?.trim())
+    .filter((name): name is string => Boolean(name) && !name.startsWith('type '))
 }
 
 function parseValueImports(
@@ -79,17 +88,29 @@ function parseValueImports(
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index]
     if (!/^\s*import\s+(?!type\b)/.test(line)) continue
-    if (!line.includes('from')) continue
 
-    const match = line.match(/import\s+\{([^}]+)\}\s+from\s+['"]([^'"]+)['"]/)
+    let block = line
+    let blockEnd = index
+    const hasNamedBindings = block.includes('{')
+
+    while (
+      blockEnd + 1 < lines.length &&
+      (!block.includes('from') || (hasNamedBindings && !block.includes('}')))
+    ) {
+      blockEnd += 1
+      block = `${block}\n${lines[blockEnd]}`
+    }
+
+    if (!block.includes('from')) continue
+
+    const match = block.match(/import\s+\{([^}]+)\}\s+from\s+['"]([^'"]+)['"]/s)
     if (!match) continue
 
-    const symbols = match[1]
-      .split(',')
-      .map((binding) => binding.trim().split(/\s+as\s+/)[0]?.trim())
-      .filter((name): name is string => Boolean(name))
-
-    imports.push({ symbols, from: match[2], line: index + 1 })
+    imports.push({
+      symbols: parseImportSymbols(match[1]),
+      from: match[2],
+      line: index + 1,
+    })
   }
 
   return imports
@@ -122,12 +143,47 @@ function resolveComponentImport(importPath: string, consumerFile: string): strin
   return null
 }
 
+describe('parseValueImports', () => {
+  it('parses multiline named imports', () => {
+    const source = `import {
+  timelineEntries,
+} from '../components/TimelineSection'`
+
+    expect(parseValueImports(source)).toEqual([
+      {
+        symbols: ['timelineEntries'],
+        from: '../components/TimelineSection',
+        line: 1,
+      },
+    ])
+  })
+
+  it('skips type-only imports and strips inline type bindings', () => {
+    const source = `import type { TimelineEntry } from '../components/TimelineSection'
+import {
+  type TimelineEntry,
+  timelineEntries,
+} from '../components/TimelineSection'`
+
+    expect(parseValueImports(source)).toEqual([
+      {
+        symbols: ['timelineEntries'],
+        from: '../components/TimelineSection',
+        line: 2,
+      },
+    ])
+  })
+})
+
 describe('issue #252 - data vs UI architecture boundaries', () => {
   it('resume-audit.test.ts does not import timelineEntries from TimelineSection', () => {
     const auditSource = readFileSync(join(srcDir, 'data', 'resume-audit.test.ts'), 'utf8')
+    const timelineImports = parseValueImports(auditSource).filter(
+      (valueImport) => valueImport.from === '../components/TimelineSection',
+    )
 
-    expect(auditSource).not.toMatch(
-      /import\s+\{[^}]*\btimelineEntries\b[^}]*\}\s+from\s+['"]\.\.\/components\/TimelineSection['"]/,
+    expect(timelineImports.flatMap((valueImport) => valueImport.symbols)).not.toContain(
+      'timelineEntries',
     )
   })
 
