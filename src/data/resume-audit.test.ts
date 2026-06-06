@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { projects } from './projects'
 import { FIRST_NAME, LAST_NAME } from '../components/HeroSection.constants'
-import { timelineEntries } from '../components/TimelineSection'
+import { timelineEntries } from './timeline'
 
 // Resume source-of-truth constants (from public/resume.pdf)
 const RESUME_FULL_NAME = 'Farhan Mohammed'
