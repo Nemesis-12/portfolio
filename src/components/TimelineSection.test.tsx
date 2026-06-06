@@ -1,16 +1,8 @@
-import { readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, act } from '@testing-library/react'
 import TimelineSection from './TimelineSection'
 import { getTimelineTrackTranslate } from './timelineGeometry'
 import { useTimelineScroll } from '../hooks/useTimelineScroll'
-
-const timelineSectionSource = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), 'TimelineSection.tsx'),
-  'utf8',
-)
 
 const DEFAULT_ACTIVE = [true, false, false] as const
 
@@ -1039,9 +1031,22 @@ describe('TimelineSection', () => {
       expect(getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')).toBeNull()
     })
 
-    it('derives active panels from useTimelineScroll instead of useActivePanel', () => {
-      expect(timelineSectionSource).toContain('useTimelineScroll')
-      expect(timelineSectionSource).not.toContain('useActivePanel')
+    it('derives active panel UI from useTimelineScroll return values', () => {
+      vi.mocked(useTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([false, true, false], {
+          activeIndex: 1,
+          progress: 0.5,
+          tx: -1000,
+        }),
+      )
+
+      render(<TimelineSection />)
+
+      expect(useTimelineScroll).toHaveBeenCalled()
+      expect(screen.getByTestId('progress-count')).toHaveTextContent('02 / 03')
+      expect(document.querySelector('[data-timeline-track="true"]')).toHaveStyle({
+        transform: 'translateX(-1000px)',
+      })
     })
 
     it('maps scroll progression to older content indexes and track translate', () => {
