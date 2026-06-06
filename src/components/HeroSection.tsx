@@ -43,7 +43,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
         ></div>
       </div>
 
-      <div data-testid="hero-content" className="hero-inner pt-16 w-full">
+      <div data-testid="hero-content" className="hero-inner w-full">
         <p className="hero-init">// PORTFOLIO_INIT</p>
         <div className="hero-bar" />
 

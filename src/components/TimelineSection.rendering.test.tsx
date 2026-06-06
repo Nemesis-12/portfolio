@@ -1,4 +1,7 @@
 import './TimelineSection.test-setup'
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, act } from '@testing-library/react'
 import TimelineSection from './TimelineSection'
@@ -22,6 +25,19 @@ describe('TimelineSection rendering', () => {
     commitEntries.forEach((entry) => {
       expect(entry).toHaveClass('tl-panel')
     })
+  })
+
+  it('top-aligns timeline panel content instead of vertical centering', () => {
+    render(<TimelineSection />)
+
+    const portfolioCss = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), '../portfolio.css'),
+      'utf8',
+    )
+    const panelRule = portfolioCss.match(/\.tl-panel\{[^}]+\}/)?.[0] ?? ''
+
+    expect(panelRule).toContain('justify-content:flex-start')
+    expect(panelRule).not.toContain('justify-content:center')
   })
 
   describe('issue #97 - full-screen stacked panels', () => {

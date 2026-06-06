@@ -150,6 +150,13 @@ describe('SkillsSection', () => {
     expect(document.querySelector('.hscroll-rule')).toBeInTheDocument()
   })
 
+  it('does not vertically center section content', () => {
+    render(<SkillsSection />)
+
+    const section = document.getElementById('skills')
+    expect(section).not.toHaveClass('justify-center')
+  })
+
   it('each skill tile has bi, bi-{area}, and c-{color} classes', () => {
     render(<SkillsSection />)
 

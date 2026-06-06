@@ -128,7 +128,7 @@ export function SkillsSection() {
   }, [])
 
   return (
-    <StickySection id="skills" className="flex flex-col justify-center py-14 px-8 bg-graphite">
+    <StickySection id="skills" className="flex flex-col bg-graphite">
       <div className="w-full">
         <div className="hscroll-head">
           <span className="hscroll-no">// 02</span>

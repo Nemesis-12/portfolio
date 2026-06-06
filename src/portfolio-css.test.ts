@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { NAV_HEIGHT } from './data/layout'
+import { NAV_HEIGHT, SECTION_TOP_GAP, SECTION_TOP_OFFSET } from './data/layout'
 
 const srcDir = dirname(fileURLToPath(import.meta.url))
 const portfolioCss = readFileSync(join(srcDir, 'portfolio.css'), 'utf8')
@@ -104,6 +104,21 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toContain('--ease: cubic-bezier(0.4, 0, 0.2, 1)')
   })
 
+  it('defines shared section top offset tokens aligned with layout.ts', () => {
+    expect(portfolioCss).toContain('--section-top-offset: calc(var(--nav-height) + var(--section-top-gap))')
+    expect(SECTION_TOP_OFFSET).toBe(NAV_HEIGHT + SECTION_TOP_GAP)
+    expect(blockFor('#skills{')).toContain('padding:var(--section-top-offset) 5vw 80px')
+    expect(blockFor('.hscroll-head')).toContain('padding:var(--section-top-offset) 5vw 18px')
+    expect(blockFor('.hero-inner{')).toContain('padding:var(--section-top-offset) 5vw 0')
+  })
+
+  it('top-aligns skills and timeline section content', () => {
+    expect(blockFor('#skills .hscroll-head')).toContain('padding-top:0')
+    expect(blockFor('.tl-panel{')).toContain('justify-content:flex-start')
+    expect(blockFor('.tl-panel{')).not.toContain('justify-content:center')
+    expect(blockFor('.tl-panel{')).toContain('padding:var(--section-top-gap) 8vw 0')
+  })
+
   it('uses mask-position diagonal reveal on pcard-fill from the reference', () => {
     expect(portfolioCss).toContain('mask-image:linear-gradient(135deg')
     expect(portfolioCss).toContain('mask-size:300% 300%')
@@ -165,7 +180,7 @@ describe('portfolio.css CSS anchor', () => {
   })
 
   it('anchors hero-inner horizontal padding from the reference', () => {
-    expect(portfolioCss).toMatch(/\.hero-inner\{[^}]*padding:0 5vw/)
+    expect(portfolioCss).toMatch(/\.hero-inner\{[^}]*padding:var\(--section-top-offset\) 5vw 0/)
   })
 
   it('does not anchor global card-deck sticky stack surfaces', () => {
