@@ -109,6 +109,11 @@ describe('portfolio.css CSS anchor', () => {
     const hoverRule = blockFor('.pcard:hover .pcard-fill')
     const activeRule = blockFor(".pcard[data-fill-active='true'] .pcard-fill")
 
+    expect(fillRule).not.toContain('inset:0')
+    expect(fillRule).toContain('top:1px')
+    expect(fillRule).toContain('right:1px')
+    expect(fillRule).toContain('bottom:1px')
+    expect(fillRule).toContain('left:1px')
     expect(fillRule).toContain('opacity:0')
     expect(fillRule).toContain('transition:opacity .35s var(--ease)')
     expect(fillRule).not.toMatch(/mask-(image|size|position)/)
@@ -130,6 +135,12 @@ describe('portfolio.css CSS anchor', () => {
     expect(cardRule).not.toContain('overflow:hidden')
     expect(bgRule).not.toContain('clip-path')
     expect(fillRule).not.toContain('clip-path')
+    expect(fillRule).not.toContain('inset:0')
+  })
+
+  it('does not define a top-left project-card corner accent', () => {
+    expect(portfolioCss).not.toContain('.pcard-notch.tl')
+    expect(portfolioCss).toContain('.pcard-notch.br{bottom:-6px;right:-6px}')
   })
 
   it('anchors loading screen boot sequence from the reference', () => {

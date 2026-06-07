@@ -212,17 +212,17 @@ describe('ProjectsSection cards', () => {
       expect(PROJECT_CARD_WIDTH).toBe(560)
     })
 
-    it('renders notched corner accent markers on each card', () => {
+    it('renders only the bottom-right notched corner accent on each card', () => {
       render(<ProjectsSection projects={mockProjects} />)
 
       const cards = document.querySelectorAll('[data-testid="project-card"]')
       cards.forEach((card) => {
-        expect(card.querySelector('.pcard-notch.tl')).toBeInTheDocument()
+        expect(card.querySelector('.pcard-notch.tl')).not.toBeInTheDocument()
         expect(card.querySelector('.pcard-notch.br')).toBeInTheDocument()
       })
     })
 
-    it('nests fill layer inside pcard-clip while notches stay outside', () => {
+    it('nests fill layer inside pcard-clip while the remaining notch stays outside', () => {
       render(<ProjectsSection projects={mockProjects} />)
 
       const card = document.querySelector('[data-testid="project-card"]')
@@ -239,9 +239,24 @@ describe('ProjectsSection cards', () => {
       expect(clip!.contains(fill)).toBe(true)
 
       const notches = card!.querySelectorAll('.pcard-notch')
-      expect(notches).toHaveLength(2)
+      expect(notches).toHaveLength(1)
       notches.forEach((notch) => {
         expect(clip!.contains(notch)).toBe(false)
+      })
+    })
+
+    it('does not render a left-edge rising highlight strip', () => {
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const cards = document.querySelectorAll('[data-testid="project-card"]')
+      const leftStripClasses = ['left-0', 'top-0', 'bottom-0', 'w-[3px]', 'bg-atomic-tangerine']
+
+      cards.forEach((card) => {
+        const leftStrip = Array.from(card.querySelectorAll('*')).find((element) =>
+          leftStripClasses.every((className) => element.classList.contains(className)),
+        )
+
+        expect(leftStrip).toBeUndefined()
       })
     })
 

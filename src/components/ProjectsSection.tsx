@@ -145,7 +145,6 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
         />
       </div>
 
-      <span className="pcard-notch tl" aria-hidden="true" />
       <span className="pcard-notch br" aria-hidden="true" />
 
       <div className="pcard-body">
@@ -187,14 +186,6 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
           ))}
         </div>
       </div>
-
-      <motion.div
-        className="absolute left-0 top-0 bottom-0 w-[3px] bg-atomic-tangerine"
-        initial={{ scaleY: 0, opacity: 0 }}
-        animate={{ scaleY: isFillActive ? 1 : 0, opacity: isFillActive ? 1 : 0 }}
-        style={{ transformOrigin: 'bottom' }}
-        transition={{ duration: 0.25, ease: 'easeOut' }}
-      />
     </motion.article>
   )
 }

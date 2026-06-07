@@ -88,14 +88,13 @@
     clip-path:polygon(var(--notch) 0, 100% 0, 100% calc(100% - var(--notch)), calc(100% - var(--notch)) 100%, 0 100%, 0 var(--notch))}
   .pcard-bg{position:absolute;inset:0;background:var(--color-platinum);
     transition:transform .35s var(--ease)}
-  /* clipped orange fill without the left-edge diagonal reveal */
-  .pcard-fill{position:absolute;inset:0;background:var(--color-atomic-tangerine);
+  /* clipped orange fill without painting the antialiased card silhouette edge */
+  .pcard-fill{position:absolute;top:1px;right:1px;bottom:1px;left:1px;background:var(--color-atomic-tangerine);
     opacity:0;transition:opacity .35s var(--ease)}
   .pcard:hover .pcard-fill{opacity:1}
-  /* notch corner accents — sit outside */
+  /* bottom-right notch corner accent */
   .pcard-notch{position:absolute;width:calc(var(--notch) * 1.8);height:calc(var(--notch) * 1.8);pointer-events:none}
   .pcard-notch::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent calc(50% - 1px),var(--color-atomic-tangerine) calc(50% - 1px),var(--color-atomic-tangerine) calc(50% + 1px),transparent calc(50% + 1px))}
-  .pcard-notch.tl{top:-6px;left:-6px}
   .pcard-notch.br{bottom:-6px;right:-6px}
   .pcard-body{position:relative;height:100%;padding:36px 36px 32px;display:flex;flex-direction:column;color:var(--color-graphite);z-index:1}
   .pcard-ghost{position:absolute;font-family:var(--font-display);font-size:clamp(110px,15vw,200px);color:var(--color-graphite);opacity:.07;top:18px;left:24px;line-height:1;letter-spacing:-4px;pointer-events:none;transition:color .35s var(--ease),opacity .35s var(--ease)}
