@@ -104,10 +104,17 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toContain('--ease: cubic-bezier(0.4, 0, 0.2, 1)')
   })
 
-  it('uses mask-position diagonal reveal on pcard-fill from the reference', () => {
-    expect(portfolioCss).toContain('mask-image:linear-gradient(135deg')
-    expect(portfolioCss).toContain('mask-size:300% 300%')
-    expect(portfolioCss).toContain('mask-position:100% 100%')
+  it('keeps pcard-fill as a clipped opacity fill without a left-side mask reveal', () => {
+    const fillRule = blockFor('.pcard-fill')
+    const hoverRule = blockFor('.pcard:hover .pcard-fill')
+    const activeRule = blockFor(".pcard[data-fill-active='true'] .pcard-fill")
+
+    expect(fillRule).toContain('opacity:0')
+    expect(fillRule).toContain('transition:opacity .35s var(--ease)')
+    expect(fillRule).not.toMatch(/mask-(image|size|position)/)
+    expect(hoverRule).toContain('opacity:1')
+    expect(activeRule).toContain('opacity: 1')
+    expect(portfolioCss).not.toContain('mask-position:100% 100%')
   })
 
   it('clips pcard fill inside card silhouette via pcard-clip wrapper', () => {

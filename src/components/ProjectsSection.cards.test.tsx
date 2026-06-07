@@ -27,7 +27,7 @@ describe('ProjectsSection cards', () => {
     expect(title).not.toHaveClass('text-platinum')
   })
 
-  it('renders fill as a static layer driven by CSS mask-position (not Framer clip-path)', () => {
+  it('renders fill as a static clipped opacity layer (not Framer clip-path)', () => {
     render(<ProjectsSection projects={mockProjects} />)
 
     const fill = document.querySelector('[data-testid="project-card-fill"]')
@@ -37,7 +37,7 @@ describe('ProjectsSection cards', () => {
     expect(fill?.getAttribute('style') ?? '').not.toMatch(/clip-path/i)
   })
 
-  it('activates a diagonal orange fill layer when a project card is hovered', async () => {
+  it('activates the orange fill layer when a project card is hovered', async () => {
     const user = userEvent.setup()
     render(<ProjectsSection projects={mockProjects} />)
 
@@ -57,7 +57,7 @@ describe('ProjectsSection cards', () => {
     expect(fill).toHaveAttribute('data-active', 'false')
   })
 
-  it('activates the diagonal orange fill while a project card link has focus', async () => {
+  it('activates the orange fill while a project card link has focus', async () => {
     const user = userEvent.setup()
     render(<ProjectsSection projects={mockProjects} />)
 
@@ -245,7 +245,7 @@ describe('ProjectsSection cards', () => {
       })
     })
 
-    it('toggles data-fill-active on card for mask-position fill reveal', async () => {
+    it('toggles data-fill-active on card for opacity fill reveal', async () => {
       const user = userEvent.setup()
       render(<ProjectsSection projects={mockProjects} />)
 
