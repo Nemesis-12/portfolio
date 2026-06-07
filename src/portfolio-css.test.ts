@@ -118,7 +118,10 @@ describe('portfolio.css CSS anchor', () => {
     expect(blockFor('#skills .hscroll-head')).toContain('padding-top:0')
     expect(blockFor('.tl-panel{')).toContain('justify-content:flex-start')
     expect(blockFor('.tl-panel{')).not.toContain('justify-content:center')
-    expect(blockFor('.tl-panel{')).toContain('padding:var(--section-top-gap) 8vw 0')
+    expect(blockFor('.tl-panel-shell{')).toContain('--timeline-label-gap:32px')
+    expect(blockFor('.tl-panel{')).toContain(
+      'padding:calc(var(--section-top-gap) + var(--timeline-label-gap)) 8vw 0',
+    )
   })
 
   it('uses mask-position diagonal reveal on pcard-fill from the reference', () => {

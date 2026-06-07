@@ -25,6 +25,24 @@ describe('TimelineSection typewriter', () => {
   })
 
   describe('issue #97 - full-screen stacked panels', () => {
+    it('types commit metadata character by character before the hash completes', () => {
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(40)
+      })
+
+      const partialHash =
+        getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+
+      expect(partialHash.length).toBeGreaterThan(0)
+      expect(partialHash.length).toBeLessThan('commit d4e8f2c'.length)
+      expect('commit d4e8f2c'.startsWith(partialHash)).toBe(true)
+    })
+
     it('Typewriter types commit metadata when panel becomes active', () => {
       vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
       vi.useFakeTimers()

@@ -6,6 +6,7 @@ import { useTimelineScroll } from '../hooks/useTimelineScroll'
 import { getTimelineScrollRangeVh, getTimelineSnapAnchorTopVh } from './timelineGeometry'
 
 const TIMELINE_SECTION_NO = '// 03'
+const TIMELINE_TYPE_SPEED_MS = 7
 
 function formatPanelCount(index: number, total: number): string {
   return `${String(index + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`
@@ -26,8 +27,7 @@ function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean 
     [entry],
   )
 
-  const displayedLines = useTypewriter(active, lines, 80, undefined, {
-    mode: 'line',
+  const displayedLines = useTypewriter(active, lines, TIMELINE_TYPE_SPEED_MS, undefined, {
     restartOnActivate: true,
   })
 
