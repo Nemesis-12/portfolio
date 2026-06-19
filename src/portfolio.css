@@ -84,19 +84,19 @@
   .proj-edge{flex-shrink:0;width:calc(50vw - min(280px, 39vw))}
   .pcard{--notch:22px;flex-shrink:0;width:min(560px,78vw);height:min(640px,76vh);position:relative;cursor:pointer;
     transition:transform .35s var(--ease);will-change:transform}
+  .pcard-clip{position:absolute;inset:0;overflow:hidden;
+    clip-path:polygon(var(--notch) 0, 100% 0, 100% calc(100% - var(--notch)), calc(100% - var(--notch)) 100%, 0 100%, 0 var(--notch))}
   .pcard-bg{position:absolute;inset:0;background:var(--color-platinum);
-    clip-path:polygon(var(--notch) 0, 100% 0, 100% calc(100% - var(--notch)), calc(100% - var(--notch)) 100%, 0 100%, 0 var(--notch));
     transition:transform .35s var(--ease)}
-  /* diagonal orange fill that slides in from top-left */
+  /* diagonal orange fill that slides in from top-left; clip-path lives on .pcard-clip wrapper */
   .pcard-fill{position:absolute;inset:0;background:var(--color-atomic-tangerine);
-    clip-path:polygon(var(--notch) 0, 100% 0, 100% calc(100% - var(--notch)), calc(100% - var(--notch)) 100%, 0 100%, 0 var(--notch));
     -webkit-mask-image:linear-gradient(135deg,#000 0%,#000 50%,transparent 50%,transparent 100%);
     mask-image:linear-gradient(135deg,#000 0%,#000 50%,transparent 50%,transparent 100%);
     -webkit-mask-size:300% 300%;mask-size:300% 300%;
     -webkit-mask-position:100% 100%;mask-position:100% 100%;
     transition:mask-position .55s var(--ease),-webkit-mask-position .55s var(--ease)}
   .pcard:hover .pcard-fill{-webkit-mask-position:0% 0%;mask-position:0% 0%}
-  /* notch corner accents — sit outside */
+  /* notch corner accents — sit outside the clip wrapper */
   .pcard-notch{position:absolute;width:calc(var(--notch) * 1.8);height:calc(var(--notch) * 1.8);pointer-events:none}
   .pcard-notch::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent calc(50% - 1px),var(--color-atomic-tangerine) calc(50% - 1px),var(--color-atomic-tangerine) calc(50% + 1px),transparent calc(50% + 1px))}
   .pcard-notch.tl{top:-6px;left:-6px}

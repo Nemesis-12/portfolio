@@ -105,9 +105,43 @@ describe('portfolio.css CSS anchor', () => {
   })
 
   it('uses mask-position diagonal reveal on pcard-fill from the reference', () => {
-    expect(portfolioCss).toContain('mask-image:linear-gradient(135deg')
-    expect(portfolioCss).toContain('mask-size:300% 300%')
-    expect(portfolioCss).toContain('mask-position:100% 100%')
+    const fillRule = blockFor('.pcard-fill')
+    const hoverRule = blockFor('.pcard:hover .pcard-fill')
+    const activeRule = blockFor(".pcard[data-fill-active='true'] .pcard-fill")
+
+    expect(fillRule).toContain('mask-image:linear-gradient(135deg')
+    expect(fillRule).toContain('mask-size:300% 300%')
+    expect(fillRule).toContain('mask-position:100% 100%')
+    expect(hoverRule).toContain('mask-position:0% 0%')
+    expect(activeRule).toContain('mask-position: 0% 0%')
+  })
+
+  it('clips pcard fill inside card silhouette via pcard-clip wrapper', () => {
+    const clipRule = blockFor('.pcard-clip')
+    const cardRule = blockFor('.pcard')
+    const bgRule = blockFor('.pcard-bg')
+    const fillRule = blockFor('.pcard-fill')
+
+    expect(clipRule).toContain('overflow:hidden')
+    expect(clipRule).toContain(
+      'clip-path:polygon(var(--notch) 0, 100% 0, 100% calc(100% - var(--notch)), calc(100% - var(--notch)) 100%, 0 100%, 0 var(--notch))',
+    )
+    expect(clipRule).toContain('position:absolute')
+    expect(clipRule).toContain('inset:0')
+    expect(cardRule).not.toContain('overflow:hidden')
+    expect(bgRule).not.toContain('clip-path')
+    expect(fillRule).not.toContain('clip-path')
+
+    // Exactly one clip-path polygon should exist for the card silhouette — on the
+    // wrapper only. If .pcard-bg or .pcard-fill ever re-grow their own clip-path,
+    // the mask animation can again paint outside the notched card boundary.
+    const polygonMatches = portfolioCss.match(/clip-path:polygon\(var\(--notch\)/g) ?? []
+    expect(polygonMatches).toHaveLength(1)
+  })
+
+  it('defines both top-left and bottom-right project-card corner accents', () => {
+    expect(portfolioCss).toContain('.pcard-notch.tl{top:-6px;left:-6px}')
+    expect(portfolioCss).toContain('.pcard-notch.br{bottom:-6px;right:-6px}')
   })
 
   it('anchors loading screen boot sequence from the reference', () => {
