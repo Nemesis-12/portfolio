@@ -124,6 +124,15 @@ describe('portfolio.css CSS anchor', () => {
     )
   })
 
+  it('top-aligns hero content instead of vertically centering it', () => {
+    // #home must not use justify-content:center — otherwise hero-inner's
+    // padding-top: var(--section-top-offset) only nudges the centered block
+    // and the visible top offset drifts with viewport height instead of
+    // matching the fixed offset Skills/Timeline/Projects use.
+    expect(blockFor('#home{')).toContain('justify-content:flex-start')
+    expect(blockFor('#home{')).not.toContain('justify-content:center')
+  })
+
   it('uses mask-position diagonal reveal on pcard-fill from the reference', () => {
     expect(portfolioCss).toContain('mask-image:linear-gradient(135deg')
     expect(portfolioCss).toContain('mask-size:300% 300%')

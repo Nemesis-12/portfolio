@@ -98,6 +98,13 @@ describe('HeroSection', () => {
     expect(content).not.toHaveClass('pt-16')
   })
 
+  it('does not vertically center section content', () => {
+    render(<HeroSection />)
+
+    const section = document.getElementById('home')
+    expect(section).not.toHaveClass('justify-center')
+  })
+
   it('marks the line grid as a slow parallax layer', () => {
     render(<HeroSection />)
     const lineGrid = screen.getByTestId('hero-grid')

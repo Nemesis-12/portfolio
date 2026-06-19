@@ -33,7 +33,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
   const [showCTAs, setShowCTAs] = useState(false)
 
   return (
-    <StickySection id="home" className="relative flex flex-col justify-center bg-graphite">
+    <StickySection id="home" className="relative flex flex-col bg-graphite">
       <div className="absolute inset-0 pointer-events-none">
         <div
           data-testid="hero-grid"
