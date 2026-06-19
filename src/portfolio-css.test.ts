@@ -114,19 +114,14 @@ describe('portfolio.css CSS anchor', () => {
     expect(blockFor('.hero-inner{')).toContain('padding:var(--section-top-offset) 5vw 0')
   })
 
-  it('top-aligns skills section content and nudges timeline content toward the top', () => {
-    // .tl-panel uses justify-content:center (matching ideas/Portfolio.html line 184)
-    // with a padding-top nudge — the section tag + sep + content naturally fills
-    // most of the panel height, so the rendered result still reads as top-anchored
-    // (see ideas/timeline.png, ideas/timeline 2.png) without hard top-anchoring the
-    // flex box itself.
+  it('top-aligns skills section content and centers timeline content per the design contract', () => {
+    // .tl-panel uses justify-content:center with no top/bottom padding
+    // (matching ideas/Portfolio.html line 184 exactly) — the section tag is
+    // absolutely positioned (top:0) so it doesn't need padding to make room.
     expect(blockFor('#skills .hscroll-head')).toContain('padding-top:0')
     expect(blockFor('.tl-panel{')).toContain('justify-content:center')
     expect(blockFor('.tl-panel{')).not.toContain('justify-content:flex-start')
-    expect(blockFor('.tl-panel-shell{')).toContain('--timeline-label-gap:32px')
-    expect(blockFor('.tl-panel{')).toContain(
-      'padding:calc(var(--section-top-gap) + var(--timeline-label-gap)) 8vw 0',
-    )
+    expect(blockFor('.tl-panel{')).toContain('padding:0 8vw')
   })
 
   it('centers hero content per the design contract, nudged toward the top', () => {

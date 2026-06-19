@@ -225,8 +225,8 @@
      Timeline panels all share the same fixed height (.tl-panel below), so the
      track's default align-items:center is already a no-op for box positioning —
      no override needed here. */
-  .tl-panel-shell{--timeline-label-gap:32px;flex:0 0 100%;width:100%;position:relative}
-  .tl-panel{height:calc(100vh - 160px);padding:calc(var(--section-top-gap) + var(--timeline-label-gap)) 8vw 0;display:flex;flex-direction:column;justify-content:center;position:relative;transition:opacity .35s var(--ease)}
+  .tl-panel-shell{flex:0 0 100%;width:100%;position:relative}
+  .tl-panel{height:calc(100vh - 160px);padding:0 8vw;display:flex;flex-direction:column;justify-content:center;position:relative;transition:opacity .35s var(--ease)}
   .tl-commit{font-size:14px;color:var(--color-atomic-tangerine);letter-spacing:1px;margin-bottom:8px;min-height:1.5em}
   .tl-meta{font-size:14px;color:var(--color-periwinkle);letter-spacing:1px;line-height:1.9;min-height:1.5em}
   .tl-sep{height:48px}
