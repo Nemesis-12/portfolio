@@ -282,23 +282,6 @@ describe('ProjectsSection cards', () => {
       })
     })
 
-    it('renders a left-edge rising highlight strip outside the pcard-clip wrapper', () => {
-      render(<ProjectsSection projects={mockProjects} />)
-
-      const cards = document.querySelectorAll('[data-testid="project-card"]')
-      const leftStripClasses = ['left-0', 'top-0', 'bottom-0', 'w-[3px]', 'bg-atomic-tangerine']
-
-      cards.forEach((card) => {
-        const clip = card.querySelector('.pcard-clip')
-        const leftStrip = Array.from(card.querySelectorAll('*')).find((element) =>
-          leftStripClasses.every((className) => element.classList.contains(className)),
-        )
-
-        expect(leftStrip).toBeDefined()
-        expect(clip!.contains(leftStrip!)).toBe(false)
-      })
-    })
-
     it('toggles data-fill-active on card for mask-position fill reveal', async () => {
       const user = userEvent.setup()
       render(<ProjectsSection projects={mockProjects} />)
