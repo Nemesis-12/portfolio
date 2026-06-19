@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 interface UseTypewriterOptions {
   mode?: 'character' | 'line' | 'parallel'
   restartOnActivate?: boolean
+  delays?: number[]
 }
 
 export function useTypewriter(
@@ -12,18 +13,23 @@ export function useTypewriter(
   onDone?: () => void,
   options: UseTypewriterOptions = {},
 ) {
-  const { mode = 'character', restartOnActivate = false } = options
+  const { mode = 'character', restartOnActivate = false, delays } = options
   const [displayedLines, setDisplayedLines] = useState<string[]>([])
   const stateRef = useRef({ lineIndex: 0, charIndex: 0, done: false })
   const charIndicesRef = useRef<number[]>([])
   const timerRef = useRef<number | null>(null)
+  const parallelTimersRef = useRef<number[]>([])
+  const parallelDoneCountRef = useRef(0)
+  const parallelDoneRef = useRef(false)
   const onDoneRef = useRef(onDone)
   const linesRef = useRef(lines)
+  const delaysRef = useRef(delays)
   const linesKey = JSON.stringify(lines)
   const prevLinesKeyRef = useRef(linesKey)
   const prevActiveRef = useRef(active)
 
   linesRef.current = lines
+  delaysRef.current = delays
 
   useEffect(() => {
     onDoneRef.current = onDone
@@ -38,10 +44,14 @@ export function useTypewriter(
       prevLinesKeyRef.current = linesKey
       stateRef.current = { lineIndex: 0, charIndex: 0, done: false }
       charIndicesRef.current = []
+      parallelDoneCountRef.current = 0
+      parallelDoneRef.current = false
       setDisplayedLines([])
     } else if (activated && restartOnActivate) {
       stateRef.current = { lineIndex: 0, charIndex: 0, done: false }
       charIndicesRef.current = []
+      parallelDoneCountRef.current = 0
+      parallelDoneRef.current = false
       setDisplayedLines([])
     }
 
@@ -49,6 +59,10 @@ export function useTypewriter(
       if (timerRef.current) {
         clearTimeout(timerRef.current)
         timerRef.current = null
+      }
+      if (parallelTimersRef.current.length > 0) {
+        parallelTimersRef.current.forEach(id => clearTimeout(id))
+        parallelTimersRef.current = []
       }
       return
     }
@@ -63,46 +77,71 @@ export function useTypewriter(
       return
     }
 
-    if (stateRef.current.done) return
-
     if (mode === 'parallel') {
-      if (charIndicesRef.current.length === 0) {
-        charIndicesRef.current = currentLines.map(() => 0)
-      }
+      if (parallelDoneRef.current) return
 
-      const typeNextTick = () => {
-        const lines = linesRef.current
-        const indices = charIndicesRef.current
-        let allDone = true
-        const nextLines = lines.map((line, lineIndex) => {
-          const charIndex = indices[lineIndex] ?? 0
-          if (charIndex < line.length) {
-            indices[lineIndex] = charIndex + 1
-            allDone = false
-            return line.slice(0, charIndex + 1)
+      // Each line gets its own independent timer chain: wait its own start
+      // delay, then tick character-by-character at `speed` ms/char,
+      // completely independent of every other line's timer. This mirrors
+      // the design contract's Typewriter component (ideas/Portfolio.html
+      // lines 610-631), where lines start near-simultaneously (small ms
+      // stagger) but each types on its own clock — not lockstep-parallel.
+      const lineTimers: number[] = []
+      const totalLines = currentLines.length
+
+      currentLines.forEach((line, lineIndex) => {
+        const lineDelay = delaysRef.current?.[lineIndex] ?? 0
+
+        const tick = (charIndex: number) => {
+          const latestLine = linesRef.current[lineIndex] ?? line
+          const nextIndex = charIndex + 1
+          const slice = latestLine.slice(0, nextIndex)
+
+          setDisplayedLines(prev => {
+            const newLines = [...prev]
+            newLines[lineIndex] = slice
+            return newLines
+          })
+
+          if (nextIndex < latestLine.length) {
+            lineTimers[lineIndex] = window.setTimeout(() => tick(nextIndex), speed)
+          } else {
+            parallelDoneCountRef.current += 1
+            if (parallelDoneCountRef.current >= totalLines) {
+              parallelDoneRef.current = true
+              stateRef.current.done = true
+              onDoneRef.current?.()
+            }
           }
-          return line
-        })
-
-        setDisplayedLines(nextLines)
-
-        if (!allDone) {
-          timerRef.current = window.setTimeout(typeNextTick, speed)
-        } else {
-          stateRef.current.done = true
-          onDoneRef.current?.()
         }
-      }
 
-      timerRef.current = window.setTimeout(typeNextTick, speed)
+        if (line.length === 0) {
+          setDisplayedLines(prev => {
+            const newLines = [...prev]
+            newLines[lineIndex] = ''
+            return newLines
+          })
+          parallelDoneCountRef.current += 1
+          if (parallelDoneCountRef.current >= totalLines) {
+            parallelDoneRef.current = true
+            stateRef.current.done = true
+            onDoneRef.current?.()
+          }
+          return
+        }
+
+        lineTimers[lineIndex] = window.setTimeout(() => tick(0), lineDelay)
+      })
+
+      parallelTimersRef.current = lineTimers
 
       return () => {
-        if (timerRef.current) {
-          clearTimeout(timerRef.current)
-          timerRef.current = null
-        }
+        lineTimers.forEach(id => clearTimeout(id))
+        parallelTimersRef.current = []
       }
     }
+
+    if (stateRef.current.done) return
 
     const typeNextChar = () => {
       const { lineIndex, charIndex } = stateRef.current
@@ -177,6 +216,10 @@ export function useTypewriter(
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current)
+      }
+      if (parallelTimersRef.current.length > 0) {
+        parallelTimersRef.current.forEach(id => clearTimeout(id))
+        parallelTimersRef.current = []
       }
     }
   }, [])

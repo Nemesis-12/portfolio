@@ -49,7 +49,7 @@
   .nav-link.active .nav-label{color:var(--color-atomic-tangerine)}
 
   /* ─── HERO ──── */
-  #home{width:100%;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-start;padding:0 5vw;position:relative;overflow:hidden}
+  #home{width:100%;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 5vw;position:relative;overflow:hidden}
   .hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--color-graphite-light) 1px,transparent 1px),linear-gradient(90deg,var(--color-graphite-light) 1px,transparent 1px);background-size:80px 80px;opacity:.35;mask-image:radial-gradient(ellipse at 30% 50%,#000 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at 30% 50%,#000 30%,transparent 75%)}
   .hero-inner{position:relative;z-index:1;width:100%;padding:var(--section-top-offset) 5vw 0}
   .hero-init{font-size:11px;color:var(--color-atomic-tangerine);letter-spacing:4px;margin-bottom:18px}
@@ -221,12 +221,12 @@
   .c-yellow{background:var(--color-golden-pollen);color:var(--color-graphite)}
 
   /* ─── TIMELINE ──── */
-  /* .hscroll-track centers its children by default (shared with Projects' carousel),
-     but timeline panels are top-aligned, so the track must align them to the top too —
-     otherwise the now-shorter top-aligned panel floats centered in the leftover space. */
-  [data-timeline-track="true"]{align-items:flex-start}
+  /* .hscroll-track centers its children by default (shared with Projects' carousel).
+     Timeline panels all share the same fixed height (.tl-panel below), so the
+     track's default align-items:center is already a no-op for box positioning —
+     no override needed here. */
   .tl-panel-shell{--timeline-label-gap:32px;flex:0 0 100%;width:100%;position:relative}
-  .tl-panel{height:calc(100vh - 160px);padding:calc(var(--section-top-gap) + var(--timeline-label-gap)) 8vw 0;display:flex;flex-direction:column;justify-content:flex-start;position:relative;transition:opacity .35s var(--ease)}
+  .tl-panel{height:calc(100vh - 160px);padding:calc(var(--section-top-gap) + var(--timeline-label-gap)) 8vw 0;display:flex;flex-direction:column;justify-content:center;position:relative;transition:opacity .35s var(--ease)}
   .tl-commit{font-size:14px;color:var(--color-atomic-tangerine);letter-spacing:1px;margin-bottom:8px;min-height:1.5em}
   .tl-meta{font-size:14px;color:var(--color-periwinkle);letter-spacing:1px;line-height:1.9;min-height:1.5em}
   .tl-sep{height:48px}

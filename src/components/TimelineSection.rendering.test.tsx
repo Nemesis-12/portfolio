@@ -27,15 +27,19 @@ describe('TimelineSection rendering', () => {
     })
   })
 
-  it('top-aligns timeline panel content instead of vertical centering', () => {
+  it('centers timeline panel content per the design contract, nudged toward the top', () => {
+    // .tl-panel uses justify-content:center (ideas/Portfolio.html line 184) with a
+    // padding-top nudge — content still reads as sitting in the upper-middle area
+    // (ideas/timeline.png, ideas/timeline 2.png) because the section tag + sep +
+    // content naturally fills most of the panel's fixed height.
     const portfolioCss = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), '../portfolio.css'),
       'utf8',
     )
     const panelRule = portfolioCss.match(/\.tl-panel\{[^}]+\}/)?.[0] ?? ''
 
-    expect(panelRule).toContain('justify-content:flex-start')
-    expect(panelRule).not.toContain('justify-content:center')
+    expect(panelRule).toContain('justify-content:center')
+    expect(panelRule).not.toContain('justify-content:flex-start')
   })
 
   describe('issue #97 - full-screen stacked panels', () => {

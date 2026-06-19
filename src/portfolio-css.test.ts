@@ -114,23 +114,30 @@ describe('portfolio.css CSS anchor', () => {
     expect(blockFor('.hero-inner{')).toContain('padding:var(--section-top-offset) 5vw 0')
   })
 
-  it('top-aligns skills and timeline section content', () => {
+  it('top-aligns skills section content and nudges timeline content toward the top', () => {
+    // .tl-panel uses justify-content:center (matching ideas/Portfolio.html line 184)
+    // with a padding-top nudge — the section tag + sep + content naturally fills
+    // most of the panel height, so the rendered result still reads as top-anchored
+    // (see ideas/timeline.png, ideas/timeline 2.png) without hard top-anchoring the
+    // flex box itself.
     expect(blockFor('#skills .hscroll-head')).toContain('padding-top:0')
-    expect(blockFor('.tl-panel{')).toContain('justify-content:flex-start')
-    expect(blockFor('.tl-panel{')).not.toContain('justify-content:center')
+    expect(blockFor('.tl-panel{')).toContain('justify-content:center')
+    expect(blockFor('.tl-panel{')).not.toContain('justify-content:flex-start')
     expect(blockFor('.tl-panel-shell{')).toContain('--timeline-label-gap:32px')
     expect(blockFor('.tl-panel{')).toContain(
       'padding:calc(var(--section-top-gap) + var(--timeline-label-gap)) 8vw 0',
     )
   })
 
-  it('top-aligns hero content instead of vertically centering it', () => {
-    // #home must not use justify-content:center — otherwise hero-inner's
-    // padding-top: var(--section-top-offset) only nudges the centered block
-    // and the visible top offset drifts with viewport height instead of
-    // matching the fixed offset Skills/Timeline/Projects use.
-    expect(blockFor('#home{')).toContain('justify-content:flex-start')
-    expect(blockFor('#home{')).not.toContain('justify-content:center')
+  it('centers hero content per the design contract, nudged toward the top', () => {
+    // #home uses justify-content:center to match ideas/Portfolio.html line 63
+    // exactly. hero-inner's padding-top: var(--section-top-offset) nudges the
+    // centered block toward the top within the flex column; the visual reference
+    // (ideas/home.png) confirms hero content still reads as top-anchored within
+    // typical viewport heights because the centered column's content fills most
+    // of the available height.
+    expect(blockFor('#home{')).toContain('justify-content:center')
+    expect(blockFor('#home{')).not.toContain('justify-content:flex-start')
   })
 
   it('uses mask-position diagonal reveal on pcard-fill from the reference', () => {

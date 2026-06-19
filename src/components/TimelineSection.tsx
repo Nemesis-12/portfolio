@@ -6,7 +6,7 @@ import { useTimelineScroll } from '../hooks/useTimelineScroll'
 import { getTimelineScrollRangeVh, getTimelineSnapAnchorTopVh } from './timelineGeometry'
 
 const TIMELINE_SECTION_NO = '// 03'
-const TIMELINE_TYPE_SPEED_MS = 7
+const TIMELINE_TYPE_SPEED_MS = 6
 
 function formatPanelCount(index: number, total: number): string {
   return `${String(index + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`
@@ -27,9 +27,19 @@ function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean 
     [entry],
   )
 
+  // Stagger schedule mirrors TimelinePanel in the design contract
+  // (ideas/Portfolio.html lines 647-683, baseDelay=30): hash=0, author=30,
+  // date=60, institution=120, role=210, bullets[i]=300+i*120. Lines start
+  // near-simultaneously but each types independently via its own timer.
+  const delays = useMemo(
+    () => [0, 30, 60, 120, 210, ...entry.bullets.map((_, index) => 300 + index * 120)],
+    [entry],
+  )
+
   const displayedLines = useTypewriter(active, lines, TIMELINE_TYPE_SPEED_MS, undefined, {
     mode: 'parallel',
     restartOnActivate: true,
+    delays,
   })
 
   const institutionLine = displayedLines[METADATA_LINE_COUNT]
