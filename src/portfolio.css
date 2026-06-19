@@ -81,8 +81,10 @@
 
   /* ─── PROJECTS ──── */
   .proj-track{gap:56px}
-  .proj-edge-lead{flex-shrink:0;width:calc(50vw - min(280px, 39vw))}
-  .proj-edge-trail{flex-shrink:0;width:calc(50% - min(280px, 39vw))}
+  /* `gap` also lands between this spacer and the adjacent card, and #projects adds px-8
+     padding around the sticky viewport, so both must be subtracted to keep the first/last
+     card centered in the visible viewport (see projectsGeometry.ts getEdgeSpacerWidth). */
+  .proj-edge{flex-shrink:0;width:calc(50vw - 88px - min(280px, 39vw))}
   .pcard{--notch:22px;flex-shrink:0;width:min(560px,78vw);height:min(640px,76vh);position:relative;cursor:pointer;
     transition:transform .35s var(--ease);will-change:transform}
   .pcard-bg{position:absolute;inset:0;background:var(--color-platinum);

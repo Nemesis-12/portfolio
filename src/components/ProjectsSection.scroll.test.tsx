@@ -9,7 +9,7 @@ import {
   getScrollRangeVh,
 } from './projectsGeometry'
 import { projects as realProjects } from '../data/projects'
-import { createRect, mockProjects, setViewport } from './ProjectsSection.test.shared'
+import { createRect, mockCarouselTrackWidth, mockProjects, setViewport } from './ProjectsSection.test.shared'
 
 describe('ProjectsSection scroll', () => {
   it('translates the carousel track from the projects section scroll position', () => {
@@ -21,10 +21,7 @@ describe('ProjectsSection scroll', () => {
 
     vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-400, 1600))
     const trackWidth = getCarouselTrackWidth(mockProjects.length, 1000)
-    Object.defineProperty(carouselTrack, 'scrollWidth', {
-      configurable: true,
-      value: trackWidth,
-    })
+    mockCarouselTrackWidth(carouselTrack, trackWidth)
 
     act(() => window.dispatchEvent(new Event('scroll')))
 
@@ -60,10 +57,7 @@ describe('ProjectsSection scroll', () => {
 
     const trackWidth = getCarouselTrackWidth(fourProjects.length, 1200)
     vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-1350, 9999))
-    Object.defineProperty(carouselTrack, 'scrollWidth', {
-      configurable: true,
-      value: trackWidth,
-    })
+    mockCarouselTrackWidth(carouselTrack, trackWidth)
 
     act(() => window.dispatchEvent(new Event('scroll')))
 
@@ -186,10 +180,7 @@ describe('ProjectsSection scroll', () => {
       const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
 
       vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-400, 1600))
-      Object.defineProperty(carouselTrack, 'scrollWidth', {
-        configurable: true,
-        value: getCarouselTrackWidth(mockProjects.length, 1000),
-      })
+      mockCarouselTrackWidth(carouselTrack, getCarouselTrackWidth(mockProjects.length, 1000))
 
       act(() => window.dispatchEvent(new Event('scroll')))
 
@@ -226,10 +217,7 @@ describe('ProjectsSection scroll', () => {
       vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(
         createRect(-(sectionHeight - 800), sectionHeight),
       )
-      Object.defineProperty(carouselTrack, 'scrollWidth', {
-        configurable: true,
-        value: getCarouselTrackWidth(mockProjects.length, 1000),
-      })
+      mockCarouselTrackWidth(carouselTrack, getCarouselTrackWidth(mockProjects.length, 1000))
 
       act(() => window.dispatchEvent(new Event('scroll')))
 
@@ -247,10 +235,7 @@ describe('ProjectsSection scroll', () => {
       vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(
         createRect(-(sectionHeight - 800), sectionHeight),
       )
-      Object.defineProperty(carouselTrack, 'scrollWidth', {
-        configurable: true,
-        value: getCarouselTrackWidth(mockProjects.length, 1000),
-      })
+      mockCarouselTrackWidth(carouselTrack, getCarouselTrackWidth(mockProjects.length, 1000))
 
       act(() => window.dispatchEvent(new Event('scroll')))
 
@@ -281,10 +266,7 @@ describe('ProjectsSection scroll', () => {
       const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
 
       vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-400, 1600))
-      Object.defineProperty(carouselTrack, 'scrollWidth', {
-        configurable: true,
-        value: getCarouselTrackWidth(mockProjects.length, 1000),
-      })
+      mockCarouselTrackWidth(carouselTrack, getCarouselTrackWidth(mockProjects.length, 1000))
 
       act(() => window.dispatchEvent(new Event('scroll')))
 
@@ -320,10 +302,7 @@ describe('ProjectsSection scroll', () => {
     vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(
       createRect(-runwayPx, getScrollRangeVh(projectCount) * viewportHeight),
     )
-    Object.defineProperty(carouselTrack, 'scrollWidth', {
-      configurable: true,
-      value: trackWidth,
-    })
+    mockCarouselTrackWidth(carouselTrack, trackWidth)
 
     act(() => window.dispatchEvent(new Event('scroll')))
 

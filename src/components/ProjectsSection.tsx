@@ -81,11 +81,11 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
           className="hscroll-track proj-track pb-4"
           style={{ transform: `translateX(${tx}px)` }}
         >
-          <div className="proj-edge-lead" aria-hidden="true" />
+          <div className="proj-edge" aria-hidden="true" />
           {projects.map((project) => (
             <ProjectCard key={project.id} project={project} />
           ))}
-          <div className="proj-edge-trail" aria-hidden="true" />
+          <div className="proj-edge" aria-hidden="true" />
         </div>
 
         <motion.div

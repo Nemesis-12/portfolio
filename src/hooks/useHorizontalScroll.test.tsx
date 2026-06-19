@@ -2,9 +2,9 @@ import { renderHook, act } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { useRef } from 'react'
 import {
+  getCarouselTrackWidth,
   getEdgeSpacerWidth,
   getProjectsCarouselViewportWidth,
-  getTrailingEdgeSpacerWidth,
   PROJECT_CARD_GAP,
 } from '../components/projectsGeometry'
 import { useHorizontalScroll } from './useHorizontalScroll'
@@ -63,6 +63,57 @@ function renderHorizontalScrollHook({
   })
 }
 
+function createChildRect(left: number, right: number): DOMRect {
+  return {
+    top: 0,
+    bottom: 0,
+    left,
+    right,
+    width: right - left,
+    height: 0,
+    x: left,
+    y: 0,
+    toJSON: () => ({}),
+  }
+}
+
+/**
+ * Builds an `inner` track with real first/last children (mocked via getBoundingClientRect)
+ * so the hook's content-width measurement reads from child rects exactly as it does against
+ * the real DOM — `scrollWidth` is intentionally left at jsdom's default (0) to prove the hook
+ * no longer depends on it when children are present.
+ */
+function renderHorizontalScrollHookWithChildren({
+  outerTop,
+  outerHeight,
+  firstChildLeft,
+  lastChildRight,
+}: {
+  outerTop: number
+  outerHeight: number
+  firstChildLeft: number
+  lastChildRight: number
+}) {
+  const outer = document.createElement('section')
+  const inner = document.createElement('div')
+  const first = document.createElement('div')
+  const last = document.createElement('div')
+  inner.appendChild(first)
+  inner.appendChild(document.createElement('div'))
+  inner.appendChild(last)
+
+  first.getBoundingClientRect = vi.fn(() => createChildRect(firstChildLeft, firstChildLeft))
+  last.getBoundingClientRect = vi.fn(() => createChildRect(lastChildRight, lastChildRight))
+  outer.getBoundingClientRect = vi.fn(() => createRect(outerTop, outerHeight))
+
+  return renderHook(() => {
+    const outerRef = useRef<HTMLElement>(outer)
+    const innerRef = useRef<HTMLElement>(inner)
+
+    return useHorizontalScroll(outerRef, innerRef)
+  })
+}
+
 function cardCenterX(
   tx: number,
   cardIndex: number,
@@ -70,7 +121,8 @@ function cardCenterX(
   cardGap: number,
   edgeWidth: number,
 ) {
-  return tx + edgeWidth + cardIndex * (cardWidth + cardGap) + cardWidth / 2
+  // The flex `gap` lands between the leading spacer and the first card too.
+  return tx + edgeWidth + cardGap + cardIndex * (cardWidth + cardGap) + cardWidth / 2
 }
 
 function horizontalDistance(innerScrollWidth: number, viewportWidth: number) {
@@ -203,8 +255,9 @@ describe('useHorizontalScroll', () => {
     const cardWidth = 480
     const cardGap = PROJECT_CARD_GAP
     const edgeWidth = getEdgeSpacerWidth(1000, cardWidth)
-    const trailingEdgeWidth = getTrailingEdgeSpacerWidth(1000, cardWidth)
-    const innerScrollWidth = edgeWidth + trailingEdgeWidth + cardWidth * 2 + cardGap
+    // Mirrors the real flex layout: a `cardGap`-wide gap also lands between each edge
+    // spacer and its adjacent card, not just between the two cards.
+    const innerScrollWidth = getCarouselTrackWidth(2, 1000, cardWidth, cardGap)
 
     const { result } = renderHorizontalScrollHook({
       outerTop: 0,
@@ -216,7 +269,9 @@ describe('useHorizontalScroll', () => {
 
     expect(result.current.progress).toBe(0)
     expect(result.current.tx).toBe(0)
-    expect(cardCenterX(result.current.tx, 0, cardWidth, cardGap, edgeWidth)).toBe(1000 / 2)
+    expect(cardCenterX(result.current.tx, 0, cardWidth, cardGap, edgeWidth)).toBe(
+      getProjectsCarouselViewportWidth(1000) / 2,
+    )
   })
 
   it('keeps the last card centered at progress 1 when proj-edge spacers are included in scroll width', () => {
@@ -225,8 +280,7 @@ describe('useHorizontalScroll', () => {
     const cardWidth = 480
     const cardGap = PROJECT_CARD_GAP
     const edgeWidth = getEdgeSpacerWidth(1000, cardWidth)
-    const trailingEdgeWidth = getTrailingEdgeSpacerWidth(1000, cardWidth)
-    const innerScrollWidth = edgeWidth + trailingEdgeWidth + cardWidth * 2 + cardGap
+    const innerScrollWidth = getCarouselTrackWidth(2, 1000, cardWidth, cardGap)
 
     const { result } = renderHorizontalScrollHook({
       outerTop: -800,
@@ -240,5 +294,44 @@ describe('useHorizontalScroll', () => {
     expect(cardCenterX(result.current.tx, 1, cardWidth, cardGap, edgeWidth)).toBe(
       getProjectsCarouselViewportWidth(1000) / 2,
     )
+  })
+
+  describe('content width measurement (real browser scrollWidth regression)', () => {
+    // Chromium under-reports `scrollWidth` for a flex row that has `align-items: center`
+    // together with overflowing `flex-shrink: 0` children — exactly the `.proj-track` shape.
+    // The hook must measure from the first/last child's own rects instead, which stay
+    // accurate regardless of that quirk. These tests render real child elements (rather than
+    // stubbing `scrollWidth`) to guard against silently reverting to the broken measurement.
+    it('derives translate from the first/last child rects, not scrollWidth', () => {
+      setViewport(1000, 800)
+
+      const { result } = renderHorizontalScrollHookWithChildren({
+        outerTop: -800,
+        outerHeight: 1600,
+        firstChildLeft: -200,
+        lastChildRight: 1800,
+      })
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+
+      // content width = 1800 - (-200) = 2000; carousel viewport width = getProjectsCarouselViewportWidth(1000)
+      const expectedTrackWidth = 2000 - getProjectsCarouselViewportWidth(1000)
+      expect(result.current.progress).toBe(1)
+      expect(result.current.tx).toBe(-expectedTrackWidth)
+    })
+
+    it('falls back to scrollWidth when the track has no children', () => {
+      setViewport(1000, 800)
+
+      const { result } = renderHorizontalScrollHook({
+        outerTop: -800,
+        outerHeight: 1600,
+        innerScrollWidth: 2600,
+      })
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+
+      expect(result.current).toEqual({ progress: 1, tx: -horizontalDistance(2600, 1000) })
+    })
   })
 })

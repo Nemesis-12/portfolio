@@ -9,6 +9,7 @@ import {
   EDGE_SPACER_MAX_VW_FRACTION,
   PROJECT_CARD_GAP,
   PROJECT_CARD_WIDTH,
+  PROJECTS_SECTION_PADDING_X,
 } from './components/projectsGeometry'
 
 const srcDir = dirname(fileURLToPath(import.meta.url))
@@ -50,34 +51,26 @@ describe('portfolio.css geometry token contract', () => {
     expect(projTrackRule).toContain(`gap:${PROJECT_CARD_GAP}px`)
   })
 
-  it('keeps proj-edge-lead half-card width in sync with PROJECT_CARD_WIDTH / 2', () => {
-    const projEdgeLeadRule = blockFor(portfolioCss, '.proj-edge-lead')
+  it('keeps proj-edge half-card width in sync with PROJECT_CARD_WIDTH / 2', () => {
+    const projEdgeRule = blockFor(portfolioCss, '.proj-edge')
     const halfCardWidthPx = PROJECT_CARD_WIDTH / 2
-    expect(projEdgeLeadRule).toContain(`min(${halfCardWidthPx}px`)
-  })
-
-  it('keeps proj-edge-trail half-card width in sync with PROJECT_CARD_WIDTH / 2', () => {
-    const projEdgeTrailRule = blockFor(portfolioCss, '.proj-edge-trail')
-    const halfCardWidthPx = PROJECT_CARD_WIDTH / 2
-    expect(projEdgeTrailRule).toContain(`min(${halfCardWidthPx}px`)
+    expect(projEdgeRule).toContain(`min(${halfCardWidthPx}px`)
   })
 
   it('keeps proj-edge viewport fraction in sync with EDGE_SPACER_MAX_VW_FRACTION', () => {
-    const projEdgeLeadRule = blockFor(portfolioCss, '.proj-edge-lead')
-    const projEdgeTrailRule = blockFor(portfolioCss, '.proj-edge-trail')
+    const projEdgeRule = blockFor(portfolioCss, '.proj-edge')
     const edgeSpacerVw = Math.round(EDGE_SPACER_MAX_VW_FRACTION * 100)
-    expect(projEdgeLeadRule).toContain(`${edgeSpacerVw}vw`)
-    expect(projEdgeTrailRule).toContain(`${edgeSpacerVw}vw`)
+    expect(projEdgeRule).toContain(`${edgeSpacerVw}vw`)
   })
 
-  it('keeps proj-edge-lead half-viewport term in sync with getEdgeSpacerWidth', () => {
-    const projEdgeLeadRule = blockFor(portfolioCss, '.proj-edge-lead')
-    expect(projEdgeLeadRule).toContain('50vw')
+  it('keeps proj-edge half-viewport term in sync with getEdgeSpacerWidth', () => {
+    const projEdgeRule = blockFor(portfolioCss, '.proj-edge')
+    expect(projEdgeRule).toContain('50vw')
   })
 
-  it('keeps proj-edge-trail half-viewport term in sync with getTrailingEdgeSpacerWidth', () => {
-    const projEdgeTrailRule = blockFor(portfolioCss, '.proj-edge-trail')
-    expect(projEdgeTrailRule).toContain('50%')
+  it('keeps proj-edge padding+gap offset in sync with PROJECTS_SECTION_PADDING_X + PROJECT_CARD_GAP', () => {
+    const projEdgeRule = blockFor(portfolioCss, '.proj-edge')
+    expect(projEdgeRule).toContain(`${PROJECTS_SECTION_PADDING_X + PROJECT_CARD_GAP}px`)
   })
 
   it('keeps nav height in sync with NAV_HEIGHT', () => {
