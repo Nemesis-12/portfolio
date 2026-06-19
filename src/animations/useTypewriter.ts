@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 
 interface UseTypewriterOptions {
-  mode?: 'character' | 'line'
+  mode?: 'character' | 'line' | 'parallel'
   restartOnActivate?: boolean
 }
 
@@ -15,6 +15,7 @@ export function useTypewriter(
   const { mode = 'character', restartOnActivate = false } = options
   const [displayedLines, setDisplayedLines] = useState<string[]>([])
   const stateRef = useRef({ lineIndex: 0, charIndex: 0, done: false })
+  const charIndicesRef = useRef<number[]>([])
   const timerRef = useRef<number | null>(null)
   const onDoneRef = useRef(onDone)
   const linesRef = useRef(lines)
@@ -36,9 +37,11 @@ export function useTypewriter(
     if (linesChanged) {
       prevLinesKeyRef.current = linesKey
       stateRef.current = { lineIndex: 0, charIndex: 0, done: false }
+      charIndicesRef.current = []
       setDisplayedLines([])
     } else if (activated && restartOnActivate) {
       stateRef.current = { lineIndex: 0, charIndex: 0, done: false }
+      charIndicesRef.current = []
       setDisplayedLines([])
     }
 
@@ -61,6 +64,45 @@ export function useTypewriter(
     }
 
     if (stateRef.current.done) return
+
+    if (mode === 'parallel') {
+      if (charIndicesRef.current.length === 0) {
+        charIndicesRef.current = currentLines.map(() => 0)
+      }
+
+      const typeNextTick = () => {
+        const lines = linesRef.current
+        const indices = charIndicesRef.current
+        let allDone = true
+        const nextLines = lines.map((line, lineIndex) => {
+          const charIndex = indices[lineIndex] ?? 0
+          if (charIndex < line.length) {
+            indices[lineIndex] = charIndex + 1
+            allDone = false
+            return line.slice(0, charIndex + 1)
+          }
+          return line
+        })
+
+        setDisplayedLines(nextLines)
+
+        if (!allDone) {
+          timerRef.current = window.setTimeout(typeNextTick, speed)
+        } else {
+          stateRef.current.done = true
+          onDoneRef.current?.()
+        }
+      }
+
+      timerRef.current = window.setTimeout(typeNextTick, speed)
+
+      return () => {
+        if (timerRef.current) {
+          clearTimeout(timerRef.current)
+          timerRef.current = null
+        }
+      }
+    }
 
     const typeNextChar = () => {
       const { lineIndex, charIndex } = stateRef.current

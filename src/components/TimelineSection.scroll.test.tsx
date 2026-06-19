@@ -355,7 +355,6 @@ describe('TimelineSection scroll', () => {
       const resumedHash =
         getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
       expect(resumedHash).toBe(partialHash)
-      expect(getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')).toBeNull()
     })
   })
 })

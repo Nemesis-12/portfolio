@@ -28,6 +28,7 @@ function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean 
   )
 
   const displayedLines = useTypewriter(active, lines, TIMELINE_TYPE_SPEED_MS, undefined, {
+    mode: 'parallel',
     restartOnActivate: true,
   })
 

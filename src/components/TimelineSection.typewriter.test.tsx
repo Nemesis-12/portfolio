@@ -158,7 +158,6 @@ describe('TimelineSection typewriter', () => {
 
       const restartedText = document.querySelector('[data-typewriter-line]')?.textContent ?? ''
       expect(restartedText).toBe(partialText)
-      expect(getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')).toBeNull()
     })
 
     it('issue #98 - longest bullet completes within 2.5s', () => {
@@ -448,7 +447,6 @@ describe('TimelineSection typewriter', () => {
       const heldHash =
         getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
       expect(heldHash).toBe(partialHash)
-      expect(getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')).toBeNull()
     })
   })
 
@@ -492,15 +490,17 @@ describe('TimelineSection typewriter', () => {
       rerender(<TimelineSection />)
 
       act(() => {
-        vi.advanceTimersByTime(100)
+        vi.advanceTimersByTime(7)
       })
 
-      expect(getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')).toHaveTextContent(
-        'commit d4e8f2c',
-      )
-      expect(
-        getTimelinePanel(0).querySelector('[data-testid="commit-institution"]'),
-      ).not.toBeInTheDocument()
+      // All lines start typing in parallel on restart, so the hash (and any other
+      // line) should be freshly re-typed from scratch rather than picking up where
+      // the previous activation left off.
+      const restartedHash =
+        getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')?.textContent ?? ''
+      expect(restartedHash.length).toBeGreaterThan(0)
+      expect('commit d4e8f2c'.startsWith(restartedHash)).toBe(true)
+      expect(restartedHash).not.toBe('commit d4e8f2c')
     })
   })
 })

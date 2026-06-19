@@ -221,6 +221,10 @@
   .c-yellow{background:var(--color-golden-pollen);color:var(--color-graphite)}
 
   /* ─── TIMELINE ──── */
+  /* .hscroll-track centers its children by default (shared with Projects' carousel),
+     but timeline panels are top-aligned, so the track must align them to the top too —
+     otherwise the now-shorter top-aligned panel floats centered in the leftover space. */
+  [data-timeline-track="true"]{align-items:flex-start}
   .tl-panel-shell{--timeline-label-gap:32px;flex:0 0 100%;width:100%;position:relative}
   .tl-panel{height:calc(100vh - 160px);padding:calc(var(--section-top-gap) + var(--timeline-label-gap)) 8vw 0;display:flex;flex-direction:column;justify-content:flex-start;position:relative;transition:opacity .35s var(--ease)}
   .tl-commit{font-size:14px;color:var(--color-atomic-tangerine);letter-spacing:1px;margin-bottom:8px;min-height:1.5em}
