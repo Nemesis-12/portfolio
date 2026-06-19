@@ -27,7 +27,7 @@ describe('ProjectsSection cards', () => {
     expect(title).not.toHaveClass('text-platinum')
   })
 
-  it('renders fill as a static clipped opacity layer (not Framer clip-path)', () => {
+  it('renders fill as a static layer driven by CSS mask-position (not Framer clip-path)', () => {
     render(<ProjectsSection projects={mockProjects} />)
 
     const fill = document.querySelector('[data-testid="project-card-fill"]')
@@ -37,7 +37,7 @@ describe('ProjectsSection cards', () => {
     expect(fill?.getAttribute('style') ?? '').not.toMatch(/clip-path/i)
   })
 
-  it('activates the orange fill layer when a project card is hovered', async () => {
+  it('activates a diagonal orange fill layer when a project card is hovered', async () => {
     const user = userEvent.setup()
     render(<ProjectsSection projects={mockProjects} />)
 
@@ -57,7 +57,7 @@ describe('ProjectsSection cards', () => {
     expect(fill).toHaveAttribute('data-active', 'false')
   })
 
-  it('activates the orange fill while a project card link has focus', async () => {
+  it('activates the diagonal orange fill while a project card link has focus', async () => {
     const user = userEvent.setup()
     render(<ProjectsSection projects={mockProjects} />)
 
@@ -150,6 +150,43 @@ describe('ProjectsSection cards', () => {
     expect(fill).toHaveAttribute('data-active', 'false')
   })
 
+  it('keeps fill active via lingering keyboard focus after the pointer leaves a hovered card', async () => {
+    const user = userEvent.setup()
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const githubLink = screen.getByRole('link', { name: '// GitHub ↗' })
+    const card = githubLink.closest('[data-testid="project-card"]')!
+    const fill = card.querySelector('[data-testid="project-card-fill"]')!
+
+    await user.hover(card)
+    await user.tab()
+    expect(githubLink).toHaveFocus()
+    expect(fill).toHaveAttribute('data-active', 'true')
+
+    await user.unhover(card)
+    expect(fill).toHaveAttribute('data-active', 'true')
+  })
+
+  it('survives rapid hover/unhover toggling without leaving stale fill state', async () => {
+    const user = userEvent.setup()
+    render(<ProjectsSection projects={mockProjects} />)
+
+    const card = screen.getByRole('heading', { name: 'Project One' }).closest('[data-testid="project-card"]')!
+    const fill = card.querySelector('[data-testid="project-card-fill"]')!
+
+    for (let i = 0; i < 5; i += 1) {
+      await user.hover(card)
+      await user.unhover(card)
+    }
+
+    expect(card).toHaveAttribute('data-fill-active', 'false')
+    expect(fill).toHaveAttribute('data-active', 'false')
+
+    await user.hover(card)
+    expect(card).toHaveAttribute('data-fill-active', 'true')
+    expect(fill).toHaveAttribute('data-active', 'true')
+  })
+
   describe('v4 notched card hierarchy', () => {
     it('each card exposes number, ghost number, title, description, tags, and links', () => {
       render(<ProjectsSection projects={mockProjects} />)
@@ -212,17 +249,17 @@ describe('ProjectsSection cards', () => {
       expect(PROJECT_CARD_WIDTH).toBe(560)
     })
 
-    it('renders only the bottom-right notched corner accent on each card', () => {
+    it('renders notched corner accent markers on each card', () => {
       render(<ProjectsSection projects={mockProjects} />)
 
       const cards = document.querySelectorAll('[data-testid="project-card"]')
       cards.forEach((card) => {
-        expect(card.querySelector('.pcard-notch.tl')).not.toBeInTheDocument()
+        expect(card.querySelector('.pcard-notch.tl')).toBeInTheDocument()
         expect(card.querySelector('.pcard-notch.br')).toBeInTheDocument()
       })
     })
 
-    it('nests fill layer inside pcard-clip while the remaining notch stays outside', () => {
+    it('nests fill layer inside pcard-clip while notches stay outside', () => {
       render(<ProjectsSection projects={mockProjects} />)
 
       const card = document.querySelector('[data-testid="project-card"]')
@@ -239,28 +276,30 @@ describe('ProjectsSection cards', () => {
       expect(clip!.contains(fill)).toBe(true)
 
       const notches = card!.querySelectorAll('.pcard-notch')
-      expect(notches).toHaveLength(1)
+      expect(notches).toHaveLength(2)
       notches.forEach((notch) => {
         expect(clip!.contains(notch)).toBe(false)
       })
     })
 
-    it('does not render a left-edge rising highlight strip', () => {
+    it('renders a left-edge rising highlight strip outside the pcard-clip wrapper', () => {
       render(<ProjectsSection projects={mockProjects} />)
 
       const cards = document.querySelectorAll('[data-testid="project-card"]')
       const leftStripClasses = ['left-0', 'top-0', 'bottom-0', 'w-[3px]', 'bg-atomic-tangerine']
 
       cards.forEach((card) => {
+        const clip = card.querySelector('.pcard-clip')
         const leftStrip = Array.from(card.querySelectorAll('*')).find((element) =>
           leftStripClasses.every((className) => element.classList.contains(className)),
         )
 
-        expect(leftStrip).toBeUndefined()
+        expect(leftStrip).toBeDefined()
+        expect(clip!.contains(leftStrip!)).toBe(false)
       })
     })
 
-    it('toggles data-fill-active on card for opacity fill reveal', async () => {
+    it('toggles data-fill-active on card for mask-position fill reveal', async () => {
       const user = userEvent.setup()
       render(<ProjectsSection projects={mockProjects} />)
 
