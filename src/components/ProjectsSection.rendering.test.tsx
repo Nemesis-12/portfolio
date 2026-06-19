@@ -63,8 +63,9 @@ describe('ProjectsSection rendering', () => {
 
     const edges = document.querySelectorAll('.proj-edge')
     expect(edges).toHaveLength(2)
-    expect(edges[0]?.nextElementSibling).toHaveAttribute('data-testid', 'project-card')
-    expect(edges[1]?.previousElementSibling).toHaveAttribute('data-testid', 'project-card')
+    const [leadEdge, trailEdge] = edges
+    expect(leadEdge.nextElementSibling).toHaveAttribute('data-testid', 'project-card')
+    expect(trailEdge.previousElementSibling).toHaveAttribute('data-testid', 'project-card')
   })
 
   it('renders cards in a horizontal track structure for carousel scrolling', () => {

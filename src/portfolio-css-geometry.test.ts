@@ -9,6 +9,7 @@ import {
   EDGE_SPACER_MAX_VW_FRACTION,
   PROJECT_CARD_GAP,
   PROJECT_CARD_WIDTH,
+  PROJECTS_SECTION_PADDING_X,
 } from './components/projectsGeometry'
 
 const srcDir = dirname(fileURLToPath(import.meta.url))
@@ -65,6 +66,11 @@ describe('portfolio.css geometry token contract', () => {
   it('keeps proj-edge half-viewport term in sync with getEdgeSpacerWidth', () => {
     const projEdgeRule = blockFor(portfolioCss, '.proj-edge')
     expect(projEdgeRule).toContain('50vw')
+  })
+
+  it('keeps proj-edge padding+gap offset in sync with PROJECTS_SECTION_PADDING_X + PROJECT_CARD_GAP', () => {
+    const projEdgeRule = blockFor(portfolioCss, '.proj-edge')
+    expect(projEdgeRule).toContain(`${PROJECTS_SECTION_PADDING_X + PROJECT_CARD_GAP}px`)
   })
 
   it('keeps nav height in sync with NAV_HEIGHT', () => {

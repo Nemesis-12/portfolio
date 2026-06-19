@@ -1,8 +1,15 @@
 import { describe, it, expect, vi } from 'vitest'
 import { act, render, screen } from '@testing-library/react'
 import ProjectsSection from './ProjectsSection'
-import { getCarouselTrackWidth, getScrollRangeVh } from './projectsGeometry'
-import { createRect, mockProjects, setViewport } from './ProjectsSection.test.shared'
+import {
+  getCarouselTrackWidth,
+  getProjectCardCenterX,
+  getProjectsCarouselViewportWidth,
+  getProjectsTrackTranslate,
+  getScrollRangeVh,
+} from './projectsGeometry'
+import { projects as realProjects } from '../data/projects'
+import { createRect, mockCarouselTrackWidth, mockProjects, setViewport } from './ProjectsSection.test.shared'
 
 describe('ProjectsSection scroll', () => {
   it('translates the carousel track from the projects section scroll position', () => {
@@ -14,14 +21,13 @@ describe('ProjectsSection scroll', () => {
 
     vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-400, 1600))
     const trackWidth = getCarouselTrackWidth(mockProjects.length, 1000)
-    Object.defineProperty(carouselTrack, 'scrollWidth', {
-      configurable: true,
-      value: trackWidth,
-    })
+    mockCarouselTrackWidth(carouselTrack, trackWidth)
 
     act(() => window.dispatchEvent(new Event('scroll')))
 
-    expect(carouselTrack.style.transform).toBe(`translateX(${-0.5 * (trackWidth - 1000)}px)`)
+    expect(carouselTrack.style.transform).toBe(
+      `translateX(${getProjectsTrackTranslate(0.5, trackWidth, 1000)}px)`,
+    )
   })
 
   it('uses the Projects runway instead of raw section height for progress math', () => {
@@ -49,15 +55,15 @@ describe('ProjectsSection scroll', () => {
     const projectsSection = document.getElementById('projects') as HTMLElement
     const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
 
+    const trackWidth = getCarouselTrackWidth(fourProjects.length, 1200)
     vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-1350, 9999))
-    Object.defineProperty(carouselTrack, 'scrollWidth', {
-      configurable: true,
-      value: 3200,
-    })
+    mockCarouselTrackWidth(carouselTrack, trackWidth)
 
     act(() => window.dispatchEvent(new Event('scroll')))
 
-    expect(carouselTrack.style.transform).toBe('translateX(-1000px)')
+    expect(carouselTrack.style.transform).toBe(
+      `translateX(${getProjectsTrackTranslate(0.5, trackWidth, 1200)}px)`,
+    )
     expect(screen.getByTestId('progress-fill')).toHaveStyle({ width: '50%' })
   })
 
@@ -174,10 +180,7 @@ describe('ProjectsSection scroll', () => {
       const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
 
       vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-400, 1600))
-      Object.defineProperty(carouselTrack, 'scrollWidth', {
-        configurable: true,
-        value: getCarouselTrackWidth(mockProjects.length, 1000),
-      })
+      mockCarouselTrackWidth(carouselTrack, getCarouselTrackWidth(mockProjects.length, 1000))
 
       act(() => window.dispatchEvent(new Event('scroll')))
 
@@ -214,10 +217,7 @@ describe('ProjectsSection scroll', () => {
       vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(
         createRect(-(sectionHeight - 800), sectionHeight),
       )
-      Object.defineProperty(carouselTrack, 'scrollWidth', {
-        configurable: true,
-        value: getCarouselTrackWidth(mockProjects.length, 1000),
-      })
+      mockCarouselTrackWidth(carouselTrack, getCarouselTrackWidth(mockProjects.length, 1000))
 
       act(() => window.dispatchEvent(new Event('scroll')))
 
@@ -235,10 +235,7 @@ describe('ProjectsSection scroll', () => {
       vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(
         createRect(-(sectionHeight - 800), sectionHeight),
       )
-      Object.defineProperty(carouselTrack, 'scrollWidth', {
-        configurable: true,
-        value: getCarouselTrackWidth(mockProjects.length, 1000),
-      })
+      mockCarouselTrackWidth(carouselTrack, getCarouselTrackWidth(mockProjects.length, 1000))
 
       act(() => window.dispatchEvent(new Event('scroll')))
 
@@ -269,10 +266,7 @@ describe('ProjectsSection scroll', () => {
       const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
 
       vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-400, 1600))
-      Object.defineProperty(carouselTrack, 'scrollWidth', {
-        configurable: true,
-        value: getCarouselTrackWidth(mockProjects.length, 1000),
-      })
+      mockCarouselTrackWidth(carouselTrack, getCarouselTrackWidth(mockProjects.length, 1000))
 
       act(() => window.dispatchEvent(new Event('scroll')))
 
@@ -290,5 +284,32 @@ describe('ProjectsSection scroll', () => {
       const hint = screen.getByTestId('scroll-hint')
       expect(hint.closest('[data-carousel-track="true"]')).toBeNull()
     })
+  })
+
+  it('centers the last real project card at the end of the scroll runway', () => {
+    const viewportWidth = 1440
+    const viewportHeight = 900
+    const projectCount = realProjects.length
+
+    setViewport(viewportWidth, viewportHeight)
+    render(<ProjectsSection projects={realProjects} />)
+
+    const projectsSection = document.getElementById('projects') as HTMLElement
+    const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
+    const trackWidth = getCarouselTrackWidth(projectCount, viewportWidth)
+    const runwayPx = getScrollRangeVh(projectCount) * viewportHeight - viewportHeight
+
+    vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(
+      createRect(-runwayPx, getScrollRangeVh(projectCount) * viewportHeight),
+    )
+    mockCarouselTrackWidth(carouselTrack, trackWidth)
+
+    act(() => window.dispatchEvent(new Event('scroll')))
+
+    const tx = getProjectsTrackTranslate(1, trackWidth, viewportWidth)
+    expect(carouselTrack.style.transform).toBe(`translateX(${tx}px)`)
+    expect(getProjectCardCenterX(tx, projectCount - 1, viewportWidth)).toBe(
+      getProjectsCarouselViewportWidth(viewportWidth) / 2,
+    )
   })
 })

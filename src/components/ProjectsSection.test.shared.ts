@@ -1,3 +1,5 @@
+import { vi } from 'vitest'
+
 export const mockProjects = [
   {
     id: '1',
@@ -48,4 +50,29 @@ export function createRect(top: number, height: number): DOMRect {
     y: top,
     toJSON: () => ({}),
   }
+}
+
+/**
+ * Mocks the carousel track's first/last child rects so `useHorizontalScroll` measures the
+ * given `trackWidth` exactly as it would in a real browser (via child rects, not
+ * `scrollWidth` — see `useHorizontalScroll.ts` for why `scrollWidth` itself is unreliable
+ * for this flex layout). `carouselTrack` must already have its real children rendered.
+ */
+export function mockCarouselTrackWidth(carouselTrack: HTMLElement, trackWidth: number) {
+  const first = carouselTrack.firstElementChild as HTMLElement | null
+  const last = carouselTrack.lastElementChild as HTMLElement | null
+  if (!first || !last) {
+    throw new Error('mockCarouselTrackWidth requires a track with rendered children')
+  }
+
+  vi.spyOn(first, 'getBoundingClientRect').mockReturnValue({
+    ...createRect(0, 0),
+    left: 0,
+    right: 0,
+  })
+  vi.spyOn(last, 'getBoundingClientRect').mockReturnValue({
+    ...createRect(0, 0),
+    left: trackWidth,
+    right: trackWidth,
+  })
 }
