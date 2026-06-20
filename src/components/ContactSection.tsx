@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { motion, useInView } from 'framer-motion'
 import { TypeIn } from '../animations/TypeIn'
-import { hoverEase } from '../animations/variants'
 import { StickySection } from './StickySection'
 
 const EMAIL = 'famohammed@shockers.wichita.edu'
@@ -15,9 +13,23 @@ const footerLinks = [
 ]
 
 export default function ContactSection() {
-  const ref = useRef(null)
-  const isInView = useInView(ref)
+  const ref = useRef<HTMLDivElement>(null)
+  const [isInView, setIsInView] = useState(false)
   const [step, setStep] = useState(0)
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node) {
+      return
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsInView(entry.isIntersecting)
+    })
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     if (!isInView) {
@@ -51,31 +63,22 @@ export default function ContactSection() {
           </span>
         </div>
 
-        <motion.a
-          href={`mailto:${EMAIL}`}
-          variants={hoverEase}
-          initial="idle"
-          whileHover="hover"
-          className="btn btn-fill"
-        >
+        <a href={`mailto:${EMAIL}`} className="btn btn-fill">
           SEND_MESSAGE <span>→</span>
-        </motion.a>
+        </a>
 
         <div className="footer-socials">
           {footerLinks.map(({ label, href, target }) => (
-            <motion.a
+            <a
               key={label}
               href={href}
               target={target}
               aria-label={`// ${label}`}
               rel={target === '_blank' ? 'noopener noreferrer' : undefined}
-              variants={hoverEase}
-              initial="idle"
-              whileHover="hover"
               className="slink"
             >
               {label}
-            </motion.a>
+            </a>
           ))}
         </div>
       </div>

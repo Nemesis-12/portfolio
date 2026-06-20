@@ -67,8 +67,9 @@
   .hero-role{font-size:clamp(11px,1.1vw,15px);color:var(--color-periwinkle);letter-spacing:5px;margin-bottom:24px}
   .hero-tag{font-size:clamp(12px,1.2vw,16px);color:var(--color-platinum);letter-spacing:1px;margin-bottom:48px;max-width:760px;line-height:1.8}
   .hero-cta{display:flex;gap:18px;flex-wrap:wrap}
-  .btn{font-family:var(--font-body);font-size:11px;letter-spacing:3px;padding:16px 26px;cursor:pointer;display:inline-flex;align-items:center;gap:12px;text-decoration:none;border:none;transition:transform .2s var(--ease),background .2s var(--ease),color .2s var(--ease)}
+  .btn{font-family:var(--font-body);font-size:11px;letter-spacing:3px;padding:16px 26px;cursor:pointer;display:inline-flex;align-items:center;gap:12px;text-decoration:none;border:none;transition:transform .25s var(--ease),background .2s var(--ease),color .2s var(--ease)}
   .btn span{transition:transform .2s var(--ease)}
+  .btn:hover{transform:scale(1.05)}
   .btn:hover span{transform:translateX(4px)}
   .btn-fill{background:var(--color-atomic-tangerine);color:var(--color-graphite);font-weight:700}
   .btn-fill:hover{background:#ff9d6b}
@@ -258,9 +259,9 @@
   .footer-big-line{display:block}
   .footer-big .period{color:var(--color-atomic-tangerine)}
   .footer-socials{display:flex;gap:36px;flex-wrap:wrap;justify-content:center;margin-top:24px}
-  .slink{font-size:14px;color:var(--color-periwinkle);text-decoration:none;letter-spacing:2px;transition:color .15s var(--ease)}
+  .slink{display:inline-block;font-size:14px;color:var(--color-periwinkle);text-decoration:none;letter-spacing:2px;transition:color .15s var(--ease),transform .25s var(--ease)}
   .slink::before{content:'//';color:var(--color-atomic-tangerine);margin-right:6px}
-  .slink:hover{color:var(--color-platinum)}
+  .slink:hover{color:var(--color-platinum);transform:scale(1.05)}
   .footer-copy{display:flex;justify-content:space-between;align-items:center;padding:24px 5vw;border-top:1px solid var(--color-graphite-light);font-size:14px;color:var(--color-periwinkle);letter-spacing:2px;opacity:.9}
   .footer-copy span:last-child{opacity:.75}
 
