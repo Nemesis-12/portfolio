@@ -2,13 +2,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, act } from '@testing-library/react'
 import HeroSection from './HeroSection'
 import {
+  CTA_FADE_STAGGER_MS,
   FIRST_NAME,
   LAST_NAME,
   NAME_SPEED,
   ROLES,
   VALUE_PROP,
   VALUE_PROP_SPEED,
-  cursorVariants,
 } from './HeroSection.constants'
 
 const FIRST_NAME_DURATION = FIRST_NAME.length * NAME_SPEED
@@ -191,6 +191,29 @@ describe('HeroSection', () => {
     expect(nameLines[1]?.contains(cursor)).toBe(true)
   })
 
+  it('renders the name cursor using the CSS blink-cursor animation, not an inline JS animation', () => {
+    render(<HeroSection />)
+
+    advanceToNameComplete()
+
+    const cursor = screen.getByTestId('hero-name-cursor')
+    expect(cursor).toHaveClass('cursor')
+    expect(cursor).not.toHaveAttribute('style')
+  })
+
+  it('renders the value-prop cursor using the same CSS cursor class', () => {
+    render(<HeroSection />)
+
+    advanceToValuePropStart()
+    act(() => {
+      vi.advanceTimersByTime(VALUE_PROP_SPEED)
+    })
+
+    const cursor = screen.getByTestId('value-prop-cursor')
+    expect(cursor).toHaveClass('cursor')
+    expect(cursor).not.toHaveAttribute('style')
+  })
+
   it('types FARHAN completely before MOHAMMED begins', () => {
     render(<HeroSection />)
 
@@ -224,18 +247,18 @@ describe('HeroSection', () => {
     expect(screen.getByTestId('value-prop')).toHaveClass('hero-tag')
   })
 
-  it('uses a step-like one-second blink animation for the cursor', () => {
-    const blink = cursorVariants.blink
+  it('fades up the CTAs using the CSS hero-fade animation class with a staggered delay', () => {
+    render(<HeroSection />)
 
-    expect(blink).toMatchObject({
-      opacity: [1, 1, 0, 0, 1],
-      transition: {
-        duration: 1,
-        ease: 'linear',
-        repeat: Infinity,
-        times: [0, 0.49, 0.5, 0.99, 1],
-      },
-    })
+    advanceToValuePropComplete()
+
+    const viewWork = screen.getByRole('link', { name: /VIEW_WORK →/i })
+    const viewResume = screen.getByRole('link', { name: /VIEW_RESUME →/i })
+
+    expect(viewWork).toHaveClass('hero-fade')
+    expect(viewResume).toHaveClass('hero-fade')
+    expect(viewWork.style.animationDelay).toBe('')
+    expect(viewResume.style.animationDelay).toBe(`${CTA_FADE_STAGGER_MS}ms`)
   })
 
   it('CTAs are absent before sequence completes', () => {

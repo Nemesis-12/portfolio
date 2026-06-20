@@ -1,24 +1,17 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { StickySection } from './StickySection'
 import { TypeIn } from '../animations/TypeIn'
 import { RotatingRole } from '../animations/RotatingRole'
 import {
-  CTA_FADE_DURATION,
+  CTA_FADE_STAGGER_MS,
   FIRST_NAME,
   LAST_NAME,
   NAME_SPEED,
   ROLES,
   VALUE_PROP,
   VALUE_PROP_SPEED,
-  cursorVariants,
 } from './HeroSection.constants'
 import { handleSectionLinkClick } from '../utils/smoothScrollTo'
-
-const ctaVariants = {
-  hidden: { opacity: 0, y: 8 },
-  visible: { opacity: 1, y: 0 },
-}
 
 interface HeroSectionProps {
   introReady?: boolean
@@ -69,13 +62,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
               }}
             />
             {showNameCursor && (
-              <motion.span
-                data-testid="hero-name-cursor"
-                aria-hidden="true"
-                className="inline-block w-[3px] h-[1.2em] bg-atomic-tangerine align-middle ml-1"
-                variants={cursorVariants}
-                animate="blink"
-              />
+              <span data-testid="hero-name-cursor" aria-hidden="true" className="cursor" />
             )}
           </span>
         </h1>
@@ -100,27 +87,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
             }}
           />
           {startValueProp && !valuePropDone && (
-            <motion.span
-              data-testid="value-prop-cursor"
-              aria-hidden="true"
-              className="inline-block w-[3px] h-[1em] bg-atomic-tangerine align-middle ml-0.5"
-              variants={cursorVariants}
-              animate="blink"
-            />
+            <span data-testid="value-prop-cursor" aria-hidden="true" className="cursor" />
           )}
         </p>
 
         {showCTAs && (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={ctaVariants}
-            transition={{ duration: CTA_FADE_DURATION }}
-            className="hero-cta"
-          >
+          <div className="hero-cta">
             <a
               href="#projects"
-              className="btn btn-fill"
+              className="btn btn-fill hero-fade"
               onClick={(event) => handleSectionLinkClick(event, 'projects')}
             >
               VIEW_WORK <span>→</span>
@@ -129,11 +104,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
               href="/resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-outline"
+              className="btn btn-outline hero-fade"
+              style={{ animationDelay: `${CTA_FADE_STAGGER_MS}ms` }}
             >
               VIEW_RESUME <span>→</span>
             </a>
-          </motion.div>
+          </div>
         )}
       </div>
     </StickySection>
