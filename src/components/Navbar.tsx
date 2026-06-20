@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { hoverEase } from '../animations/variants'
 import { SECTIONS } from '../data/sections'
 import { useActiveMajorSection } from '../hooks/useActiveMajorSection'
 import { handleSectionLinkClick, smoothScrollToSection } from '../utils/smoothScrollTo'
@@ -50,12 +48,9 @@ export default function Navbar() {
           })}
         </ul>
 
-        <motion.button
+        <button
           className="flex md:hidden text-periwinkle"
           onClick={() => setMenuOpen(true)}
-          variants={hoverEase}
-          initial="idle"
-          whileHover="hover"
           aria-label="Open menu"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -63,7 +58,7 @@ export default function Navbar() {
             <line x1="3" y1="12" x2="21" y2="12" />
             <line x1="3" y1="18" x2="21" y2="18" />
           </svg>
-        </motion.button>
+        </button>
       </nav>
 
       <MobileMenu

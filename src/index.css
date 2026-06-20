@@ -2,6 +2,7 @@
 @import "./portfolio.css";
 
 @theme {
+  --breakpoint-md: 761px;
   --color-graphite: #2A2B2A;
   --color-graphite-light: #323332;
   --color-atomic-tangerine: #FF8547;
