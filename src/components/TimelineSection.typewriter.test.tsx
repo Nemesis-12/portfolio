@@ -38,7 +38,7 @@ describe('TimelineSection typewriter', () => {
       const allLines = document.querySelectorAll('[data-typewriter-line]')
       const firstPanelLines = Array.from(allLines).filter((_, i) => i < 5)
       expect(firstPanelLines.length).toBeGreaterThan(0)
-      expect(firstPanelLines[0].textContent).toBe('commit d4e8f2c')
+      expect(firstPanelLines[0].textContent).toBe('commit e5f1a3d')
     })
 
     it('Typewriter types all fields to completion when panel stays active', () => {
@@ -54,11 +54,11 @@ describe('TimelineSection typewriter', () => {
       const allLines = document.querySelectorAll('[data-typewriter-line]')
       const texts = Array.from(allLines).map((el) => el.textContent)
 
-      expect(texts).toContain('commit d4e8f2c')
+      expect(texts).toContain('commit e5f1a3d')
       expect(texts).toContain('Author: Farhan Mohammed')
-      expect(texts).toContain('Date:   AUG 2024 – PRESENT')
+      expect(texts).toContain('Date:   JUN 2026 – PRESENT')
       expect(texts).toContain('NETAPP INC.')
-      expect(texts).toContain('SOFTWARE_ENGINEER_IN_TEST')
+      expect(texts).toContain('SOFTWARE_ENGINEER_INTERN')
     })
 
     it('Typewriter types bullets when present', () => {
@@ -74,7 +74,7 @@ describe('TimelineSection typewriter', () => {
       const allLines = document.querySelectorAll('[data-typewriter-line]')
       const texts = Array.from(allLines).map((el) => el.textContent)
 
-      expect(texts.some((text) => text?.includes('Built automated analysis pipeline'))).toBe(true)
+      expect(texts.some((text) => text?.includes('Contributed to web platform development'))).toBe(true)
     })
 
     it('inactive panels remain empty', () => {
@@ -144,7 +144,7 @@ describe('TimelineSection typewriter', () => {
     })
 
     it('issue #98 - longest bullet completes within 2.5s', () => {
-      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -284,7 +284,7 @@ describe('TimelineSection typewriter', () => {
         getTimelinePanel(0).querySelectorAll('[data-typewriter-line]'),
       ).map((el) => el.textContent)
 
-      expect(panel1Texts).toContain('commit d4e8f2c')
+      expect(panel1Texts).toContain('commit e5f1a3d')
       expect(panel1Texts).toContain('NETAPP INC.')
 
       vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, true, false]))
@@ -298,7 +298,7 @@ describe('TimelineSection typewriter', () => {
         getTimelinePanel(0).querySelectorAll('[data-typewriter-line]'),
       ).map((el) => el.textContent)
 
-      expect(panel1TextsAfter).toContain('commit d4e8f2c')
+      expect(panel1TextsAfter).toContain('commit e5f1a3d')
       expect(panel1TextsAfter).toContain('NETAPP INC.')
     })
   })
@@ -317,13 +317,13 @@ describe('TimelineSection typewriter', () => {
       const metadata = getTimelinePanel(0).querySelector('[data-testid="commit-metadata"]')
       expect(metadata).toBeInTheDocument()
       expect(metadata?.querySelector('[data-testid="commit-hash"]')?.textContent).toBe(
-        'commit d4e8f2c'
+        'commit e5f1a3d'
       )
       expect(metadata?.querySelector('[data-testid="commit-author"]')?.textContent).toBe(
         'Author: Farhan Mohammed'
       )
       expect(metadata?.querySelector('[data-testid="commit-date"]')?.textContent).toBe(
-        'Date:   AUG 2024 – PRESENT'
+        'Date:   JUN 2026 – PRESENT'
       )
     })
 
@@ -353,11 +353,11 @@ describe('TimelineSection typewriter', () => {
       })
 
       const role = getTimelinePanel(0).querySelector('[data-testid="commit-role"]')
-      expect(role?.textContent).toBe('SOFTWARE_ENGINEER_IN_TEST')
+      expect(role?.textContent).toBe('SOFTWARE_ENGINEER_INTERN')
     })
 
     it('renders bullets as semantic list items', () => {
-      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, true, false, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -366,7 +366,7 @@ describe('TimelineSection typewriter', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const details = getTimelinePanel(0).querySelector('[data-testid="commit-details"]')
+      const details = getTimelinePanel(1).querySelector('[data-testid="commit-details"]')
       expect(details?.tagName).toBe('UL')
 
       const items = details?.querySelectorAll('li') ?? []
@@ -390,7 +390,7 @@ describe('TimelineSection typewriter', () => {
     })
 
     it('omits commit-details list when entry has no bullets', () => {
-      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, true, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, false, true, false]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -399,7 +399,7 @@ describe('TimelineSection typewriter', () => {
         vi.advanceTimersByTime(15000)
       })
 
-      const msPanel = getTimelinePanel(1)
+      const msPanel = getTimelinePanel(2)
       expect(msPanel.querySelector('[data-testid="commit-details"]')).not.toBeInTheDocument()
       expect(msPanel.querySelector('[data-testid="commit-institution"]')?.textContent).toBe(
         'WICHITA STATE UNIVERSITY'
@@ -436,7 +436,7 @@ describe('TimelineSection typewriter', () => {
 
   describe('issue #238 - HTML-reference typewriter pacing', () => {
     it('preserves inactive text but restarts from the first line when reactivated', () => {
-      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false, false]))
       vi.useFakeTimers()
 
       const { rerender } = render(<TimelineSection />)
@@ -446,14 +446,14 @@ describe('TimelineSection typewriter', () => {
       })
 
       expect(getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')).toHaveTextContent(
-        'commit d4e8f2c',
+        'commit e5f1a3d',
       )
       expect(getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')).toHaveTextContent(
         'NETAPP INC.',
       )
 
       vi.mocked(useTimelineScroll).mockReturnValue(
-        mockTimelineScrollState([false, true, false], { activeIndex: 1, progress: 0.5, tx: -1000 }),
+        mockTimelineScrollState([false, true, false, false], { activeIndex: 1, progress: 0.5, tx: -2000 }),
       )
       rerender(<TimelineSection />)
 
@@ -462,14 +462,14 @@ describe('TimelineSection typewriter', () => {
       })
 
       expect(getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')).toHaveTextContent(
-        'commit d4e8f2c',
+        'commit e5f1a3d',
       )
       expect(getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')).toHaveTextContent(
         'NETAPP INC.',
       )
 
       vi.mocked(useTimelineScroll).mockReturnValue(
-        mockTimelineScrollState([true, false, false], { activeIndex: 0, progress: 0, tx: -2000 }),
+        mockTimelineScrollState([true, false, false, false], { activeIndex: 0, progress: 0, tx: -3000 }),
       )
       rerender(<TimelineSection />)
 
@@ -478,7 +478,7 @@ describe('TimelineSection typewriter', () => {
       })
 
       expect(getTimelinePanel(0).querySelector('[data-testid="commit-hash"]')).toHaveTextContent(
-        'commit d4e8f2c',
+        'commit e5f1a3d',
       )
       expect(
         getTimelinePanel(0).querySelector('[data-testid="commit-institution"]'),

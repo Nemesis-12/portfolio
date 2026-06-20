@@ -8,16 +8,22 @@ const RESUME_FULL_NAME = 'Farhan Mohammed'
 const RESUME_EMAIL = 'famohammed@shockers.wichita.edu'
 
 const RESUME_TIMELINE = {
+  netappIntern: {
+    institution: 'NetApp Inc.',
+    role: 'Software Engineer Intern',
+    dateRange: 'Jun 2026 – Present',
+    category: 'experience' as const,
+  },
   netapp: {
     institution: 'NetApp Inc.',
     role: 'Software Engineer in Test',
-    dateRange: 'Aug 2024 – Present',
+    dateRange: 'Jul 2024 – Jun 2026',
     category: 'experience' as const,
   },
   ms: {
     institution: 'Wichita State University',
     role: 'Accelerated M.S. Computer Science',
-    dateRange: 'Jan 2026 – Dec 2027 (Expected)',
+    dateRange: 'Jan 2026 – May 2027 (Expected)',
     category: 'education' as const,
   },
   bs: {
@@ -101,33 +107,92 @@ describe('resume source-of-truth audit', () => {
   })
 
   describe('timeline', () => {
-    it('entry count matches resume (1 experience + 2 education)', () => {
-      expect(timelineEntries).toHaveLength(3)
-      expect(timelineEntries.filter((e) => e.category === 'experience')).toHaveLength(1)
+    it('entry count matches resume (2 experience + 2 education)', () => {
+      expect(timelineEntries).toHaveLength(4)
+      expect(timelineEntries.filter((e) => e.category === 'experience')).toHaveLength(2)
       expect(timelineEntries.filter((e) => e.category === 'education')).toHaveLength(2)
     })
 
-    it('NetApp institution matches resume', () => {
-      const netapp = findEntry((e) => e.category === 'experience')
+    it('NetApp Intern institution matches resume', () => {
+      const intern = findEntry(
+        (e) =>
+          e.category === 'experience' &&
+          normalizeResumeText(e.role).includes('software engineer intern'),
+      )
+      expect(normalizeResumeText(intern.institution)).toBe(
+        normalizeResumeText(RESUME_TIMELINE.netappIntern.institution),
+      )
+    })
+
+    it('NetApp Intern role matches resume', () => {
+      const intern = findEntry(
+        (e) =>
+          e.category === 'experience' &&
+          normalizeResumeText(e.role).includes('software engineer intern'),
+      )
+      expect(normalizeResumeText(intern.role)).toBe(
+        normalizeResumeText(RESUME_TIMELINE.netappIntern.role),
+      )
+    })
+
+    it('NetApp Intern date range matches resume', () => {
+      const intern = findEntry(
+        (e) =>
+          e.category === 'experience' &&
+          normalizeResumeText(e.role).includes('software engineer intern'),
+      )
+      expect(normalizeResumeText(intern.dateRange)).toBe(
+        normalizeResumeText(RESUME_TIMELINE.netappIntern.dateRange),
+      )
+    })
+
+    it('NetApp Intern bullet matches resume content', () => {
+      const intern = findEntry(
+        (e) =>
+          e.category === 'experience' &&
+          normalizeResumeText(e.role).includes('software engineer intern'),
+      )
+      expect(intern.bullets).toHaveLength(1)
+      expect(intern.bullets[0]).toContain('Contributed to web platform development')
+    })
+
+    it('NetApp SWE in Test institution matches resume', () => {
+      const netapp = findEntry(
+        (e) =>
+          e.category === 'experience' &&
+          normalizeResumeText(e.role).includes('software engineer in test'),
+      )
       expect(normalizeResumeText(netapp.institution)).toBe(
         normalizeResumeText(RESUME_TIMELINE.netapp.institution),
       )
     })
 
-    it('NetApp role matches resume', () => {
-      const netapp = findEntry((e) => e.category === 'experience')
+    it('NetApp SWE in Test role matches resume', () => {
+      const netapp = findEntry(
+        (e) =>
+          e.category === 'experience' &&
+          normalizeResumeText(e.role).includes('software engineer in test'),
+      )
       expect(normalizeResumeText(netapp.role)).toBe(normalizeResumeText(RESUME_TIMELINE.netapp.role))
     })
 
-    it('NetApp date range matches resume', () => {
-      const netapp = findEntry((e) => e.category === 'experience')
+    it('NetApp SWE in Test date range matches resume', () => {
+      const netapp = findEntry(
+        (e) =>
+          e.category === 'experience' &&
+          normalizeResumeText(e.role).includes('software engineer in test'),
+      )
       expect(normalizeResumeText(netapp.dateRange)).toBe(
         normalizeResumeText(RESUME_TIMELINE.netapp.dateRange),
       )
     })
 
-    it('NetApp bullets match resume content', () => {
-      const netapp = findEntry((e) => e.category === 'experience')
+    it('NetApp SWE in Test bullets match resume content', () => {
+      const netapp = findEntry(
+        (e) =>
+          e.category === 'experience' &&
+          normalizeResumeText(e.role).includes('software engineer in test'),
+      )
       expect(netapp.bullets).toHaveLength(4)
       expect(netapp.bullets[0]).toContain('automated analysis pipeline')
       expect(netapp.bullets[1]).toContain('30%')

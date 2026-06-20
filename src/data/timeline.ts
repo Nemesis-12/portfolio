@@ -9,8 +9,18 @@ export interface TimelineEntry {
 
 export const timelineEntries: TimelineEntry[] = [
   {
+    hash: 'e5f1a3d',
+    dateRange: 'JUN 2026 – PRESENT',
+    institution: 'NETAPP INC.',
+    role: 'SOFTWARE_ENGINEER_INTERN',
+    bullets: [
+      'Contributed to web platform development in TypeScript and PostgreSQL, implementing API endpoints, refactoring existing code, and reviewing pull requests',
+    ],
+    category: 'experience',
+  },
+  {
     hash: 'd4e8f2c',
-    dateRange: 'AUG 2024 – PRESENT',
+    dateRange: 'JUL 2024 – JUN 2026',
     institution: 'NETAPP INC.',
     role: 'SOFTWARE_ENGINEER_IN_TEST',
     bullets: [
@@ -23,7 +33,7 @@ export const timelineEntries: TimelineEntry[] = [
   },
   {
     hash: 'a3f9d2b',
-    dateRange: 'JAN 2026 – DEC 2027 (EXPECTED)',
+    dateRange: 'JAN 2026 – MAY 2027 (EXPECTED)',
     institution: 'WICHITA STATE UNIVERSITY',
     role: 'ACCELERATED_M.S._COMPUTER_SCIENCE',
     bullets: [],
