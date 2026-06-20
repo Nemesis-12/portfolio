@@ -202,12 +202,15 @@
   /* ─── SKILLS ──── */
   #skills{width:100%;padding:120px 5vw 140px;position:relative}
   .skills-head{display:flex;align-items:center;gap:18px;margin-bottom:80px}
-  .bento{display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:170px 150px 110px 90px;gap:12px;
+  .bento{display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:170px 150px 110px 110px 110px 90px 60px;gap:12px;
     grid-template-areas:
       "py py py js js dk"
       "py py py re re cc"
-      "nd nd nx fl gt gt"
-      "pg pg pg fg mn pal";}
+      "ci sq nd nd pd pd"
+      "sk sk mp mp fl fl"
+      "tr tr gt gt fl fl"
+      "mn lx an jp nx nx"
+      "pal pal pal pal pal pal";}
   .bi{padding:24px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;position:relative;opacity:0;transform:translateY(30px) scale(.94);transition:opacity .7s var(--ease),transform .7s var(--ease),filter .2s ease}
   .bi.in{opacity:1;transform:none}
   .bi:hover{filter:brightness(1.1)}
@@ -218,10 +221,13 @@
   .bi-py{grid-area:py}.bi-js{grid-area:js}.bi-dk{grid-area:dk}
   .bi-re{grid-area:re}.bi-cc{grid-area:cc}.bi-nd{grid-area:nd}
   .bi-nx{grid-area:nx}.bi-fl{grid-area:fl}.bi-gt{grid-area:gt}
-  .bi-pg{grid-area:pg}.bi-fg{grid-area:fg}.bi-mn{grid-area:mn}
-  .bi-pal{grid-area:pal;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px;padding:0;background:transparent}
+  .bi-mn{grid-area:mn}.bi-tr{grid-area:tr}.bi-pd{grid-area:pd}
+  .bi-sk{grid-area:sk}.bi-mp{grid-area:mp}.bi-ci{grid-area:ci}
+  .bi-sq{grid-area:sq}.bi-lx{grid-area:lx}.bi-an{grid-area:an}
+  .bi-jp{grid-area:jp}
+  .bi-pal{grid-area:pal;display:flex;flex-direction:row;gap:5px;padding:0;background:transparent}
   .bi-pal:hover{filter:none}
-  .pswatch{}
+  .pswatch{flex:1 1 0;height:100%}
   .c-orange{background:var(--color-atomic-tangerine);color:var(--color-graphite)}
   .c-blue{background:var(--color-ultrasonic-blue);color:var(--color-platinum)}
   .c-fuchsia{background:var(--color-fuchsia-flame);color:var(--color-platinum)}
