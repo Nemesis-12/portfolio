@@ -1,20 +1,13 @@
 import { useMemo, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
 import type { Project } from '../data/projects'
-import { formatProjectNumber, getProjectsScrollRunwayPx, getScrollRangeVh } from './projectsGeometry'
+import { formatProjectNumber, getProjectsScrollRunwayPx, getScrollRangeVh, getTagVariant } from './projectsGeometry'
 
 interface Props {
   projects: Project[]
 }
 
-const TAG_VARIANTS = ['fuchsia', 'blue', 'orange', 'yellow'] as const
-
 const INVERTED_TAG_CLASS = 'ptag-inverted'
-
-const CARD_HOVER_TRANSITION = {
-  y: { duration: 0.2, ease: 'easeOut' },
-} as const
 
 function clampIndex(index: number, projectCount: number) {
   return Math.max(0, Math.min(projectCount - 1, index))
@@ -88,27 +81,14 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
           <div className="proj-edge" aria-hidden="true" />
         </div>
 
-        <motion.div
+        <div
           data-testid="scroll-hint"
           data-visible={progress === 0}
           aria-hidden="true"
-          animate={{ opacity: progress === 0 ? 0.85 : 0 }}
-          transition={{ duration: 0.3 }}
           className="hscroll-hint pointer-events-none"
         >
-          SCROLL{' '}
-          <motion.span
-            animate={progress === 0 ? { x: [0, 6, 0] } : { x: 0 }}
-            transition={
-              progress === 0
-                ? { duration: 1.6, repeat: Infinity, ease: 'easeInOut' }
-                : { duration: 0 }
-            }
-            style={{ display: 'inline-block' }}
-          >
-            →
-          </motion.span>
-        </motion.div>
+          SCROLL <span>→</span>
+        </div>
       </div>
     </section>
   )
@@ -121,7 +101,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
   const projectNumber = formatProjectNumber(project.id)
 
   return (
-    <motion.article
+    <article
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocusCapture={() => setHasFocus(true)}
@@ -130,8 +110,6 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
           setHasFocus(false)
         }
       }}
-      animate={{ y: isFillActive ? -4 : 0 }}
-      transition={CARD_HOVER_TRANSITION}
       data-testid="project-card"
       data-fill-active={isFillActive}
       className="pcard shrink-0"
@@ -166,7 +144,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
             <span
               key={tag}
               data-inverted={isFillActive}
-              className={`ptag ptag-${TAG_VARIANTS[tagIndex % TAG_VARIANTS.length]} ${isFillActive ? INVERTED_TAG_CLASS : ''}`}
+              className={`ptag ptag-${getTagVariant(tagIndex)} ${isFillActive ? INVERTED_TAG_CLASS : ''}`}
             >
               {tag}
             </span>
@@ -187,7 +165,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
           ))}
         </div>
       </div>
-    </motion.article>
+    </article>
   )
 }
 

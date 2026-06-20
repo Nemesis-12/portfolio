@@ -10,9 +10,11 @@ import {
   getProjectsTrackTranslate,
   getEdgeSpacerWidth,
   getScrollRangeVh,
+  getTagVariant,
   PROJECT_CARD_GAP,
   PROJECT_CARD_WIDTH,
   PROJECTS_SECTION_PADDING_X,
+  TAG_VARIANTS,
 } from './projectsGeometry'
 
 describe('projectsGeometry', () => {
@@ -242,6 +244,26 @@ describe('projectsGeometry', () => {
         const tx = getProjectsTrackTranslate(0, trackWidth, viewportWidth)
         expect(getProjectCardCenterX(tx, 0, viewportWidth)).toBeCloseTo(carouselViewportWidth / 2, 5)
       }
+    })
+  })
+
+  describe('getTagVariant', () => {
+    it('returns fuchsia, blue, orange, yellow in order for the first four tag indices', () => {
+      expect(getTagVariant(0)).toBe('fuchsia')
+      expect(getTagVariant(1)).toBe('blue')
+      expect(getTagVariant(2)).toBe('orange')
+      expect(getTagVariant(3)).toBe('yellow')
+    })
+
+    it('cycles back to fuchsia after exhausting the palette', () => {
+      expect(getTagVariant(4)).toBe('fuchsia')
+      expect(getTagVariant(5)).toBe('blue')
+    })
+
+    it('cycles deterministically for an arbitrary number of tags', () => {
+      const indices = Array.from({ length: 10 }, (_, i) => i)
+      const variants = indices.map(getTagVariant)
+      expect(variants).toEqual(indices.map((i) => TAG_VARIANTS[i % TAG_VARIANTS.length]))
     })
   })
 })
