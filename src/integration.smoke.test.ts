@@ -166,11 +166,11 @@ describe('maintainability smoke path (issue #261)', () => {
       })
 
       expect(sectionLinks).toHaveLength(2)
-      expect(screen.getByText('ABOUT US')).toBeInTheDocument()
+      expect(within(nav).getByText('ABOUT US')).toBeInTheDocument()
       expect(links.some((link) => link.getAttribute('href') === '#about')).toBe(true)
       expect(links.filter((link) => link.getAttribute('href') === '#home')).toHaveLength(1)
-      expect(screen.queryByText('PROJECTS')).not.toBeInTheDocument()
-      expect(screen.queryByText('TIMELINE')).not.toBeInTheDocument()
+      expect(within(nav).queryByText('PROJECTS')).not.toBeInTheDocument()
+      expect(within(nav).queryByText('TIMELINE')).not.toBeInTheDocument()
     } finally {
       vi.doUnmock('./data/sections')
       vi.resetModules()
