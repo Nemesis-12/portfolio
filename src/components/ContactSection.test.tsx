@@ -1,19 +1,40 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, within, act } from '@testing-library/react'
-import { useInView } from 'framer-motion'
 import ContactSection from './ContactSection'
 
-vi.mock('framer-motion', async () => {
-  const actual = await vi.importActual<typeof import('framer-motion')>('framer-motion')
-  return { ...actual, useInView: vi.fn().mockReturnValue(false) }
-})
+let observerCallback!: IntersectionObserverCallback
+let observedElement: Element | undefined
+
+function stubIntersectionObserver() {
+  vi.stubGlobal('IntersectionObserver', vi.fn(function (
+    cb: IntersectionObserverCallback,
+  ) {
+    observerCallback = cb
+    return {
+      observe: vi.fn((element: Element) => {
+        observedElement = element
+      }),
+      disconnect: vi.fn(),
+      unobserve: vi.fn(),
+    }
+  }))
+}
+
+function setInView(isIntersecting: boolean) {
+  act(() => {
+    observerCallback(
+      [{ target: observedElement!, isIntersecting } as unknown as IntersectionObserverEntry],
+      {} as IntersectionObserver,
+    )
+  })
+}
 
 const canonicalEmailHref = 'mailto:famohammed@shockers.wichita.edu'
 
 function renderWithTypingComplete() {
-  vi.mocked(useInView).mockReturnValue(true)
   vi.useFakeTimers()
   render(<ContactSection />)
+  setInView(true)
   act(() => { vi.advanceTimersByTime(250) })
   act(() => { vi.advanceTimersByTime(400) })
 }
@@ -21,11 +42,12 @@ function renderWithTypingComplete() {
 describe('ContactSection', () => {
 
   beforeEach(() => {
-    vi.mocked(useInView).mockReturnValue(false)
+    stubIntersectionObserver()
   })
 
   afterEach(() => {
     vi.useRealTimers()
+    vi.unstubAllGlobals()
   })
 
   it('renders the send message link with the expected destination', () => {
@@ -72,16 +94,13 @@ describe('ContactSection', () => {
 
   describe('issue #222 - reset and replay type-in on re-entry', () => {
     it('resets heading and cursor when section leaves view and replays from start on re-entry', () => {
-      let inView = false
-      vi.mocked(useInView).mockImplementation(() => inView)
       vi.useFakeTimers()
 
-      const { rerender } = render(<ContactSection />)
+      render(<ContactSection />)
 
       expect(screen.queryByText("LET'S")).not.toBeInTheDocument()
 
-      inView = true
-      rerender(<ContactSection />)
+      setInView(true)
 
       act(() => { vi.advanceTimersByTime(250) })
       expect(screen.getByText("LET'S")).toBeInTheDocument()
@@ -90,15 +109,13 @@ describe('ContactSection', () => {
       expect(document.querySelector('#contact .footer-big')).toHaveTextContent("LET'SCONNECT.")
       expect(document.querySelector('[data-testid="contact-cursor"]')).toBeInTheDocument()
 
-      inView = false
-      rerender(<ContactSection />)
+      setInView(false)
 
       expect(screen.queryByText("LET'S")).not.toBeInTheDocument()
       expect(document.querySelector('[data-testid="contact-cursor"]')).not.toBeInTheDocument()
       expect(document.querySelector('#contact .period')).not.toBeInTheDocument()
 
-      inView = true
-      rerender(<ContactSection />)
+      setInView(true)
 
       expect(screen.queryByText("LET'S")).not.toBeInTheDocument()
 
@@ -112,14 +129,11 @@ describe('ContactSection', () => {
     })
 
     it('clears partial type-in when section leaves mid-animation', () => {
-      let inView = false
-      vi.mocked(useInView).mockImplementation(() => inView)
       vi.useFakeTimers()
 
-      const { rerender } = render(<ContactSection />)
+      render(<ContactSection />)
 
-      inView = true
-      rerender(<ContactSection />)
+      setInView(true)
 
       act(() => { vi.advanceTimersByTime(250) })
       expect(screen.getByText("LET'S")).toBeInTheDocument()
@@ -128,8 +142,7 @@ describe('ContactSection', () => {
       expect(screen.getByText('CON')).toBeInTheDocument()
       expect(document.querySelector('[data-testid="contact-cursor"]')).not.toBeInTheDocument()
 
-      inView = false
-      rerender(<ContactSection />)
+      setInView(false)
 
       expect(screen.queryByText("LET'S")).not.toBeInTheDocument()
       expect(screen.queryByText('CON')).not.toBeInTheDocument()
@@ -137,22 +150,17 @@ describe('ContactSection', () => {
     })
 
     it('does not flash cursor or period on immediate re-entry after full animation', () => {
-      let inView = false
-      vi.mocked(useInView).mockImplementation(() => inView)
       vi.useFakeTimers()
 
-      const { rerender } = render(<ContactSection />)
+      render(<ContactSection />)
 
-      inView = true
-      rerender(<ContactSection />)
+      setInView(true)
       act(() => { vi.advanceTimersByTime(250) })
       act(() => { vi.advanceTimersByTime(400) })
       expect(document.querySelector('[data-testid="contact-cursor"]')).toBeInTheDocument()
 
-      inView = false
-      rerender(<ContactSection />)
-      inView = true
-      rerender(<ContactSection />)
+      setInView(false)
+      setInView(true)
 
       expect(document.querySelector('[data-testid="contact-cursor"]')).not.toBeInTheDocument()
       expect(document.querySelector('#contact .period')).not.toBeInTheDocument()
@@ -162,17 +170,16 @@ describe('ContactSection', () => {
 
   describe('issue #87 - LET\'S CONNECT. typewriter', () => {
     it('heading is not visible when section is out of view', () => {
-      vi.mocked(useInView).mockReturnValue(false)
       render(<ContactSection />)
 
       expect(screen.queryByText("LET'S")).not.toBeInTheDocument()
     })
 
     it('heading types out character by character when section enters viewport', () => {
-      vi.mocked(useInView).mockReturnValue(true)
       vi.useFakeTimers()
 
       render(<ContactSection />)
+      setInView(true)
 
       // 5 chars × 50ms = 250ms for "LET'S"
       act(() => { vi.advanceTimersByTime(250) })
@@ -184,10 +191,10 @@ describe('ContactSection', () => {
     })
 
     it('blinking cursor persists after typing completes', () => {
-      vi.mocked(useInView).mockReturnValue(true)
       vi.useFakeTimers()
 
       render(<ContactSection />)
+      setInView(true)
 
       // Wait for typing to complete: 12 chars × 50ms = 600ms + buffer
       act(() => { vi.advanceTimersByTime(250) })
