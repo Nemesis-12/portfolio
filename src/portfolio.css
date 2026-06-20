@@ -85,7 +85,7 @@
      to the viewport top (0px) and relies solely on .hscroll-head's 74px padding-top to clear
      the navbar. Subtracting that 56px here keeps the SKILLS title at the same on-screen
      distance below the navbar as PROJECTS' title. */
-  #skills .hscroll-head{padding-top:18px}
+  #skills .hscroll-head{padding-top:18px;padding-bottom:32px}
   .hscroll-no{font-size:14px;color:var(--color-atomic-tangerine);letter-spacing:3px}
   .hscroll-name{font-family:var(--font-display);font-size:18px;color:var(--color-platinum);letter-spacing:3px}
   .hscroll-rule{flex:1;height:1px;background:var(--color-graphite-light)}
@@ -207,9 +207,9 @@
   @keyframes fade-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
   /* ─── SKILLS ──── */
-  #skills{width:100%;padding:0 5vw 60px;position:relative}
+  #skills{width:100%;padding:0 0 60px;position:relative}
   .skills-head{display:flex;align-items:center;gap:18px;margin-bottom:32px}
-  .bento{display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:120px 100px 80px 80px 80px 70px 50px;gap:12px;
+  .bento{padding:0 5vw;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:120px 100px 80px 80px 80px 70px 50px;gap:12px;
     grid-template-areas:
       "py py py js js dk"
       "py py py re re cc"
