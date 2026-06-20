@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { handleSectionLinkClick } from '../utils/smoothScrollTo'
 
 interface NavLink {
@@ -12,7 +13,14 @@ interface MobileMenuProps {
 }
 
 export default function MobileMenu({ isOpen, onClose, links }: MobileMenuProps) {
-  if (!isOpen) {
+  // Mount lazily on first open, then keep mounted so the CSS opacity/transform
+  // transition can play on close instead of the overlay disappearing instantly.
+  const [hasOpened, setHasOpened] = useState(isOpen)
+  if (isOpen && !hasOpened) {
+    setHasOpened(true)
+  }
+
+  if (!hasOpened) {
     return null
   }
 
@@ -21,6 +29,8 @@ export default function MobileMenu({ isOpen, onClose, links }: MobileMenuProps) 
       role="dialog"
       aria-modal="true"
       aria-label="Mobile navigation"
+      aria-hidden={!isOpen}
+      inert={!isOpen}
       className={`mobile-menu${isOpen ? ' mobile-menu-open' : ''}`}
     >
       <button onClick={onClose} aria-label="Close menu" className="mobile-menu-close">

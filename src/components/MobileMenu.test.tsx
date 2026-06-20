@@ -3,6 +3,10 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import MobileMenu from './MobileMenu'
 
+function getDialogNode(): HTMLElement | null {
+  return document.querySelector('[aria-label="Mobile navigation"]')
+}
+
 const links = [
   { label: 'HOME', href: '#home' },
   { label: 'PROJECTS', href: '#projects' },
@@ -56,5 +60,33 @@ describe('MobileMenu', () => {
     render(<MobileMenu isOpen={true} onClose={vi.fn()} links={links} />)
     const dialog = screen.getByRole('dialog')
     expect(dialog.className).toContain('mobile-menu')
+  })
+
+  it('keeps the overlay node mounted (not unmounted) when closed after opening, so the CSS transition can play', () => {
+    const { rerender } = render(<MobileMenu isOpen={true} onClose={vi.fn()} links={links} />)
+    expect(getDialogNode()).not.toBeNull()
+
+    rerender(<MobileMenu isOpen={false} onClose={vi.fn()} links={links} />)
+
+    const dialog = getDialogNode()
+    expect(dialog).not.toBeNull()
+    expect(dialog).toHaveAttribute('aria-hidden', 'true')
+    expect(dialog!.className).not.toContain('mobile-menu-open')
+    // Hidden from the accessibility tree, so role-based queries correctly report it as absent.
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('toggles the open class on the same node across repeated open/close cycles', () => {
+    const { rerender } = render(<MobileMenu isOpen={false} onClose={vi.fn()} links={links} />)
+    expect(getDialogNode()).toBeNull()
+
+    rerender(<MobileMenu isOpen={true} onClose={vi.fn()} links={links} />)
+    expect(getDialogNode()!.className).toContain('mobile-menu-open')
+
+    rerender(<MobileMenu isOpen={false} onClose={vi.fn()} links={links} />)
+    expect(getDialogNode()!.className).not.toContain('mobile-menu-open')
+
+    rerender(<MobileMenu isOpen={true} onClose={vi.fn()} links={links} />)
+    expect(getDialogNode()!.className).toContain('mobile-menu-open')
   })
 })
