@@ -37,6 +37,14 @@ function dispatchScrollUpdate() {
   })
 }
 
+// Mobile menu now stays permanently mounted in the DOM (CSS-driven visibility),
+// so desktop-nav-link assertions must be scoped to the desktop <nav> to avoid
+// matching the duplicate links rendered inside the mobile menu.
+function getDesktopNavText(text: string) {
+  const nav = screen.getByRole('navigation')
+  return within(nav).getByText(text)
+}
+
 describe('Navbar', () => {
   beforeEach(() => {
     Object.defineProperty(window, 'innerHeight', {
@@ -69,7 +77,7 @@ describe('Navbar', () => {
   it('shows label text for all registry nav links', () => {
     render(<Navbar />)
     for (const label of expectedNavLabels) {
-      expect(screen.getByText(label)).toBeInTheDocument()
+      expect(getDesktopNavText(label)).toBeInTheDocument()
     }
   })
 
@@ -135,9 +143,9 @@ describe('Navbar', () => {
       render(<Navbar />)
       dispatchScrollUpdate()
 
-      const skillsLink = screen.getByText('SKILLS').closest('a')
+      const skillsLink = getDesktopNavText('SKILLS').closest('a')
       expect(skillsLink).not.toBeNull()
-      const skillsLabel = screen.getByText('SKILLS')
+      const skillsLabel = getDesktopNavText('SKILLS')
 
       expect(skillsLink).toHaveClass('nav-link', 'active')
       expect(skillsLabel).toHaveClass('nav-label')
@@ -160,10 +168,10 @@ describe('Navbar', () => {
       )
       dispatchScrollUpdate()
 
-      const skillsLink = screen.getByText('SKILLS').closest('a')
-      const skillsLabel = screen.getByText('SKILLS')
-      const projectsLink = screen.getByText('PROJECTS').closest('a')
-      const projectsLabel = screen.getByText('PROJECTS')
+      const skillsLink = getDesktopNavText('SKILLS').closest('a')
+      const skillsLabel = getDesktopNavText('SKILLS')
+      const projectsLink = getDesktopNavText('PROJECTS').closest('a')
+      const projectsLabel = getDesktopNavText('PROJECTS')
 
       expect(skillsLink!.querySelector('[data-testid="nav-caret"]')).not.toBeNull()
       expect(skillsLink).not.toHaveClass('active')
@@ -182,8 +190,8 @@ describe('Navbar', () => {
       render(<Navbar />)
       dispatchScrollUpdate()
 
-      expect(screen.getByText('PROJECTS').closest('a')).toHaveClass('active')
-      expect(screen.getByText('SKILLS').closest('a')).not.toHaveClass('active')
+      expect(getDesktopNavText('PROJECTS').closest('a')).toHaveClass('active')
+      expect(getDesktopNavText('SKILLS').closest('a')).not.toHaveClass('active')
     })
 
     it('keeps TIMELINE active for its owning scroll runway when no internal panel owns the sample line', () => {
@@ -196,8 +204,8 @@ describe('Navbar', () => {
       render(<Navbar />)
       dispatchScrollUpdate()
 
-      expect(screen.getByText('TIMELINE').closest('a')).toHaveClass('active')
-      expect(screen.getByText('CONTACT').closest('a')).not.toHaveClass('active')
+      expect(getDesktopNavText('TIMELINE').closest('a')).toHaveClass('active')
+      expect(getDesktopNavText('CONTACT').closest('a')).not.toHaveClass('active')
     })
   })
 
@@ -257,8 +265,8 @@ describe('Navbar', () => {
       render(<Navbar />)
       dispatchScrollUpdate()
 
-      const skillsLink = screen.getByText('SKILLS').closest('a')
-      const skillsLabel = screen.getByText('SKILLS')
+      const skillsLink = getDesktopNavText('SKILLS').closest('a')
+      const skillsLabel = getDesktopNavText('SKILLS')
 
       expect(skillsLink).toHaveClass('nav-link', 'active')
       expect(skillsLabel).toHaveClass('nav-label')
@@ -339,7 +347,7 @@ describe('Navbar', () => {
         )
         dispatchScrollUpdate()
 
-        expect(screen.getByText('PROJECTS').closest('a')).toHaveClass('active')
+        expect(getDesktopNavText('PROJECTS').closest('a')).toHaveClass('active')
       }
     })
 
@@ -358,7 +366,7 @@ describe('Navbar', () => {
         )
         dispatchScrollUpdate()
 
-        expect(screen.getByText('TIMELINE').closest('a')).toHaveClass('active')
+        expect(getDesktopNavText('TIMELINE').closest('a')).toHaveClass('active')
       }
     })
 
