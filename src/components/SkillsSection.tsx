@@ -3,7 +3,7 @@ import { StickySection } from './StickySection'
 
 const TILE_REVEAL_STEP_S = 0.12
 
-type Category = 'LANGUAGE' | 'FRAMEWORK' | 'TOOL' | 'ML / DL' | 'DATA'
+type Category = 'ML / DL' | 'DATA & COMPUTATION' | 'LANGUAGES' | 'TOOLS & SYSTEMS'
 type TileColor = 'orange' | 'blue' | 'fuchsia' | 'peri' | 'dark' | 'platinum' | 'yellow'
 
 interface SkillTile {
@@ -15,21 +15,38 @@ interface SkillTile {
 }
 
 const tiles: SkillTile[] = [
-  { area: 'py', category: 'LANGUAGE', name: 'Python', color: 'orange', large: true },
-  { area: 'js', category: 'LANGUAGE', name: 'TypeScript', color: 'blue' },
-  { area: 'dk', category: 'TOOL', name: 'Docker', color: 'platinum' },
-  { area: 're', category: 'LANGUAGE', name: 'JavaScript', color: 'peri' },
-  { area: 'cc', category: 'LANGUAGE', name: 'C / C++', color: 'fuchsia' },
-  { area: 'nd', category: 'DATA', name: 'NumPy', color: 'blue' },
-  { area: 'nx', category: 'FRAMEWORK', name: 'FastAPI', color: 'orange' },
-  { area: 'fl', category: 'ML / DL', name: 'PyTorch', color: 'yellow' },
+  // ML / DL
+  { area: 'fl', category: 'ML / DL', name: 'PyTorch', color: 'yellow', large: true },
+  { area: 'tr', category: 'ML / DL', name: 'Transformers', color: 'yellow' },
   { area: 'gt', category: 'ML / DL', name: 'Hugging Face', color: 'yellow' },
-  { area: 'pg', category: 'ML / DL', name: 'Scikit-learn', color: 'yellow' },
-  { area: 'fg', category: 'DATA', name: 'Pandas', color: 'fuchsia' },
-  { area: 'mn', category: 'TOOL', name: 'Git', color: 'dark' },
+  // Data & Computation
+  { area: 'nd', category: 'DATA & COMPUTATION', name: 'NumPy', color: 'blue' },
+  { area: 'pd', category: 'DATA & COMPUTATION', name: 'Pandas', color: 'fuchsia' },
+  { area: 'sk', category: 'DATA & COMPUTATION', name: 'Scikit-learn', color: 'blue' },
+  { area: 'mp', category: 'DATA & COMPUTATION', name: 'Matplotlib', color: 'fuchsia' },
+  // Languages
+  { area: 'py', category: 'LANGUAGES', name: 'Python', color: 'orange', large: true },
+  { area: 'cc', category: 'LANGUAGES', name: 'C++', color: 'peri' },
+  { area: 'ci', category: 'LANGUAGES', name: 'C', color: 'peri' },
+  { area: 'sq', category: 'LANGUAGES', name: 'SQL', color: 'fuchsia' },
+  { area: 're', category: 'LANGUAGES', name: 'JavaScript', color: 'peri' },
+  { area: 'js', category: 'LANGUAGES', name: 'TypeScript', color: 'blue' },
+  // Tools & Systems
+  { area: 'mn', category: 'TOOLS & SYSTEMS', name: 'Git', color: 'dark' },
+  { area: 'dk', category: 'TOOLS & SYSTEMS', name: 'Docker', color: 'platinum' },
+  { area: 'lx', category: 'TOOLS & SYSTEMS', name: 'Linux', color: 'dark' },
+  { area: 'an', category: 'TOOLS & SYSTEMS', name: 'Ansible', color: 'platinum' },
+  { area: 'jp', category: 'TOOLS & SYSTEMS', name: 'Jupyter', color: 'orange' },
+  { area: 'nx', category: 'TOOLS & SYSTEMS', name: 'FastAPI', color: 'orange' },
 ]
 
-export const REVEAL_AREAS = ['py', 'js', 'dk', 're', 'cc', 'nd', 'nx', 'fl', 'gt', 'pg', 'fg', 'mn', 'pal'] as const
+export const REVEAL_AREAS = [
+  'fl', 'tr', 'gt',
+  'nd', 'pd', 'sk', 'mp',
+  'py', 'cc', 'ci', 'sq', 're', 'js',
+  'mn', 'dk', 'lx', 'an', 'jp', 'nx',
+  'pal',
+] as const
 
 export function createShuffledRevealOrder(
   random: () => number = Math.random,
@@ -128,7 +145,7 @@ export function SkillsSection() {
   }, [])
 
   return (
-    <StickySection id="skills" className="flex flex-col justify-center py-14 px-8 bg-graphite">
+    <StickySection id="skills" className="flex flex-col justify-start bg-graphite">
       <div className="w-full">
         <div className="hscroll-head">
           <span className="hscroll-no">// 02</span>

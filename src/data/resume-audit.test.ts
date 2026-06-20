@@ -1,11 +1,22 @@
-import { describe, expect, it } from 'vitest'
+import { createElement } from 'react'
+import { render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { projects } from './projects'
 import { timelineEntries, type TimelineEntry } from './timeline'
 import { FIRST_NAME, LAST_NAME } from '../components/HeroSection.constants'
+import { SkillsSection } from '../components/SkillsSection'
 
 // Resume source-of-truth constants (from public/resume.pdf)
 const RESUME_FULL_NAME = 'Farhan Mohammed'
 const RESUME_EMAIL = 'famohammed@shockers.wichita.edu'
+
+// 19 resume skills across the resume's 4 categories (public/resume.pdf "Skills" section).
+const RESUME_SKILLS = [
+  'PyTorch', 'Transformers', 'Hugging Face',
+  'NumPy', 'Pandas', 'Scikit-learn', 'Matplotlib',
+  'Python', 'C++', 'C', 'SQL', 'JavaScript', 'TypeScript',
+  'Git', 'Docker', 'Linux', 'Ansible', 'Jupyter', 'FastAPI',
+]
 
 const RESUME_TIMELINE = {
   netappIntern: {
@@ -264,6 +275,40 @@ describe('resume source-of-truth audit', () => {
       )
       expect(bs.bullets[0]).toContain("Dean's List")
       expect(bs.bullets[1]).toContain('Relevant Coursework')
+    })
+  })
+
+  describe('skills', () => {
+    beforeEach(() => {
+      vi.stubGlobal(
+        'IntersectionObserver',
+        vi.fn(function () {
+          return {
+            observe: vi.fn(),
+            disconnect: vi.fn(),
+            unobserve: vi.fn(),
+          }
+        }),
+      )
+    })
+
+    afterEach(() => {
+      vi.unstubAllGlobals()
+    })
+
+    it('all 19 resume skills are present as tiles', () => {
+      render(createElement(SkillsSection))
+      for (const skill of RESUME_SKILLS) {
+        expect(screen.getByText(skill)).toBeInTheDocument()
+      }
+    })
+
+    it('Python and PyTorch are marked as large hero tiles', () => {
+      render(createElement(SkillsSection))
+      const python = screen.getByText('Python').closest('.bi')
+      const pytorch = screen.getByText('PyTorch').closest('.bi')
+      expect(python).toHaveClass('bi-lg')
+      expect(pytorch).toHaveClass('bi-lg')
     })
   })
 })
