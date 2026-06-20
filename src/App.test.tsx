@@ -357,6 +357,16 @@ describe('App shell', () => {
       expect(nameLines?.[1]?.textContent).toBe('')
     })
 
+    it('does not wrap the loading screen in framer-motion AnimatePresence (issue #283)', async () => {
+      const { readFile } = await import('node:fs/promises')
+      const { resolve } = await import('node:path')
+      const appPath = resolve(process.cwd(), 'src/App.tsx')
+      const appSource = await readFile(appPath, 'utf-8')
+
+      expect(appSource).not.toMatch(/framer-motion/)
+      expect(appSource).not.toMatch(/AnimatePresence/)
+    })
+
     it('starts hero intro from the beginning after loading completes', async () => {
       render(<App />)
 

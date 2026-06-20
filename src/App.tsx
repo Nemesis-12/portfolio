@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { AnimatePresence } from 'framer-motion'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import './index.css'
@@ -64,9 +63,7 @@ function App() {
 
   return (
     <>
-      <AnimatePresence>
-        {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
-      </AnimatePresence>
+      {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
       <Navbar />
       <main>
         <HeroSection introReady={!loading} />
