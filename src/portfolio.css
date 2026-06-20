@@ -209,7 +209,7 @@
   /* ─── SKILLS ──── */
   #skills{width:100%;padding:0;position:relative}
   .skills-head{display:flex;align-items:center;gap:18px;margin-bottom:32px}
-  .bento{padding:0 5vw;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:120px 100px 80px 80px 80px 70px 50px;gap:12px;
+  .bento{padding:0 5vw;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:2fr 1.5fr 1fr 1fr 1fr 1fr 0.6fr;gap:12px;flex:1;
     grid-template-areas:
       "py py py js js dk"
       "py py py re re cc"
