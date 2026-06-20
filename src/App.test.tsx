@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import { act, render } from '@testing-library/react'
 import App from './App'
@@ -7,6 +9,9 @@ import {
 } from './components/LoadingScreen.constants'
 import { FIRST_NAME, NAME_SPEED } from './components/HeroSection.constants'
 import { SECTIONS, type SectionId } from './data/sections'
+
+const appSourcePath = path.resolve(__dirname, './App.tsx')
+const appSource = readFileSync(appSourcePath, 'utf-8')
 
 const sectionIds = SECTIONS.map((section) => section.id)
 const sections = sectionIds satisfies readonly SectionId[]
@@ -331,6 +336,24 @@ describe('App shell', () => {
       expect(projects.style.transform).toBe('')
       expect(projects.style.transform).not.toContain('translateX')
       expect(carouselTrack.style.transform).toContain('translateX')
+    })
+  })
+
+  describe('issue #283 - loading screen vanilla CSS boot animation', () => {
+    it('renders the loading screen via plain conditional rendering, not AnimatePresence', () => {
+      expect(appSource).not.toMatch(/framer-motion/)
+      expect(appSource).not.toMatch(/AnimatePresence/)
+      expect(appSource).toMatch(/\{loading\s*&&\s*<LoadingScreen/)
+    })
+
+    it('still renders the loading screen on mount', () => {
+      render(<App />)
+      expect(document.getElementById('ls')).toBeInTheDocument()
+    })
+
+    it('still renders Analytics and SpeedInsights alongside the loading screen', () => {
+      expect(appSource).toMatch(/@vercel\/analytics/)
+      expect(appSource).toMatch(/@vercel\/speed-insights/)
     })
   })
 
