@@ -18,7 +18,7 @@ describe('TimelineSection rendering', () => {
   it('each entry uses tl-panel layout class', () => {
     render(<TimelineSection />)
     const commitEntries = screen.getAllByTestId('commit-entry')
-    expect(commitEntries.length).toBe(3)
+    expect(commitEntries.length).toBe(4)
     commitEntries.forEach((entry) => {
       expect(entry).toHaveClass('tl-panel')
     })
@@ -34,7 +34,7 @@ describe('TimelineSection rendering', () => {
 
       expect(timelineSection).toBeInTheDocument()
       expect(track).toBeInTheDocument()
-      expect(panels).toHaveLength(3)
+      expect(panels).toHaveLength(4)
       panels.forEach((panel) => {
         expect(panel.querySelector('.tl-panel')).toBeInTheDocument()
       })
@@ -44,10 +44,10 @@ describe('TimelineSection rendering', () => {
       render(<TimelineSection />)
 
       const sectionLabels = document.querySelectorAll('[data-testid="section-label"]')
-      expect(sectionLabels.length).toBe(3)
+      expect(sectionLabels.length).toBe(4)
 
       const labelTexts = Array.from(sectionLabels).map((el) => el.textContent)
-      expect(labelTexts).toContain('//EXPERIENCE')
+      expect(labelTexts.filter((t) => t === '//EXPERIENCE').length).toBe(2)
       expect(labelTexts.filter((t) => t === '//EDUCATION').length).toBe(2)
     })
 
@@ -122,7 +122,7 @@ describe('TimelineSection rendering', () => {
 
       const role = getTimelinePanel(0).querySelector('[data-testid="commit-role"]')
       expect(role).toHaveClass('tl-title')
-      expect(role?.textContent).toBe('SOFTWARE_ENGINEER_IN_TEST')
+      expect(role?.textContent).toBe('SOFTWARE_ENGINEER_INTERN')
     })
 
     it('bullets use tl-bullets portfolio class', () => {
@@ -146,9 +146,12 @@ describe('TimelineSection rendering', () => {
         'experience',
       )
       expect(getTimelinePanel(1).querySelector('[data-testid="section-label"]')?.className).toContain(
-        'education',
+        'experience',
       )
       expect(getTimelinePanel(2).querySelector('[data-testid="section-label"]')?.className).toContain(
+        'education',
+      )
+      expect(getTimelinePanel(3).querySelector('[data-testid="section-label"]')?.className).toContain(
         'education',
       )
     })
@@ -168,6 +171,54 @@ describe('TimelineSection rendering', () => {
     })
   })
 
+  describe('issue #288 - persistent blinking carets after typing completes', () => {
+    it('shows no caret on institution or role while typing is still in progress', () => {
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false, false]))
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(100)
+      })
+
+      expect(getTimelinePanel(0).querySelector('[data-testid="commit-institution-caret"]')).toBeNull()
+      expect(getTimelinePanel(0).querySelector('[data-testid="commit-role-caret"]')).toBeNull()
+    })
+
+    it('renders a persistent caret on the institution heading once typed', () => {
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false, false]))
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const institution = getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')
+      const caret = institution?.querySelector('[data-testid="commit-institution-caret"]')
+      expect(caret).toBeInTheDocument()
+      expect(caret).toHaveClass('caret')
+    })
+
+    it('renders a persistent caret on the role line once typed', () => {
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false, false]))
+      vi.useFakeTimers()
+
+      render(<TimelineSection />)
+
+      act(() => {
+        vi.advanceTimersByTime(15000)
+      })
+
+      const role = getTimelinePanel(0).querySelector('[data-testid="commit-role"]')
+      const caret = role?.querySelector('[data-testid="commit-role-caret"]')
+      expect(caret).toBeInTheDocument()
+      expect(caret).toHaveClass('caret')
+    })
+  })
+
   describe('issue #206 - timeline section chrome', () => {
     it('renders // 03 TIMELINE header with hscroll classes', () => {
       render(<TimelineSection />)
@@ -178,27 +229,27 @@ describe('TimelineSection rendering', () => {
       expect(document.querySelector('.hscroll-rule')).toBeInTheDocument()
     })
 
-    it('renders progress counter with resume entry count 01 / 03', () => {
-      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false]))
+    it('renders progress counter with resume entry count 01 / 04', () => {
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false, false]))
 
       render(<TimelineSection />)
 
-      expect(screen.getByTestId('progress-count')).toHaveTextContent('01 / 03')
+      expect(screen.getByTestId('progress-count')).toHaveTextContent('01 / 04')
     })
 
     it('progress counter advances with active panel index', () => {
       vi.mocked(useTimelineScroll).mockReturnValue(
-        mockTimelineScrollState([false, true, false], { activeIndex: 1, progress: 0.5 }),
+        mockTimelineScrollState([false, true, false, false], { activeIndex: 1, progress: 0.5 }),
       )
 
       render(<TimelineSection />)
 
-      expect(screen.getByTestId('progress-count')).toHaveTextContent('02 / 03')
+      expect(screen.getByTestId('progress-count')).toHaveTextContent('02 / 04')
     })
 
     it('progress fill width reflects scroll progress', () => {
       vi.mocked(useTimelineScroll).mockReturnValue(
-        mockTimelineScrollState([false, true, false], { activeIndex: 1, progress: 0.5 }),
+        mockTimelineScrollState([false, true, false, false], { activeIndex: 1, progress: 0.5 }),
       )
 
       render(<TimelineSection />)
@@ -234,7 +285,7 @@ describe('TimelineSection rendering', () => {
 
     it('hides scroll hint after first panel beat', () => {
       vi.mocked(useTimelineScroll).mockReturnValue(
-        mockTimelineScrollState([false, true, false], { activeIndex: 1, progress: 0.5 }),
+        mockTimelineScrollState([false, true, false, false], { activeIndex: 1, progress: 0.5 }),
       )
 
       render(<TimelineSection />)

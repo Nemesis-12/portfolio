@@ -272,7 +272,7 @@ describe('App shell', () => {
       expect(timeline).toBeInTheDocument()
       expect(document.getElementById('timeline-a3f9d2b')).not.toBeInTheDocument()
       expect(timeline?.querySelector('[data-timeline-track="true"]')).toBeInTheDocument()
-      expect(timeline?.querySelectorAll('.snap-anchor')).toHaveLength(3)
+      expect(timeline?.querySelectorAll('.snap-anchor')).toHaveLength(4)
     })
 
     it('projects outer scroll host keeps an internal sticky viewport only', () => {

@@ -7,7 +7,7 @@ const {
   getTimelinePanel,
   mockUseTimelineScroll,
 } = vi.hoisted(() => {
-  const DEFAULT_ACTIVE = [true, false, false] as const
+  const DEFAULT_ACTIVE = [true, false, false, false] as const
 
   function mockTimelineScrollState(
     active: boolean[],

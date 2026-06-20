@@ -37,6 +37,9 @@ function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean 
     .map((_, index) => displayedLines[METADATA_LINE_COUNT + 2 + index])
     .filter((line): line is string => line !== undefined && line !== '')
 
+  const institutionTyped = institutionLine === entry.institution
+  const roleTyped = roleLine === entry.role
+
   return (
     <div className="tl-panel" data-testid="commit-entry">
       <div data-testid="commit-metadata">
@@ -61,12 +64,14 @@ function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean 
           <div className="tl-sep" aria-hidden="true" />
           <h2 className="tl-org" data-testid="commit-institution" data-typewriter-line>
             {institutionLine}
+            {institutionTyped && <span className="caret" data-testid="commit-institution-caret" aria-hidden="true" />}
           </h2>
         </>
       )}
       {roleLine !== undefined && (
         <p className="tl-title" data-testid="commit-role" data-typewriter-line>
           {roleLine}
+          {roleTyped && <span className="caret" data-testid="commit-role-caret" aria-hidden="true" />}
         </p>
       )}
       {bulletLines.length > 0 && (

@@ -79,7 +79,7 @@ describe('TimelineSection scroll', () => {
       const panels = track?.querySelectorAll('[data-testid="timeline-panel"]')
 
       expect(track).toHaveClass('hscroll-track')
-      expect(panels).toHaveLength(3)
+      expect(panels).toHaveLength(4)
     })
 
     it('renders one snap anchor per timeline entry', () => {
@@ -88,20 +88,21 @@ describe('TimelineSection scroll', () => {
       const timeline = document.getElementById('timeline')
       const anchors = timeline?.querySelectorAll('.snap-anchor')
 
-      expect(anchors).toHaveLength(3)
+      expect(anchors).toHaveLength(4)
       anchors?.forEach((anchor) => {
         expect(anchor.parentElement).toBe(timeline)
       })
       expect(anchors?.[0]).toHaveStyle({ top: '0vh' })
       expect(anchors?.[1]).toHaveStyle({ top: '100vh' })
       expect(anchors?.[2]).toHaveStyle({ top: '200vh' })
+      expect(anchors?.[3]).toHaveStyle({ top: '300vh' })
     })
 
     it('uses one viewport of section height per entry', () => {
       render(<TimelineSection />)
 
       const timeline = document.getElementById('timeline')
-      expect(timeline).toHaveStyle({ height: '300vh' })
+      expect(timeline).toHaveStyle({ height: '400vh' })
     })
 
     it('does not render each entry as a separate global sticky section', () => {
@@ -117,8 +118,8 @@ describe('TimelineSection scroll', () => {
       const panels = Array.from(document.querySelectorAll('[data-testid="timeline-panel"]'))
       const contentIndexes = panels.map((panel) => panel.getAttribute('data-content-index'))
 
-      expect(contentIndexes).toEqual(['2', '1', '0'])
-      expect(panels[2]?.getAttribute('data-content-index')).toBe('0')
+      expect(contentIndexes).toEqual(['3', '2', '1', '0'])
+      expect(panels[3]?.getAttribute('data-content-index')).toBe('0')
     })
   })
 
@@ -136,7 +137,7 @@ describe('TimelineSection scroll', () => {
 
   describe('issue #237 - newest-to-oldest slide direction', () => {
     it('renders the track oldest-to-newest while preserving newest-first content semantics', () => {
-      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, true, true]))
+      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, true, true, true]))
       vi.useFakeTimers()
 
       render(<TimelineSection />)
@@ -152,30 +153,42 @@ describe('TimelineSection scroll', () => {
         (panel) => panel.querySelector('[data-testid="commit-hash"]')?.textContent,
       )
 
-      expect(renderedContentIndexes).toEqual(['2', '1', '0'])
-      expect(renderedHashes).toEqual(['commit b7c3e1a', 'commit a3f9d2b', 'commit d4e8f2c'])
+      expect(renderedContentIndexes).toEqual(['3', '2', '1', '0'])
+      expect(renderedHashes).toEqual([
+        'commit b7c3e1a',
+        'commit a3f9d2b',
+        'commit d4e8f2c',
+        'commit e5f1a3d',
+      ])
     })
 
     it.each([
       {
-        active: [true, false, false],
+        active: [true, false, false, false],
         activeIndex: 0,
+        expectedHash: 'commit e5f1a3d',
+        expectedCount: '01 / 04',
+        expectedTx: 'translateX(-3000px)',
+      },
+      {
+        active: [false, true, false, false],
+        activeIndex: 1,
         expectedHash: 'commit d4e8f2c',
-        expectedCount: '01 / 03',
+        expectedCount: '02 / 04',
         expectedTx: 'translateX(-2000px)',
       },
       {
-        active: [false, true, false],
-        activeIndex: 1,
+        active: [false, false, true, false],
+        activeIndex: 2,
         expectedHash: 'commit a3f9d2b',
-        expectedCount: '02 / 03',
+        expectedCount: '03 / 04',
         expectedTx: 'translateX(-1000px)',
       },
       {
-        active: [false, false, true],
-        activeIndex: 2,
+        active: [false, false, false, true],
+        activeIndex: 3,
         expectedHash: 'commit b7c3e1a',
-        expectedCount: '03 / 03',
+        expectedCount: '04 / 04',
         expectedTx: 'translateX(0px)',
       },
     ])(
@@ -184,7 +197,7 @@ describe('TimelineSection scroll', () => {
         vi.mocked(useTimelineScroll).mockReturnValue(
           mockTimelineScrollState(active, {
             activeIndex,
-            tx: activeIndex === 0 ? -2000 : activeIndex === 1 ? -1000 : 0,
+            tx: -(3 - activeIndex) * 1000,
           }),
         )
         vi.useFakeTimers()
@@ -257,7 +270,7 @@ describe('TimelineSection scroll', () => {
         const { unmount } = render(<TimelineSection />)
 
         expect(screen.getByTestId('progress-count')).toHaveTextContent(
-          `${String(scenario.activeIndex + 1).padStart(2, '0')} / 03`,
+          `${String(scenario.activeIndex + 1).padStart(2, '0')} / 04`,
         )
         expect(document.querySelector('[data-timeline-track="true"]')).toHaveStyle({
           transform: `translateX(${scenario.tx}px)`,
