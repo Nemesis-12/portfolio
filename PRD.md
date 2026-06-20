@@ -1,197 +1,193 @@
-# Portfolio v4 - PRD
+# Refactor Portfolio to Match Reference Design
 
 ## Problem Statement
 
-The portfolio now mostly follows the canonical visual language from `ideas/Portfolio.html`, but the interactive scroll behavior has drifted away from the reference. The largest regression is that a global card-deck/sticky-stack interpretation was applied to the whole app. That made normal sections, timeline entries, and the Projects carousel fight each other for scroll ownership.
-
-The user-facing failures are:
-
-| Desired behavior from the reference | Current failure mode | User impact |
-|---|---|---|
-| Normal vertical page flow with sticky internals only where the reference uses them | Global sticky/card-stack behavior was applied across the app | Sections disappear, overlap, or become unreachable |
-| Projects scrolls horizontally inside a tall section with one landing point per project | Extra dead-zone math and card depth states alter the pacing | First/last cards and section exits feel wrong |
-| Timeline is one major section with a horizontal panel track | Each timeline entry became its own global sticky section | Only some timeline content appears and the intended slide direction is lost |
-| Page uses CSS scroll snap proximity and invisible anchors for Projects/Timeline stops | Snapping is missing or applied at the wrong level | Scrolling does not settle cleanly per section/card/entry |
-| Document itself has no horizontal overflow | `100vw` surfaces and wide tracks can leak beyond the viewport | A horizontal scrollbar appears |
-
-The design source of truth is still the standalone HTML reference. The implementation should use React modules and tests, but the behavior should match the reference instead of preserving accidental behavior introduced during the port.
+The portfolio website still depends on `framer-motion` in 7 source files (App.tsx, HeroSection.tsx, HeroSection.constants.ts, ContactSection.tsx, ProjectsSection.tsx, Navbar.tsx, MobileMenu.tsx) for hover effects, scroll hints, overlay animations, and cursor blinking. The skills section renders 12 tiles but the resume lists 19 discrete tool/framework/language skills. The timeline has 3 entries but the resume has 4 (missing NetApp SWE Intern) and 2 existing entries have incorrect dates. The `ptag-orange` tag variant uses a graphite background with orange text instead of the solid orange fill specified in the reference design.
 
 ## Solution
 
-The solution has four parts:
-
-**Part 1 - Preserve the CSS anchor.** Keep `src/portfolio.css` as the visual anchor derived from `ideas/Portfolio.html`. Its component class names, typography, spacing, colors, sharp corners, clipped project cards, bento grid, browser chrome, and terminal visual language remain the source of truth for rendering.
-
-**Part 2 - Restore the HTML scroll model.** Replace the global card-deck sticky interpretation with the reference scroll model: normal vertical sections; `scroll-snap-type: y proximity`; no document horizontal overflow; smooth scroll only for explicit navigation/CTA jumps; sticky internal viewports only for Projects and Timeline.
-
-**Part 3 - Rebuild Projects and Timeline as deep scroll modules.** Projects should expose a simple horizontal-section progress interface that maps a tall vertical section to a horizontal track. Timeline should expose a simple quantized-panel-track interface that maps vertical progress to the intended newest-to-oldest horizontal slide. Both modules should be testable without relying on browser-only visual assertions.
-
-**Part 4 - Update tests and agent guidance.** Tests and PRD language must reject the old global sticky/card-deck stack. Future agents should not reintroduce `useCardDeckDepth`-style global section scaling, per-timeline-entry global sticky pages, or document-level horizontal overflow.
+Remove `framer-motion` entirely, replacing all remaining usages with vanilla CSS (`@keyframes`, transitions) and vanilla JS (`setTimeout` chains, `requestAnimationFrame`) in React hooks. Expand skills data to all 19 resume skills across the resume's 4 categories. Fix timeline data to include all 4 resume entries with correct dates. Invert `ptag-orange` styling. All content matches `public/resume.pdf` as the single source of truth.
 
 ## User Stories
 
-### Loading Screen
-1. As a visitor, I want the loading screen to be full-screen graphite so that the boot sequence feels immersive and intentional.
-2. As a visitor, I want to see a pixel-font `FARHAN / MOHAMMED` identity during boot so that the brand is established before the hero loads.
-3. As a visitor, I want a thin orange progress bar that fills over roughly 2.6-3.0s so that the load pacing feels deliberate.
-4. As a visitor, I want rotating terminal status messages (`LOADING_ASSETS`, `COMPILING_MODULES`, etc.) so that the boot sequence reads as a real system init.
-5. As a visitor, I want the loading screen to fade smoothly into the hero so that there is no visual jump.
+1. As a visitor, I want to see a terminal-boot loading screen with animated progress bar and cycling status messages, so that the site sets a retro-terminal tone from the first moment.
+2. As a visitor, I want to see the hero name ("FARHAN MOHAMMED") type out letter-by-letter in sequence with a blinking orange cursor, so that the landing feels alive.
+3. As a visitor, I want to see the "// PORTFOLIO_INIT" label type out before the name starts, so the intro feels like a boot sequence.
+4. As a visitor, I want to see a rotating role label (CS_STUDENT → DEVELOPER → BUILDER → etc.) that types in, holds, erases, and cycles, so I understand the owner's identity.
+5. As a visitor, I want the tagline ("// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.") and CTA buttons to fade up with staggered delays after the name finishes typing, so the reveal feels choreographed.
+6. As a visitor, I want to click "VIEW_WORK" to smooth-scroll to the projects section, so I can navigate easily.
+7. As a visitor, I want to click "VIEW_RESUME" to open `/resume.pdf` in a new tab, so I can read the full resume.
+8. As a visitor, I want the navbar to highlight the currently visible section with an orange caret, underline, and label color change, so I always know where I am on the page.
+9. As a visitor on mobile, I want to tap a hamburger icon that opens a full-screen overlay menu with all nav links, so I can navigate on small screens.
+10. As a visitor on mobile, I want the full-screen menu to dismiss when I tap a link or a close button, so navigation is seamless.
+11. As a visitor, I want to scroll vertically through the projects section and see project cards translate horizontally in a sticky viewport, so browsing projects feels cinematic.
+12. As a visitor, I want each project card to show a diagonal orange fill animation on hover (mask-position slide), so cards feel interactive.
+13. As a visitor, I want project card tag colors to auto-cycle through the palette (orange, blue, fuchsia, yellow) by position, so tags are colorful without manual assignment.
+14. As a visitor, I want the orange tag variant to render as solid orange background with dark text (inverted from the current dark-bg/orange-text style), so it matches the desired design.
+15. As a visitor, I want the projects section to work correctly with any number of cards (currently 2), scaling scroll distance proportionally, so the section works now and when more projects are added.
+16. As a visitor, I want to see a bento grid of 19 skill tiles in a fixed-height container, with Python and PyTorch as large hero tiles and the rest at standard/small sizes, so I can quickly scan technical skills.
+17. As a visitor, I want the skill tiles to fade in with randomized stagger order when the section scrolls into view, and reset when scrolled away, so the reveal feels fresh each time.
+18. As a visitor, I want to see a palette tile with 4 vertical color bars (orange, yellow, fuchsia, blue) in the bento grid, so the design system is visually communicated.
+19. As a visitor, I want to scroll vertically through the timeline section and see full-viewport panels slide horizontally, with each entry snapping into place, so browsing experience/education feels like flipping through git commits.
+20. As a visitor, I want each timeline panel to type out its fields (commit hash, author, date, org, title, bullets) with staggered delays when that panel becomes active, so it feels like a terminal log being written.
+21. As a visitor, I want persistent blinking carets on the organization name and title after they finish typing, so the terminal aesthetic is maintained.
+22. As a visitor, I want the timeline to display 4 entries from the resume: NetApp SWE Intern, NetApp SWE in Test, WSU M.S., WSU B.S., so the content is accurate.
+23. As a visitor, I want section tags (// EDUCATION, // EXPERIENCE) displayed at the top of each timeline panel, so I understand the category.
+24. As a visitor, I want the footer to type out "LET'S" then "CONNECT" with a blinking cursor when the section scrolls into view, so the call-to-action has dramatic presence.
+25. As a visitor, I want the "SEND_MESSAGE" button to open a mailto link to famohammed@shockers.wichita.edu, so I can easily get in touch.
+26. As a visitor, I want footer social links (GITHUB, LINKEDIN, EMAIL, RESUME) to point to real URLs, so I can find the owner on other platforms.
+27. As a visitor, I want subtle parallax movement on the hero grid, hero name, and footer text driven by scroll position, so the page has depth.
+28. As a visitor, I want `.reveal` elements to fade up when they enter the viewport via IntersectionObserver, so content appears gracefully.
+29. As a visitor on mobile (≤760px), I want the bento grid to collapse to a 2-column layout with auto-sized tiles, so skills are readable on small screens.
+30. As a visitor on mobile, I want project cards to be wider (88vw) and shorter (64vh), so they're usable on narrow viewports.
+31. As a visitor, I want the custom scrollbar (orange thumb on dark track) and orange text selection, so the terminal aesthetic extends to browser chrome.
 
-### Navbar
-6. As a visitor, I want a fixed full-width navbar with translucent graphite background and backdrop blur so that it feels like a floating terminal bar.
-7. As a visitor, I want the logo `FM_` in pixel font on the left so that the brand mark is consistent.
-8. As a visitor, I want nav links in uppercase Space Mono with letter-spacing so that they read as terminal labels.
-9. As a visitor, I want the active nav link to show orange text and an orange underline scoped only to the label so that the active state is precise.
-10. As a visitor, I want the `>` caret to appear on hover only, not on active, so that hover and active feel distinct.
-11. As a visitor, I want the navbar to remain fixed above Projects and Timeline while those sections run their internal scroll interactions.
-12. As a visitor, I want the navbar active state to remain on Projects throughout the Projects internal scroll and on Timeline throughout the Timeline internal scroll so that the owning major section is clear.
+## Current Codebase State (commit 1379509)
 
-### Hero
-13. As a visitor, I want the hero section to be full-viewport and full-width so that the name dominates the screen without centering constraints.
-14. As a visitor, I want the hero typing sequence to start after the loading screen leaves so that I can actually see the full intro.
-15. As a visitor, I want `// PORTFOLIO_INIT` to type in character-by-character before the name starts so that the sequence feels like a system initializing.
-16. As a visitor, I want a short orange bar below `// PORTFOLIO_INIT` whose left edge is aligned with the `//` start so that the bar reads as an underline for that label specifically.
-17. As a visitor, I want the hero name (`FARHAN` / `MOHAMMED`) to be two separate stacked lines in Press Start 2P at `clamp(40px, 12vw, 180px)` so that the name dominates the viewport at any screen width.
-18. As a visitor, I want the name to type in line-by-line (FARHAN completes, then MOHAMMED starts) so that the sequence has rhythm.
-19. As a visitor, I want a blinking orange cursor at the end of MOHAMMED after it finishes typing so that it signals the terminal is waiting.
-20. As a visitor, I want the rotating role line (e.g. `BUILDER`) in periwinkle Space Mono at `clamp(11px, 1.1vw, 15px)` with `letter-spacing: 5px` so that it reads as a status label beneath the name.
-21. As a visitor, I want the value-prop line `// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.` in Space Mono below the role so that the one-line descriptor is readable and on-brand.
-22. As a visitor, I want the CTA buttons to appear after the value-prop types in, using rectangular sharp-edged buttons so that they match the reference exactly.
-23. As a visitor, I want the fill CTA (`VIEW_WORK`) to be orange with graphite text, and the outline CTA (`VIEW_RESUME`) to be a platinum-bordered ghost button so that the hierarchy between actions is clear.
-24. As a visitor, I want the hero background to be a subtle line grid with a radial mask fade from the left so that the grid enhances depth without being decorative.
-25. As a visitor, I want hero content to use `padding: 0 5vw` so that the layout breathes at all viewport widths.
+### What exists in code (not verified at runtime):
 
-### Projects Carousel
-26. As a visitor, I want the Projects section to occupy one viewport of vertical scroll per project so that each project has a clear moment on screen.
-27. As a visitor, I want the Projects sticky viewport to pin while the inner track translates horizontally so that the interaction matches the reference.
-28. As a visitor, I want invisible snap anchors, one per project, so that scrolling settles with each project card centered instead of stopping halfway between cards.
-29. As a visitor, I want the first and last cards to be reachable and centered through the same snap/pacing model as the middle cards so that no special dead-zone math is needed.
-30. As a visitor, I want project cards to keep the reference scale and opacity rather than being suppressed by active/neighbor/far states so that the carousel feels like the HTML source.
-31. As a visitor, I want each project card to be a large notched/clipped rectangle (`clip-path` polygon corners, not rounded) in platinum so that the cards feel physically distinct from the background.
-32. As a visitor, I want a large low-opacity ghost number (`_01`, `_02`, etc.) behind the card content so that the card has depth and identity.
-33. As a visitor, I want project titles to use Press Start 2P (`clamp(20px, 2vw, 26px)`) so that the name has display weight.
-34. As a visitor, I want tags to be sharp rectangular blocks using the palette colors (yellow, fuchsia, blue, orange-outline) with no border-radius so that they match the reference tile system.
-35. As a visitor, I want project links to use `// LABEL` plus an external-link arrow in terminal language so that the link style is consistent with the rest of the site.
-36. As a visitor, I want a hover fill that moves diagonally from the top-left notch corner toward the bottom-right so that the fill feels physical and directional.
-37. As a visitor, I want card content (title, tags, links, ghost number) to remain readable and transition to platinum-on-graphite during the hover fill so that the card is usable in both states.
-38. As a visitor, I want a section header row showing `// 01  PROJECTS` so that the section is labeled in the reference style.
-39. As a visitor, I want a progress counter in the header (`02 / 06`) and a thin orange progress bar so that I know where I am in the carousel.
-40. As a visitor, I want a `SCROLL ->` hint at the bottom of the pinned viewport so that the scroll interaction is discoverable.
-41. As a visitor, I want edge spacers before the first and after the last card so that the first and last cards can reach the centered position.
+- **LoadingScreen.tsx** — uses vanilla CSS `@keyframes lf` for progress bar, `setTimeout`/`setInterval` for message cycling, `.out` CSS class for fade-out. No framer-motion in the component itself.
+- **TypeIn.tsx, RotatingRole.tsx, Typewriter.tsx, useTypewriter.ts** — pure React (`useState` + `setTimeout`). No framer-motion imports.
+- **HeroSection.tsx** — uses `TypeIn` for name typing chain, `RotatingRole` for roles. Still uses `motion.span` for blinking cursors and `motion.div` for CTA fade-up.
+- **ProjectsSection.tsx** — uses `useHorizontalScroll` for horizontal translation. Still uses `motion.div` for scroll hint, `motion.article` for card hover lift. Edge spacer geometry and `.pcard-clip` wrapper were changed in PRs #279–#280.
+- **TimelineSection.tsx** — uses `useTimelineScroll` for horizontal translation with quantized panel positions. No framer-motion imports. Uses `useTypewriter` for per-panel typing. Does NOT apply `.caret` class for persistent blinking carets on org/title.
+- **SkillsSection.tsx** — renders 12 tiles with IntersectionObserver-driven stagger reveal. Uses CSS transitions, no framer-motion.
+- **ContactSection.tsx** — uses `TypeIn` for "LET'S" and "CONNECT" with viewport reset. Still uses `motion.a` for button/link hover (`hoverEase`) and `useInView` from framer-motion.
+- **Navbar.tsx** — active state via `useActiveMajorSection`. Still uses `motion.button` for hamburger hover (`hoverEase`).
+- **MobileMenu.tsx** — uses `AnimatePresence` + `motion.div` for overlay fade, `motion.button` for close hover, `motion.a` for link hover.
+- **App.tsx** — wraps `LoadingScreen` in `AnimatePresence`. Has `requestAnimationFrame` parallax listener. Imports `@vercel/analytics` and `@vercel/speed-insights`.
+- **StickySection.tsx** — minimal 25-line wrapper, renders `<section>` or `<footer>` with `min-h-screen`.
+- **variants.ts** — exports `fadeUp`, `sectionFade`, `hoverEase` framer-motion variant objects.
+- **HeroSection.constants.ts** — imports `type { Variants } from 'framer-motion'` for `cursorVariants`.
+- **portfolio.css** — has `.cursor` + `@keyframes blink-cursor` (line 186), `.hero-fade` + `@keyframes fade-up` (line 188), `.caret` (line 241). These are CSS equivalents that could replace framer-motion cursor/fade-up usages.
+- **index.css** — has `scroll-snap-type: y proximity`, scrollbar styling (orange thumb, graphite track), orange text selection, `overflow-x: clip` on html and body.
+- **portfolio.css** — has `.snap-anchor` rules with `scroll-snap-stop: always`, `.reveal` class with CSS transition, `@media (max-width:760px)` breakpoint with bento 2-col and card sizing.
+- **App.tsx** — has `data-parallax` listener using `requestAnimationFrame`. Hero grid and footer text have `data-parallax` + `data-parallax-factor` attributes.
 
-### Skills
-42. As a visitor, I want the skills section to use the exact six-column `grid-template-areas` bento layout from the reference so that Python dominates the top-left and tile sizes communicate skill importance.
-43. As a visitor, I want sharp rectangular bento tiles with strong palette blocks so that the grid feels like a physical mosaic.
-44. As a visitor, I want the palette swatch tile in the bottom-right so that the design system is self-referential.
-45. As a visitor, I want tiles to reveal in a randomized order each time the section enters view so that the cascade matches the reference and feels fresh.
-46. As a visitor, I want the reveal to reset and replay when the section re-enters the viewport so that repeat visitors see the animation again.
-47. As a visitor, I want category labels in small uppercase mono and skill names in bold mono so that each tile has a consistent two-line hierarchy.
-48. As a visitor, I want the section header `// 02  SKILLS` in the reference style above the grid so that it is labeled consistently with Projects.
+### What needs to change:
 
-### Timeline
-49. As a visitor, I want Timeline to be one major section with a sticky viewport and an internal horizontal track so that it behaves like the reference instead of becoming several global sticky pages.
-50. As a visitor, I want the newest entry to start centered and scrolling to reveal older entries horizontally from the left so that the intentional reverse-chronological motion is preserved.
-51. As a visitor, I want invisible snap anchors, one per timeline entry, so that each entry settles firmly in the viewport.
-52. As a visitor, I want each timeline entry to occupy a full viewport-width panel within the horizontal track so that one entry is the clear focus at a time.
-53. As a visitor, I want the section-type label (`// EDUCATION` or `// EXPERIENCE`) to appear at the top of each panel, with `//` in Space Mono and the section word in Press Start 2P, both in orange, so that the kind of entry is immediately clear.
-54. As a visitor, I want the `//` to be visually smaller than the section word so that the hierarchy within the label is preserved.
-55. As a visitor, I want the commit metadata (`commit <hash>`, `Author`, `Date`) to type in first in orange/periwinkle mono so that the git-log framing is established before the main content.
-56. As a visitor, I want the institution/company name to type in as large Press Start 2P text (`clamp(28px, 4vw, 52px)`) so that it dominates the panel the way the hero name dominates the hero.
-57. As a visitor, I want the role/title to appear in uppercase Space Mono below the institution name so that the content hierarchy goes: label, commit meta, institution, role, bullets.
-58. As a visitor, I want each bullet to type in sequentially with a small delay between bullets so that the panel feels like a log being printed.
-59. As a visitor, I want a panel's typed content to remain visible when it deactivates so that it does not blank during horizontal slide transitions.
-60. As a visitor, I want a section header row `// 03  TIMELINE` with a progress counter (`01 / 05`) so that the entry position is always visible.
-61. As a visitor, I want a `SCROLL v` hint at the bottom of the pinned viewport so that the scroll direction is clear.
+**framer-motion removal (7 files still import it):**
+- `App.tsx` — replace `AnimatePresence` wrapping `LoadingScreen` with conditional rendering
+- `HeroSection.tsx` — replace `motion.span` cursors with CSS `.cursor` class, replace `motion.div` CTA fade-up with CSS `.hero-fade` class
+- `HeroSection.constants.ts` — remove `import type { Variants } from 'framer-motion'`, redefine `cursorVariants` without framer-motion types
+- `ContactSection.tsx` — replace `useInView` with vanilla `IntersectionObserver`, replace `motion.a` hover with CSS `:hover` transform
+- `ProjectsSection.tsx` — replace `motion.div` scroll hint with CSS transition, replace `motion.article` card hover lift with CSS transform
+- `Navbar.tsx` — replace `motion.button` hamburger hover with CSS `:hover` transform
+- `MobileMenu.tsx` — replace `AnimatePresence` + `motion.*` with CSS class-toggled transitions
+- `src/animations/variants.ts` — delete this file after all consumers are migrated
 
-### Contact / CTA
-62. As a visitor, I want the contact section to be full-screen with `LET'S` on one line and `CONNECT.` on the next in Press Start 2P at `clamp(40px, 8vw, 120px)` so that the CTA dominates the viewport the same way the hero name does.
-63. As a visitor, I want the text to be centered so that the CTA feels like a declaration.
-64. As a visitor, I want the period `.` to be orange and followed by a blinking orange block cursor so that the terminal punctuation lands as a visual beat.
-65. As a visitor, I want the contact type-in animation to reset and replay when the contact section re-enters view so that it matches the reference.
-66. As a visitor, I want `SEND_MESSAGE ->` as a centered orange fill button below the heading so that the primary action is unmissable.
-67. As a visitor, I want social links (`// GITHUB`, `// LINKEDIN`, `// EMAIL`, `// RESUME`) centered below the button in periwinkle mono with orange `//` prefix so that they feel like terminal directory entries.
-68. As a visitor, I want the footer metadata (`FARHAN_MOHAMMED © 2026` left, `PORTFOLIO.EXE` right) to be at the very bottom of the viewport, separated from the CTA area so that it does not crowd the CTA.
+**Skills data expansion (12 → 19 tiles):**
+Current tiles: Python (`large: true`), TypeScript, Docker, JavaScript, C/C++ (combined), NumPy, FastAPI, PyTorch, Hugging Face, Scikit-learn, Pandas, Git
+Current categories: LANGUAGE, FRAMEWORK, TOOL, ML / DL, DATA (5 categories)
 
-### Scroll, Snap, and Navigation
-69. As a visitor, I want the page to use normal vertical document flow so that major sections do not disappear behind a global sticky stack.
-70. As a visitor, I want CSS scroll snapping to be proximity-based so that scrolling can settle naturally without feeling locked or hijacked.
-71. As a visitor, I want Projects and Timeline to provide their own internal snap landing points so that multi-card/multi-entry sections are easy to navigate.
-72. As a visitor, I want manual scrolling to remain native, while navbar and CTA jumps scroll smoothly to their target section, so that intentional navigation feels polished without changing wheel/trackpad behavior.
-73. As a visitor, I want no global section scale-down, dimming, blur, or card-deck depth effect so that the app matches the reference scroll model.
-74. As a visitor, I want decorative parallax to be bounded relative to each owning section so that parallax never drifts across unrelated sections.
+Resume skills (19 tile-worthy items, 4 categories):
+- ML/DL: PyTorch, Transformers, Hugging Face (3)
+- Data & Computation: NumPy, Pandas, Scikit-learn, Matplotlib (4)
+- Languages: Python, C++, C, SQL, JavaScript, TypeScript (6)
+- Tools & Systems: Git, Docker, Linux, Ansible, Jupyter, FastAPI (6)
 
-### Browser Chrome
-75. As a visitor, I want text selection to show orange background with graphite text so that the selection color is on-brand.
-76. As a visitor, I want the scrollbar thumb to be orange and square on the graphite track so that the scrollbar is on-brand.
-77. As a visitor, I want the document itself to have no horizontal scrollbar so that wide internal tracks do not leak outside their clipped viewports.
+Changes needed:
+- Add 7 missing tiles: Transformers, Matplotlib, SQL, C (separate from C++), Linux, Ansible, Jupyter
+- Split C/C++ into separate C++ and C tiles
+- Mark PyTorch as `large: true` (currently not marked large)
+- Change categories from 5 to 4, matching resume exactly
+- Redesign grid template areas to accommodate 19 tiles
+
+**Palette tile layout change:**
+Current CSS (`.bi-pal`): `display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr` (2×2 grid)
+Target: 4 equal-width vertical bars using `flex` with `flex-direction: row` and full-height divs
+
+**Timeline data (3 → 4 entries + date corrections):**
+Current entries and their errors:
+1. NetApp — SOFTWARE_ENGINEER_IN_TEST — "AUG 2024 – PRESENT" → should be "JUL 2024 – JUN 2026" per resume
+2. WSU — ACCELERATED_M.S._COMPUTER_SCIENCE — "JAN 2026 – DEC 2027 (EXPECTED)" → should be "JAN 2026 – MAY 2027 (EXPECTED)" per resume
+3. WSU — B.S._COMPUTER_SCIENCE — "JAN 2022 – DEC 2025" (matches resume)
+
+Missing entry from resume: NetApp — SOFTWARE_ENGINEER_INTERN — "JUN 2026 – PRESENT" with bullet: "Contributed to web platform development in TypeScript and PostgreSQL, implementing API endpoints, refactoring existing code, and reviewing pull requests"
+
+**Timeline blinking carets:**
+`.caret` CSS class exists in `portfolio.css` line 241 but is not used in `TimelineSection.tsx`. Needs to be applied to org name and title elements after they finish typing.
+
+**ptag-orange CSS inversion:**
+Current (`portfolio.css` line 120): `background:var(--color-graphite);color:var(--color-atomic-tangerine);box-shadow:inset 0 0 0 1px var(--color-atomic-tangerine)`
+Target: `background:var(--color-atomic-tangerine);color:var(--color-graphite)` (solid fill, no border)
 
 ## Implementation Decisions
 
-- **CSS anchor file.** Keep `src/portfolio.css` as `@layer components { ... }` containing the component rules from `ideas/Portfolio.html`, adapted only to use the Tailwind v4 token variable names already defined in `src/index.css` (e.g. `var(--color-graphite)` instead of `var(--graphite)`). Do not duplicate the `:root` token block.
+- **Remove `framer-motion` entirely.** Replace all remaining usages with vanilla CSS equivalents. The `AnimatePresence` wrapper in App.tsx becomes conditional rendering (LoadingScreen already handles its own fade-out via CSS `.out` class). The `motion.span` cursors in HeroSection use the existing `.cursor` CSS class with `@keyframes blink-cursor`. The CTA `motion.div` fade-up uses the existing `.hero-fade` CSS class. The `hoverEase` scale variants in Navbar, MobileMenu, and ContactSection become CSS `:hover` transforms. The scroll hint in ProjectsSection uses CSS transitions. The card hover lift uses CSS `transform` on hover/focus. The MobileMenu overlay uses CSS opacity transitions with class toggling. After all replacements, remove `framer-motion` from `package.json` and delete `src/animations/variants.ts`.
+- **Typewriter animations** (`TypeIn`, `RotatingRole`, `Typewriter`, `useTypewriter`) are already pure React with no framer-motion dependency. No changes needed.
+- **Horizontal scroll** for Projects uses `useScrollProgress` → `useHorizontalScroll`. Timeline uses `useScrollProgress` → `useTimelineScroll`. These hooks should be preserved.
+- **`StickySection`** is a minimal wrapper. Projects and Timeline handle their own sticky viewport via `[data-sticky-viewport="true"]` divs. No changes needed.
+- **Skills bento grid** needs expansion from 12 to 19 tiles across the resume's 4 categories. Python and PyTorch are the two `large` hero tiles. The 6-column grid template areas need redesign for 19 areas. The palette tile layout changes from 2×2 grid to 4 vertical bars. The existing IntersectionObserver stagger reveal should be preserved.
+- **Tag color cycling** — `TAG_VARIANTS[tagIndex % TAG_VARIANTS.length]` exists in `ProjectsSection.tsx`. No color field in the data model; colors are derived at render time.
+- **`ptag-orange` inversion** — change to `background: orange; color: graphite` (solid fill, no border).
+- **Mobile breakpoint at 760px** exists in `portfolio.css`. MobileMenu needs framer-motion removal.
+- **Data source** — all content must match `public/resume.pdf`. Projects data has Leviathan and MLA_IMPL. Timeline needs a 4th entry and date corrections. Skills need 7 new tiles and category restructuring.
+- **Social links** — GitHub: `https://github.com/Nemesis-12`, LinkedIn: `https://linkedin.com/in/fa-mohammed`, Email: `mailto:famohammed@shockers.wichita.edu`, Resume: `/resume.pdf`.
+- **CSS architecture** — two-file structure: `index.css` (Tailwind import + theme tokens) and `portfolio.css` (component rules in `@layer components`). The `@media (max-width: 760px)` breakpoint stays in `portfolio.css`.
+- **Scroll snap** — `html { scroll-snap-type: y proximity }` exists in `index.css`. `.snap-anchor` divs exist in Projects and Timeline with `scroll-snap-stop: always`.
+- **Parallax** — `data-parallax` + `data-parallax-factor` attributes exist on hero grid and footer text, driven by `requestAnimationFrame` scroll listener in `App.tsx`.
 
-- **Class name convention.** Component rules use the same class names as `ideas/Portfolio.html`: `.hero-name`, `.pcard`, `.tl-org`, `.footer-big`, etc. React components apply these class names directly. Tailwind utilities may still be used for structural helpers not covered by `src/portfolio.css`, but must not override any property already set by a portfolio class.
+## Animation Inventory
 
-- **Global scroll model.** Match the reference: `html` uses native scroll behavior and proximity vertical scroll snap; `body` clips horizontal overflow; only `#hero`, `#skills`, and `#contact` snap directly as major one-screen sections. Projects and Timeline own their internal snap anchors. Do not implement a global card-deck stack, global sticky section wrapper, or outgoing section scale/opacity depth effect.
+All 14 animations and their current state in code:
 
-- **HeroSection.** The hero intro starts only after the loading screen completes. The `<h1>` applies `hero-name`. Name is split into two `<span className="hero-name-line">` block elements. `// PORTFOLIO_INIT` uses `TypeIn` and gets class `hero-init`. The bar gets class `hero-bar`. Background grid element gets class `hero-grid`. Padding is set via `hero-inner` / section spacing. CTA row uses `hero-cta`, buttons use `btn btn-fill` / `btn btn-outline`.
-
-- **Horizontal progress module.** Extract or keep a deep module that accepts an outer section and an inner track and returns `{ tx, progress }`. It computes progress from the section's bounding rect, the section height, and the viewport height. It computes horizontal distance from `track.scrollWidth - viewportWidth`. It does not know about Projects-specific card data.
-
-- **ProjectsSection.** Projects uses one viewport of section height per project. The section contains an internal sticky viewport (`hscroll` / `hscroll-sticky`) and a horizontally translated `hscroll-track proj-track`. It renders one `snap-anchor` per project at `i * 100vh` so CSS snap settles per card. Header row children get `hscroll-no`, `hscroll-name`, `hscroll-rule`. Progress counter and bar use `hscroll-progress`, `hscroll-progress-track`, `hscroll-progress-fill`. Scroll hint uses `hscroll-hint`. Edge spacers use `proj-edge`. Card uses `pcard` + `pcard-bg` + `pcard-fill` + `pcard-body` + `pcard-ghost` + `pcard-num` + `pcard-name` + `pcard-desc` + `pcard-tags` + `pcard-links`. Tag colors use `ptag ptag-{color}`. Links use `plink`. Card dimensions come from `.pcard` CSS (`min(560px, 78vw)` by `min(640px, 76vh)`). The diagonal fill animation uses the mask-position approach from the reference. Do not add active/neighbor/far scale or opacity suppression.
-
-- **SkillsSection.** Grid container gets class `bento`. Each tile gets `bi bi-{area} c-{color}` classes. Reveal order is randomized each time the section enters view, matching the reference behavior. The reveal resets when the section leaves view so it can replay on re-entry.
-
-- **TimelineSection.** Timeline is one major section, not one global sticky section per entry. It uses a tall section equal to `timelineEntryCount * viewportHeight`, an internal sticky viewport, and a horizontally translated track. Timeline entries remain newest-first in content semantics, but the rendered track order is reversed so the newest entry starts centered and scrolling reveals older entries horizontally from the left. The track translation is quantized to panel positions with a smooth transform transition. Render one `snap-anchor` per entry at `i * 100vh`. Section-type label uses two separate elements: `<span className="tl-section-slash">//</span>` + `<span className="tl-section-kind">{entry.kind}</span>` inside a `tl-section-tag` wrapper. Institution uses `tl-org`. Role uses `tl-title`. Bullets use `tl-bullets`. Commit/author/date use `tl-commit` / `tl-meta`. Timeline section header row uses the same `hscroll-head` / `hscroll-no` / `hscroll-name` / `hscroll-rule` / `hscroll-progress` pattern as Projects.
-
-- **ContactSection.** Merged into a single `<footer id="contact">` element. Heading uses `footer-big` and `footer-big-line` spans. Layout uses `footer-cta`. Social links use `slink` class. Footer metadata row uses `footer-copy`. The contact heading type-in resets and replays when Contact leaves and re-enters view.
-
-- **Active navigation.** Use major-section geometry sampling around 40% of the viewport height, as in the reference, so the active nav item remains `PROJECTS` for the whole Projects internal scroll and `TIMELINE` for the whole Timeline internal scroll. Navbar/CTA click handlers should call smooth `scrollTo` on explicit jumps; global CSS should not force smooth behavior on all scrolling.
-
-- **Parallax.** Parallax transforms are section-relative. Each parallax element computes movement from scroll offset relative to its owning section or footer so transforms remain bounded inside that section.
-
-- **Browser chrome and overflow.** Remove `border-radius: 4px` from `::-webkit-scrollbar-thumb`. Set document horizontal overflow to hidden. Prefer `width: 100%` over `100vw` where it avoids scrollbar-induced overflow and does not change the rendered reference layout; keep intentionally wide internal tracks clipped by their sticky viewport.
-
-- **Nav active state.** The `>` caret appears on hover only, not on active. Active state = orange label text + orange `::after` underline scoped to the label only. No box border on active state.
-
-- **Content source.** Keep the current app's real project and timeline content. `ideas/Portfolio.html` is the motion/visual reference, not the content source.
-
-- **What must be removed.** Remove or stop using global card-deck depth behavior, per-entry global Timeline sticky sections, Projects dead-zone progress math, and Project active/neighbor/far scale/opacity states. These are incorrect interpretations of the reference.
+1. **Typewriter intro** — `TypeIn` component chain exists: PORTFOLIO_INIT → FARHAN → MOHAMMED.
+2. **Blinking cursor** — uses `motion.span` with framer-motion `cursorVariants`. CSS `.cursor` class with `@keyframes blink-cursor` exists in `portfolio.css` as a replacement target.
+3. **Rotating role** — `RotatingRole` component exists, pure React.
+4. **Hero fade-up** — uses `motion.div` with `ctaVariants`. CSS `.hero-fade` class with `@keyframes fade-up` exists in `portfolio.css` as a replacement target.
+5. **Project card hover** — diagonal fill exists via CSS `mask-position` and `.pcard-clip` wrapper. Card lift uses `motion.article` with `animate={{ y: -4 }}` — needs CSS replacement.
+6. **Skills bento reveal** — exists, CSS transitions + vanilla IntersectionObserver.
+7. **Timeline typewriter** — `useTypewriter` with `mode: 'line'` exists, pure React.
+8. **Timeline blinking carets** — NOT IMPLEMENTED. `.caret` CSS class exists but is not applied in `TimelineSection.tsx`.
+9. **Footer typewriter** — `TypeIn` for "LET'S"/"CONNECT" exists with viewport reset. `useInView` from framer-motion needs vanilla replacement.
+10. **Parallax layers** — `requestAnimationFrame` listener exists in `App.tsx`.
+11. **Scroll reveal** — `.reveal` CSS class exists in `portfolio.css`.
+12. **Horizontal scroll** — hook-driven `translateX` transforms exist in both Projects and Timeline.
+13. **Nav active state** — CSS rules for caret, underline, orange label exist. Driven by `useActiveMajorSection` hook.
+14. **Loading bar** — CSS `@keyframes lf` and `setTimeout` message cycling exist in `LoadingScreen.tsx`.
 
 ## Testing Decisions
 
-Good tests verify observable output (rendered DOM structure, presence of expected elements, hook return values, and scroll math outputs) rather than implementation details. Do not test font-size or color values; those are browser rendering concerns verified by manual QA against the reference screenshots.
+Tests verify external behavior (what renders, what the user sees/clicks) rather than implementation details. The existing patterns use Vitest + React Testing Library + jsdom.
 
-- `src/index-css.test.ts` - assert `body` clips horizontal overflow and `border-radius` is absent from the scrollbar thumb rule.
-- `HeroSection.test.tsx` - assert hero name renders two `hero-name-line` span elements; assert `hero-init` text is present; assert `hero-bar` element exists; assert intro can be started after loading completes.
-- `ProjectsSection.test.tsx` - assert the section height is one viewport per project; assert one `snap-anchor` per project; assert progress counter element is present; assert scroll hint element is present; assert each card has a `pcard-ghost` element; assert tag elements have `ptag` class; assert cards do not carry active/neighbor/far scale/opacity state attributes.
-- `SkillsSection.test.tsx` - assert tiles reset/replay on viewport re-entry; mock randomness or isolate reveal-order generation so tests verify "new order can be generated on entry" without depending on a specific random sequence.
-- `TimelineSection.test.tsx` - assert Timeline renders as one major section; assert entries are panels in one horizontal track; assert one `snap-anchor` per entry; assert newest content is the first user-facing panel; assert `tl-section-slash` and `tl-section-kind` are separate sibling elements; assert `tl-org` element contains institution text.
-- `ContactSection.test.tsx` - assert heading element has `footer-big` class; assert social link elements have `slink` class; assert type-in state resets when the section leaves view and restarts on re-entry.
-- Navbar/shell tests - assert active nav remains on the owning major section for the full Projects and Timeline scroll ranges. Assert explicit nav jumps use smooth scroll behavior.
-- Scroll hook tests - test horizontal progress math and Timeline quantization as pure or hook-level behavior. Do not re-test browser rendering.
-- Regression tests - assert no global card-deck depth hook/style mutates section scale or opacity, and assert document-level horizontal overflow is clipped.
-- Browser QA - card centering, CSS scroll snap feel, Timeline slide direction, parallax, and no horizontal scrollbar require manual verification against `ideas/Portfolio.html` and the `curr_*` screenshots.
+### Existing test seams to update:
+
+- **Hook unit tests** (`useScrollProgress`, `useHorizontalScroll`, `useTimelineScroll`, `useActiveMajorSection`) — update if hook APIs change.
+- **Component rendering tests** (`ProjectsSection.rendering.test.tsx`, `ProjectsSection.cards.test.tsx`, `ProjectsSection.scroll.test.tsx`, `LoadingScreen.test.tsx`, `Navbar.test.tsx`, `SkillsSection.test.tsx`, `HeroSection.test.tsx`, `ContactSection.test.tsx`, `TimelineSection.rendering.test.tsx` + other timeline test files) — update to remove framer-motion mocks where framer-motion is removed.
+- **Animation component tests** (`TypeIn.test.tsx`, `RotatingRole.test.tsx`, `Typewriter.test.tsx`, `useTypewriter.test.ts`) — no framer-motion dependency, should not need changes.
+- **CSS contract tests** (`portfolio-css.test.ts`, `portfolio-css-geometry.test.ts`, `index-css.test.ts`) — update for changed CSS classes (ptag-orange inversion, palette tile layout, new skill tile grid areas).
+
+### New test seams:
+
+- **MobileMenu overlay test** — assert overlay opens on hamburger click, all 5 nav links present, overlay closes on link click or close button.
+- **Skills data completeness test** — assert all 19 skills from the resume are present, Python and PyTorch marked as `large`.
+- **Tag color cycling test** — unit test the `TAG_VARIANTS[index % TAG_VARIANTS.length]` cycling.
+- **Architecture regression test** — assert no file in `src/` imports from `framer-motion`.
+
+### Prior art:
+- `LoadingScreen.test.tsx` — timer-based animation testing with `vi.useFakeTimers()`
+- `ProjectsSection.rendering.test.tsx` — DOM structure assertions for data-driven components
+- `useActiveMajorSection.test.ts` — scroll-driven hook testing with mock viewport geometry
+- `integration.smoke.test.ts` — cross-module maintainability smoke tests
 
 ## Out of Scope
 
-- Contact form backend or email service integration.
-- CMS or content management for projects and resume data.
-- Mobile responsive redesign; desktop visual and scroll alignment is the current priority.
-- Accessibility audit (`aria-*` attributes, keyboard navigation beyond existing focus handling, reduced-motion media query).
-- Performance optimization (bundle splitting, image optimization, Lighthouse audit).
-- Dark/light mode toggle.
-- Internationalization.
-- Analytics beyond the existing Vercel Analytics integration.
-- Replacing React with the standalone HTML implementation.
+- Adding more projects beyond the 2 currently on the resume (Leviathan, MLA_IMPL)
+- A third responsive breakpoint for tablets (only desktop + mobile at 760px)
+- Dark/light theme toggle
+- Page transitions or route-based navigation (single-page scroll only)
+- CMS or headless content management — data lives in TypeScript files
+- SEO metadata, Open Graph tags, or analytics beyond existing Vercel integrations
+- Accessibility audit beyond semantic HTML (ARIA, focus management are future work)
+- Performance optimization (lazy loading, code splitting, image optimization)
+- Contact form — SEND_MESSAGE is a mailto link only
 
 ## Further Notes
 
-- **Visual and behavior source of truth.** `ideas/Portfolio.html` is the primary CSS and scroll-behavior reference. The `curr_*` screenshots in `ideas/` are current-state QA artifacts. For any ambiguity between the HTML source and a screenshot, the screenshot takes precedence only for rendered visual output; the HTML source takes precedence for scroll mechanics.
-
-- **Content source of truth.** `public/resume.pdf` is the canonical content source for names, dates, roles, institutions, project descriptions, and technologies. Do not invent content to fill layouts.
-
-- **Reference scroll facts.** The reference uses `body { overflow-x: hidden }`, `html { scroll-snap-type: y proximity }`, `snap-anchor` elements with `scroll-snap-stop: always`, one viewport of Projects height per project, one viewport of Timeline height per entry, smooth scroll only for explicit nav jumps, section-relative parallax, and active nav sampling around 40% of viewport height.
-
-- **Relation to existing issues.** Issues #154-161 describe visual sub-tasks that remain valid under this PRD. Any issue or test that requires global sticky/card-deck stacking, `useCardDeckDepth`-style scale/opacity, or each Timeline entry as a global sticky section is superseded by this update.
-
-- **Desktop QA gate.** Before marking any issue done, run the app in a browser and compare the implemented behavior against `ideas/Portfolio.html` and the matching current/reference screenshot. Note intentional deviations explicitly. Open a follow-up issue for any unexplained deviation.
+- `ideas/Portfolio.html` is the **styling and interaction reference only** — all content comes from `public/resume.pdf`.
+- The reference HTML uses CDN-loaded React + Babel. The repo uses Vite + TypeScript + Tailwind, which is the target stack and should not change.
+- The custom hooks (`useScrollProgress`, `useHorizontalScroll`, `useTimelineScroll`) should be preserved, not rewritten.
+- CSS vanilla equivalents already exist for several framer-motion usages: `.cursor` + `@keyframes blink-cursor` (portfolio.css line 186), `.hero-fade` + `@keyframes fade-up` (line 188), `.caret` (line 241). Use these as replacements rather than creating new CSS.
+- `framer-motion` should be removed from `package.json` and `src/animations/variants.ts` deleted after all component migrations are complete.
+- `@vercel/analytics` and `@vercel/speed-insights` integrations must be preserved in the final `App.tsx`.
