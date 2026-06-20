@@ -147,3 +147,11 @@ export function getProjectsTrackState(
 export function formatProjectNumber(id: string) {
   return `_${id.padStart(2, '0')}`
 }
+
+/** Ordered tag color palette; cycles via `getTagVariant` for tags beyond the palette length. */
+export const TAG_VARIANTS = ['fuchsia', 'blue', 'orange', 'yellow'] as const
+
+/** Returns the palette variant for a given tag index, cycling through `TAG_VARIANTS`. */
+export function getTagVariant(tagIndex: number) {
+  return TAG_VARIANTS[tagIndex % TAG_VARIANTS.length]
+}
