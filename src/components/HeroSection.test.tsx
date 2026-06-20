@@ -8,7 +8,6 @@ import {
   ROLES,
   VALUE_PROP,
   VALUE_PROP_SPEED,
-  cursorVariants,
 } from './HeroSection.constants'
 
 const FIRST_NAME_DURATION = FIRST_NAME.length * NAME_SPEED
@@ -224,18 +223,36 @@ describe('HeroSection', () => {
     expect(screen.getByTestId('value-prop')).toHaveClass('hero-tag')
   })
 
-  it('uses a step-like one-second blink animation for the cursor', () => {
-    const blink = cursorVariants.blink
+  it('drives the name cursor blink with the CSS .cursor class, not framer-motion', () => {
+    render(<HeroSection />)
 
-    expect(blink).toMatchObject({
-      opacity: [1, 1, 0, 0, 1],
-      transition: {
-        duration: 1,
-        ease: 'linear',
-        repeat: Infinity,
-        times: [0, 0.49, 0.5, 0.99, 1],
-      },
-    })
+    advanceToNameComplete()
+
+    const cursor = screen.getByTestId('hero-name-cursor')
+    expect(cursor).toHaveClass('cursor')
+    expect(cursor.tagName).toBe('SPAN')
+  })
+
+  it('drives the value-prop cursor blink with the CSS .cursor class', () => {
+    render(<HeroSection />)
+
+    advanceToValuePropStart()
+    advanceRoleTyping(ROLES[1])
+
+    const cursor = screen.getByTestId('value-prop-cursor')
+    expect(cursor).toHaveClass('cursor')
+    expect(cursor.tagName).toBe('SPAN')
+  })
+
+  it('applies the CSS .hero-fade class to the CTA row instead of framer-motion', () => {
+    render(<HeroSection />)
+
+    advanceToValuePropComplete()
+
+    const viewWork = screen.getByRole('link', { name: /VIEW_WORK →/i })
+    const ctaRow = viewWork.parentElement
+
+    expect(ctaRow).toHaveClass('hero-fade')
   })
 
   it('CTAs are absent before sequence completes', () => {
