@@ -7,6 +7,7 @@ interface RotatingRoleProps {
   typeSpeed?: number
   eraseSpeed?: number
   holdMs?: number
+  startDelay?: number
   /** Fires once after the first role has typed, held, erased, and the second role has typed. */
   onFirstCycleComplete?: () => void
 }
@@ -17,16 +18,16 @@ export function RotatingRole({
   roles,
   active,
   className = '',
-  typeSpeed = 40,
-  eraseSpeed = 30,
-  holdMs = 2000,
+  typeSpeed = 55,
+  eraseSpeed = 28,
+  holdMs = 2200,
+  startDelay = 300,
   onFirstCycleComplete,
 }: RotatingRoleProps) {
   const [displayed, setDisplayed] = useState('')
-  const [showCursor, setShowCursor] = useState(true)
   const stateRef = useRef({ roleIndex: 0, charIndex: 0, phase: 'idle' as Phase })
   const timerRef = useRef<number | null>(null)
-  const cursorTimerRef = useRef<number | null>(null)
+  const startTimerRef = useRef<number | null>(null)
   const onFirstCycleCompleteRef = useRef(onFirstCycleComplete)
   const hasCompletedFirstCycleRef = useRef(false)
   onFirstCycleCompleteRef.current = onFirstCycleComplete
@@ -36,9 +37,9 @@ export function RotatingRole({
       clearTimeout(timerRef.current)
       timerRef.current = null
     }
-    if (cursorTimerRef.current) {
-      clearInterval(cursorTimerRef.current)
-      cursorTimerRef.current = null
+    if (startTimerRef.current) {
+      clearTimeout(startTimerRef.current)
+      startTimerRef.current = null
     }
   }
 
@@ -46,19 +47,10 @@ export function RotatingRole({
     if (!active || roles.length === 0) {
       clearTimers()
       setDisplayed('')
-      setShowCursor(true)
       stateRef.current = { roleIndex: 0, charIndex: 0, phase: 'idle' }
       hasCompletedFirstCycleRef.current = false
       return
     }
-
-    if (stateRef.current.phase === 'idle') {
-      stateRef.current.phase = 'typing'
-    }
-
-    cursorTimerRef.current = window.setInterval(() => {
-      setShowCursor(prev => !prev)
-    }, 530)
 
     const tick = () => {
       const { roleIndex, charIndex, phase } = stateRef.current
@@ -94,15 +86,23 @@ export function RotatingRole({
       }
     }
 
-    timerRef.current = window.setTimeout(tick, typeSpeed)
+    if (stateRef.current.phase === 'idle') {
+      startTimerRef.current = window.setTimeout(() => {
+        startTimerRef.current = null
+        stateRef.current.phase = 'typing'
+        tick()
+      }, startDelay)
+    } else {
+      timerRef.current = window.setTimeout(tick, typeSpeed)
+    }
 
     return clearTimers
-  }, [active, roles, typeSpeed, eraseSpeed, holdMs])
+  }, [active, roles, typeSpeed, eraseSpeed, holdMs, startDelay])
 
   return (
     <div data-testid="rotating-role" className={className}>
       {displayed}
-      <span style={{ opacity: showCursor ? 1 : 0 }}>▍</span>
+      <span className="caret" style={{ background: 'var(--color-periwinkle)' }} />
     </div>
   )
 }

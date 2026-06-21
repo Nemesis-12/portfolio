@@ -361,8 +361,15 @@ describe('TimelineSection scroll', () => {
       )
       rerender(<TimelineSection />)
 
+      // Each panel field types in on its own staggered delay (see
+      // src/components/TimelineSection.tsx's BASE_DELAY stagger, matching
+      // ideas/Portfolio.html's TimelinePanel): the commit hash starts at
+      // delay=0 but the institution heading only starts at BASE_DELAY*4
+      // (120ms) after reactivation. Advancing by 100ms re-confirms the hash
+      // resumed typing from scratch while still landing strictly before the
+      // institution field's own delay has elapsed.
       act(() => {
-        vi.advanceTimersByTime(200)
+        vi.advanceTimersByTime(100)
       })
 
       const resumedHash =

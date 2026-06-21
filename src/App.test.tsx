@@ -395,6 +395,20 @@ describe('App shell', () => {
       const nameLines = document.getElementById('home')?.querySelectorAll('.hero-name-line')
       expect(nameLines?.[0]?.textContent).toBe('')
 
+      // FARHAN only starts once the '// PORTFOLIO_INIT' label has finished
+      // typing (speed=28/char) and its own 200ms stagger delay has elapsed
+      // (see HeroSection.tsx's TypeIn delay={200} on FIRST_NAME, matching
+      // ideas/Portfolio.html's Hero intro sequencing) — advance past both
+      // before checking for FARHAN's first character.
+      const INIT_TEXT_LENGTH = '// PORTFOLIO_INIT'.length
+      const INIT_SPEED = 28
+      const FIRST_NAME_DELAY = 200
+      act(() => {
+        vi.advanceTimersByTime(INIT_TEXT_LENGTH * INIT_SPEED)
+      })
+      act(() => {
+        vi.advanceTimersByTime(FIRST_NAME_DELAY)
+      })
       act(() => {
         vi.advanceTimersByTime(NAME_SPEED)
       })

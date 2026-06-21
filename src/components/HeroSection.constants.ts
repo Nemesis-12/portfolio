@@ -3,6 +3,4 @@ export const VALUE_PROP = '// I BUILD THINGS THAT ARE FUN TO FIGURE OUT.'
 
 export const FIRST_NAME = 'FARHAN'
 export const LAST_NAME = 'MOHAMMED'
-export const NAME_SPEED = 40
-
-export const VALUE_PROP_SPEED = 35
+export const NAME_SPEED = 95
