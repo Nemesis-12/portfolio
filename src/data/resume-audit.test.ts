@@ -12,10 +12,10 @@ const RESUME_EMAIL = 'famohammed@shockers.wichita.edu'
 
 // 19 resume skills across the resume's 4 categories (public/resume.pdf "Skills" section).
 const RESUME_SKILLS = [
-  'PyTorch', 'Transformers', 'Hugging Face',
-  'NumPy', 'Pandas', 'Scikit-learn', 'Matplotlib',
-  'Python', 'C++', 'C', 'SQL', 'JavaScript', 'TypeScript',
-  'Git', 'Docker', 'Linux', 'Ansible', 'Jupyter', 'FastAPI',
+  'PYTORCH', 'TRANSFORMERS', 'HUGGING FACE',
+  'NUMPY', 'PANDAS', 'SCIKIT-LEARN', 'MATPLOTLIB',
+  'PYTHON', 'C++', 'C', 'SQL', 'JAVASCRIPT', 'TYPESCRIPT',
+  'GIT', 'DOCKER', 'LINUX', 'ANSIBLE', 'JUPYTER', 'FASTAPI',
 ]
 
 const RESUME_TIMELINE = {
@@ -305,8 +305,8 @@ describe('resume source-of-truth audit', () => {
 
     it('Python and PyTorch are marked as large hero tiles', () => {
       render(createElement(SkillsSection))
-      const python = screen.getByText('Python').closest('.bi')
-      const pytorch = screen.getByText('PyTorch').closest('.bi')
+      const python = screen.getByText('PYTHON').closest('.bi')
+      const pytorch = screen.getByText('PYTORCH').closest('.bi')
       expect(python).toHaveClass('bi-lg')
       expect(pytorch).toHaveClass('bi-lg')
     })

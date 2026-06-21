@@ -3,7 +3,7 @@ import { StickySection } from './StickySection'
 
 const TILE_REVEAL_STEP_S = 0.08
 
-type Category = 'ML / DL' | 'DATA & COMPUTATION' | 'LANGUAGES' | 'TOOLS & SYSTEMS'
+type Category = 'FRAMEWORK' | 'LIBRARY' | 'PLATFORM' | 'LANGUAGE' | 'TOOL' | 'SYSTEM'
 type TileColor = 'orange' | 'blue' | 'fuchsia' | 'peri' | 'dark' | 'platinum' | 'yellow'
 
 interface SkillTile {
@@ -16,28 +16,28 @@ interface SkillTile {
 
 const tiles: SkillTile[] = [
   // ML / DL
-  { area: 'fl', category: 'ML / DL', name: 'PyTorch', color: 'yellow', large: true },
-  { area: 'tr', category: 'ML / DL', name: 'Transformers', color: 'yellow' },
-  { area: 'gt', category: 'ML / DL', name: 'Hugging Face', color: 'yellow' },
+  { area: 'fl', category: 'FRAMEWORK', name: 'PYTORCH', color: 'yellow', large: true },
+  { area: 'tr', category: 'LIBRARY', name: 'TRANSFORMERS', color: 'yellow' },
+  { area: 'gt', category: 'PLATFORM', name: 'HUGGING FACE', color: 'yellow' },
   // Data & Computation
-  { area: 'nd', category: 'DATA & COMPUTATION', name: 'NumPy', color: 'blue' },
-  { area: 'pd', category: 'DATA & COMPUTATION', name: 'Pandas', color: 'fuchsia' },
-  { area: 'sk', category: 'DATA & COMPUTATION', name: 'Scikit-learn', color: 'blue' },
-  { area: 'mp', category: 'DATA & COMPUTATION', name: 'Matplotlib', color: 'fuchsia' },
+  { area: 'nd', category: 'LIBRARY', name: 'NUMPY', color: 'blue' },
+  { area: 'pd', category: 'LIBRARY', name: 'PANDAS', color: 'fuchsia' },
+  { area: 'sk', category: 'LIBRARY', name: 'SCIKIT-LEARN', color: 'blue' },
+  { area: 'mp', category: 'LIBRARY', name: 'MATPLOTLIB', color: 'fuchsia' },
   // Languages
-  { area: 'py', category: 'LANGUAGES', name: 'Python', color: 'orange', large: true },
-  { area: 'cc', category: 'LANGUAGES', name: 'C++', color: 'peri' },
-  { area: 'ci', category: 'LANGUAGES', name: 'C', color: 'peri' },
-  { area: 'sq', category: 'LANGUAGES', name: 'SQL', color: 'fuchsia' },
-  { area: 're', category: 'LANGUAGES', name: 'JavaScript', color: 'peri' },
-  { area: 'js', category: 'LANGUAGES', name: 'TypeScript', color: 'blue' },
+  { area: 'py', category: 'LANGUAGE', name: 'PYTHON', color: 'orange', large: true },
+  { area: 'cc', category: 'LANGUAGE', name: 'C++', color: 'peri' },
+  { area: 'ci', category: 'LANGUAGE', name: 'C', color: 'peri' },
+  { area: 'sq', category: 'LANGUAGE', name: 'SQL', color: 'fuchsia' },
+  { area: 're', category: 'LANGUAGE', name: 'JAVASCRIPT', color: 'peri' },
+  { area: 'js', category: 'LANGUAGE', name: 'TYPESCRIPT', color: 'blue' },
   // Tools & Systems
-  { area: 'mn', category: 'TOOLS & SYSTEMS', name: 'Git', color: 'dark' },
-  { area: 'dk', category: 'TOOLS & SYSTEMS', name: 'Docker', color: 'platinum' },
-  { area: 'lx', category: 'TOOLS & SYSTEMS', name: 'Linux', color: 'dark' },
-  { area: 'an', category: 'TOOLS & SYSTEMS', name: 'Ansible', color: 'platinum' },
-  { area: 'jp', category: 'TOOLS & SYSTEMS', name: 'Jupyter', color: 'orange' },
-  { area: 'nx', category: 'TOOLS & SYSTEMS', name: 'FastAPI', color: 'orange' },
+  { area: 'mn', category: 'TOOL', name: 'GIT', color: 'dark' },
+  { area: 'dk', category: 'TOOL', name: 'DOCKER', color: 'platinum' },
+  { area: 'lx', category: 'SYSTEM', name: 'LINUX', color: 'dark' },
+  { area: 'an', category: 'TOOL', name: 'ANSIBLE', color: 'platinum' },
+  { area: 'jp', category: 'TOOL', name: 'JUPYTER', color: 'orange' },
+  { area: 'nx', category: 'FRAMEWORK', name: 'FASTAPI', color: 'orange' },
 ]
 
 export const REVEAL_AREAS = [
