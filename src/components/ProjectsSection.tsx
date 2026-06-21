@@ -87,7 +87,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
           aria-hidden="true"
           className="hscroll-hint pointer-events-none"
         >
-          SCROLL <span>→</span>
+          SCROLL <span>↓</span>
         </div>
       </div>
     </section>
