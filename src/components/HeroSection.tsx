@@ -26,7 +26,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
         ></div>
       </div>
 
-      <div data-testid="hero-content" className="hero-inner pt-20 w-full">
+      <div data-testid="hero-content" className="hero-inner w-full">
         <p className="hero-init">
           <TypeIn
             start={introReady}
