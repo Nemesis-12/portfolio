@@ -259,7 +259,7 @@
   .tl-bullets li{font-size:clamp(12px,1.1vw,15px);color:var(--color-periwinkle);letter-spacing:1px;padding-left:24px;position:relative;line-height:1.7;min-height:1.7em}
   .tl-bullets li::before{content:'•';position:absolute;left:0;color:var(--color-atomic-tangerine)}
   .tl-section-tag{position:absolute;top:0;left:8vw;display:flex;align-items:baseline;gap:10px;line-height:1}
-  .tl-section-slash{font-family:var(--font-body);font-size:14px;color:var(--color-atomic-tangerine);letter-spacing:3px}
+  .tl-section-slash{font-family:var(--font-display);font-size:14px;color:var(--color-atomic-tangerine);letter-spacing:3px}
   .tl-section-kind{font-family:var(--font-display);font-size:clamp(14px,1.8vw,22px);letter-spacing:5px;color:var(--color-atomic-tangerine)}
   .tl-section-tag.education .tl-section-slash,
   .tl-section-tag.experience .tl-section-slash,
