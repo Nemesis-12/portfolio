@@ -136,7 +136,7 @@
   .pcard-desc{font-size:16px;color:var(--color-graphite);opacity:.85;line-height:1.85;margin-top:20px;flex:1;position:relative;z-index:2;text-wrap:pretty;transition:color .35s var(--ease),opacity .35s var(--ease)}
   .pcard:hover .pcard-desc{color:var(--color-platinum);opacity:1}
   .pcard-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;position:relative;z-index:2}
-  .ptag{font-size:16px;padding:8px 14px;letter-spacing:1.5px;font-weight:700;transition:background .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease)}
+  .ptag{font-size:14px;padding:8px 14px;letter-spacing:1.5px;font-weight:700;transition:background .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease)}
   .ptag-fuchsia{background:var(--color-fuchsia-flame);color:var(--color-platinum)}
   .ptag-blue{background:var(--color-ultrasonic-blue);color:var(--color-platinum)}
   .ptag-orange{background:var(--color-atomic-tangerine);color:var(--color-graphite)}
