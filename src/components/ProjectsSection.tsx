@@ -83,11 +83,11 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
 
         <div
           data-testid="scroll-hint"
-          data-visible={progress === 0}
+          data-visible={progress < 1}
           aria-hidden="true"
           className="hscroll-hint pointer-events-none"
         >
-          SCROLL <span>→</span>
+          SCROLL <span>↓</span>
         </div>
       </div>
     </section>

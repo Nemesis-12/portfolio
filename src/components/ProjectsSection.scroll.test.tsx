@@ -258,7 +258,7 @@ describe('ProjectsSection scroll', () => {
       expect(hint).toHaveAttribute('data-visible', 'true')
     })
 
-    it('scroll hint is not visible when progress advances beyond 0', () => {
+    it('scroll hint stays visible at a mid-scroll progress (not yet at the last card)', () => {
       setViewport(1000, 800)
       render(<ProjectsSection projects={mockProjects} />)
 
@@ -266,6 +266,25 @@ describe('ProjectsSection scroll', () => {
       const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
 
       vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(createRect(-400, 1600))
+      mockCarouselTrackWidth(carouselTrack, getCarouselTrackWidth(mockProjects.length, 1000))
+
+      act(() => window.dispatchEvent(new Event('scroll')))
+
+      const hint = screen.getByTestId('scroll-hint')
+      expect(hint).toHaveAttribute('data-visible', 'true')
+    })
+
+    it('scroll hint is not visible once progress reaches 1 (last card, full scroll)', () => {
+      setViewport(1000, 800)
+      render(<ProjectsSection projects={mockProjects} />)
+
+      const projectsSection = document.getElementById('projects') as HTMLElement
+      const carouselTrack = document.querySelector('[data-carousel-track="true"]') as HTMLElement
+
+      const sectionHeight = getScrollRangeVh(mockProjects.length) * 800
+      vi.spyOn(projectsSection, 'getBoundingClientRect').mockReturnValue(
+        createRect(-(sectionHeight - 800), sectionHeight),
+      )
       mockCarouselTrackWidth(carouselTrack, getCarouselTrackWidth(mockProjects.length, 1000))
 
       act(() => window.dispatchEvent(new Event('scroll')))

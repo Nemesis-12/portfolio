@@ -158,4 +158,70 @@ describe('TypeIn', () => {
     expect(firstOnDone).not.toHaveBeenCalled()
     expect(latestOnDone).toHaveBeenCalledTimes(1)
   })
+
+  it('does not start typing until the delay elapses', () => {
+    render(<TypeIn start={true} text="AB" delay={200} />)
+
+    act(() => { vi.advanceTimersByTime(150) })
+    expect(screen.queryByText('A')).not.toBeInTheDocument()
+
+    act(() => { vi.advanceTimersByTime(50) })
+    act(() => { vi.advanceTimersByTime(40) })
+    expect(screen.getByText('A')).toBeInTheDocument()
+  })
+
+  it('types at the given speed after the delay elapses', () => {
+    render(<TypeIn start={true} text="AB" speed={40} delay={200} />)
+
+    act(() => { vi.advanceTimersByTime(200) })
+    act(() => { vi.advanceTimersByTime(40) })
+    expect(screen.getByText('A')).toBeInTheDocument()
+
+    act(() => { vi.advanceTimersByTime(40) })
+    expect(screen.getByText('AB')).toBeInTheDocument()
+  })
+
+  it('does not call onDone before the delay plus typing duration elapses', () => {
+    const onDone = vi.fn()
+    render(<TypeIn start={true} text="X" speed={40} delay={200} onDone={onDone} />)
+
+    act(() => { vi.advanceTimersByTime(200) })
+    expect(onDone).not.toHaveBeenCalled()
+
+    act(() => { vi.advanceTimersByTime(40) })
+    expect(onDone).toHaveBeenCalledTimes(1)
+  })
+
+  it('cleans up the delay timeout on unmount before it fires', () => {
+    const onDone = vi.fn()
+    const { unmount } = render(<TypeIn start={true} text="Hello" delay={200} onDone={onDone} />)
+
+    act(() => { vi.advanceTimersByTime(100) })
+    unmount()
+    act(() => { vi.advanceTimersByTime(1000) })
+
+    expect(onDone).not.toHaveBeenCalled()
+  })
+
+  it('restarts the delay when start flips false then true', () => {
+    const { rerender } = render(<TypeIn start={true} text="AB" delay={200} />)
+
+    act(() => { vi.advanceTimersByTime(100) })
+    rerender(<TypeIn start={false} text="AB" delay={200} />)
+    rerender(<TypeIn start={true} text="AB" delay={200} />)
+
+    act(() => { vi.advanceTimersByTime(100) })
+    expect(screen.queryByText('A')).not.toBeInTheDocument()
+
+    act(() => { vi.advanceTimersByTime(100) })
+    act(() => { vi.advanceTimersByTime(40) })
+    expect(screen.getByText('A')).toBeInTheDocument()
+  })
+
+  it('defaults delay to 0 so timing matches the no-delay case', () => {
+    render(<TypeIn start={true} text="AB" />)
+
+    act(() => { vi.advanceTimersByTime(45) })
+    expect(screen.getByText('A')).toBeInTheDocument()
+  })
 })

@@ -16,27 +16,37 @@ describe('RotatingRole', () => {
   })
 
   it('types the first role when active', () => {
-    render(<RotatingRole roles={roles} active={true} />)
+    render(<RotatingRole roles={roles} active={true} startDelay={1} />)
 
-    act(() => { vi.advanceTimersByTime(40) })
+    act(() => { vi.advanceTimersByTime(55) })
     expect(screen.getByText(/^C$/)).toBeInTheDocument()
 
     for (let i = 0; i < CS_STUDENT.length - 1; i++) {
-      act(() => { vi.advanceTimersByTime(40) })
+      act(() => { vi.advanceTimersByTime(55) })
     }
     expect(screen.getByText(new RegExp(`^${CS_STUDENT}$`))).toBeInTheDocument()
   })
 
+  it('defers the first character until startDelay elapses', () => {
+    render(<RotatingRole roles={roles} active={true} startDelay={300} typeSpeed={40} />)
+
+    act(() => { vi.advanceTimersByTime(200) })
+    expect(screen.queryByText(/^C$/)).not.toBeInTheDocument()
+
+    act(() => { vi.advanceTimersByTime(100) })
+    expect(screen.getByText(/^C$/)).toBeInTheDocument()
+  })
+
   it('completes type -> hold -> erase cycle and shows second role', () => {
-    const { container } = render(<RotatingRole roles={roles} active={true} typeSpeed={40} eraseSpeed={40} holdMs={100} />)
+    const { container } = render(<RotatingRole roles={roles} active={true} typeSpeed={40} eraseSpeed={40} holdMs={100} startDelay={1} />)
 
     for (let i = 0; i <= CS_STUDENT.length; i++) {
       act(() => { vi.advanceTimersByTime(40) })
     }
-    expect(container.textContent?.replace('▍', '')).toBe(CS_STUDENT)
+    expect(container.textContent).toBe(CS_STUDENT)
 
     act(() => { vi.advanceTimersByTime(100) })
-    expect(container.textContent?.replace('▍', '')).toBe(CS_STUDENT)
+    expect(container.textContent).toBe(CS_STUDENT)
 
     for (let i = 0; i <= CS_STUDENT.length; i++) {
       act(() => { vi.advanceTimersByTime(40) })
@@ -45,13 +55,13 @@ describe('RotatingRole', () => {
     for (let i = 0; i <= DEVELOPER.length; i++) {
       act(() => { vi.advanceTimersByTime(40) })
     }
-    expect(container.textContent?.replace('▍', '')).toBe(DEVELOPER)
+    expect(container.textContent).toBe(DEVELOPER)
   })
 
-  it('shows blinking cursor during typing and hold phases', () => {
-    render(<RotatingRole roles={roles} active={true} typeSpeed={40} holdMs={100} />)
+  it('shows a persistent caret element during typing and hold phases', () => {
+    render(<RotatingRole roles={roles} active={true} typeSpeed={40} holdMs={100} startDelay={1} />)
     const container = screen.getByTestId('rotating-role')
-    const cursor = container.querySelector('span')
+    const cursor = container.querySelector('.caret')
 
     act(() => { vi.advanceTimersByTime(40) })
     expect(cursor).not.toBeNull()
@@ -60,11 +70,11 @@ describe('RotatingRole', () => {
       act(() => { vi.advanceTimersByTime(40) })
     }
     expect(screen.getByText(new RegExp(`^${CS_STUDENT}$`))).toBeInTheDocument()
-    expect(container.querySelector('span')).not.toBeNull()
+    expect(container.querySelector('.caret')).not.toBeNull()
   })
 
   it('erases characters in reverse order', () => {
-    const { container } = render(<RotatingRole roles={roles} active={true} typeSpeed={40} eraseSpeed={40} holdMs={100} />)
+    const { container } = render(<RotatingRole roles={roles} active={true} typeSpeed={40} eraseSpeed={40} holdMs={100} startDelay={1} />)
 
     for (let i = 0; i <= CS_STUDENT.length; i++) {
       act(() => { vi.advanceTimersByTime(40) })
@@ -72,14 +82,14 @@ describe('RotatingRole', () => {
     act(() => { vi.advanceTimersByTime(100) })
 
     act(() => { vi.advanceTimersByTime(40) })
-    expect(container.textContent?.replace('▍', '')).toBe('CS_STUDEN')
+    expect(container.textContent).toBe('CS_STUDEN')
 
     act(() => { vi.advanceTimersByTime(40) })
-    expect(container.textContent?.replace('▍', '')).toBe('CS_STUDE')
+    expect(container.textContent).toBe('CS_STUDE')
   })
 
   it('transitions to next role after full cycle', () => {
-    render(<RotatingRole roles={[CS_STUDENT, DEVELOPER]} active={true} typeSpeed={40} eraseSpeed={40} holdMs={50} />)
+    render(<RotatingRole roles={[CS_STUDENT, DEVELOPER]} active={true} typeSpeed={40} eraseSpeed={40} holdMs={50} startDelay={1} />)
     const container = screen.getByTestId('rotating-role')
 
     const fullCycle = () => {
@@ -90,7 +100,7 @@ describe('RotatingRole', () => {
     }
 
     fullCycle()
-    const text = container.textContent?.replace('▍', '')
+    const text = container.textContent
     expect(text).toBe(DEVELOPER)
   })
 
@@ -104,6 +114,7 @@ describe('RotatingRole', () => {
         typeSpeed={40}
         eraseSpeed={40}
         holdMs={50}
+        startDelay={1}
         onFirstCycleComplete={onFirstCycleComplete}
       />
     )
@@ -130,6 +141,7 @@ describe('RotatingRole', () => {
         typeSpeed={40}
         eraseSpeed={40}
         holdMs={50}
+        startDelay={1}
         onFirstCycleComplete={firstCallback}
       />
     )
@@ -143,6 +155,7 @@ describe('RotatingRole', () => {
         typeSpeed={40}
         eraseSpeed={40}
         holdMs={50}
+        startDelay={1}
         onFirstCycleComplete={latestCallback}
       />
     )
@@ -164,6 +177,7 @@ describe('RotatingRole', () => {
         typeSpeed={40}
         eraseSpeed={40}
         holdMs={50}
+        startDelay={1}
         onFirstCycleComplete={onFirstCycleComplete}
       />
     )
@@ -176,6 +190,7 @@ describe('RotatingRole', () => {
         typeSpeed={40}
         eraseSpeed={40}
         holdMs={50}
+        startDelay={1}
         onFirstCycleComplete={onFirstCycleComplete}
       />
     )

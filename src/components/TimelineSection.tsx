@@ -1,5 +1,5 @@
-import { useMemo, useRef } from 'react'
-import { useTypewriter } from '../animations/useTypewriter'
+import { useMemo, useRef, useState } from 'react'
+import { Typewriter } from '../animations/Typewriter'
 import type { TimelineEntry } from '../data/timeline'
 import { timelineEntries } from '../data/timeline'
 import { useTimelineScroll } from '../hooks/useTimelineScroll'
@@ -11,84 +11,152 @@ function formatPanelCount(index: number, total: number): string {
   return `${String(index + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`
 }
 
-const METADATA_LINE_COUNT = 3
+const BASE_DELAY = 30
 
+/**
+ * Renders a single commit panel's typed fields.
+ *
+ * Every `Typewriter` is mounted unconditionally from the very first render
+ * (gated only by its own `delay`/`hideUntilStart` props), rather than being
+ * mounted later in response to a parent state change. Mounting a *new*
+ * `Typewriter` from inside a timer-driven re-render would register a fresh
+ * setTimeout from that freshly-mounted child's effect, and under vitest's
+ * fake timers a single `act(() => vi.advanceTimersByTime(N))` call does not
+ * reliably pick up timers registered that late within the same pass.
+ * Fields that must be entirely absent from the DOM until they start
+ * (institution, role, each bullet) use `hideUntilStart` so the same
+ * long-lived Typewriter instance renders its own wrapper tag directly
+ * (`wrapperTag`/`wrapperProps`) instead of being wrapped by a separately
+ * conditionally-rendered parent element, which would itself force a
+ * remount.
+ */
 function CommitEntry({ entry, active }: { entry: TimelineEntry; active: boolean }) {
-  const lines = useMemo(
-    () => [
-      `commit ${entry.hash}`,
-      'Author: Farhan Mohammed',
-      `Date:   ${entry.dateRange}`,
-      entry.institution,
-      entry.role,
-      ...entry.bullets,
-    ],
-    [entry],
-  )
+  const [institutionStarted, setInstitutionStarted] = useState(false)
 
-  const displayedLines = useTypewriter(active, lines, 80, undefined, {
-    mode: 'line',
-    restartOnActivate: true,
-  })
+  // Reset gating state whenever this panel re-activates (false -> true) or
+  // the entry changes, so re-activating restarts from scratch instead of
+  // holding stale gates. We deliberately do NOT reset when going active ->
+  // inactive: the panel must keep showing whatever it had typed so far
+  // (mirrors the reference Typewriter's "keep current shown so panels don't
+  // blank during slide-out" behavior), so `institutionStarted` must survive
+  // a deactivation and only resets the moment the panel goes active again.
+  // This is a state update during render (not inside an effect), so it is
+  // applied before this render commits and never depends on a timer firing
+  // mid-`advanceTimersByTime` pass.
+  const [trackedKey, setTrackedKey] = useState(`${entry.hash}:${active}`)
+  const key = `${entry.hash}:${active}`
+  if (key !== trackedKey) {
+    setTrackedKey(key)
+    if (active) {
+      setInstitutionStarted(false)
+    }
+  }
 
-  const institutionLine = displayedLines[METADATA_LINE_COUNT]
-  const roleLine = displayedLines[METADATA_LINE_COUNT + 1]
-  const bulletLines = entry.bullets
-    .map((_, index) => displayedLines[METADATA_LINE_COUNT + 2 + index])
-    .filter((line): line is string => line !== undefined && line !== '')
-
-  const institutionTyped = institutionLine === entry.institution
-  const roleTyped = roleLine === entry.role
+  // Until the panel has been active at least once, render nothing: a panel
+  // that has never been scrolled to must have zero typewriter DOM (per
+  // "inactive panels remain empty"). Once it has activated, keep the full
+  // tree mounted forever after — even while later inactive — so the
+  // already-mounted Typewriters hold their last-typed text instead of being
+  // unmounted and losing it.
+  const hasActivatedRef = useRef(active)
+  if (active) {
+    hasActivatedRef.current = true
+  }
+  if (!hasActivatedRef.current) {
+    return (
+      <div className="tl-panel" data-testid="commit-entry">
+        <div data-testid="commit-metadata" />
+      </div>
+    )
+  }
 
   return (
     <div className="tl-panel" data-testid="commit-entry">
       <div data-testid="commit-metadata">
-        {displayedLines[0] !== undefined && (
-          <div className="tl-commit" data-testid="commit-hash" data-typewriter-line>
-            {displayedLines[0]}
-          </div>
-        )}
-        {displayedLines[1] !== undefined && (
-          <div className="tl-meta" data-testid="commit-author" data-typewriter-line>
-            {displayedLines[1]}
-          </div>
-        )}
-        {displayedLines[2] !== undefined && (
-          <div className="tl-meta" data-testid="commit-date" data-typewriter-line>
-            {displayedLines[2]}
-          </div>
-        )}
+        <Typewriter
+          text={`commit ${entry.hash}`}
+          active={active}
+          delay={0}
+          speed={6}
+          hideUntilStart
+          wrapperTag="div"
+          wrapperProps={{
+            className: 'tl-commit',
+            'data-testid': 'commit-hash',
+            'data-typewriter-line': true,
+          }}
+        />
+        <Typewriter
+          text="Author: Farhan Mohammed"
+          active={active}
+          delay={BASE_DELAY}
+          speed={6}
+          hideUntilStart
+          wrapperTag="div"
+          wrapperProps={{
+            className: 'tl-meta',
+            'data-testid': 'commit-author',
+            'data-typewriter-line': true,
+          }}
+        />
+        <Typewriter
+          text={`Date:   ${entry.dateRange}`}
+          active={active}
+          delay={BASE_DELAY * 2}
+          speed={6}
+          hideUntilStart
+          wrapperTag="div"
+          wrapperProps={{
+            className: 'tl-meta',
+            'data-testid': 'commit-date',
+            'data-typewriter-line': true,
+          }}
+        />
       </div>
-      {institutionLine !== undefined && (
-        <>
-          <div className="tl-sep" aria-hidden="true" />
-          <h2 className="tl-org" data-testid="commit-institution" data-typewriter-line>
-            {institutionLine}
-            {institutionTyped && (
-              <span className="caret" data-testid="commit-institution-caret" aria-hidden="true" />
-            )}
-          </h2>
-        </>
-      )}
-      {roleLine !== undefined && (
-        <p className="tl-title" data-testid="commit-role" data-typewriter-line>
-          {roleLine}
-          {roleTyped && (
-            <span className="caret" data-testid="commit-role-caret" aria-hidden="true" />
-          )}
-        </p>
-      )}
-      {bulletLines.length > 0 && (
+      {institutionStarted && <div className="tl-sep" aria-hidden="true" />}
+      <Typewriter
+        text={entry.institution}
+        active={active}
+        delay={BASE_DELAY * 4}
+        speed={10}
+        keepCursor
+        hideUntilStart
+        onStart={() => setInstitutionStarted(true)}
+        wrapperTag="h2"
+        wrapperProps={{
+          className: 'tl-org',
+          'data-testid': 'commit-institution',
+          'data-typewriter-line': true,
+        }}
+      />
+      <Typewriter
+        text={entry.role}
+        active={active}
+        delay={BASE_DELAY * 7}
+        speed={6}
+        keepCursor
+        hideUntilStart
+        wrapperTag="p"
+        wrapperProps={{
+          className: 'tl-title',
+          'data-testid': 'commit-role',
+          'data-typewriter-line': true,
+        }}
+      />
+      {entry.bullets.length > 0 && (
         <ul className="tl-bullets" data-testid="commit-details">
-          {entry.bullets.map((_, index) => {
-            const line = displayedLines[METADATA_LINE_COUNT + 2 + index]
-            if (line === undefined) return null
-            return (
-              <li key={index} data-typewriter-line>
-                {line}
-              </li>
-            )
-          })}
+          {entry.bullets.map((bullet, index) => (
+            <Typewriter
+              key={index}
+              text={bullet}
+              active={active}
+              delay={BASE_DELAY * 10 + index * 120}
+              speed={6}
+              hideUntilStart
+              wrapperTag="li"
+              wrapperProps={{ 'data-typewriter-line': true }}
+            />
+          ))}
         </ul>
       )}
     </div>
@@ -189,10 +257,10 @@ const TimelineSection: React.FC = () => {
 
         <div
           data-testid="scroll-hint"
-          data-visible={activeIndex === 0}
+          data-visible={activeIndex < entryCount - 1}
           aria-hidden="true"
           className="hscroll-hint"
-          style={{ opacity: activeIndex === 0 ? 0.85 : 0, transition: 'opacity 0.3s' }}
+          style={{ opacity: activeIndex < entryCount - 1 ? 0.85 : 0, transition: 'opacity 0.3s' }}
         >
           SCROLL <span>↓</span>
         </div>

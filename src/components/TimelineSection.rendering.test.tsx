@@ -172,7 +172,7 @@ describe('TimelineSection rendering', () => {
   })
 
   describe('issue #288 - persistent blinking carets after typing completes', () => {
-    it('shows no caret on institution or role while typing is still in progress', () => {
+    it('shows no caret on institution or role before either field has started typing', () => {
       vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([true, false, false, false]))
       vi.useFakeTimers()
 
@@ -182,8 +182,8 @@ describe('TimelineSection rendering', () => {
         vi.advanceTimersByTime(100)
       })
 
-      expect(getTimelinePanel(0).querySelector('[data-testid="commit-institution-caret"]')).toBeNull()
-      expect(getTimelinePanel(0).querySelector('[data-testid="commit-role-caret"]')).toBeNull()
+      expect(getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')).toBeNull()
+      expect(getTimelinePanel(0).querySelector('[data-testid="commit-role"]')).toBeNull()
     })
 
     it('renders a persistent caret on the institution heading once typed', () => {
@@ -197,9 +197,8 @@ describe('TimelineSection rendering', () => {
       })
 
       const institution = getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')
-      const caret = institution?.querySelector('[data-testid="commit-institution-caret"]')
+      const caret = institution?.querySelector('.caret')
       expect(caret).toBeInTheDocument()
-      expect(caret).toHaveClass('caret')
     })
 
     it('renders a persistent caret on the role line once typed', () => {
@@ -213,9 +212,8 @@ describe('TimelineSection rendering', () => {
       })
 
       const role = getTimelinePanel(0).querySelector('[data-testid="commit-role"]')
-      const caret = role?.querySelector('[data-testid="commit-role-caret"]')
+      const caret = role?.querySelector('.caret')
       expect(caret).toBeInTheDocument()
-      expect(caret).toHaveClass('caret')
     })
   })
 
@@ -283,9 +281,19 @@ describe('TimelineSection rendering', () => {
       expect(hint).toHaveClass('hscroll-hint')
     })
 
-    it('hides scroll hint after first panel beat', () => {
+    it('keeps showing scroll hint on a middle panel (not the last)', () => {
       vi.mocked(useTimelineScroll).mockReturnValue(
         mockTimelineScrollState([false, true, false, false], { activeIndex: 1, progress: 0.5 }),
+      )
+
+      render(<TimelineSection />)
+
+      expect(screen.getByTestId('scroll-hint')).toHaveAttribute('data-visible', 'true')
+    })
+
+    it('hides scroll hint on the last panel', () => {
+      vi.mocked(useTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([false, false, false, true], { activeIndex: 3, progress: 1 }),
       )
 
       render(<TimelineSection />)
