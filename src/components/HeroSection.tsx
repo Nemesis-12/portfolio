@@ -39,7 +39,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
         <p className="hero-init">// PORTFOLIO_INIT</p>
         <div className="hero-bar" />
 
-        <h1 data-testid="hero-name" className="hero-name">
+        <h1
+          data-testid="hero-name"
+          className="hero-name"
+          data-parallax
+          data-parallax-factor="0.15"
+        >
           <span className="hero-name-line">
             <TypeIn
               start={introReady}

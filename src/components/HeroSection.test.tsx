@@ -106,6 +106,14 @@ describe('HeroSection', () => {
     expect(lineGrid).toHaveAttribute('data-parallax-factor', '0.3')
   })
 
+  it('marks the hero name as a subtle parallax layer', () => {
+    render(<HeroSection />)
+    const heroName = screen.getByTestId('hero-name')
+
+    expect(heroName).toHaveAttribute('data-parallax')
+    expect(heroName).toHaveAttribute('data-parallax-factor', '0.15')
+  })
+
   it('value prop is empty initially', () => {
     render(<HeroSection />)
 
