@@ -257,10 +257,10 @@ const TimelineSection: React.FC = () => {
 
         <div
           data-testid="scroll-hint"
-          data-visible={activeIndex === 0}
+          data-visible={activeIndex < entryCount - 1}
           aria-hidden="true"
           className="hscroll-hint"
-          style={{ opacity: activeIndex === 0 ? 0.85 : 0, transition: 'opacity 0.3s' }}
+          style={{ opacity: activeIndex < entryCount - 1 ? 0.85 : 0, transition: 'opacity 0.3s' }}
         >
           SCROLL <span>↓</span>
         </div>

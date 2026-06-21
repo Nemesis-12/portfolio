@@ -281,9 +281,19 @@ describe('TimelineSection rendering', () => {
       expect(hint).toHaveClass('hscroll-hint')
     })
 
-    it('hides scroll hint after first panel beat', () => {
+    it('keeps showing scroll hint on a middle panel (not the last)', () => {
       vi.mocked(useTimelineScroll).mockReturnValue(
         mockTimelineScrollState([false, true, false, false], { activeIndex: 1, progress: 0.5 }),
+      )
+
+      render(<TimelineSection />)
+
+      expect(screen.getByTestId('scroll-hint')).toHaveAttribute('data-visible', 'true')
+    })
+
+    it('hides scroll hint on the last panel', () => {
+      vi.mocked(useTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([false, false, false, true], { activeIndex: 3, progress: 1 }),
       )
 
       render(<TimelineSection />)
