@@ -197,7 +197,7 @@ describe('TimelineSection rendering', () => {
       })
 
       const institution = getTimelinePanel(0).querySelector('[data-testid="commit-institution"]')
-      const caret = institution?.querySelector('.caret')
+      const caret = institution?.querySelector('.cursor')
       expect(caret).toBeInTheDocument()
     })
 
@@ -212,7 +212,7 @@ describe('TimelineSection rendering', () => {
       })
 
       const role = getTimelinePanel(0).querySelector('[data-testid="commit-role"]')
-      const caret = role?.querySelector('.caret')
+      const caret = role?.querySelector('.cursor')
       expect(caret).toBeInTheDocument()
     })
   })

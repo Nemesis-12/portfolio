@@ -60,7 +60,7 @@ export default function ContactSection() {
             />
             {isInView && step >= 2 && <span className="period">.</span>}
             {isInView && step >= 2 && (
-              <span className="cursor" data-testid="contact-cursor" aria-hidden="true" />
+              <span className="cursor" data-testid="contact-cursor" aria-hidden="true" style={{ background: 'var(--color-atomic-tangerine)' }} />
             )}
           </span>
         </div>

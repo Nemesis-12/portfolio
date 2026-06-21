@@ -68,7 +68,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
               }}
             />
             {showNameCursor && (
-              <span data-testid="hero-name-cursor" aria-hidden="true" className="cursor" />
+              <span data-testid="hero-name-cursor" aria-hidden="true" className="cursor" style={{ background: 'var(--color-atomic-tangerine)' }} />
             )}
           </span>
         </h1>

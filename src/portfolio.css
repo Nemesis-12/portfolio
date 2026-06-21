@@ -205,7 +205,7 @@
     }
 
     /* ─── HERO TYPING ──── */
-  .cursor{display:inline-block;width:.55ch;height:.9em;background:var(--color-atomic-tangerine);vertical-align:-.13em;margin-left:6px;animation:blink-cursor 1.05s steps(1) -999s infinite}
+  .cursor{display:inline-block;width:.55ch;height:.9em;background:currentColor;vertical-align:-.13em;margin-left:6px;animation:blink-cursor 1.05s steps(1) infinite}
   @keyframes blink-cursor{50%{opacity:0}}
   .hero-fade{opacity:0;animation:fade-up .7s var(--ease) forwards}
   @keyframes fade-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -265,9 +265,6 @@
   .tl-section-tag.experience .tl-section-slash,
   .tl-section-tag.education .tl-section-kind,
   .tl-section-tag.experience .tl-section-kind{color:var(--color-atomic-tangerine)}
-  /* terminal-cursor caret (small block, end-of-line) */
-  .caret{display:inline-block;width:.55ch;height:.9em;background:currentColor;vertical-align:-.13em;margin-left:4px;animation:blink-cursor 1.05s steps(1) -999s infinite}
-
   /* ─── FOOTER ──── */
   footer{width:100%;min-height:100vh;display:flex;flex-direction:column;padding:0}
   .footer-cta{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 5vw;gap:48px;text-align:center}
@@ -287,9 +284,6 @@
 
   /* parallax layers — transform driven by scrollY * factor in JS */
   [data-parallax]{will-change:transform}
-
-  /* persistent title cursor (uses currentColor so it matches whichever text it sits next to) */
-  .title-cursor{display:inline-block;width:.55ch;height:.9em;background:currentColor;vertical-align:-.13em;margin-left:6px;animation:blink-cursor 1.05s steps(1) -999s infinite}
 
   @media (max-width:760px){
     .nav-list{gap:14px}

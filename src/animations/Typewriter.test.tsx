@@ -108,7 +108,7 @@ describe('Typewriter', () => {
       vi.advanceTimersByTime(6)
     })
 
-    expect(container.querySelector('.caret')).not.toBeNull()
+    expect(container.querySelector('.cursor')).not.toBeNull()
   })
 
   it('hides the caret once typing completes when keepCursor is false', () => {
@@ -119,7 +119,7 @@ describe('Typewriter', () => {
     })
 
     expect(container.textContent).toBe('Hi')
-    expect(container.querySelector('.caret')).toBeNull()
+    expect(container.querySelector('.cursor')).toBeNull()
   })
 
   it('keeps the caret visible after typing completes when keepCursor is true', () => {
@@ -130,7 +130,7 @@ describe('Typewriter', () => {
     })
 
     expect(container.textContent).toBe('Hi')
-    expect(container.querySelector('.caret')).not.toBeNull()
+    expect(container.querySelector('.cursor')).not.toBeNull()
   })
 
   it('hides the caret entirely when active is false, even with keepCursor', () => {
@@ -139,11 +139,11 @@ describe('Typewriter', () => {
     act(() => {
       vi.advanceTimersByTime(6 * 3)
     })
-    expect(container.querySelector('.caret')).not.toBeNull()
+    expect(container.querySelector('.cursor')).not.toBeNull()
 
     rerender(<Typewriter text="Hi" active={false} keepCursor={true} />)
 
-    expect(container.querySelector('.caret')).toBeNull()
+    expect(container.querySelector('.cursor')).toBeNull()
   })
 
   it('cleans up timers on unmount', () => {
