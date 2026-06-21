@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { StickySection } from './StickySection'
 
-const TILE_REVEAL_STEP_S = 0.12
+const TILE_REVEAL_STEP_S = 0.08
 
 type Category = 'ML / DL' | 'DATA & COMPUTATION' | 'LANGUAGES' | 'TOOLS & SYSTEMS'
 type TileColor = 'orange' | 'blue' | 'fuchsia' | 'peri' | 'dark' | 'platinum' | 'yellow'

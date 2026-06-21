@@ -36,7 +36,7 @@ const ProjectsSection: React.FC<Props> = ({ projects }) => {
       ref={outerRef}
       id="projects"
       data-sticky-scroll-host="true"
-      className="relative hscroll min-h-screen px-8 bg-graphite-light"
+      className="relative hscroll min-h-screen px-8 bg-graphite"
       style={{ height: `${scrollRangeVh * 100}vh`, overflowX: 'clip' }}
     >
       {projects.map((_, index) => (
