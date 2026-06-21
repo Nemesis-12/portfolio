@@ -3,7 +3,7 @@ import { TypeIn } from '../animations/TypeIn'
 import { StickySection } from './StickySection'
 
 const EMAIL = 'famohammed@shockers.wichita.edu'
-const CONTACT_SPEED = 50
+const CONTACT_SPEED = 95
 
 const footerLinks = [
   { label: 'GITHUB', href: 'https://github.com/Nemesis-12' },
@@ -46,6 +46,7 @@ export default function ContactSection() {
               start={isInView}
               text="LET'S"
               speed={CONTACT_SPEED}
+              delay={200}
               onDone={() => setStep((s) => Math.max(s, 1))}
             />
           </span>
@@ -54,6 +55,7 @@ export default function ContactSection() {
               start={isInView && step >= 1}
               text="CONNECT"
               speed={CONTACT_SPEED}
+              delay={150}
               onDone={() => setStep((s) => Math.max(s, 2))}
             />
             {isInView && step >= 2 && <span className="period">.</span>}

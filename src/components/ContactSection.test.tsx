@@ -31,12 +31,17 @@ function setInView(isIntersecting: boolean) {
 
 const canonicalEmailHref = 'mailto:famohammed@shockers.wichita.edu'
 
+// "LET'S" (5 chars) at speed=95 with delay=200: 200 + 5*95 = 675ms
+const LETS_DURATION = 675
+// "CONNECT" (7 chars) at speed=95 with delay=150: 150 + 7*95 = 815ms
+const CONNECT_DURATION = 815
+
 function renderWithTypingComplete() {
   vi.useFakeTimers()
   render(<ContactSection />)
   setInView(true)
-  act(() => { vi.advanceTimersByTime(250) })
-  act(() => { vi.advanceTimersByTime(400) })
+  act(() => { vi.advanceTimersByTime(LETS_DURATION) })
+  act(() => { vi.advanceTimersByTime(CONNECT_DURATION) })
 }
 
 describe('ContactSection', () => {
@@ -102,10 +107,10 @@ describe('ContactSection', () => {
 
       setInView(true)
 
-      act(() => { vi.advanceTimersByTime(250) })
+      act(() => { vi.advanceTimersByTime(LETS_DURATION) })
       expect(screen.getByText("LET'S")).toBeInTheDocument()
 
-      act(() => { vi.advanceTimersByTime(400) })
+      act(() => { vi.advanceTimersByTime(CONNECT_DURATION) })
       expect(document.querySelector('#contact .footer-big')).toHaveTextContent("LET'SCONNECT.")
       expect(document.querySelector('[data-testid="contact-cursor"]')).toBeInTheDocument()
 
@@ -119,11 +124,11 @@ describe('ContactSection', () => {
 
       expect(screen.queryByText("LET'S")).not.toBeInTheDocument()
 
-      act(() => { vi.advanceTimersByTime(250) })
+      act(() => { vi.advanceTimersByTime(LETS_DURATION) })
       expect(screen.getByText("LET'S")).toBeInTheDocument()
       expect(screen.queryByText('CONNECT')).not.toBeInTheDocument()
 
-      act(() => { vi.advanceTimersByTime(400) })
+      act(() => { vi.advanceTimersByTime(CONNECT_DURATION) })
       expect(document.querySelector('#contact .footer-big')).toHaveTextContent("LET'SCONNECT.")
       expect(document.querySelector('[data-testid="contact-cursor"]')).toBeInTheDocument()
     })
@@ -135,10 +140,11 @@ describe('ContactSection', () => {
 
       setInView(true)
 
-      act(() => { vi.advanceTimersByTime(250) })
+      act(() => { vi.advanceTimersByTime(LETS_DURATION) })
       expect(screen.getByText("LET'S")).toBeInTheDocument()
 
-      act(() => { vi.advanceTimersByTime(150) })
+      // CONNECT delay (150) + 3 chars * 95 = 435ms to reach "CON"
+      act(() => { vi.advanceTimersByTime(435) })
       expect(screen.getByText('CON')).toBeInTheDocument()
       expect(document.querySelector('[data-testid="contact-cursor"]')).not.toBeInTheDocument()
 
@@ -155,8 +161,8 @@ describe('ContactSection', () => {
       render(<ContactSection />)
 
       setInView(true)
-      act(() => { vi.advanceTimersByTime(250) })
-      act(() => { vi.advanceTimersByTime(400) })
+      act(() => { vi.advanceTimersByTime(LETS_DURATION) })
+      act(() => { vi.advanceTimersByTime(CONNECT_DURATION) })
       expect(document.querySelector('[data-testid="contact-cursor"]')).toBeInTheDocument()
 
       setInView(false)
@@ -181,12 +187,12 @@ describe('ContactSection', () => {
       render(<ContactSection />)
       setInView(true)
 
-      // 5 chars × 50ms = 250ms for "LET'S"
-      act(() => { vi.advanceTimersByTime(250) })
+      // delay(200) + 5 chars × 95ms = 675ms for "LET'S"
+      act(() => { vi.advanceTimersByTime(LETS_DURATION) })
       expect(screen.getByText("LET'S")).toBeInTheDocument()
 
-      // 5 + 7 chars × 50ms = 600ms for full text plus period
-      act(() => { vi.advanceTimersByTime(400) })
+      // delay(150) + 7 chars × 95ms = 815ms for "CONNECT" plus period
+      act(() => { vi.advanceTimersByTime(CONNECT_DURATION) })
       expect(document.querySelector('#contact .footer-big')).toHaveTextContent("LET'SCONNECT.")
     })
 
@@ -196,9 +202,9 @@ describe('ContactSection', () => {
       render(<ContactSection />)
       setInView(true)
 
-      // Wait for typing to complete: 12 chars × 50ms = 600ms + buffer
-      act(() => { vi.advanceTimersByTime(250) })
-      act(() => { vi.advanceTimersByTime(400) })
+      // Wait for both type-in sequences (with their delays) to complete
+      act(() => { vi.advanceTimersByTime(LETS_DURATION) })
+      act(() => { vi.advanceTimersByTime(CONNECT_DURATION) })
 
       const cursor = document.querySelector('[data-testid="contact-cursor"]')
       expect(cursor).toBeInTheDocument()
