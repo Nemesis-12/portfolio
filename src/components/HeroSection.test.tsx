@@ -98,7 +98,7 @@ describe('HeroSection', () => {
 
     const content = screen.getByTestId('hero-content')
     expect(content).toHaveClass('hero-inner')
-    expect(content).toHaveClass('pt-24')
+    expect(content).toHaveClass('pt-20')
   })
 
   it('marks the line grid as a slow parallax layer', () => {
