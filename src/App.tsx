@@ -10,60 +10,18 @@ import ProjectsSection from './components/ProjectsSection'
 import HeroSection from './components/HeroSection'
 import TimelineSection from './components/TimelineSection'
 import { projects } from './data/projects'
+import { useParallax } from './hooks/useParallax'
 
 function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    let frameId: number | null = null
-
     const blinkPeriod = 1050
     const syncOffset = -(performance.now() % blinkPeriod)
     document.documentElement.style.setProperty('--blink-offset', `${syncOffset}ms`)
-
-    const updateParallax = () => {
-      const parallaxLayers = Array.from(document.querySelectorAll<HTMLElement>('[data-parallax]'))
-      const layerUpdates = parallaxLayers.map((layer) => {
-        const factor = Number(layer.dataset.parallaxFactor ?? 0)
-        const sectionSurface = layer.closest('section, footer')
-        const surfaceRect = sectionSurface?.getBoundingClientRect()
-        const scrollOffset = surfaceRect ? -surfaceRect.top : -layer.getBoundingClientRect().top
-
-        return {
-          layer,
-          offset: scrollOffset * (Number.isFinite(factor) ? factor : 0),
-        }
-      })
-
-      layerUpdates.forEach(({ layer, offset }) => {
-        layer.style.transform = `translate3d(0, ${offset}px, 0)`
-      })
-    }
-
-    const requestParallaxUpdate = () => {
-      if (frameId !== null) {
-        return
-      }
-
-      frameId = window.requestAnimationFrame(() => {
-        frameId = null
-        updateParallax()
-      })
-    }
-
-    window.addEventListener('scroll', requestParallaxUpdate, { passive: true })
-    window.addEventListener('resize', requestParallaxUpdate, { passive: true })
-    requestParallaxUpdate()
-
-    return () => {
-      window.removeEventListener('scroll', requestParallaxUpdate)
-      window.removeEventListener('resize', requestParallaxUpdate)
-
-      if (frameId !== null) {
-        window.cancelAnimationFrame(frameId)
-      }
-    }
   }, [])
+
+  useParallax()
 
   return (
     <>

@@ -84,9 +84,9 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toContain('"py py py js js dk"')
   })
 
-  it('keeps React project-card fill hooks alongside reference hover rules', () => {
+  it('keeps React project-card fill hooks consolidated with hover via a shared selector', () => {
     expect(portfolioCss).toContain("[data-fill-active='true']")
-    expect(portfolioCss).toContain('.pcard:hover .pcard-fill')
+    expect(portfolioCss).toContain(".pcard:hover,.pcard[data-fill-active='true']")
     expect(portfolioCss).toContain('.ptag-inverted')
   })
 
@@ -105,13 +105,11 @@ describe('portfolio.css CSS anchor', () => {
 
   it('uses mask-position diagonal reveal on pcard-fill from the reference', () => {
     const fillRule = blockFor('.pcard-fill')
-    const hoverRule = blockFor('.pcard:hover .pcard-fill')
     const activeRule = blockFor(".pcard[data-fill-active='true'] .pcard-fill")
 
     expect(fillRule).toContain('mask-image:linear-gradient(135deg')
     expect(fillRule).toContain('mask-size:300% 300%')
     expect(fillRule).toContain('mask-position:100% 100%')
-    expect(hoverRule).toContain('mask-position:0% 0%')
     expect(activeRule).toContain('mask-position: 0% 0%')
   })
 

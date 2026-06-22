@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { TypeIn } from '../animations/TypeIn'
+import { Typewriter } from '../animations/Typewriter'
 import { StickySection } from './StickySection'
 
 const EMAIL = 'famohammed@shockers.wichita.edu'
@@ -42,25 +42,29 @@ export default function ContactSection() {
       <div ref={ref} className="footer-cta">
         <div className="footer-big" data-parallax data-parallax-factor="-0.04">
           <span className="footer-big-line">
-            <TypeIn
-              start={isInView}
-              text="LET'S"
-              speed={CONTACT_SPEED}
-              delay={200}
-              onDone={() => setStep((s) => Math.max(s, 1))}
-            />
+            {isInView && (
+              <Typewriter
+                active={isInView}
+                text="LET'S"
+                speed={CONTACT_SPEED}
+                delay={200}
+                onDone={() => setStep((s) => Math.max(s, 1))}
+              />
+            )}
           </span>
           <span className="footer-big-line">
-            <TypeIn
-              start={isInView && step >= 1}
-              text="CONNECT"
-              speed={CONTACT_SPEED}
-              delay={150}
-              onDone={() => setStep((s) => Math.max(s, 2))}
-            />
+            {isInView && (
+              <Typewriter
+                active={isInView && step >= 1}
+                text="CONNECT"
+                speed={CONTACT_SPEED}
+                delay={150}
+                onDone={() => setStep((s) => Math.max(s, 2))}
+              />
+            )}
             {isInView && step >= 2 && <span className="period">.</span>}
             {isInView && step >= 2 && (
-              <span className="cursor" data-testid="contact-cursor" aria-hidden="true" style={{ background: 'var(--color-atomic-tangerine)' }} />
+              <span className="cursor cursor-orange" data-testid="contact-cursor" aria-hidden="true" />
             )}
           </span>
         </div>

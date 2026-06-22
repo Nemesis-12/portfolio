@@ -15,11 +15,6 @@
   --font-body: 'Space Mono', monospace;
 }
 
-:root {
-  --graphite: var(--color-graphite);
-  --orange: var(--color-atomic-tangerine);
-}
-
 html {
   scroll-snap-type: y proximity;
   scroll-padding-top: 56px;
@@ -31,16 +26,16 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--graphite);
+  background: var(--color-graphite);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--orange);
+  background: var(--color-atomic-tangerine);
 }
 
 ::selection {
-  background-color: var(--orange);
-  color: var(--graphite);
+  background-color: var(--color-atomic-tangerine);
+  color: var(--color-graphite);
 }
 
 body {
