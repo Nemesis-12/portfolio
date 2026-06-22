@@ -13,6 +13,10 @@ interface TypewriterProps {
    */
   onStart?: () => void
   /**
+   * Called once, when this instance finishes typing the full string.
+   */
+  onDone?: () => void
+  /**
    * When true, this instance renders nothing at all (not even an empty
    * wrapper) until its `delay` elapses. Used for fields that must be
    * entirely absent from the DOM until they start, e.g. the timeline's
@@ -50,6 +54,7 @@ export function Typewriter({
   className,
   keepCursor = false,
   onStart,
+  onDone,
   hideUntilStart = false,
   wrapperTag = 'span',
   wrapperProps,
@@ -61,6 +66,8 @@ export function Typewriter({
   const tickTimeoutRef = useRef<number | null>(null)
   const onStartRef = useRef(onStart)
   onStartRef.current = onStart
+  const onDoneRef = useRef(onDone)
+  onDoneRef.current = onDone
 
   useEffect(() => {
     if (!active) return
@@ -76,6 +83,8 @@ export function Typewriter({
       setShown(text.slice(0, i))
       if (i < text.length) {
         tickTimeoutRef.current = window.setTimeout(tick, speed)
+      } else {
+        onDoneRef.current?.()
       }
     }
 

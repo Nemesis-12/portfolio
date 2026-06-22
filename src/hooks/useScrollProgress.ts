@@ -56,18 +56,38 @@ export function useScrollProgress(
   )
 
   useEffect(() => {
+    let frameId: number | null = null
+    let framePending = false
+
     const update = () => {
       setState(computeScrollProgress(outerRef.current, optionsRef.current))
     }
 
+    const requestUpdate = () => {
+      if (framePending) {
+        return
+      }
+
+      framePending = true
+      frameId = window.requestAnimationFrame(() => {
+        framePending = false
+        frameId = null
+        update()
+      })
+    }
+
     update()
 
-    window.addEventListener('scroll', update, { passive: true })
-    window.addEventListener('resize', update)
+    window.addEventListener('scroll', requestUpdate, { passive: true })
+    window.addEventListener('resize', requestUpdate)
 
     return () => {
-      window.removeEventListener('scroll', update)
-      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', requestUpdate)
+      window.removeEventListener('resize', requestUpdate)
+
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId)
+      }
     }
   }, [outerRef])
 

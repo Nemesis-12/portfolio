@@ -143,8 +143,10 @@ describe('ContactSection', () => {
       act(() => { vi.advanceTimersByTime(LETS_DURATION) })
       expect(screen.getByText("LET'S")).toBeInTheDocument()
 
-      // CONNECT delay (150) + 3 chars * 95 = 435ms to reach "CON"
-      act(() => { vi.advanceTimersByTime(435) })
+      // CONNECT delay (150) + 2 chars * 95 = 340ms to reach "CON" (Typewriter
+      // shows its first char immediately when delay elapses, one tick ahead
+      // of the old TypeIn timing model)
+      act(() => { vi.advanceTimersByTime(340) })
       expect(screen.getByText('CON')).toBeInTheDocument()
       expect(document.querySelector('[data-testid="contact-cursor"]')).not.toBeInTheDocument()
 

@@ -25,17 +25,17 @@ describe('global CSS brand chrome', () => {
     expect(blockFor('@theme')).toContain('--color-golden-pollen: #FFC857;')
     expect(blockFor('@theme')).toContain('--color-platinum: #EFF1F3;')
     expect(blockFor('@theme')).toContain('--color-periwinkle: #B2B6D2;')
-    expect(css).toContain('--graphite: var(--color-graphite);')
-    expect(css).toContain('--orange: var(--color-atomic-tangerine);')
+    expect(css).not.toMatch(/--graphite:\s*var\(--color-graphite\)/)
+    expect(css).not.toMatch(/--orange:\s*var\(--color-atomic-tangerine\)/)
   })
 
   it('uses orange and graphite tokens for scrollbar and selection styling', () => {
     expect(blockFor('::-webkit-scrollbar')).toContain('width: 8px;')
-    expect(blockFor('::-webkit-scrollbar-track')).toContain('background: var(--graphite);')
-    expect(blockFor('::-webkit-scrollbar-thumb')).toContain('background: var(--orange);')
+    expect(blockFor('::-webkit-scrollbar-track')).toContain('background: var(--color-graphite);')
+    expect(blockFor('::-webkit-scrollbar-thumb')).toContain('background: var(--color-atomic-tangerine);')
     expect(blockFor('::-webkit-scrollbar-thumb')).not.toContain('border-radius')
-    expect(blockFor('::selection')).toContain('background-color: var(--orange);')
-    expect(blockFor('::selection')).toContain('color: var(--graphite);')
+    expect(blockFor('::selection')).toContain('background-color: var(--color-atomic-tangerine);')
+    expect(blockFor('::selection')).toContain('color: var(--color-graphite);')
   })
 
   it('uses Press Start 2P for display and Space Mono for body text', () => {

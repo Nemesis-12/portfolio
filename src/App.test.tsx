@@ -7,7 +7,7 @@ import {
   BOOT_DURATION,
   FADE_OUT_DURATION,
 } from './components/LoadingScreen.constants'
-import { FIRST_NAME, NAME_SPEED } from './components/HeroSection.constants'
+import { FIRST_NAME } from './components/HeroSection.constants'
 import { SECTIONS, type SectionId } from './data/sections'
 
 const appSourcePath = path.resolve(__dirname, './App.tsx')
@@ -150,13 +150,23 @@ describe('App shell', () => {
     expect(addEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function), { passive: true })
     expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true })
 
-    const scrollHandler = addEventListenerSpy.mock.calls.find(([eventName]) => eventName === 'scroll')?.[1]
+    // Other sections (ProjectsSection, TimelineSection) also register their own
+    // scroll-driven hooks, so look up the parallax listener specifically rather
+    // than assuming it's the first 'scroll' registration, and invoke it directly
+    // instead of dispatching a global scroll event — this isolates the parallax
+    // hook's own RAF-batching behavior from every other scroll listener mounted
+    // by the rest of the app.
+    const scrollHandler = addEventListenerSpy.mock.calls.find(
+      ([eventName, handler]) => eventName === 'scroll' && (handler as Function).name === 'requestParallaxUpdate',
+    )?.[1] as EventListener
+
+    const rafCallsBeforeScroll = requestAnimationFrameSpy.mock.calls.length
     act(() => {
-      window.dispatchEvent(new Event('scroll'))
-      window.dispatchEvent(new Event('scroll'))
+      scrollHandler(new Event('scroll'))
+      scrollHandler(new Event('scroll'))
     })
 
-    expect(requestAnimationFrameSpy).toHaveBeenCalledTimes(2)
+    expect(requestAnimationFrameSpy).toHaveBeenCalledTimes(rafCallsBeforeScroll + 1)
 
     unmount()
 
@@ -397,9 +407,11 @@ describe('App shell', () => {
 
       // FARHAN only starts once the '// PORTFOLIO_INIT' label has finished
       // typing (speed=28/char) and its own 200ms stagger delay has elapsed
-      // (see HeroSection.tsx's TypeIn delay={200} on FIRST_NAME, matching
+      // (see HeroSection.tsx's Typewriter delay={200} on FIRST_NAME, matching
       // ideas/Portfolio.html's Hero intro sequencing) — advance past both
-      // before checking for FARHAN's first character.
+      // before checking for FARHAN's first character. Typewriter shows its
+      // first character immediately once its delay elapses, so no extra
+      // NAME_SPEED tick is needed here.
       const INIT_TEXT_LENGTH = '// PORTFOLIO_INIT'.length
       const INIT_SPEED = 28
       const FIRST_NAME_DELAY = 200
@@ -408,9 +420,6 @@ describe('App shell', () => {
       })
       act(() => {
         vi.advanceTimersByTime(FIRST_NAME_DELAY)
-      })
-      act(() => {
-        vi.advanceTimersByTime(NAME_SPEED)
       })
 
       expect(nameLines?.[0]?.textContent).toBe(FIRST_NAME.slice(0, 1))

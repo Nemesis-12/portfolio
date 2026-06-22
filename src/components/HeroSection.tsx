@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { StickySection } from './StickySection'
-import { TypeIn } from '../animations/TypeIn'
+import { Typewriter } from '../animations/Typewriter'
 import { RotatingRole } from '../animations/RotatingRole'
 import { FIRST_NAME, LAST_NAME, NAME_SPEED, ROLES, VALUE_PROP } from './HeroSection.constants'
 import { handleSectionLinkClick } from '../utils/smoothScrollTo'
@@ -28,8 +28,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
 
       <div data-testid="hero-content" className="hero-inner w-full">
         <p className="hero-init">
-          <TypeIn
-            start={introReady}
+          <Typewriter
+            active={introReady}
             text="// PORTFOLIO_INIT"
             speed={28}
             onDone={() => {
@@ -46,8 +46,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
           data-parallax-factor="-0.04"
         >
           <span className="hero-name-line">
-            <TypeIn
-              start={initDone}
+            <Typewriter
+              active={initDone}
               text={FIRST_NAME}
               speed={NAME_SPEED}
               delay={200}
@@ -57,8 +57,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
             />
           </span>
           <span className="hero-name-line">
-            <TypeIn
-              start={firstNameDone}
+            <Typewriter
+              active={firstNameDone}
               text={LAST_NAME}
               speed={NAME_SPEED}
               delay={150}
@@ -68,7 +68,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
               }}
             />
             {showNameCursor && (
-              <span data-testid="hero-name-cursor" aria-hidden="true" className="cursor" style={{ background: 'var(--color-atomic-tangerine)' }} />
+              <span data-testid="hero-name-cursor" aria-hidden="true" className="cursor cursor-orange" />
             )}
           </span>
         </h1>

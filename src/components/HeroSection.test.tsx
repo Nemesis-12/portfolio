@@ -78,14 +78,14 @@ describe('HeroSection', () => {
     expect(label?.nextElementSibling).toBe(bar)
   })
 
-  it('types the PORTFOLIO_INIT label via TypeIn at 28ms/char', () => {
+  it('types the PORTFOLIO_INIT label via Typewriter at 28ms/char', () => {
     render(<HeroSection />)
 
     const label = document.querySelector('.hero-init') as HTMLElement
     expect(label.textContent).toBe('')
 
     act(() => {
-      vi.advanceTimersByTime(INIT_SPEED)
+      vi.advanceTimersByTime(0)
     })
     expect(label.textContent).toBe(INIT_TEXT.slice(0, 1))
 
@@ -137,7 +137,7 @@ describe('HeroSection', () => {
     advanceToInitDone()
 
     act(() => {
-      vi.advanceTimersByTime(FIRST_NAME_DURATION - NAME_SPEED)
+      vi.advanceTimersByTime(FIRST_NAME_DURATION - 2 * NAME_SPEED)
     })
 
     const nameLines = screen.getByTestId('hero-name').querySelectorAll('.hero-name-line')
@@ -180,7 +180,7 @@ describe('HeroSection', () => {
 
     advanceToInitDone()
     act(() => {
-      vi.advanceTimersByTime(FIRST_NAME_DELAY + NAME_SPEED)
+      vi.advanceTimersByTime(FIRST_NAME_DELAY)
     })
 
     expect(nameLines[0]?.textContent).toBe(FIRST_NAME.slice(0, 1))
