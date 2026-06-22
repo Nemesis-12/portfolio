@@ -7,10 +7,15 @@
   inherits: true;
 }
 
+@keyframes global-blink{0%{--blink:1}50%{--blink:0}}
+
+:root {
+  animation: global-blink 1.05s steps(1) infinite;
+}
+
 @layer components {
   :root {
     --ease: cubic-bezier(0.4, 0, 0.2, 1);
-    animation: global-blink 1.05s steps(1) infinite;
   }
 
   #home,
@@ -143,7 +148,7 @@
   .pcard-desc{font-size:16px;color:var(--color-graphite);opacity:.85;line-height:1.85;margin-top:20px;flex:1;position:relative;z-index:2;text-wrap:pretty;transition:color .35s var(--ease),opacity .35s var(--ease)}
   .pcard:hover .pcard-desc{color:var(--color-platinum);opacity:1}
   .pcard-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;position:relative;z-index:2}
-  .ptag{font-size:14px;padding:8px 14px;letter-spacing:1.5px;font-weight:700;transition:background .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease)}
+  .ptag{font-size:14px;padding:8px 14px;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;transition:background .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease)}
   .ptag-fuchsia{background:var(--color-fuchsia-flame);color:var(--color-platinum)}
   .ptag-blue{background:var(--color-ultrasonic-blue);color:var(--color-platinum)}
   .ptag-orange{background:var(--color-atomic-tangerine);color:var(--color-graphite)}
@@ -213,7 +218,6 @@
 
     /* ─── HERO TYPING ──── */
   .cursor{display:inline-block;width:.55ch;height:.9em;background:currentColor;vertical-align:-.13em;margin-left:6px;opacity:var(--blink)}
-  @keyframes global-blink{0%{--blink:1}50%{--blink:0}}
   .hero-fade{opacity:0;animation:fade-up .7s var(--ease) forwards}
   @keyframes fade-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
