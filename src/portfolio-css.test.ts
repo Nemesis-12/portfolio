@@ -184,7 +184,7 @@ describe('portfolio.css CSS anchor', () => {
     expect(portfolioCss).toContain('.tl-panel{height:calc(100vh - 160px)')
     expect(portfolioCss).toContain('.tl-commit{font-size:14px;color:var(--color-atomic-tangerine)')
     expect(portfolioCss).toContain('.cursor{display:inline-block')
-    expect(portfolioCss).toContain('@keyframes global-blink{0%{--blink:1}50%{--blink:0}}')
+    expect(portfolioCss).toContain('@keyframes blink-cursor{50%{opacity:0}}')
   })
 
   it('includes reference mobile breakpoint overrides', () => {

@@ -284,14 +284,19 @@ describe('ContactSection', () => {
       expect(contact.lastElementChild).toBe(copy)
     })
 
-    it('marks footer metadata text as a stronger parallax layer', () => {
+    it('does not apply parallax to footer metadata text', () => {
       render(<ContactSection />)
       const footerText = Array.from(document.querySelectorAll('#contact .footer-copy [data-parallax]'))
 
-      expect(footerText).toHaveLength(2)
-      footerText.forEach((item) => {
-        expect(item).toHaveAttribute('data-parallax-factor', '0.5')
-      })
+      expect(footerText).toHaveLength(0)
+    })
+
+    it('marks footer-big as a parallax layer', () => {
+      render(<ContactSection />)
+      const footerBig = document.querySelector('#contact .footer-big')
+
+      expect(footerBig).toHaveAttribute('data-parallax')
+      expect(footerBig).toHaveAttribute('data-parallax-factor', '-0.04')
     })
 
     it('keeps contact as a full-viewport footer section', () => {

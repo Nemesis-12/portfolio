@@ -107,7 +107,7 @@ describe('HeroSection', () => {
 
     expect(lineGrid).toHaveClass('hero-grid')
     expect(lineGrid).toHaveAttribute('data-parallax')
-    expect(lineGrid).toHaveAttribute('data-parallax-factor', '0.3')
+    expect(lineGrid).toHaveAttribute('data-parallax-factor', '0.25')
   })
 
   it('marks the hero name as a subtle parallax layer', () => {
@@ -115,7 +115,7 @@ describe('HeroSection', () => {
     const heroName = screen.getByTestId('hero-name')
 
     expect(heroName).toHaveAttribute('data-parallax')
-    expect(heroName).toHaveAttribute('data-parallax-factor', '0.15')
+    expect(heroName).toHaveAttribute('data-parallax-factor', '-0.04')
   })
 
   it('does not start name typing until the init label finishes typing', () => {

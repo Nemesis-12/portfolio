@@ -146,7 +146,7 @@ describe('App shell', () => {
       frameCallbacks.delete(1)
     })
 
-    expect(lineGrid.style.transform).toBe('translate3d(0, 36px, 0)')
+    expect(lineGrid.style.transform).toBe('translate3d(0, 30px, 0)')
     expect(addEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function), { passive: true })
     expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true })
 
@@ -174,16 +174,16 @@ describe('App shell', () => {
 
     render(<App />)
     const footer = document.querySelector('#contact') as HTMLElement
-    const footerText = document.querySelector('#contact .footer-copy [data-parallax]') as HTMLElement
+    const footerBig = document.querySelector('#contact .footer-big') as HTMLElement
 
     vi.spyOn(footer, 'getBoundingClientRect').mockReturnValue(rectAtTop(-80))
-    vi.spyOn(footerText, 'getBoundingClientRect').mockReturnValue(rectAtTop(-20))
+    vi.spyOn(footerBig, 'getBoundingClientRect').mockReturnValue(rectAtTop(-20))
 
     act(() => {
       frameCallbacks.get(1)?.(0)
     })
 
-    expect(footerText.style.transform).toBe('translate3d(0, 40px, 0)')
+    expect(footerBig.style.transform).toBe('translate3d(0, -3.2px, 0)')
   })
 
   it('uses element geometry for parallax layers outside major sections', () => {
