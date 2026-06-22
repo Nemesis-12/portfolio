@@ -75,7 +75,6 @@
   .hero-init{font-size:13px;color:var(--color-atomic-tangerine);letter-spacing:4px;margin-bottom:18px}
   .hero-bar{width:48px;height:2px;background:var(--color-atomic-tangerine);margin-bottom:32px}
   .hero-name{font-family:var(--font-display);font-size:clamp(40px,12vw,180px);line-height:1.05;color:var(--color-platinum);letter-spacing:-2px;margin-bottom:36px}
-  .hero-name .cursor{height:clamp(12px,.9em,24px);width:clamp(6px,.55ch,14px)}
   .hero-name-line{display:block;min-height:1.1em}
   .hero-role{font-size:clamp(11px,1.1vw,15px);color:var(--color-periwinkle);letter-spacing:5px;margin-bottom:24px}
   .hero-tag{font-size:clamp(12px,1.2vw,16px);color:var(--color-platinum);letter-spacing:1px;margin-bottom:48px;max-width:760px;line-height:1.8}
@@ -219,7 +218,7 @@
 
     /* ─── HERO TYPING ──── */
   .cursor{display:inline-block;width:.55ch;height:.9em;background:currentColor;vertical-align:-.13em;margin-left:6px;opacity:var(--blink)}
-  .hero-fade{opacity:0;animation:fade-up .7s var(--ease) forwards}
+  .hero-fade{opacity:0;animation:fade-up .7s var(--ease) forwards;position:relative;z-index:1}
   @keyframes fade-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
   /* ─── SKILLS ──── */
