@@ -238,6 +238,17 @@ describe('resume source-of-truth audit', () => {
       expect(normalizeResumeText(ms.dateRange)).toBe(normalizeResumeText(RESUME_TIMELINE.ms.dateRange))
     })
 
+    it('M.S. education bullets match resume', () => {
+      const ms = findEntry(
+        (e) =>
+          e.category === 'education' &&
+          normalizeResumeText(e.role).includes('accelerated ms computer science'),
+      )
+      expect(ms.bullets).toHaveLength(2)
+      expect(ms.bullets[0]).toContain('Generative Agent-Based Models')
+      expect(ms.bullets[1]).toContain('NLP')
+    })
+
     it('B.S. institution matches resume', () => {
       const bs = findEntry(
         (e) =>
@@ -273,8 +284,10 @@ describe('resume source-of-truth audit', () => {
           e.category === 'education' &&
           normalizeResumeText(e.role).includes('bs computer science'),
       )
-      expect(bs.bullets[0]).toContain("Dean's List")
-      expect(bs.bullets[1]).toContain('Relevant Coursework')
+      expect(bs.bullets).toHaveLength(3)
+      expect(bs.bullets[0]).toContain('3.66')
+      expect(bs.bullets[1]).toContain("Dean's List")
+      expect(bs.bullets[2]).toContain('Relevant Coursework')
     })
   })
 
