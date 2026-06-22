@@ -233,7 +233,7 @@ describe('issue #291 - framer-motion removal', () => {
 
     for (const file of allSourceFiles) {
       const source = readFileSync(file, 'utf8')
-      if (/from\s+['"]framer-motion['"]/.test(source)) {
+      if (/(?:from\s+|import\s*\(\s*)['"]framer-motion['"]/.test(source)) {
         violations.push(relative(srcDir, file))
       }
     }
