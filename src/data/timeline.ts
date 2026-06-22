@@ -36,7 +36,10 @@ export const timelineEntries: TimelineEntry[] = [
     dateRange: 'JAN 2026 – MAY 2027 (EXPECTED)',
     institution: 'WICHITA STATE UNIVERSITY',
     role: 'ACCELERATED_M.S._COMPUTER_SCIENCE',
-    bullets: [],
+    bullets: [
+      'Thesis: Generative Agent-Based Models for Insider Threat Detection',
+      'Relevant Coursework: NLP, Reinforcement Learning',
+    ],
     category: 'education',
   },
   {
@@ -45,6 +48,7 @@ export const timelineEntries: TimelineEntry[] = [
     institution: 'WICHITA STATE UNIVERSITY',
     role: 'B.S._COMPUTER_SCIENCE',
     bullets: [
+      'GPA: 3.66/4.0, Magna Cum Laude',
       "Dean's List: Spring 2022 – Fall 2025",
       'Relevant Coursework: Machine Learning, Artificial Intelligence, Fundamentals of AI Agents, Data Science',
     ],

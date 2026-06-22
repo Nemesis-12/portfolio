@@ -51,7 +51,6 @@ const REFERENCE_COMPONENT_CLASSES = [
   'footer-copy',
   'slink',
   'reveal',
-  'title-cursor',
 ]
 
 describe('portfolio.css CSS anchor', () => {
@@ -184,7 +183,7 @@ describe('portfolio.css CSS anchor', () => {
   it('anchors timeline panel typography and terminal caret', () => {
     expect(portfolioCss).toContain('.tl-panel{height:calc(100vh - 160px)')
     expect(portfolioCss).toContain('.tl-commit{font-size:14px;color:var(--color-atomic-tangerine)')
-    expect(portfolioCss).toContain('.caret{display:inline-block')
+    expect(portfolioCss).toContain('.cursor{display:inline-block')
     expect(portfolioCss).toContain('@keyframes blink-cursor{50%{opacity:0}}')
   })
 

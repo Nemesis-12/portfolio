@@ -40,7 +40,7 @@ export default function ContactSection() {
   return (
     <StickySection as="footer" id="contact" className="bg-graphite">
       <div ref={ref} className="footer-cta">
-        <div className="footer-big">
+        <div className="footer-big" data-parallax data-parallax-factor="-0.04">
           <span className="footer-big-line">
             <TypeIn
               start={isInView}
@@ -60,7 +60,7 @@ export default function ContactSection() {
             />
             {isInView && step >= 2 && <span className="period">.</span>}
             {isInView && step >= 2 && (
-              <span className="cursor" data-testid="contact-cursor" aria-hidden="true" />
+              <span className="cursor" data-testid="contact-cursor" aria-hidden="true" style={{ background: 'var(--color-atomic-tangerine)' }} />
             )}
           </span>
         </div>
@@ -86,12 +86,8 @@ export default function ContactSection() {
       </div>
 
       <div className="footer-copy">
-        <span data-parallax data-parallax-factor="0.5">
-          FARHAN_MOHAMMED © 2026
-        </span>
-        <span data-parallax data-parallax-factor="0.5">
-          PORTFOLIO.EXE
-        </span>
+        <span>FARHAN_MOHAMMED © 2026</span>
+        <span>PORTFOLIO.EXE</span>
       </div>
     </StickySection>
   )

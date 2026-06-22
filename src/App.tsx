@@ -17,6 +17,10 @@ function App() {
   useEffect(() => {
     let frameId: number | null = null
 
+    const blinkPeriod = 1050
+    const syncOffset = -(performance.now() % blinkPeriod)
+    document.documentElement.style.setProperty('--blink-offset', `${syncOffset}ms`)
+
     const updateParallax = () => {
       const parallaxLayers = Array.from(document.querySelectorAll<HTMLElement>('[data-parallax]'))
       const layerUpdates = parallaxLayers.map((layer) => {

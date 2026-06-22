@@ -107,10 +107,10 @@ describe('SkillsSection', () => {
   it('renders bento skill tiles from the reference layout', () => {
     render(<SkillsSection />)
     const required = [
-      'Python', 'TypeScript', 'JavaScript', 'C++', 'C', 'SQL',
-      'Docker', 'Git', 'Linux', 'Ansible', 'Jupyter',
-      'NumPy', 'Pandas', 'Matplotlib',
-      'FastAPI', 'PyTorch', 'Hugging Face', 'Scikit-learn', 'Transformers',
+      'PYTHON', 'TYPESCRIPT', 'JAVASCRIPT', 'C++', 'C', 'SQL',
+      'DOCKER', 'GIT', 'LINUX', 'ANSIBLE', 'JUPYTER',
+      'NUMPY', 'PANDAS', 'MATPLOTLIB',
+      'FASTAPI', 'PYTORCH', 'HUGGING FACE', 'SCIKIT-LEARN', 'TRANSFORMERS',
     ]
     for (const skill of required) {
       expect(screen.getByText(skill)).toBeInTheDocument()
@@ -119,7 +119,7 @@ describe('SkillsSection', () => {
 
   it('renders all category label types', () => {
     render(<SkillsSection />)
-    const categories = ['ML / DL', 'DATA & COMPUTATION', 'LANGUAGES', 'TOOLS & SYSTEMS']
+    const categories = ['FRAMEWORK', 'LIBRARY', 'PLATFORM', 'LANGUAGE', 'TOOL', 'SYSTEM']
     for (const category of categories) {
       expect(screen.getAllByText(category).length).toBeGreaterThan(0)
     }
@@ -134,7 +134,7 @@ describe('SkillsSection', () => {
   it('renders 19 skill tiles and 1 palette tile with bi class', () => {
     render(<SkillsSection />)
 
-    const categoryLabels = screen.getAllByText(/^(ML \/ DL|DATA & COMPUTATION|LANGUAGES|TOOLS & SYSTEMS)$/)
+    const categoryLabels = screen.getAllByText(/^(FRAMEWORK|LIBRARY|PLATFORM|LANGUAGE|TOOL|SYSTEM)$/)
     expect(categoryLabels).toHaveLength(19)
 
     const biTiles = document.querySelectorAll('.bi')
@@ -153,43 +153,43 @@ describe('SkillsSection', () => {
   it('each skill tile has bi, bi-{area}, and c-{color} classes', () => {
     render(<SkillsSection />)
 
-    expect(getSkillTile('Python').className).toMatch(/\bbi\b/)
-    expect(getSkillTile('Python').className).toContain('bi-py')
-    expect(getSkillTile('Python').className).toContain('c-orange')
-    expect(getSkillTile('Python').className).toContain('bi-lg')
+    expect(getSkillTile('PYTHON').className).toMatch(/\bbi\b/)
+    expect(getSkillTile('PYTHON').className).toContain('bi-py')
+    expect(getSkillTile('PYTHON').className).toContain('c-orange')
+    expect(getSkillTile('PYTHON').className).toContain('bi-lg')
 
-    expect(getSkillTile('PyTorch').className).toContain('bi-fl')
-    expect(getSkillTile('PyTorch').className).toContain('bi-lg')
+    expect(getSkillTile('PYTORCH').className).toContain('bi-fl')
+    expect(getSkillTile('PYTORCH').className).toContain('bi-lg')
 
-    expect(getSkillTile('TypeScript').className).toContain('bi-js')
-    expect(getSkillTile('TypeScript').className).toContain('c-blue')
+    expect(getSkillTile('TYPESCRIPT').className).toContain('bi-js')
+    expect(getSkillTile('TYPESCRIPT').className).toContain('c-blue')
 
-    expect(getSkillTile('Docker').className).toContain('bi-dk')
-    expect(getSkillTile('Docker').className).toContain('c-platinum')
+    expect(getSkillTile('DOCKER').className).toContain('bi-dk')
+    expect(getSkillTile('DOCKER').className).toContain('c-platinum')
 
-    expect(getSkillTile('JavaScript').className).toContain('bi-re')
+    expect(getSkillTile('JAVASCRIPT').className).toContain('bi-re')
     expect(getSkillTile('C++').className).toContain('bi-cc')
     expect(getSkillTile('C').className).toContain('bi-ci')
     expect(getSkillTile('SQL').className).toContain('bi-sq')
-    expect(getSkillTile('NumPy').className).toContain('bi-nd')
-    expect(getSkillTile('Pandas').className).toContain('bi-pd')
-    expect(getSkillTile('Matplotlib').className).toContain('bi-mp')
-    expect(getSkillTile('FastAPI').className).toContain('bi-nx')
-    expect(getSkillTile('Transformers').className).toContain('bi-tr')
-    expect(getSkillTile('Hugging Face').className).toContain('bi-gt')
-    expect(getSkillTile('Scikit-learn').className).toContain('bi-sk')
-    expect(getSkillTile('Git').className).toContain('bi-mn')
-    expect(getSkillTile('Linux').className).toContain('bi-lx')
-    expect(getSkillTile('Ansible').className).toContain('bi-an')
-    expect(getSkillTile('Jupyter').className).toContain('bi-jp')
+    expect(getSkillTile('NUMPY').className).toContain('bi-nd')
+    expect(getSkillTile('PANDAS').className).toContain('bi-pd')
+    expect(getSkillTile('MATPLOTLIB').className).toContain('bi-mp')
+    expect(getSkillTile('FASTAPI').className).toContain('bi-nx')
+    expect(getSkillTile('TRANSFORMERS').className).toContain('bi-tr')
+    expect(getSkillTile('HUGGING FACE').className).toContain('bi-gt')
+    expect(getSkillTile('SCIKIT-LEARN').className).toContain('bi-sk')
+    expect(getSkillTile('GIT').className).toContain('bi-mn')
+    expect(getSkillTile('LINUX').className).toContain('bi-lx')
+    expect(getSkillTile('ANSIBLE').className).toContain('bi-an')
+    expect(getSkillTile('JUPYTER').className).toContain('bi-jp')
   })
 
   it('uses bi-cat and bi-name hierarchy inside each tile', () => {
     render(<SkillsSection />)
 
-    const pythonTile = getSkillTile('Python')
-    expect(pythonTile.querySelector('.bi-cat')?.textContent).toBe('LANGUAGES')
-    expect(pythonTile.querySelector('.bi-name')?.textContent).toBe('Python')
+    const pythonTile = getSkillTile('PYTHON')
+    expect(pythonTile.querySelector('.bi-cat')?.textContent).toBe('LANGUAGE')
+    expect(pythonTile.querySelector('.bi-name')?.textContent).toBe('PYTHON')
   })
 
   it('renders palette swatch tile in bottom-right grid area', () => {
@@ -203,7 +203,7 @@ describe('SkillsSection', () => {
 
   it('Python dominates top-left with bi-py and bi-lg', () => {
     render(<SkillsSection />)
-    const pythonTile = getSkillTile('Python')
+    const pythonTile = getSkillTile('PYTHON')
     expect(pythonTile.className).toContain('bi-py')
     expect(pythonTile.className).toContain('bi-lg')
   })

@@ -225,3 +225,19 @@ describe('issue #252 - data vs UI architecture boundaries', () => {
     expect(violations).toEqual([])
   })
 })
+
+describe('issue #291 - framer-motion removal', () => {
+  it('no file in src/ imports from framer-motion', () => {
+    const allSourceFiles = collectFiles(srcDir, (name) => /\.(ts|tsx)$/.test(name))
+    const violations: string[] = []
+
+    for (const file of allSourceFiles) {
+      const source = readFileSync(file, 'utf8')
+      if (/(?:from\s+|import\s*\(\s*)['"]framer-motion['"]/.test(source)) {
+        violations.push(relative(srcDir, file))
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+})

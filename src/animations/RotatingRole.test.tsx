@@ -61,7 +61,7 @@ describe('RotatingRole', () => {
   it('shows a persistent caret element during typing and hold phases', () => {
     render(<RotatingRole roles={roles} active={true} typeSpeed={40} holdMs={100} startDelay={1} />)
     const container = screen.getByTestId('rotating-role')
-    const cursor = container.querySelector('.caret')
+    const cursor = container.querySelector('.cursor')
 
     act(() => { vi.advanceTimersByTime(40) })
     expect(cursor).not.toBeNull()
@@ -70,7 +70,7 @@ describe('RotatingRole', () => {
       act(() => { vi.advanceTimersByTime(40) })
     }
     expect(screen.getByText(new RegExp(`^${CS_STUDENT}$`))).toBeInTheDocument()
-    expect(container.querySelector('.caret')).not.toBeNull()
+    expect(container.querySelector('.cursor')).not.toBeNull()
   })
 
   it('erases characters in reverse order', () => {

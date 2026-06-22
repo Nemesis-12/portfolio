@@ -131,12 +131,12 @@
   .pcard:hover .pcard-ghost{color:var(--color-platinum);opacity:.10}
   .pcard-num{font-size:14px;color:var(--color-graphite);opacity:.55;letter-spacing:3px;position:relative;z-index:2;transition:color .35s var(--ease),opacity .35s var(--ease)}
   .pcard:hover .pcard-num{color:var(--color-platinum);opacity:.9}
-  .pcard-name{font-family:var(--font-display);font-size:clamp(20px,2vw,26px);color:var(--color-graphite);letter-spacing:2px;margin-top:30px;position:relative;z-index:2;line-height:1.3;transition:color .35s var(--ease)}
+  .pcard-name{font-family:var(--font-display);font-weight:700;font-size:clamp(20px,2vw,26px);color:var(--color-graphite);letter-spacing:2px;margin-top:30px;position:relative;z-index:2;line-height:1.3;transition:color .35s var(--ease)}
   .pcard:hover .pcard-name{color:var(--color-platinum)}
   .pcard-desc{font-size:16px;color:var(--color-graphite);opacity:.85;line-height:1.85;margin-top:20px;flex:1;position:relative;z-index:2;text-wrap:pretty;transition:color .35s var(--ease),opacity .35s var(--ease)}
   .pcard:hover .pcard-desc{color:var(--color-platinum);opacity:1}
   .pcard-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;position:relative;z-index:2}
-  .ptag{font-size:14px;padding:8px 14px;letter-spacing:1.5px;font-weight:700;transition:background .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease)}
+  .ptag{font-size:14px;padding:8px 14px;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;transition:background .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease)}
   .ptag-fuchsia{background:var(--color-fuchsia-flame);color:var(--color-platinum)}
   .ptag-blue{background:var(--color-ultrasonic-blue);color:var(--color-platinum)}
   .ptag-orange{background:var(--color-atomic-tangerine);color:var(--color-graphite)}
@@ -205,7 +205,7 @@
     }
 
     /* ─── HERO TYPING ──── */
-  .cursor{display:inline-block;width:.55ch;height:.9em;background:var(--color-atomic-tangerine);vertical-align:-.13em;margin-left:6px;animation:blink-cursor 1.05s steps(1) infinite}
+  .cursor{display:inline-block;width:.55ch;height:.9em;background:currentColor;vertical-align:-.13em;margin-left:6px;animation:blink-cursor 1.05s steps(1) infinite;animation-delay:var(--blink-offset, 0s)}
   @keyframes blink-cursor{50%{opacity:0}}
   .hero-fade{opacity:0;animation:fade-up .7s var(--ease) forwards}
   @keyframes fade-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -265,9 +265,6 @@
   .tl-section-tag.experience .tl-section-slash,
   .tl-section-tag.education .tl-section-kind,
   .tl-section-tag.experience .tl-section-kind{color:var(--color-atomic-tangerine)}
-  /* terminal-cursor caret (small block, end-of-line) */
-  .caret{display:inline-block;width:.55ch;height:.9em;background:currentColor;vertical-align:-.13em;margin-left:4px;animation:blink-cursor 1.05s steps(1) infinite}
-
   /* ─── FOOTER ──── */
   footer{width:100%;min-height:100vh;display:flex;flex-direction:column;padding:0}
   .footer-cta{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 5vw;gap:48px;text-align:center}
@@ -287,9 +284,6 @@
 
   /* parallax layers — transform driven by scrollY * factor in JS */
   [data-parallax]{will-change:transform}
-
-  /* persistent title cursor (uses currentColor so it matches whichever text it sits next to) */
-  .title-cursor{display:inline-block;width:.55ch;height:.9em;background:currentColor;vertical-align:-.13em;margin-left:6px;animation:blink-cursor 1.05s steps(1) infinite}
 
   @media (max-width:760px){
     .nav-list{gap:14px}

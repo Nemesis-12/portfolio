@@ -389,21 +389,43 @@ describe('TimelineSection typewriter', () => {
       expect(typedFields[0].closest('[data-testid="commit-metadata"]')).toBeTruthy()
     })
 
-    it('omits commit-details list when entry has no bullets', () => {
-      vi.mocked(useTimelineScroll).mockReturnValue(mockTimelineScrollState([false, false, true, false]))
+    it('omits commit-details list when entry has no bullets', async () => {
+      vi.resetModules()
+      vi.doMock('../data/timeline', async () => {
+        const actual =
+          await vi.importActual<typeof import('../data/timeline')>('../data/timeline')
+        return {
+          ...actual,
+          timelineEntries: [
+            { ...actual.timelineEntries[0], bullets: [] },
+            ...actual.timelineEntries.slice(1),
+          ],
+        }
+      })
+
+      const { default: IsolatedTimelineSection } = await import('./TimelineSection')
+      const { useTimelineScroll: isolatedUseTimelineScroll } = await import(
+        '../hooks/useTimelineScroll'
+      )
+      vi.mocked(isolatedUseTimelineScroll).mockReturnValue(
+        mockTimelineScrollState([true, false, false, false]),
+      )
       vi.useFakeTimers()
 
-      render(<TimelineSection />)
+      render(<IsolatedTimelineSection />)
 
       act(() => {
         vi.advanceTimersByTime(15000)
       })
 
-      const msPanel = getTimelinePanel(2)
-      expect(msPanel.querySelector('[data-testid="commit-details"]')).not.toBeInTheDocument()
-      expect(msPanel.querySelector('[data-testid="commit-institution"]')?.textContent).toBe(
-        'WICHITA STATE UNIVERSITY'
+      const panel = getTimelinePanel(0)
+      expect(panel.querySelector('[data-testid="commit-details"]')).not.toBeInTheDocument()
+      expect(panel.querySelector('[data-testid="commit-institution"]')?.textContent).toBe(
+        'NETAPP INC.',
       )
+
+      vi.doUnmock('../data/timeline')
+      vi.resetModules()
     })
 
     it('holds partial metadata within structured fields when panel deactivates', () => {

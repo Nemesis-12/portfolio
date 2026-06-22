@@ -108,7 +108,7 @@ export function Typewriter({
     wrapperTag,
     { className, ...wrapperProps },
     shown,
-    showCaret && <span key="caret" className="caret" />,
+    showCaret && <span key="caret" className="cursor" />,
     children,
   )
 }

@@ -102,7 +102,7 @@ export function RotatingRole({
   return (
     <div data-testid="rotating-role" className={className}>
       {displayed}
-      <span className="caret" style={{ background: 'var(--color-periwinkle)' }} />
+      <span className="cursor" style={{ background: 'var(--color-periwinkle)' }} />
     </div>
   )
 }

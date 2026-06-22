@@ -21,7 +21,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
         <div
           data-testid="hero-grid"
           data-parallax
-          data-parallax-factor="0.3"
+          data-parallax-factor="0.25"
           className="hero-grid"
         ></div>
       </div>
@@ -43,7 +43,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
           data-testid="hero-name"
           className="hero-name"
           data-parallax
-          data-parallax-factor="0.15"
+          data-parallax-factor="-0.04"
         >
           <span className="hero-name-line">
             <TypeIn
@@ -68,7 +68,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ introReady = true }) => {
               }}
             />
             {showNameCursor && (
-              <span data-testid="hero-name-cursor" aria-hidden="true" className="cursor" />
+              <span data-testid="hero-name-cursor" aria-hidden="true" className="cursor" style={{ background: 'var(--color-atomic-tangerine)' }} />
             )}
           </span>
         </h1>

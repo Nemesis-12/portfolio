@@ -134,7 +134,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
           {projectNumber}
         </div>
         <h3 className={`pcard-name transition-colors duration-200 ${isFillActive ? 'text-platinum' : ''}`}>
-          {project.title}
+          {project.title}<span className="cursor" aria-hidden="true" />
         </h3>
         <p className={`pcard-desc transition-colors duration-200 ${isFillActive ? 'text-platinum opacity-100' : ''}`}>
           {project.description}
