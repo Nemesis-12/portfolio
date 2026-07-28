@@ -2,6 +2,7 @@
 @import './styles/fonts.css';
 @import './styles/themes.css';
 @import './styles/layout.css';
+@import './styles/hero.css';
 
 /*
  * Tailwind's theme keys are mapped onto the swappable custom properties
