@@ -1,54 +1,43 @@
-@import "tailwindcss";
-@import "./portfolio.css";
+@import 'tailwindcss';
+@import './styles/fonts.css';
+@import './styles/themes.css';
 
-@theme {
-  --color-graphite: #2A2B2A;
-  --color-graphite-light: #323332;
-  --color-atomic-tangerine: #FF8547;
-  --color-ultrasonic-blue: #5200E0;
-  --color-fuchsia-flame: #E0007F;
-  --color-golden-pollen: #FFC857;
-  --color-platinum: #EFF1F3;
-  --color-periwinkle: #B2B6D2;
+/*
+ * Tailwind's theme keys are mapped onto the swappable custom properties
+ * from ./styles/themes.css indirectly, via rgb(var(...) / <alpha-value>).
+ * That indirection is what makes `data-theme` switches recolour utilities
+ * live at runtime, rather than Tailwind compiling each utility to a literal
+ * hex value that can never change.
+ */
+@theme inline {
+  --color-bg: rgb(var(--bg) / <alpha-value>);
+  --color-bg-glass: rgb(var(--bg-glass) / <alpha-value>);
+  --color-panel: rgb(var(--panel) / <alpha-value>);
+  --color-panel-2: rgb(var(--panel-2) / <alpha-value>);
+  --color-line: rgb(var(--line) / <alpha-value>);
+  --color-line-2: rgb(var(--line-2) / <alpha-value>);
+  --color-fg: rgb(var(--fg) / <alpha-value>);
+  --color-fg-2: rgb(var(--fg-2) / <alpha-value>);
+  --color-dim: rgb(var(--dim) / <alpha-value>);
+  --color-dim-2: rgb(var(--dim-2) / <alpha-value>);
+  --color-dim-3: rgb(var(--dim-3) / <alpha-value>);
+  --color-stone: rgb(var(--stone) / <alpha-value>);
+  --color-accent: rgb(var(--accent) / <alpha-value>);
+  --color-accent-2: rgb(var(--accent-2) / <alpha-value>);
 
-  --font-display: 'Press Start 2P', monospace;
-  --font-body: 'Space Mono', monospace;
-}
-
-:root {
-  --graphite: var(--color-graphite);
-  --orange: var(--color-atomic-tangerine);
+  --font-display: 'Press Start 2P', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
 html {
-  scroll-snap-type: y proximity;
-  scroll-padding-top: 56px;
-  overflow-x: clip;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--graphite);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--orange);
-}
-
-::selection {
-  background-color: var(--orange);
-  color: var(--graphite);
+  background-color: rgb(var(--bg));
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
-  font-family: var(--font-body);
-  background-color: var(--color-graphite);
-  color: var(--color-periwinkle);
-  overflow-x: clip;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  background-color: rgb(var(--bg));
+  color: rgb(var(--fg));
+  font-family: var(--font-mono);
 }
