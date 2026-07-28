@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b",
-    "sandcastle": "npx tsx .sandcastle/main.ts"
+    "sandcastle": "npx tsx .sandcastle/main.ts",
+    "generate:game4-moves": "tsx scripts/extract-game4-moves.ts"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
