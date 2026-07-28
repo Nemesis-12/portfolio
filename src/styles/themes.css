@@ -3,17 +3,26 @@
  *
  * Each theme is one CSS block of fourteen tokens, stored as space-separated
  * RGB channels (not hex) so Tailwind's `/opacity` modifiers work against
- * them. Only ORIGINAL is defined here — the remaining four themes (issue
- * #310) each add one more `[data-theme="..."]` block, no JavaScript change
- * required.
+ * them.
  *
  * These are plain custom properties, not Tailwind theme keys — the `@theme`
  * block in index.css maps Tailwind's `--color-*` keys onto these indirectly
  * (via `rgb(var(--bg) / <alpha-value>)`) so switching `data-theme` recolours
  * every utility live instead of the values being baked in at build time.
  *
- * Values are taken from the ORIGINAL theme's `:root` block in the design
- * reference (ideas/Portfolio.html), converted from hex to decimal channels.
+ * `--bg-glass` intentionally carries the same channels as `--bg` in every
+ * theme below. In the design reference it exists only as a computed
+ * `rgba(bg, .92)` used behind the fixed header — there is no distinct
+ * fourteenth colour to define. `.92` is an alpha, not a channel triple, so
+ * it belongs at the use site (e.g. a Tailwind `bg-bg-glass/92` utility)
+ * rather than baked into the token. Keeping `--bg-glass` equal to `--bg`
+ * per theme is what makes that opacity modifier resolve to the right
+ * colour in every theme, instead of silently freezing the ORIGINAL
+ * background behind the header no matter which theme is active.
+ *
+ * Values are taken from each theme's entry in the design reference's
+ * `DCLogic.themes` array (ideas/Portfolio.html), converted from hex to
+ * decimal channels.
  */
 
 :root,
@@ -32,4 +41,72 @@
   --stone: 74 68 56;
   --accent: 84 104 255;
   --accent-2: 147 160 255;
+}
+
+[data-theme='terracotta'] {
+  --bg: 4 8 15;
+  --bg-glass: 4 8 15;
+  --panel: 13 17 24;
+  --panel-2: 8 12 19;
+  --line: 28 34 42;
+  --line-2: 38 45 55;
+  --fg: 246 247 235;
+  --fg-2: 198 199 189;
+  --dim: 143 144 137;
+  --dim-2: 97 98 92;
+  --dim-3: 71 72 67;
+  --stone: 61 58 51;
+  --accent: 233 79 55;
+  --accent-2: 245 145 125;
+}
+
+[data-theme='indigo'] {
+  --bg: 23 26 38;
+  --bg-glass: 23 26 38;
+  --panel: 31 35 51;
+  --panel-2: 19 22 34;
+  --line: 44 48 73;
+  --line-2: 58 63 94;
+  --fg: 226 228 255;
+  --fg-2: 192 185 245;
+  --dim: 148 142 218;
+  --dim-2: 114 109 163;
+  --dim-3: 79 81 128;
+  --stone: 79 81 128;
+  --accent: 86 110 227;
+  --accent-2: 111 150 255;
+}
+
+[data-theme='purple'] {
+  --bg: 26 21 38;
+  --bg-glass: 26 21 38;
+  --panel: 36 29 52;
+  --panel-2: 21 16 32;
+  --line: 51 41 72;
+  --line-2: 67 54 95;
+  --fg: 233 227 255;
+  --fg-2: 195 183 239;
+  --dim: 160 136 250;
+  --dim-2: 111 95 160;
+  --dim-3: 82 66 119;
+  --stone: 74 59 110;
+  --accent: 125 101 214;
+  --accent-2: 202 124 237;
+}
+
+[data-theme='olive'] {
+  --bg: 25 28 13;
+  --bg-glass: 25 28 13;
+  --panel: 35 39 17;
+  --panel-2: 18 21 10;
+  --line: 51 58 25;
+  --line-2: 67 75 33;
+  --fg: 233 236 201;
+  --fg-2: 195 201 143;
+  --dim: 160 168 64;
+  --dim-2: 112 128 40;
+  --dim-3: 86 99 33;
+  --stone: 64 80 16;
+  --accent: 208 208 88;
+  --accent-2: 160 168 64;
 }

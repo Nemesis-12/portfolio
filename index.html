@@ -7,6 +7,28 @@
     <title>Farhan Mohammed — Portfolio</title>
 
     <!--
+      Applies the visitor's saved theme (issue #310) before anything below
+      paints, so a reload never flashes the default theme first. Plain,
+      non-module, synchronous script — it must run and block parsing right
+      here, before the app mounts.
+
+      The storage key and default id are hardcoded because this script
+      cannot import src/theme/persistence.ts and src/theme/themes.ts; keep
+      'fm-theme' and 'original' in sync with THEME_STORAGE_KEY and
+      DEFAULT_THEME_ID in those modules if either ever changes.
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('fm-theme')
+          document.documentElement.setAttribute('data-theme', stored || 'original')
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'original')
+        }
+      })()
+    </script>
+
+    <!--
       Self-hosted fonts, preloaded so viewport-fit typography (later
       tickets) has stable metrics at first paint. No CDN font requests.
     -->
