@@ -49,15 +49,18 @@ export const sections: SectionMeta[] = [
   },
   {
     id: 'path',
-    // Renamed from "Education and experience" (owner direction, #330):
-    // the nav destination is now "Timeline", so the section landmark's
-    // accessible name matches what the nav link that points here says.
-    // `id`/`eyebrow`/`title`/`blurb` are unchanged -- other branches and
-    // scroll/nav targets depend on `id`, and `title`/`blurb` are
-    // placeholder copy owned elsewhere.
+    // Renamed from "Education and experience"/"Education & experience"
+    // (owner direction, #330): the nav destination is "Timeline", so the
+    // section's accessible name (`label`), visible heading (`title`), and
+    // eyebrow all agree with it -- eyebrow follows the same
+    // "NN · <primary word, uppercased>" convention every other section
+    // uses (PROJECTS, SKILLS, CONTACT each echo their own `label`/`title`
+    // word, not the old id), so it becomes TIMELINE rather than PATH.
+    // `id` stays 'path' -- other branches and every scroll/nav target
+    // depend on it. `blurb` is untouched placeholder copy owned by #320.
     label: 'Timeline',
-    eyebrow: '03 · PATH',
-    title: 'Education & experience',
+    eyebrow: '03 · TIMELINE',
+    title: 'Timeline',
     blurb: 'Placeholder timeline copy -- full content lands in #320.',
   },
   {
