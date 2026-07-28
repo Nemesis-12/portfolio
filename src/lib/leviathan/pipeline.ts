@@ -23,6 +23,16 @@ export const PIPELINE_LOOP_LENGTH = 84
 /** Number of attention rows revealed at full reveal (a 10-row grid). */
 export const ATTENTION_ROW_COUNT = 10
 
+/**
+ * Frames-per-row divisor for the attention reveal. Deliberately not derived
+ * from the attention stage's span: the reveal is meant to finish a few
+ * frames before the policy stage starts (frame 49 of 54), leaving the fully
+ * revealed "every token reads..." caption to dwell on screen — the visual
+ * argument for "it never searches" needs a beat to land before the next
+ * stage takes over.
+ */
+const ATTENTION_REVEAL_FRAME_DIVISOR = 2.2
+
 /** The frame at which each stage starts becoming active, within one loop. */
 const STAGE_START_FRAME: Record<PipelineStage, number> = {
   position: 0,
@@ -91,13 +101,12 @@ export function computePipelineFrame(
   const tokensRevealedCount =
     frame < STAGE_START_FRAME.tokens ? 0 : Math.min(tokenCount, frame - STAGE_START_FRAME.tokens + 1)
 
-  const attentionSpan = STAGE_START_FRAME.policy - STAGE_START_FRAME.attention
   const attentionRowsRevealed =
     frame < STAGE_START_FRAME.attention
       ? 0
       : Math.min(
           ATTENTION_ROW_COUNT,
-          Math.floor(((frame - STAGE_START_FRAME.attention + 1) / attentionSpan) * ATTENTION_ROW_COUNT),
+          Math.floor((frame - STAGE_START_FRAME.attention + 1) / ATTENTION_REVEAL_FRAME_DIVISOR),
         )
 
   const policyRevealed = frame >= STAGE_START_FRAME.policy

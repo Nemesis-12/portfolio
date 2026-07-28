@@ -51,8 +51,8 @@ export const LEVIATHAN_SUMMARY =
 /** Memory, tokenizer, training — the three engineering decisions worth judging. */
 export const LEVIATHAN_BULLETS: readonly string[] = [
   'Multi-Head Latent Attention cuts KV-cache memory 8×, unlocking batched inference.',
-  'A custom tokenizer folds board state and UCI notation into a 4,247-token vocabulary, so one token is one move.',
-  'Trained on 3M+ positions with gradient checkpointing and FP16 to fit a consumer GPU.',
+  'A custom tokenizer folds board state and UCI notation into a 4,247-token vocabulary.',
+  'Gradient checkpointing and FP16 push 3M+ positions through consumer hardware.',
 ]
 
 /**
@@ -127,6 +127,16 @@ export const PIPELINE_CANDIDATE_SETS: readonly (readonly PipelineCandidate[])[] 
     { move: 'O-O', percent: 64 },
     { move: 'd4', percent: 22 },
     { move: 'Nc3', percent: 9 },
+  ],
+  [
+    { move: 'Bb5', percent: 58 },
+    { move: 'Qe2', percent: 27 },
+    { move: 'h3', percent: 11 },
+  ],
+  [
+    { move: 'Rd1', percent: 66 },
+    { move: 'c3', percent: 21 },
+    { move: 'Nf3', percent: 8 },
   ],
 ]
 

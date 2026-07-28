@@ -102,6 +102,19 @@ describe('computePipelineFrame', () => {
     expect(late.attentionRowsRevealed).toBe(ATTENTION_ROW_COUNT)
   })
 
+  it('completes the attention reveal a few frames before policy starts, so the full grid dwells', () => {
+    const almostFull = computePipelineFrame(48, positionLength, tokenCount)
+    expect(almostFull.attentionRowsRevealed).toBeLessThan(ATTENTION_ROW_COUNT)
+
+    // Full reveal lands at frame 49 — five frames of dwell before policy
+    // starts at frame 54, matching the design reference's pacing.
+    for (let frame = 49; frame <= 53; frame++) {
+      const model = computePipelineFrame(frame, positionLength, tokenCount)
+      expect(model.attentionRowsRevealed).toBe(ATTENTION_ROW_COUNT)
+      expect(model.policyRevealed).toBe(false)
+    }
+  })
+
   it('reveals policy and move only from their documented frame onward', () => {
     expect(computePipelineFrame(53, positionLength, tokenCount).policyRevealed).toBe(false)
     expect(computePipelineFrame(54, positionLength, tokenCount).policyRevealed).toBe(true)
