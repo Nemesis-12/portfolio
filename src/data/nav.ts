@@ -15,10 +15,14 @@ export interface NavItem {
  * deliberately absent -- the spec reaches those by scrolling only, not
  * via the nav.
  *
- * IDs are validated against `src/data/sections.ts` at import time so this
- * list cannot silently drift from the section shell: if a section is
- * renamed or removed without updating this file, the app fails to import
- * instead of shipping a nav link that goes nowhere.
+ * IDs are validated against `src/data/sections.ts` at import time. This
+ * list must never drift from the section shell -- `nav.test.ts` asserts
+ * the strict invariant that every declared target resolves to a real
+ * section, so drift is caught in CI. At runtime, though, a mismatch
+ * degrades to a dropped nav entry (logged via `console.error`) rather
+ * than a thrown exception: every consumer of this module evaluates its
+ * body, so throwing here would turn one dead nav link into a blank page
+ * for the whole shipped bundle.
  */
 const NAV_LABELS: ReadonlyArray<readonly [id: string, label: string]> = [
   ['projects', 'Projects'],
@@ -29,12 +33,13 @@ const NAV_LABELS: ReadonlyArray<readonly [id: string, label: string]> = [
 
 const sectionIds = new Set(sections.map((section) => section.id))
 
-export const navItems: NavItem[] = NAV_LABELS.map(([id, label]) => {
+export const navItems: NavItem[] = NAV_LABELS.filter(([id]) => {
   if (!sectionIds.has(id)) {
-    throw new Error(
+    console.error(
       `Nav target "${id}" does not match any section id in src/data/sections.ts -- ` +
-        'update one or the other so the two cannot drift apart.',
+        'dropping it from the header nav. Update one or the other so the two cannot drift apart.',
     )
+    return false
   }
-  return { id, label }
-})
+  return true
+}).map(([id, label]) => ({ id, label }))
