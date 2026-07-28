@@ -1,84 +1,34 @@
-import { useEffect, useState } from 'react'
-import { Analytics } from '@vercel/analytics/react'
-import { SpeedInsights } from '@vercel/speed-insights/react'
-import './index.css'
-import LoadingScreen from './components/LoadingScreen'
-import Navbar from './components/Navbar'
-import { SkillsSection } from './components/SkillsSection'
-import ContactSection from './components/ContactSection'
-import ProjectsSection from './components/ProjectsSection'
-import HeroSection from './components/HeroSection'
-import TimelineSection from './components/TimelineSection'
-import { projects } from './data/projects'
+import { cn } from '@/lib/cn'
 
+/**
+ * Static under-construction placeholder. The rewrite (spec at
+ * docs/spec-portfolio-rewrite.md) replaces this with the full six-section
+ * page in later tickets. This ticket only lays the foundation: strict TS,
+ * the `@/*` alias, self-hosted fonts, the `cn()` helper, and the ORIGINAL
+ * theme's colour tokens.
+ *
+ * No animation, no loading gate, no header — first paint is the finished
+ * page.
+ */
 function App() {
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    let frameId: number | null = null
-
-    const blinkPeriod = 1050
-    const syncOffset = -(performance.now() % blinkPeriod)
-    document.documentElement.style.setProperty('--blink-offset', `${syncOffset}ms`)
-
-    const updateParallax = () => {
-      const parallaxLayers = Array.from(document.querySelectorAll<HTMLElement>('[data-parallax]'))
-      const layerUpdates = parallaxLayers.map((layer) => {
-        const factor = Number(layer.dataset.parallaxFactor ?? 0)
-        const sectionSurface = layer.closest('section, footer')
-        const surfaceRect = sectionSurface?.getBoundingClientRect()
-        const scrollOffset = surfaceRect ? -surfaceRect.top : -layer.getBoundingClientRect().top
-
-        return {
-          layer,
-          offset: scrollOffset * (Number.isFinite(factor) ? factor : 0),
-        }
-      })
-
-      layerUpdates.forEach(({ layer, offset }) => {
-        layer.style.transform = `translate3d(0, ${offset}px, 0)`
-      })
-    }
-
-    const requestParallaxUpdate = () => {
-      if (frameId !== null) {
-        return
-      }
-
-      frameId = window.requestAnimationFrame(() => {
-        frameId = null
-        updateParallax()
-      })
-    }
-
-    window.addEventListener('scroll', requestParallaxUpdate, { passive: true })
-    window.addEventListener('resize', requestParallaxUpdate, { passive: true })
-    requestParallaxUpdate()
-
-    return () => {
-      window.removeEventListener('scroll', requestParallaxUpdate)
-      window.removeEventListener('resize', requestParallaxUpdate)
-
-      if (frameId !== null) {
-        window.cancelAnimationFrame(frameId)
-      }
-    }
-  }, [])
-
   return (
-    <>
-      {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
-      <Navbar />
-      <main>
-        <HeroSection introReady={!loading} />
-        <ProjectsSection projects={projects} />
-        <SkillsSection />
-        <TimelineSection />
-        <ContactSection />
-      </main>
-      <Analytics />
-      <SpeedInsights />
-    </>
+    <main
+      className={cn(
+        'flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-center',
+        'bg-bg text-fg',
+      )}
+    >
+      <h1
+        className={cn(
+          'font-display text-[clamp(1.1rem,4vw,1.75rem)] leading-relaxed text-accent-2',
+        )}
+      >
+        UNDER CONSTRUCTION
+      </h1>
+      <p className={cn('font-mono text-sm text-dim md:text-base')}>
+        Farhan Mohammed's portfolio is being rebuilt from scratch. Check back soon.
+      </p>
+    </main>
   )
 }
 

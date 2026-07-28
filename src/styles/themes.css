@@ -1,0 +1,35 @@
+/*
+ * Colour themes, selected via a `data-theme` attribute on <html>.
+ *
+ * Each theme is one CSS block of fourteen tokens, stored as space-separated
+ * RGB channels (not hex) so Tailwind's `/opacity` modifiers work against
+ * them. Only ORIGINAL is defined here — the remaining four themes (issue
+ * #310) each add one more `[data-theme="..."]` block, no JavaScript change
+ * required.
+ *
+ * These are plain custom properties, not Tailwind theme keys — the `@theme`
+ * block in index.css maps Tailwind's `--color-*` keys onto these indirectly
+ * (via `rgb(var(--bg) / <alpha-value>)`) so switching `data-theme` recolours
+ * every utility live instead of the values being baked in at build time.
+ *
+ * Values are taken from the ORIGINAL theme's `:root` block in the design
+ * reference (ideas/Portfolio.html), converted from hex to decimal channels.
+ */
+
+:root,
+[data-theme='original'] {
+  --bg: 20 18 15;
+  --bg-glass: 20 18 15;
+  --panel: 28 26 21;
+  --panel-2: 16 14 12;
+  --line: 42 39 33;
+  --line-2: 52 48 42;
+  --fg: 239 233 219;
+  --fg-2: 196 188 171;
+  --dim: 154 147 133;
+  --dim-2: 109 103 91;
+  --dim-3: 87 82 74;
+  --stone: 74 68 56;
+  --accent: 84 104 255;
+  --accent-2: 147 160 255;
+}
