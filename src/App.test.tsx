@@ -85,10 +85,10 @@ describe('App composition (#312)', () => {
     const nav = screen.getByRole('navigation', { name: /section/i })
     const links = within(nav).getAllByRole('link')
     expect(links.map((link) => link.textContent)).toEqual([
-      'Projects',
-      'Skills',
-      'Education & Experience',
-      'Contact',
+      '01 Projects',
+      '02 Skills',
+      '03 Timeline',
+      '04 Contact',
     ])
   })
 

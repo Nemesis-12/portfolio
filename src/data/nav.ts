@@ -15,6 +15,21 @@ export interface NavItem {
  * deliberately absent -- the spec reaches those by scrolling only, not
  * via the nav.
  *
+ * Labels carry the reference design's numeric prefix (`ideas/Portfolio.html`,
+ * decoded `<nav>` markup: `01 PROJECTS`, `02 SKILLS`, `03 ...`, `04
+ * CONTACT`). The reference renders the numeral as plain text jammed
+ * against the label inside the same anchor -- no separate span, no
+ * dimming/sizing treatment -- so it is reproduced the same way here
+ * rather than invented as a distinct decorative element. Because it's
+ * plain text (not `aria-hidden`), it's part of the link's accessible
+ * name too, matching what the reference actually ships.
+ *
+ * `path`'s destination is "Timeline" per owner direction (`Education &
+ * Experience` was the working title from the reference; the project
+ * owner has since renamed it). `src/data/sections.ts`'s `path` entry's
+ * accessible `label` was updated to match, so the nav link and the
+ * section landmark it points to agree on the destination's name.
+ *
  * IDs are validated against `src/data/sections.ts` at import time. This
  * list must never drift from the section shell -- `nav.test.ts` asserts
  * the strict invariant that every declared target resolves to a real
@@ -25,10 +40,10 @@ export interface NavItem {
  * for the whole shipped bundle.
  */
 const NAV_LABELS: ReadonlyArray<readonly [id: string, label: string]> = [
-  ['projects', 'Projects'],
-  ['skills', 'Skills'],
-  ['path', 'Education & Experience'],
-  ['contact', 'Contact'],
+  ['projects', '01 Projects'],
+  ['skills', '02 Skills'],
+  ['path', '03 Timeline'],
+  ['contact', '04 Contact'],
 ]
 
 const sectionIds = new Set(sections.map((section) => section.id))
