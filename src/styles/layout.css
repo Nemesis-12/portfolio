@@ -1,0 +1,149 @@
+/*
+ * Section shell + fluid type scale.
+ *
+ * ---------------------------------------------------------------------
+ * FLUID TYPE SCALE
+ * ---------------------------------------------------------------------
+ * One scale, designed once, consumed by every section. Every step is a
+ * `clamp(min, preferred, max)` where the preferred value is a rem/vw
+ * blend, so type grows continuously with the viewport instead of jumping
+ * between fixed breakpoint values. Steps compound by roughly 1.25x, close
+ * to a major third -- enough to read as a deliberate scale without huge
+ * jumps between adjacent steps.
+ *
+ *   --text-2xs   clamp(0.66rem, 0.6rem  + 0.3vw, 0.78rem)  micro labels, meta
+ *   --text-xs    clamp(0.78rem, 0.7rem  + 0.4vw, 0.92rem)  captions, eyebrows
+ *   --text-sm    clamp(0.9rem,  0.8rem  + 0.5vw, 1.05rem)  body small
+ *   --text-base  clamp(1rem,    0.9rem  + 0.6vw, 1.2rem)   body
+ *   --text-lg    clamp(1.2rem,  1.05rem + 0.9vw, 1.5rem)   section lede / intro line
+ *   --text-xl    clamp(1.55rem, 1.3rem  + 1.6vw, 2.1rem)   subheadings
+ *   --text-2xl   clamp(2.1rem,  1.6rem  + 3vw,   3.4rem)   section titles
+ *   --text-hero  clamp(2.6rem,  1.7rem  + 5.5vw, 5.4rem)   hero display line
+ *
+ * Spacing follows the same construction so gaps and padding stay
+ * proportional to the viewport rather than being retro-fitted per section:
+ *
+ *   --space-3xs  clamp(0.25rem, 0.2rem  + 0.2vw, 0.4rem)
+ *   --space-2xs  clamp(0.4rem,  0.3rem  + 0.3vw, 0.6rem)
+ *   --space-xs   clamp(0.65rem, 0.5rem  + 0.5vw, 0.95rem)
+ *   --space-sm   clamp(1rem,    0.8rem  + 0.8vw, 1.5rem)
+ *   --space-md   clamp(1.6rem,  1.2rem  + 1.6vw, 2.4rem)
+ *   --space-lg   clamp(2.4rem,  1.6rem  + 2.8vw, 3.6rem)
+ *   --space-xl   clamp(3.2rem,  2rem    + 4vw,   5.2rem)
+ *
+ * These are plain custom properties (not Tailwind `@theme` keys) so they
+ * stay decoupled from Tailwind's own `text-*`/`spacing-*` namespace and the
+ * scale can be audited in one place. Utility classes below expose them;
+ * components must consume the classes/variables rather than writing their
+ * own ad-hoc clamp().
+ */
+
+:root {
+  --text-2xs: clamp(0.66rem, 0.6rem + 0.3vw, 0.78rem);
+  --text-xs: clamp(0.78rem, 0.7rem + 0.4vw, 0.92rem);
+  --text-sm: clamp(0.9rem, 0.8rem + 0.5vw, 1.05rem);
+  --text-base: clamp(1rem, 0.9rem + 0.6vw, 1.2rem);
+  --text-lg: clamp(1.2rem, 1.05rem + 0.9vw, 1.5rem);
+  --text-xl: clamp(1.55rem, 1.3rem + 1.6vw, 2.1rem);
+  --text-2xl: clamp(2.1rem, 1.6rem + 3vw, 3.4rem);
+  --text-hero: clamp(2.6rem, 1.7rem + 5.5vw, 5.4rem);
+
+  --space-3xs: clamp(0.25rem, 0.2rem + 0.2vw, 0.4rem);
+  --space-2xs: clamp(0.4rem, 0.3rem + 0.3vw, 0.6rem);
+  --space-xs: clamp(0.65rem, 0.5rem + 0.5vw, 0.95rem);
+  --space-sm: clamp(1rem, 0.8rem + 0.8vw, 1.5rem);
+  --space-md: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
+  --space-lg: clamp(2.4rem, 1.6rem + 2.8vw, 3.6rem);
+  --space-xl: clamp(3.2rem, 2rem + 4vw, 5.2rem);
+}
+
+.text-2xs {
+  font-size: var(--text-2xs);
+}
+.text-fluid-xs {
+  font-size: var(--text-xs);
+}
+.text-fluid-sm {
+  font-size: var(--text-sm);
+}
+.text-fluid-base {
+  font-size: var(--text-base);
+}
+.text-fluid-lg {
+  font-size: var(--text-lg);
+}
+.text-fluid-xl {
+  font-size: var(--text-xl);
+}
+.text-fluid-2xl {
+  font-size: var(--text-2xl);
+}
+.text-fluid-hero {
+  font-size: var(--text-hero);
+}
+
+/*
+ * ---------------------------------------------------------------------
+ * SECTION SHELL + SNAP
+ * ---------------------------------------------------------------------
+ * Below 880px sections are ordinary flow content: no fixed height, no
+ * snapping, so nothing is ever shrunk to force a fit. At 880px and above,
+ * each section becomes exactly one viewport tall and the page scrolls as a
+ * sequence of whole screens.
+ *
+ * 880px is the one hard breakpoint in the layout system; everything within
+ * a section is otherwise fluid.
+ *
+ * `.snap-shell` (applied to <main>, see src/App.tsx) is NOT the scroll
+ * container -- there is no `overflow`/height constraint on it, so the
+ * viewport/document itself is what actually scrolls. `scroll-snap-type`
+ * and `scroll-behavior` only take effect on the element that is the real
+ * scroll container, so both live on `:root` (the document scrolling box)
+ * below, not on `.snap-shell`. `.snap-shell` is kept purely as a marker
+ * class for readability/documentation of intent on <main>.
+ *
+ * Note for later tickets (#316-#321): `min-height: 100dvh` + `mandatory`
+ * snap assumes each section fits (or slightly exceeds) one viewport. If
+ * real content grows taller than the viewport, mandatory snap can make it
+ * hard to scroll within an overflowing section. Not addressed here.
+ */
+
+.section-shell {
+  width: 100%;
+  padding-block: var(--space-lg) var(--space-md);
+  padding-inline: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+:root {
+  scroll-behavior: smooth;
+}
+
+@media (min-width: 880px) {
+  :root {
+    scroll-snap-type: y mandatory;
+  }
+
+  .section-shell {
+    min-height: 100dvh;
+    scroll-snap-align: start;
+    padding-block: var(--space-xl) var(--space-lg);
+    padding-inline: var(--space-xl);
+  }
+}
+
+/*
+ * This block must stay AFTER the `min-width: 880px` block above: both
+ * rules target `:root` at equal specificity, so when a reduced-motion
+ * user is also above 880px, source order (not just specificity) decides
+ * which wins. Placing this last guarantees reduced motion always relaxes
+ * snapping and smooth scrolling, regardless of viewport width.
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
+}

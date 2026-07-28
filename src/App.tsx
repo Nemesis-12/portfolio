@@ -1,33 +1,38 @@
+import { Contact } from '@/components/sections/Contact'
+import { EducationExperience } from '@/components/sections/EducationExperience'
+import { Hero } from '@/components/sections/Hero'
+import { ProjectsFeatured } from '@/components/sections/ProjectsFeatured'
+import { ProjectsOther } from '@/components/sections/ProjectsOther'
+import { Skills } from '@/components/sections/Skills'
 import { cn } from '@/lib/cn'
 
 /**
- * Static under-construction placeholder. The rewrite (spec at
- * docs/spec-portfolio-rewrite.md) replaces this with the full six-section
- * page in later tickets. This ticket only lays the foundation: strict TS,
- * the `@/*` alias, self-hosted fonts, the `cn()` helper, and the ORIGINAL
- * theme's colour tokens.
+ * The six-section page shell (spec at docs/spec-portfolio-rewrite.md,
+ * issue #311). Sections render in a fixed order -- hero, projects
+ * (featured), projects (other), skills, education & experience, contact --
+ * each with placeholder content for now.
  *
- * No animation, no loading gate, no header — first paint is the finished
- * page.
+ * Layout/viewport-fit system: above 880px `.section-shell` (src/styles/
+ * layout.css) makes every section exactly one viewport tall, while the
+ * scroll-snap itself lives on `:root` (the document is the real scroll
+ * container, not `<main>`) so sections snap between whole screens; below
+ * 880px both release and sections stack as ordinary flow content.
+ * `.snap-shell` on <main> is a marker class only -- it carries no CSS of
+ * its own. There is no JavaScript measuring loop -- fit comes entirely
+ * from the fluid type scale and CSS documented in that file.
+ *
+ * Out of scope here: the Go board (#316), header/nav (#312), and real
+ * section content (#317-#321).
  */
 function App() {
   return (
-    <main
-      className={cn(
-        'flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-center',
-        'bg-bg text-fg',
-      )}
-    >
-      <h1
-        className={cn(
-          'font-display text-[clamp(1.1rem,4vw,1.75rem)] leading-relaxed text-accent-2',
-        )}
-      >
-        UNDER CONSTRUCTION
-      </h1>
-      <p className={cn('font-mono text-sm text-dim md:text-base')}>
-        Farhan Mohammed's portfolio is being rebuilt from scratch. Check back soon.
-      </p>
+    <main className={cn('snap-shell', 'flex min-h-screen flex-col', 'bg-bg text-fg')}>
+      <Hero />
+      <ProjectsFeatured />
+      <ProjectsOther />
+      <Skills />
+      <EducationExperience />
+      <Contact />
     </main>
   )
 }
