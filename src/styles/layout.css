@@ -93,6 +93,19 @@
  *
  * 880px is the one hard breakpoint in the layout system; everything within
  * a section is otherwise fluid.
+ *
+ * `.snap-shell` (applied to <main>, see src/App.tsx) is NOT the scroll
+ * container -- there is no `overflow`/height constraint on it, so the
+ * viewport/document itself is what actually scrolls. `scroll-snap-type`
+ * and `scroll-behavior` only take effect on the element that is the real
+ * scroll container, so both live on `:root` (the document scrolling box)
+ * below, not on `.snap-shell`. `.snap-shell` is kept purely as a marker
+ * class for readability/documentation of intent on <main>.
+ *
+ * Note for later tickets (#316-#321): `min-height: 100dvh` + `mandatory`
+ * snap assumes each section fits (or slightly exceeds) one viewport. If
+ * real content grows taller than the viewport, mandatory snap can make it
+ * hard to scroll within an overflowing section. Not addressed here.
  */
 
 .section-shell {
@@ -104,18 +117,12 @@
   justify-content: center;
 }
 
-.snap-shell {
+:root {
   scroll-behavior: smooth;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .snap-shell {
-    scroll-behavior: auto;
-  }
-}
-
 @media (min-width: 880px) {
-  .snap-shell {
+  :root {
     scroll-snap-type: y mandatory;
   }
 
@@ -124,5 +131,19 @@
     scroll-snap-align: start;
     padding-block: var(--space-xl) var(--space-lg);
     padding-inline: var(--space-xl);
+  }
+}
+
+/*
+ * This block must stay AFTER the `min-width: 880px` block above: both
+ * rules target `:root` at equal specificity, so when a reduced-motion
+ * user is also above 880px, source order (not just specificity) decides
+ * which wins. Placing this last guarantees reduced motion always relaxes
+ * snapping and smooth scrolling, regardless of viewport width.
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
   }
 }

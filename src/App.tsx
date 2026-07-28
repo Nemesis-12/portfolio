@@ -12,12 +12,14 @@ import { cn } from '@/lib/cn'
  * (featured), projects (other), skills, education & experience, contact --
  * each with placeholder content for now.
  *
- * Layout/viewport-fit system: above 880px `.snap-shell` + `.section-shell`
- * (src/styles/layout.css) make every section exactly one viewport tall
- * with scroll-snap between them; below 880px both release and sections
- * stack as ordinary flow content. There is no JavaScript measuring loop --
- * fit comes entirely from the fluid type scale and CSS documented in that
- * file.
+ * Layout/viewport-fit system: above 880px `.section-shell` (src/styles/
+ * layout.css) makes every section exactly one viewport tall, while the
+ * scroll-snap itself lives on `:root` (the document is the real scroll
+ * container, not `<main>`) so sections snap between whole screens; below
+ * 880px both release and sections stack as ordinary flow content.
+ * `.snap-shell` on <main> is a marker class only -- it carries no CSS of
+ * its own. There is no JavaScript measuring loop -- fit comes entirely
+ * from the fluid type scale and CSS documented in that file.
  *
  * Out of scope here: the Go board (#316), header/nav (#312), and real
  * section content (#317-#321).
