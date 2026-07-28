@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { GAME4_BLACK_LABEL, GAME4_CAPTION, GAME4_WHITE_LABEL } from '@/data/hero'
 import { cn } from '@/lib/cn'
 import { BOARD_SIZE } from '@/lib/go/board'
-import { frameForMove, staticFinalFrame, type BoardFrame } from '@/lib/hero/goFrameModel'
+import {
+  frameForMove,
+  hasActiveCaptureFade,
+  staticFinalFrame,
+  type BoardFrame,
+} from '@/lib/hero/goFrameModel'
 import { FADE_MS, TOTAL_MOVES, frameAtElapsed } from '@/lib/hero/goTiming'
 import { useReducedMotion } from '@/lib/hero/useReducedMotion'
 
@@ -100,10 +105,31 @@ export function GoBoardReplay() {
 
     startRef.current = null
     let frameId: number
+    // Signature of "what would render" (move number, phase, whether a
+    // capture is mid-fade) for the most recent tick that actually
+    // triggered a re-render. Ticks that would produce an identical
+    // signature skip `setElapsed` entirely -- see SHOULD-FIX #4: without
+    // this, the hold phase alone re-renders and rebuilds the 361-cell
+    // stone array ~60x/sec for ~2.6s doing nothing visible. A capture
+    // fade starting or ending always changes the signature (entry rides
+    // on the move-number bump that caused it; exit is caught by
+    // `hasActiveCaptureFade` flipping false), so this cannot skip a frame
+    // that fix #1's exit animations depend on. The 'fading' phase is
+    // exempted outright because its container-opacity animation is driven
+    // by JS every tick, not CSS, so it must never skip.
+    let lastSignature: string | null = null
 
     const tick = (timestamp: number) => {
       if (startRef.current === null) startRef.current = timestamp
-      setElapsed(timestamp - startRef.current)
+      const nextElapsed = timestamp - startRef.current
+      const timing = frameAtElapsed(nextElapsed)
+      const signature = `${timing.moveNumber}|${timing.phase}|${hasActiveCaptureFade(timing.loopElapsed)}`
+
+      if (timing.phase === 'fading' || signature !== lastSignature) {
+        lastSignature = signature
+        setElapsed(nextElapsed)
+      }
+
       frameId = requestAnimationFrame(tick)
     }
     frameId = requestAnimationFrame(tick)
@@ -120,7 +146,7 @@ export function GoBoardReplay() {
     moveNumber = TOTAL_MOVES
   } else {
     const timing = frameAtElapsed(elapsed)
-    frame = frameForMove(timing.moveNumber, timing.elapsedSinceMove)
+    frame = frameForMove(timing.moveNumber, timing.loopElapsed)
     moveNumber = timing.moveNumber
     if (timing.phase === 'fading') {
       containerOpacity = Math.max(0, 1 - timing.elapsedSinceMove / FADE_MS)

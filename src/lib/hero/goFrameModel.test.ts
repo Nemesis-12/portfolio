@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { GAME4_MOVES } from '@/data/game4Moves'
-import { TOTAL_MOVES } from './goTiming'
-import { GAME4_BOARD_STATES, MOVE_78_POSITION, frameForMove, staticFinalFrame } from './goFrameModel'
+import { CAPTURE_FADE_MS, TOTAL_MOVES, moveTimestampMs } from './goTiming'
+import {
+  GAME4_BOARD_STATES,
+  MOVE_78_POSITION,
+  frameForMove,
+  hasActiveCaptureFade,
+  staticFinalFrame,
+} from './goFrameModel'
 
 describe('MOVE_78_POSITION', () => {
   it('matches the real move 78 coordinate (W ki, row 8 col 10)', () => {
@@ -61,24 +67,132 @@ describe('frameForMove', () => {
     expect(move91).toBeUndefined()
   })
 
-  it('marks stones captured at a given move as "leaving" within the capture-fade window', () => {
+  it('marks stones captured at a given move as "leaving" while that move is still current', () => {
     // Find a move that captures at least one stone.
     const captureMove = GAME4_BOARD_STATES.findIndex((state) => state.captured.length > 0) + 1
     expect(captureMove).toBeGreaterThan(0)
 
-    const midFade = frameForMove(captureMove, 100)
+    const midFade = frameForMove(captureMove, moveTimestampMs(captureMove) + 100)
     const leaving = midFade.stones.filter((s) => s.variant === 'leaving')
     expect(leaving.length).toBeGreaterThan(0)
   })
 
   it('does not report "leaving" stones once the capture-fade window has passed', () => {
     const captureMove = GAME4_BOARD_STATES.findIndex((state) => state.captured.length > 0) + 1
-    const afterFade = frameForMove(captureMove, 10_000)
+    const afterFade = frameForMove(captureMove, moveTimestampMs(captureMove) + 10_000)
     expect(afterFade.stones.some((s) => s.variant === 'leaving')).toBe(false)
   })
 
   it('clamps to the final position for move numbers beyond 180', () => {
     expect(frameForMove(500)).toEqual(frameForMove(TOTAL_MOVES))
+  })
+
+  describe('capture fades survive the next move arriving (the exit-animation-truncation bug)', () => {
+    // Real Game 4 data: move 176 captures an 8-stone group, and the very
+    // next move (177) appears just 50ms later -- far inside the 550ms
+    // CAPTURE_FADE_MS window. A correct model must keep reporting those 8
+    // stones as "leaving" at move 177's own frame, not drop them the
+    // instant move 177 becomes current. Move 178 captures again 50ms after
+    // that, so its fade window overlaps move 176's.
+    const MOVE_176 = 176
+    const MOVE_178 = 178
+
+    it('move 176 really captures 8 stones and move 178 really captures 1 (sanity, matches the issue data)', () => {
+      expect(GAME4_BOARD_STATES[MOVE_176 - 1].captured).toHaveLength(8)
+      expect(GAME4_BOARD_STATES[MOVE_178 - 1].captured).toHaveLength(1)
+    })
+
+    it('all 8 of move 176\'s captured stones are still "leaving" once move 177 is current', () => {
+      const captured = GAME4_BOARD_STATES[MOVE_176 - 1].captured
+      const frame = frameForMove(MOVE_176 + 1, moveTimestampMs(MOVE_176 + 1))
+
+      for (const position of captured) {
+        const stone = frame.stones.find(
+          (s) => s.row === position.row && s.col === position.col && s.variant === 'leaving',
+        )
+        expect(stone).toBeDefined()
+      }
+      expect(frame.moveNumber).toBe(MOVE_176 + 1)
+    })
+
+    it('move 176\'s fade is still present at move 178, and move 178\'s own capture is fading too (overlapping fades)', () => {
+      const move176Captured = GAME4_BOARD_STATES[MOVE_176 - 1].captured
+      const move178Captured = GAME4_BOARD_STATES[MOVE_178 - 1].captured
+      const frame = frameForMove(MOVE_178, moveTimestampMs(MOVE_178))
+
+      for (const position of move176Captured) {
+        expect(
+          frame.stones.some(
+            (s) => s.row === position.row && s.col === position.col && s.variant === 'leaving',
+          ),
+        ).toBe(true)
+      }
+      for (const position of move178Captured) {
+        expect(
+          frame.stones.some(
+            (s) => s.row === position.row && s.col === position.col && s.variant === 'leaving',
+          ),
+        ).toBe(true)
+      }
+    })
+
+    it('the leaving stone keeps the same React key across the moves it survives', () => {
+      const [firstCaptured] = GAME4_BOARD_STATES[MOVE_176 - 1].captured
+      const keyAt177 = frameForMove(MOVE_176 + 1, moveTimestampMs(MOVE_176 + 1)).stones.find(
+        (s) => s.row === firstCaptured.row && s.col === firstCaptured.col && s.variant === 'leaving',
+      )?.key
+      const keyAt178 = frameForMove(MOVE_178, moveTimestampMs(MOVE_178)).stones.find(
+        (s) => s.row === firstCaptured.row && s.col === firstCaptured.col && s.variant === 'leaving',
+      )?.key
+
+      expect(keyAt177).toBeDefined()
+      expect(keyAt178).toBeDefined()
+      expect(keyAt177).toBe(keyAt178)
+    })
+
+    it("move 176's fade has fully expired well past its own CAPTURE_FADE_MS deadline", () => {
+      // Checked by key, not position: one of move 176's 8 points is played
+      // back into and re-captured at move 178 (a real snapback in the
+      // game), so by this time the *position* can legitimately host a
+      // fresh, still-fading move-178 "leaving" stone even though move
+      // 176's own fade for that key is long gone.
+      const captured = GAME4_BOARD_STATES[MOVE_176 - 1].captured
+      const longAfter = moveTimestampMs(MOVE_176) + CAPTURE_FADE_MS + 1
+      const frame = frameForMove(TOTAL_MOVES, longAfter)
+
+      for (const position of captured) {
+        const expiredKey = `leaving-${position.row}-${position.col}-${MOVE_176}`
+        expect(frame.stones.some((s) => s.key === expiredKey)).toBe(false)
+      }
+    })
+
+    it('a fade in flight at the end of one loop does not bleed into a fresh loop after wraparound', () => {
+      // If the sequence has just restarted (loopElapsed near zero) but a
+      // stale frame still asks about a late move number, the move-176
+      // capture -- which happened tens of seconds into the *previous*
+      // loop -- must not be reported as still fading.
+      const frame = frameForMove(MOVE_178, 10)
+      const captured = GAME4_BOARD_STATES[MOVE_176 - 1].captured
+      for (const position of captured) {
+        expect(
+          frame.stones.some(
+            (s) => s.row === position.row && s.col === position.col && s.variant === 'leaving',
+          ),
+        ).toBe(false)
+      }
+    })
+  })
+
+  describe('hasActiveCaptureFade', () => {
+    it('is true immediately after move 176\'s capture and false long after it', () => {
+      expect(hasActiveCaptureFade(moveTimestampMs(176) + 10)).toBe(true)
+      expect(hasActiveCaptureFade(moveTimestampMs(176) + CAPTURE_FADE_MS + 1)).toBe(true) // move 178 overlaps
+      expect(hasActiveCaptureFade(moveTimestampMs(178) + CAPTURE_FADE_MS + 1)).toBe(false)
+    })
+
+    it('is false before any capture has happened', () => {
+      expect(hasActiveCaptureFade(0)).toBe(false)
+    })
   })
 })
 

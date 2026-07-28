@@ -5,15 +5,16 @@
  * copy and the Game 4 caption, per "content lives in data modules, not
  * inside render components."
  *
- * Facts (name) are traceable to `public/resume.pdf`. The role line and
- * tagline are copy, not facts, and follow the design reference
- * (`ideas/Portfolio.html`) where the résumé has no equivalent to
- * contradict.
+ * Facts (name) are traceable to `public/resume.pdf`. The tagline is copy,
+ * not fact, and follows the design reference (`ideas/Portfolio.html`)
+ * where the résumé has no equivalent to contradict. The role line is the
+ * project owner's explicit wording choice and deliberately departs from
+ * the reference -- it is not meant to track it.
  */
 
 export const HERO_NAME_FIRST = 'FARHAN'
 export const HERO_NAME_LAST = 'MOHAMMED'
-export const HERO_ROLE = 'ML + SYSTEMS ENGINEER'
+export const HERO_ROLE = 'ASPIRING ML + SYSTEMS + SOFTWARE ENGINEER'
 export const HERO_TAGLINE = 'I build things that are fun.'
 
 /** Caption labels shown alongside the board -- must stay true of what plays. */
