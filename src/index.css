@@ -5,26 +5,28 @@
 
 /*
  * Tailwind's theme keys are mapped onto the swappable custom properties
- * from ./styles/themes.css indirectly, via rgb(var(...) / <alpha-value>).
- * That indirection is what makes `data-theme` switches recolour utilities
- * live at runtime, rather than Tailwind compiling each utility to a literal
- * hex value that can never change.
+ * from ./styles/themes.css indirectly, via rgb(var(...)). That indirection
+ * is what makes `data-theme` switches recolour utilities live at runtime,
+ * rather than Tailwind compiling each utility to a literal hex value that
+ * can never change. Tailwind v4 applies opacity modifiers (e.g. `/92`)
+ * on top of the resolved color via color-mix(), so they keep working
+ * without the v3 `<alpha-value>` placeholder.
  */
 @theme inline {
-  --color-bg: rgb(var(--bg) / <alpha-value>);
-  --color-bg-glass: rgb(var(--bg-glass) / <alpha-value>);
-  --color-panel: rgb(var(--panel) / <alpha-value>);
-  --color-panel-2: rgb(var(--panel-2) / <alpha-value>);
-  --color-line: rgb(var(--line) / <alpha-value>);
-  --color-line-2: rgb(var(--line-2) / <alpha-value>);
-  --color-fg: rgb(var(--fg) / <alpha-value>);
-  --color-fg-2: rgb(var(--fg-2) / <alpha-value>);
-  --color-dim: rgb(var(--dim) / <alpha-value>);
-  --color-dim-2: rgb(var(--dim-2) / <alpha-value>);
-  --color-dim-3: rgb(var(--dim-3) / <alpha-value>);
-  --color-stone: rgb(var(--stone) / <alpha-value>);
-  --color-accent: rgb(var(--accent) / <alpha-value>);
-  --color-accent-2: rgb(var(--accent-2) / <alpha-value>);
+  --color-bg: rgb(var(--bg));
+  --color-bg-glass: rgb(var(--bg-glass));
+  --color-panel: rgb(var(--panel));
+  --color-panel-2: rgb(var(--panel-2));
+  --color-line: rgb(var(--line));
+  --color-line-2: rgb(var(--line-2));
+  --color-fg: rgb(var(--fg));
+  --color-fg-2: rgb(var(--fg-2));
+  --color-dim: rgb(var(--dim));
+  --color-dim-2: rgb(var(--dim-2));
+  --color-dim-3: rgb(var(--dim-3));
+  --color-stone: rgb(var(--stone));
+  --color-accent: rgb(var(--accent));
+  --color-accent-2: rgb(var(--accent-2));
 
   --font-display: 'Press Start 2P', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
