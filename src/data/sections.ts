@@ -57,11 +57,18 @@ export const sections: SectionMeta[] = [
     // uses (PROJECTS, SKILLS, CONTACT each echo their own `label`/`title`
     // word, not the old id), so it becomes TIMELINE rather than PATH.
     // `id` stays 'path' -- other branches and every scroll/nav target
-    // depend on it. `blurb` is untouched placeholder copy owned by #320.
+    // depend on it. `blurb` was placeholder copy owned by #320; it is
+    // now updated below and no longer consumed by this section's real
+    // content (`src/components/sections/EducationExperience.tsx`).
     label: 'Timeline',
     eyebrow: '03 · TIMELINE',
     title: 'Timeline',
-    blurb: 'Placeholder timeline copy -- full content lands in #320.',
+    // Real content (issue #320) lives in `src/data/timeline.ts` and is
+    // rendered by `EducationExperience.tsx` directly, not through this
+    // `blurb`/`SectionPlaceholder` -- this field is unused by that
+    // section now, but is kept meaningful rather than left as
+    // placeholder copy, since `SectionMeta` still requires it.
+    blurb: 'Education and experience, side by side.',
   },
   {
     id: 'contact',
