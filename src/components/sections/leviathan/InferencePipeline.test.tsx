@@ -1,6 +1,8 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { InferencePipeline } from './InferencePipeline'
+
+const FRAME_INTERVAL_MS = 120
 
 function mockMatchMedia(reducedMotion: boolean) {
   vi.stubGlobal(
@@ -58,5 +60,33 @@ describe('InferencePipeline', () => {
     // The settled frame is fully resolved: the move stage has an actual
     // move rendered, not the pre-reveal placeholder.
     expect(screen.queryByText('···')).not.toBeInTheDocument()
+    // The policy stage's candidate moves are part of that full resolution.
+    // ("Bb5" is a lower-ranked candidate, distinct from the top move
+    // rendered in the move stage, so this check is unambiguous.)
+    expect(screen.getByText('Bb5')).toBeInTheDocument()
+  })
+
+  it('does not show the policy candidates before the policy stage starts', () => {
+    mockMatchMedia(false)
+    vi.useFakeTimers()
+
+    render(<InferencePipeline />)
+
+    // Frame 0: well before the policy stage starts (frame 54 of 84).
+    expect(screen.queryByText('Nf3')).not.toBeInTheDocument()
+    expect(screen.queryByText('e4')).not.toBeInTheDocument()
+    expect(screen.queryByText('Bb5')).not.toBeInTheDocument()
+
+    // Advance to just before the policy stage starts (frame 53).
+    act(() => {
+      vi.advanceTimersByTime(FRAME_INTERVAL_MS * 53)
+    })
+    expect(screen.queryByText('Nf3')).not.toBeInTheDocument()
+
+    // Advance into the policy stage (frame 54).
+    act(() => {
+      vi.advanceTimersByTime(FRAME_INTERVAL_MS)
+    })
+    expect(screen.getByText('Nf3')).toBeInTheDocument()
   })
 })

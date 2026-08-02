@@ -18,10 +18,10 @@ const FRAME_INTERVAL_MS = 120
 
 function PipelineRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="grid grid-cols-[4.5em_minmax(0,1fr)] items-center gap-[var(--space-2xs)]">
-      <span className="text-2xs tracking-[0.18em] text-dim-3">{label}</span>
+    <>
+      <span className="whitespace-nowrap text-2xs tracking-[0.18em] text-dim-3">{label}</span>
       {children}
-    </div>
+    </>
   )
 }
 
@@ -70,7 +70,7 @@ export function InferencePipeline() {
     <div
       role="group"
       aria-label="Inference pipeline: position to tokens to attention to policy to move"
-      className="flex flex-col gap-[var(--space-xs)]"
+      className="grid grid-cols-[max-content_minmax(0,1fr)] items-center gap-x-[var(--space-2xs)] gap-y-[var(--space-xs)]"
     >
       <PipelineRow label="position">
         <span aria-hidden="true" className="break-all font-mono text-2xs text-fg-2">
@@ -103,7 +103,9 @@ export function InferencePipeline() {
         <div aria-hidden="true" className="flex flex-col gap-[var(--space-3xs)]">
           {candidates.map((candidate) => (
             <div key={candidate.move} className="flex items-center gap-[var(--space-2xs)] text-2xs">
-              <span className="min-w-[3.5em] font-display text-dim-3">{candidate.move}</span>
+              <span className="min-w-[3.5em] font-display text-dim-3">
+                {frameModel.policyRevealed ? candidate.move : ''}
+              </span>
               <span className="text-dim-2">{frameModel.policyRevealed ? `${candidate.percent}%` : ''}</span>
             </div>
           ))}
