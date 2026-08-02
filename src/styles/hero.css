@@ -1,0 +1,76 @@
+/*
+ * Hero animation keyframes (issue #316): stone mount/exit and the tagline
+ * cursor blink.
+ *
+ * All three are wrapped in `@media (prefers-reduced-motion: no-preference)`
+ * rather than the reference implementation's approach of zeroing every
+ * duration to near-0ms. That trick still *plays* the animation, just
+ * instantly (180 stones flashing onto the board at once) -- the opposite
+ * of what the preference asks for. Scoping the keyframe application itself
+ * to "no preference" means a reduced-motion visitor's stones and cursor
+ * simply render at their resting state (opacity 1, scale 1) with no
+ * animation ever applied, belt-and-braces alongside the board component
+ * not starting a timer under reduced motion in the first place.
+ */
+
+.hero-stone {
+  opacity: 1;
+  scale: 1;
+}
+
+.hero-stone-leaving {
+  opacity: 0;
+  scale: 0.55;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-stone {
+    animation: hero-stone-in 550ms cubic-bezier(0.22, 0.9, 0.3, 1) both;
+  }
+
+  .hero-stone-leaving {
+    animation: hero-stone-out 550ms ease both;
+  }
+}
+
+@keyframes hero-stone-in {
+  from {
+    opacity: 0;
+    scale: 0.55;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes hero-stone-out {
+  from {
+    opacity: 1;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 0.55;
+  }
+}
+
+.hero-cursor {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-cursor {
+    animation: hero-cursor-blink 1.05s step-end infinite;
+  }
+}
+
+@keyframes hero-cursor-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
