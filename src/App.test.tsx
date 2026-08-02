@@ -21,13 +21,24 @@ describe('App', () => {
     expect(renderedIds).toEqual(sections.map((section) => section.id))
   })
 
-  it('gives every section its documented id and accessible name, in DOM order', () => {
+  it('gives every section its documented id, and an accessible name sourced from its own visible heading', () => {
     render(<App />)
 
     for (const section of sections) {
       const region = document.getElementById(section.id)
       expect(region).not.toBeNull()
-      expect(region).toHaveAttribute('aria-label', section.label)
+
+      // Each landmark's name comes from `aria-labelledby` pointing at the
+      // section's real, visible heading -- not a separately maintained
+      // `aria-label` string that could drift from what's on screen.
+      const headingId = region!.getAttribute('aria-labelledby')
+      expect(headingId).toBeTruthy()
+
+      const heading = document.getElementById(headingId!)
+      expect(heading).not.toBeNull()
+      expect(heading!.textContent).toBeTruthy()
+
+      expect(screen.getByRole('region', { name: heading!.textContent! })).toBe(region)
     }
   })
 
