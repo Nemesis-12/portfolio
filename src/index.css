@@ -2,6 +2,7 @@
 @import './styles/fonts.css';
 @import './styles/themes.css';
 @import './styles/layout.css';
+@import './styles/header.css';
 
 /*
  * Tailwind's theme keys are mapped onto the swappable custom properties
@@ -43,4 +44,19 @@ body {
   background-color: rgb(var(--bg));
   color: rgb(var(--fg));
   font-family: var(--font-mono);
+}
+
+/*
+ * Global keyboard focus ring (#312), matching the reference design.
+ * Applies to every focusable element -- the header's nav links are the
+ * first keyboard surface on the page, but this is intentionally global
+ * rather than scoped to the header. Uses the theme's accent token (not a
+ * literal colour) so it stays correct if/when the theme picker (#313)
+ * lands. `SkipLink` (src/components/layout/SkipLink.tsx) only sets
+ * position/visibility utilities on `:focus`, never `outline`, so this
+ * rule is not overridden there -- the skip link keeps this same ring.
+ */
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 3px;
 }
