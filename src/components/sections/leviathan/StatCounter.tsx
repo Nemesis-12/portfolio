@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { LeviathanStat } from '@/data/leviathan'
 import { countUpValue } from '@/lib/leviathan/countUp'
-import { useReducedMotion } from '@/lib/leviathan/useReducedMotion'
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 
 const COUNT_DURATION_MS = 900
 
@@ -31,7 +31,7 @@ function targetShown(reducedMotion: boolean): boolean {
  * covers that case too, so its absence never throws.
  */
 export function StatCounter({ stat }: StatCounterProps) {
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = usePrefersReducedMotion()
   const showFinal = targetShown(reducedMotion)
   const ref = useRef<HTMLDivElement>(null)
   const [animated, setAnimated] = useState(0)

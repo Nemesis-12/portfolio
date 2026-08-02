@@ -9,7 +9,7 @@ import {
   type BoardFrame,
 } from '@/lib/hero/goFrameModel'
 import { FADE_MS, TOTAL_MOVES, frameAtElapsed } from '@/lib/hero/goTiming'
-import { useReducedMotion } from '@/lib/hero/useReducedMotion'
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 
 /** `0..1` position along one axis of a 19-line grid, as a CSS percentage. */
 function percentFor(index: number): string {
@@ -102,7 +102,7 @@ function BoardGrid({ frame }: { frame: BoardFrame }) {
  * the only way to honour the preference.
  */
 export function GoBoardReplay() {
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = usePrefersReducedMotion()
   const [elapsed, setElapsed] = useState(0)
   const startRef = useRef<number | null>(null)
 

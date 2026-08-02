@@ -12,7 +12,7 @@ import {
   computePipelineFrame,
   settledPipelineFrame,
 } from '@/lib/leviathan/pipeline'
-import { useReducedMotion } from '@/lib/leviathan/useReducedMotion'
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 
 const FRAME_INTERVAL_MS = 120
 
@@ -46,7 +46,7 @@ function PipelineRow({ label, children }: { label: string; children: ReactNode }
  * preference asks for).
  */
 export function InferencePipeline() {
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = usePrefersReducedMotion()
   const [tick, setTick] = useState(0)
 
   useEffect(() => {
