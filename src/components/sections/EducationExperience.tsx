@@ -1,16 +1,19 @@
 import { Section } from '@/components/layout/Section'
 import { EDUCATION_COLUMN, EXPERIENCE_COLUMN, type TimelineColumn } from '@/data/timeline'
-import { sections } from '@/data/sections'
+import { getSectionMeta } from '@/data/sections'
 import { cn } from '@/lib/cn'
 
-const meta = sections[4]
+const meta = getSectionMeta('path')
 
 /**
  * Timeline section (issue #320): education and experience side by side, so
  * a visitor sees the whole trajectory at once. Above the 880px breakpoint
  * the two columns sit in a two-column grid within one viewport; below it
- * they stack into a single column (`grid-cols-1 lg:grid-cols-2`), same
- * pattern the layout system already uses elsewhere.
+ * they stack into a single column (`grid-cols-1 panel:grid-cols-2`, where
+ * `panel:` is the 880px breakpoint defined in `src/index.css` -- not
+ * Tailwind's default `lg:`, which is 1024px and would disagree with the
+ * layout shell's own 880px switch), same pattern the layout system already
+ * uses elsewhere.
  *
  * All copy and dates live in `src/data/timeline.ts` -- every figure there
  * is sourced from `public/resume.pdf`. This component is pure
@@ -18,15 +21,15 @@ const meta = sections[4]
  */
 export function EducationExperience() {
   return (
-    <Section id={meta.id} label={meta.label}>
+    <Section id={meta.id} headingId="path-heading">
       <div className="flex h-full flex-col gap-[var(--space-sm)]">
         <div className="flex items-baseline gap-[var(--space-sm)] flex-wrap">
           <p className="font-mono text-fluid-xs tracking-[0.2em] text-dim">{meta.eyebrow}</p>
-          <h2 className="font-display text-fluid-2xl leading-tight text-fg">{meta.title}</h2>
+          <h2 id="path-heading" className="font-display text-fluid-2xl leading-tight text-fg">{meta.title}</h2>
           <span className="h-px flex-1 min-w-[2rem] bg-line" aria-hidden="true" />
         </div>
 
-        <div className="grid flex-1 grid-cols-1 gap-[var(--space-xs)] lg:grid-cols-2">
+        <div className="grid flex-1 grid-cols-1 gap-[var(--space-xs)] panel:grid-cols-2">
           <TimelineColumnPanel column={EDUCATION_COLUMN} />
           <TimelineColumnPanel column={EXPERIENCE_COLUMN} />
         </div>

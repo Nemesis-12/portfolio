@@ -9,9 +9,9 @@ import {
   LEVIATHAN_SUBTITLE,
   LEVIATHAN_SUMMARY,
 } from '@/data/leviathan'
-import { sections } from '@/data/sections'
+import { getSectionMeta } from '@/data/sections'
 
-const meta = sections[1]
+const meta = getSectionMeta('projects')
 
 /**
  * Featured project: Leviathan gets a full screen to itself (issue #317),
@@ -29,13 +29,13 @@ const meta = sections[1]
  */
 export function ProjectsFeatured() {
   return (
-    <Section id={meta.id} label={meta.label}>
-      <div className="flex h-full flex-col gap-[var(--space-md)] lg:flex-row">
+    <Section id={meta.id} headingId="projects-heading">
+      <div className="flex h-full flex-col gap-[var(--space-md)] panel:flex-row">
         <div className="flex flex-1 flex-col gap-[var(--space-sm)]">
           <p className="font-mono text-fluid-xs tracking-[0.2em] text-dim">{meta.eyebrow}</p>
 
           <div className="flex items-baseline gap-[var(--space-xs)] flex-wrap">
-            <h2 className="font-display text-fluid-2xl leading-tight text-fg">Leviathan</h2>
+            <h2 id="projects-heading" className="font-display text-fluid-2xl leading-tight text-fg">Leviathan</h2>
             <span className="text-2xs tracking-[0.18em] text-dim">{LEVIATHAN_SUBTITLE}</span>
           </div>
 
@@ -75,7 +75,7 @@ export function ProjectsFeatured() {
           </div>
         </div>
 
-        <div className="flex-1 border-line bg-panel-2 p-[var(--space-sm)] lg:border-l">
+        <div className="flex-1 border-line bg-panel-2 p-[var(--space-sm)] panel:border-l">
           <InferencePipeline />
         </div>
       </div>

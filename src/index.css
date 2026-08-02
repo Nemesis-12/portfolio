@@ -32,6 +32,22 @@
 
   --font-display: 'Press Start 2P', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /*
+   * `panel:` is the ONE hard breakpoint from src/styles/layout.css
+   * (`@media (min-width: 880px)`, where `.section-shell` gains its fixed
+   * one-viewport height and scroll-snap). Any component-level responsive
+   * class that needs to agree with that layout switch -- going side by
+   * side vs. stacked, for example -- must use `panel:`, never Tailwind's
+   * default `md:` (768px) or `lg:` (1024px), or content can still be in
+   * its narrow/stacked layout while the section has already committed to
+   * a fixed one-screen height. Deliberately not named `md`/`lg`: reusing
+   * either of Tailwind's default names here would silently redefine that
+   * name (768px/1024px) for every OTHER `md:`/`lg:` usage in the codebase
+   * too, not just the layout-critical ones -- `panel:` can't collide with
+   * anything.
+   */
+  --breakpoint-panel: 880px;
 }
 
 html {

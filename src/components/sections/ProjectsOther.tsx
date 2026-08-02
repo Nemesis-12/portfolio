@@ -17,9 +17,9 @@ import {
   THESIS_TAGLINE,
   THESIS_TITLE,
 } from '@/data/otherProjects'
-import { sections } from '@/data/sections'
+import { getSectionMeta } from '@/data/sections'
 
-const meta = sections[2]
+const meta = getSectionMeta('more')
 
 /**
  * Second projects screen: the MLA library and the in-progress thesis
@@ -51,17 +51,17 @@ const meta = sections[2]
  */
 export function ProjectsOther() {
   return (
-    <Section id={meta.id} label={meta.label}>
+    <Section id={meta.id} headingId="more-heading">
       <div className="flex h-full flex-col gap-[var(--space-sm)]">
         <div className="flex flex-col gap-[var(--space-2xs)]">
           <div className="flex items-baseline gap-[var(--space-xs)] flex-wrap">
-            <h2 className="font-display text-fluid-xl leading-tight text-fg">{OTHER_PROJECTS_TITLE}</h2>
+            <h2 id="more-heading" className="font-display text-fluid-xl leading-tight text-fg">{OTHER_PROJECTS_TITLE}</h2>
             <span className="text-2xs tracking-[0.18em] text-dim">{OTHER_PROJECTS_SUBTITLE}</span>
           </div>
           <p className="max-w-2xl text-fluid-base text-fg-2">{OTHER_PROJECTS_LEAD}</p>
         </div>
 
-        <div className="grid flex-1 grid-cols-1 gap-[var(--space-sm)] md:grid-cols-2">
+        <div className="grid flex-1 grid-cols-1 gap-[var(--space-sm)] panel:grid-cols-2">
           <article className="flex flex-col gap-[var(--space-xs)] border border-line bg-panel p-[var(--space-sm)]">
             <div className="flex items-baseline gap-[var(--space-2xs)] flex-wrap">
               <h3 className="font-display text-fluid-lg text-fg">{MLA_TITLE}</h3>
