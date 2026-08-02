@@ -117,8 +117,24 @@
   justify-content: center;
 }
 
+/*
+ * `--header-h` is published imperatively by `Header.tsx` (measured, not
+ * guessed, since the header's rendered height changes with the fluid type
+ * scale and with viewport width). The fallback below only matters for the
+ * first paint before that effect runs, or if JS never runs at all.
+ *
+ * `scroll-padding-top` on `:root` -- the real scroll container -- is a
+ * single property that solves two distinct fixed-header hazards at once:
+ *  - `scroll-snap-align: start` (below) aligns a section to the top of the
+ *    scrollport, which a `position: fixed` header would otherwise cover;
+ *  - a native `#id` anchor jump (nav links, the skip link, the site mark)
+ *    lands at the exact top of the target element, same problem.
+ * `scroll-padding-top` shifts the effective top of the scrollport down by
+ * the header's height for both cases, so neither ever lands under it.
+ */
 :root {
   scroll-behavior: smooth;
+  scroll-padding-top: var(--header-h, 4.5rem);
 }
 
 @media (min-width: 880px) {
