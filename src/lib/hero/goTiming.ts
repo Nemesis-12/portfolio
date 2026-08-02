@@ -12,37 +12,51 @@
  * `frameAtElapsed` on every tick; everything about *when* a move appears
  * lives here, not scattered across `setTimeout` chains.
  *
- * These constants are a tuned starting point (see docs/spec-portfolio-
- * rewrite.md), not a measured result -- `LOOP_MS` lands close to the
- * spec's ~30s target but the true feel can only be judged in a browser.
+ * These constants were originally tuned to a ~30s spec target (see
+ * docs/spec-portfolio-rewrite.md), then deliberately slowed to 1.5x that
+ * pace (`PACE_MULTIPLIER`) after watching the original timing run in a
+ * browser -- the ~30s pace read as too rushed, especially through the
+ * middlegame and endgame ramps. `LOOP_MS` now lands around ~43s.
  */
 
 export const TOTAL_MOVES = 180
 export const MOVE_78 = 78
 
-/** Opening: the first 10 moves are placed slowly, one every 400ms. */
+/**
+ * Uniform multiplier applied to every per-move delay constant below (but
+ * NOT to `HOLD_MS`, `FADE_MS`, or `CAPTURE_FADE_MS` -- the hold and fade
+ * are deliberate fixed pauses independent of replay pace, and
+ * `CAPTURE_FADE_MS` is pinned to the 550ms CSS transition duration in
+ * src/styles/hero.css and must keep matching it exactly). Bumping this one
+ * number re-tunes the whole replay's pace; the six ms constants below are
+ * written at their original (pre-1.5x) values with this multiplier applied
+ * at use, so a future re-tune stays a single-number change.
+ */
+const PACE_MULTIPLIER = 1.5
+
+/** Opening: the first 10 moves are placed slowly, one every 400ms (pre-scale). */
 const OPENING_END = 10
-const OPENING_DELAY_MS = 400
+const OPENING_DELAY_MS = 400 * PACE_MULTIPLIER
 
 /** Middlegame: a linear ramp from the opening pace down to a fast pace. */
 const MIDGAME_END = 60
-const MIDGAME_START_DELAY_MS = 380
-const MIDGAME_END_DELAY_MS = 95
+const MIDGAME_START_DELAY_MS = 380 * PACE_MULTIPLIER
+const MIDGAME_END_DELAY_MS = 95 * PACE_MULTIPLIER
 
 /** Fast run-up to move 78. */
 const FAST_MIDGAME_END = MOVE_78 - 1
-const FAST_MIDGAME_DELAY_MS = 85
+const FAST_MIDGAME_DELAY_MS = 85 * PACE_MULTIPLIER
 
 /** The deliberate pause before move 78 itself appears. */
-const PRE_78_PAUSE_MS = 1300
+const PRE_78_PAUSE_MS = 1300 * PACE_MULTIPLIER
 
 /** Endgame: ramps from just after move 78 down to the fastest pace. */
 const ENDGAME_RAMP_END = 140
-const ENDGAME_START_DELAY_MS = 140
-const ENDGAME_END_DELAY_MS = 65
+const ENDGAME_START_DELAY_MS = 140 * PACE_MULTIPLIER
+const ENDGAME_END_DELAY_MS = 65 * PACE_MULTIPLIER
 
 /** The final, fastest stretch to move 180. */
-const FINAL_DELAY_MS = 50
+const FINAL_DELAY_MS = 50 * PACE_MULTIPLIER
 
 /** How long the finished position holds before the fade-out begins. */
 export const HOLD_MS = 2600
