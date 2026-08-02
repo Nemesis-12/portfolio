@@ -75,9 +75,12 @@ export interface BoardFrame {
   readonly moveNumber: number
   readonly stones: readonly StoneView[]
   /**
-   * Where move 78 was played, once it has happened -- present even after
-   * that stone is captured (move 91, in the real game), so the point that
-   * decided the game stays marked. `null` before move 78.
+   * Where move 78 was played, but only while that specific stone is still
+   * on the board. `null` before move 78, and `null` again once the stone
+   * is captured (move 91, in the real game) -- the marker tracks the
+   * stone's identity via `isCurrentMove78Stone`, not the coordinate, so it
+   * disappears the instant the capturing move is applied rather than
+   * lingering at a now-empty (or differently-occupied) point.
    */
   readonly move78Marker: Position | null
 }
@@ -197,16 +200,22 @@ export function frameForMove(
     })
   }
 
+  const move78StoneStillOnBoard =
+    board[MOVE_78_POSITION.row][MOVE_78_POSITION.col] !== null &&
+    isCurrentMove78Stone(clamped, MOVE_78_POSITION.row, MOVE_78_POSITION.col)
+
   return {
     moveNumber: clamped,
     stones,
-    move78Marker: clamped >= MOVE_78 ? MOVE_78_POSITION : null,
+    move78Marker: move78StoneStillOnBoard ? MOVE_78_POSITION : null,
   }
 }
 
 /**
  * The final position, drawn with no animation in progress -- used for the
- * reduced-motion static board (move 78 marked, nothing mid-capture-fade).
+ * reduced-motion static board. Move 78's stone was captured at move 91, so
+ * by move 180 both its `move78` emphasis and the `move78Marker` ring are
+ * correctly absent here; nothing is mid-capture-fade either.
  */
 export function staticFinalFrame(): BoardFrame {
   return frameForMove(TOTAL_MOVES)

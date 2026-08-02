@@ -31,9 +31,27 @@ describe('frameForMove', () => {
     expect(frameForMove(77).move78Marker).toBeNull()
   })
 
-  it('marks move78Marker at the move-78 coordinate from move 78 onward', () => {
+  it('marks move78Marker at the move-78 coordinate while that stone is on the board', () => {
     expect(frameForMove(78).move78Marker).toEqual(MOVE_78_POSITION)
-    expect(frameForMove(180).move78Marker).toEqual(MOVE_78_POSITION)
+    expect(frameForMove(90).move78Marker).toEqual(MOVE_78_POSITION)
+  })
+
+  it('clears move78Marker once the move-78 stone is captured (move 91) and never brings it back', () => {
+    expect(frameForMove(91).move78Marker).toBeNull()
+    expect(frameForMove(180).move78Marker).toBeNull()
+  })
+
+  it('clears move78Marker even during the move-91 capture stone\'s own fade-out window', () => {
+    // The ring is tied to stone identity (isCurrentMove78Stone), not to the
+    // capture fade -- it disappears the instant the capturing move lands,
+    // not when the 550ms fade animation finishes.
+    const frame = frameForMove(91, moveTimestampMs(91) + 100)
+    expect(frame.move78Marker).toBeNull()
+  })
+
+  it('has no move78Marker well after move 91, past the fade window entirely', () => {
+    const frame = frameForMove(91, moveTimestampMs(91) + 10_000)
+    expect(frame.move78Marker).toBeNull()
   })
 
   it('renders the move-78 stone with the move78 variant while it is on the board', () => {
@@ -78,9 +96,18 @@ describe('frameForMove', () => {
   })
 
   it('does not report "leaving" stones once the capture-fade window has passed', () => {
+    // Scoped to this move's own captured positions/key, not "no leaving
+    // stone anywhere on the board" -- some other, unrelated capture may
+    // legitimately be mid-fade at this arbitrary future timestamp (e.g.
+    // the real move-176 group capture), which is correct behaviour, not a
+    // regression of this move's own fade having ended.
     const captureMove = GAME4_BOARD_STATES.findIndex((state) => state.captured.length > 0) + 1
+    const captured = GAME4_BOARD_STATES[captureMove - 1].captured
     const afterFade = frameForMove(captureMove, moveTimestampMs(captureMove) + 10_000)
-    expect(afterFade.stones.some((s) => s.variant === 'leaving')).toBe(false)
+    for (const position of captured) {
+      const expiredKey = `leaving-${position.row}-${position.col}-${captureMove}`
+      expect(afterFade.stones.some((s) => s.key === expiredKey)).toBe(false)
+    }
   })
 
   it('clamps to the final position for move numbers beyond 180', () => {
@@ -197,10 +224,10 @@ describe('frameForMove', () => {
 })
 
 describe('staticFinalFrame', () => {
-  it('shows the final position with move 78 marked and nothing mid-animation', () => {
+  it('shows the final position with no move78Marker (the stone was captured at move 91) and nothing mid-animation', () => {
     const frame = staticFinalFrame()
     expect(frame.moveNumber).toBe(TOTAL_MOVES)
-    expect(frame.move78Marker).toEqual(MOVE_78_POSITION)
+    expect(frame.move78Marker).toBeNull()
     expect(frame.stones.some((s) => s.variant === 'leaving')).toBe(false)
   })
 

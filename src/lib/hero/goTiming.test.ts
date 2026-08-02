@@ -27,7 +27,7 @@ describe('moveTimestampMs', () => {
 describe('moveDelayMs', () => {
   it('is slow in the opening (first 10 moves)', () => {
     for (let n = 2; n <= 10; n++) {
-      expect(moveDelayMs(n)).toBeGreaterThanOrEqual(390)
+      expect(moveDelayMs(n)).toBeGreaterThanOrEqual(390 * 1.5)
     }
   })
 
@@ -37,7 +37,7 @@ describe('moveDelayMs', () => {
   })
 
   it('is fast immediately before move 78', () => {
-    expect(moveDelayMs(MOVE_78 - 1)).toBeLessThan(150)
+    expect(moveDelayMs(MOVE_78 - 1)).toBeLessThan(150 * 1.5)
   })
 
   it('gives move 78 the single longest delay of the whole game -- the deliberate pause', () => {
@@ -59,9 +59,9 @@ describe('moveDelayMs', () => {
 })
 
 describe('LOOP_MS', () => {
-  it('lands close to the ~30s target from the spec', () => {
-    expect(LOOP_MS).toBeGreaterThan(25_000)
-    expect(LOOP_MS).toBeLessThan(35_000)
+  it('lands close to ~43s -- 1.5x the spec\'s original ~30s target, after slowing the pace', () => {
+    expect(LOOP_MS).toBeGreaterThan(40_000)
+    expect(LOOP_MS).toBeLessThan(46_000)
   })
 
   it('is the sequence plus the hold plus the fade', () => {
@@ -84,7 +84,9 @@ describe('frameAtElapsed', () => {
   it('shows exactly move 78 right as its timestamp is crossed', () => {
     const frame = frameAtElapsed(moveTimestampMs(78))
     expect(frame.moveNumber).toBe(78)
-    expect(frame.elapsedSinceMove).toBe(0)
+    // Sub-picosecond float noise from the 1.5x pace multiplier's
+    // fractional-ms cumulative sums; not a real elapsed time.
+    expect(frame.elapsedSinceMove).toBeCloseTo(0, 5)
   })
 
   it('holds at the final move once the sequence completes', () => {
