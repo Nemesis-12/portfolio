@@ -68,6 +68,6 @@ export const sections: SectionMeta[] = [
     label: 'Contact',
     eyebrow: '04 · CONTACT',
     title: 'Get in touch',
-    blurb: 'Placeholder contact copy -- full content lands in #321.',
+    blurb: 'What work is being sought, and direct links to reach out.',
   },
 ]
