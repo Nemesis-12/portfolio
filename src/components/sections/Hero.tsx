@@ -21,7 +21,7 @@ const meta = getSectionMeta('top')
 export function Hero() {
   return (
     <Section id={meta.id} headingId="top-heading">
-      <div className="grid w-full items-center gap-[var(--space-lg)] [grid-template-columns:repeat(auto-fit,minmax(330px,1fr))]">
+      <div className="grid w-full items-center gap-[clamp(26px,4vw,56px)] [grid-template-columns:repeat(auto-fit,minmax(330px,1fr))]">
         <div className="flex min-w-0 flex-col gap-[var(--space-sm)]">
           <p className="flex items-center gap-[var(--space-2xs)] font-mono text-fluid-xs tracking-[0.2em] text-dim">
             <span aria-hidden="true" className="h-[9px] w-[9px] rounded-full bg-accent" />

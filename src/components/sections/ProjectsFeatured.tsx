@@ -10,6 +10,7 @@ import {
   LEVIATHAN_SUMMARY,
 } from '@/data/leviathan'
 import { getSectionMeta } from '@/data/sections'
+import { useFitToViewport } from '@/lib/useFitToViewport'
 
 const meta = getSectionMeta('projects')
 
@@ -28,22 +29,34 @@ const meta = getSectionMeta('projects')
  * section itself never re-renders on a frame tick or a count-up tick.
  */
 export function ProjectsFeatured() {
+  const fitRef = useFitToViewport<HTMLDivElement>()
+
   return (
     <Section id={meta.id} headingId="projects-heading">
-      <div className="flex h-full flex-col gap-[var(--space-md)] panel:flex-row">
-        <div className="flex flex-1 flex-col gap-[var(--space-sm)]">
-          <p className="font-mono text-fluid-xs tracking-[0.2em] text-dim">{meta.eyebrow}</p>
+      <p className="font-mono text-fluid-xs tracking-[0.2em] text-dim">{meta.eyebrow}</p>
 
+      {/*
+       * `mt`/`max-h` and the `zoom`-based `fitRef` reproduce the reference
+       * article's own `margin-top:clamp(18px,2.6vh,28px)` and
+       * `max-height:760px` on `[data-fit]` -- both only matter at/above
+       * the 880px panel breakpoint, where `.section-shell` fixes the
+       * section to one viewport tall in the first place.
+       */}
+      <div
+        ref={fitRef}
+        className="flex flex-1 flex-col border border-line-2 bg-panel panel:mt-[clamp(18px,2.6vh,28px)] panel:max-h-[760px] panel:flex-row"
+      >
+        <div className="flex min-w-0 flex-1 flex-col gap-[var(--space-fit-xs)] p-[clamp(16px,2.4vh,30px)_clamp(18px,2.2vw,30px)]">
           <div className="flex items-baseline gap-[var(--space-xs)] flex-wrap">
-            <h2 id="projects-heading" className="font-display text-fluid-2xl leading-tight text-fg">Leviathan</h2>
-            <span className="text-2xs tracking-[0.18em] text-dim">{LEVIATHAN_SUBTITLE}</span>
+            <h2 id="projects-heading" className="font-display text-fit-xl leading-tight text-fg">Leviathan</h2>
+            <span className="text-fit-xs tracking-[0.18em] text-dim">{LEVIATHAN_SUBTITLE}</span>
           </div>
 
-          <p className="text-fluid-lg text-accent-2">{LEVIATHAN_HOOK}</p>
+          <p className="text-fit-lg text-accent-2">{LEVIATHAN_HOOK}</p>
 
-          <p className="text-fluid-base text-fg-2">{LEVIATHAN_SUMMARY}</p>
+          <p className="text-fit-base text-fg-2">{LEVIATHAN_SUMMARY}</p>
 
-          <ul className="flex flex-col gap-[var(--space-2xs)] text-fluid-sm text-fg-2">
+          <ul className="flex flex-col gap-[var(--space-fit-3xs)] text-fit-sm text-fg-2">
             {LEVIATHAN_BULLETS.map((bullet) => (
               <li key={bullet} className="flex gap-[var(--space-2xs)]">
                 <span aria-hidden="true" className="text-accent">
@@ -66,7 +79,7 @@ export function ProjectsFeatured() {
                   href={link.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="border-b border-line-2 pb-[2px] text-fluid-sm text-fg-2"
+                  className="border-b border-line-2 pb-[2px] text-[12.5px] text-fg-2"
                 >
                   {link.label} ↗
                 </a>
@@ -75,7 +88,7 @@ export function ProjectsFeatured() {
           </div>
         </div>
 
-        <div className="flex-1 border-line bg-panel-2 p-[var(--space-sm)] panel:border-l">
+        <div className="min-w-0 flex-1 border-line bg-panel-2 p-[clamp(14px,2.2vh,26px)_clamp(16px,2vw,26px)] panel:border-l">
           <InferencePipeline />
         </div>
       </div>

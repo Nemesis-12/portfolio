@@ -18,7 +18,13 @@ const meta = getSectionMeta('contact')
 export function Contact() {
   return (
     <Section id={meta.id} headingId="contact-heading">
-      <div className="flex h-full max-w-3xl flex-col justify-center gap-[var(--space-lg)]">
+      {/*
+       * Two-column grid (auto-fit, min 300px, items aligned to the end)
+       * with `gap:clamp(28px,4vw,60px)`, matching the reference's own
+       * `data-fit` grid for this section exactly -- not a flex column
+       * stack.
+       */}
+      <div className="grid items-end gap-[clamp(28px,4vw,60px)] [grid-template-columns:repeat(auto-fit,minmax(300px,1fr))]">
         <div className="flex flex-col gap-[var(--space-sm)]">
           <p className="font-mono text-fluid-xs tracking-[0.2em] text-dim">{meta.eyebrow}</p>
           <h2 id="contact-heading" className="font-display text-fluid-2xl leading-tight text-fg">{meta.title}</h2>

@@ -55,6 +55,67 @@
   --space-md: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
   --space-lg: clamp(2.4rem, 1.6rem + 2.8vw, 3.6rem);
   --space-xl: clamp(3.2rem, 2rem + 4vw, 5.2rem);
+
+  /*
+   * ---------------------------------------------------------------------
+   * HEIGHT-AWARE ("fit") SCALE
+   * ---------------------------------------------------------------------
+   * The width-based scale above is correct for content OUTSIDE a
+   * section's height-constrained area -- the eyebrow/heading row at the
+   * top of every section, which the design reference itself also sizes
+   * against viewport WIDTH (e.g. the section title is
+   * `clamp(15px,2.2vw,24px)` in the reference markup).
+   *
+   * Everything BELOW that heading row, inside the part of the section
+   * that has to share the remaining viewport HEIGHT with the heading and
+   * the section's own padding, is what the reference sizes against
+   * viewport HEIGHT instead (`clamp(11px,1.5vh,12.5px)`,
+   * `clamp(16px,2.4vh,30px)`, etc.) -- that is the actual mechanism that
+   * keeps a section to one screen at short viewports: text and spacing
+   * shrink with the space actually available, not with how wide the
+   * window happens to be. These tokens reproduce that half of the
+   * reference's scale; the values are the reference's own recurring
+   * clamp ranges, not new ones invented for this codebase.
+   */
+  --text-fit-2xs: clamp(9.5px, 1.3vh, 11px); /* meta labels, e.g. header clock / stat units */
+  --text-fit-xs: clamp(11px, 1.5vh, 12.5px); /* card subtitle line */
+  --text-fit-sm: clamp(11px, 1.6vh, 13px); /* bullets */
+  --text-fit-base: clamp(12px, 1.75vh, 14px); /* body copy paragraph */
+  --text-fit-lg: clamp(14px, 2.4vh, 22px); /* hook/tagline */
+  --text-fit-title: clamp(10px, 1.6vh, 14px); /* card/entry titles (timeline) */
+  --text-fit-xl: clamp(17px, 3.4vh, 34px); /* featured card name (Leviathan) */
+
+  --space-fit-3xs: clamp(5px, 1vh, 9px); /* Leviathan bullet list gap */
+  --space-fit-3xs-tight: clamp(5px, 0.9vh, 8px); /* timeline entry bullet list gap */
+  --space-fit-2xs: clamp(7px, 1.1vh, 11px);
+  --space-fit-xs: clamp(9px, 1.6vh, 15px);
+  --space-fit-sm: clamp(12px, 1.8vh, 22px);
+  --space-fit-md: clamp(14px, 2.2vh, 26px);
+  --space-fit-lg: clamp(16px, 2.4vh, 30px);
+  --space-fit-margin: clamp(16px, 2.4vh, 28px); /* fit-box margin-top under a section heading */
+  --space-fit-margin-tight: clamp(16px, 2.4vh, 26px); /* skills/timeline fit-box margin-top */
+}
+
+.text-fit-2xs {
+  font-size: var(--text-fit-2xs);
+}
+.text-fit-xs {
+  font-size: var(--text-fit-xs);
+}
+.text-fit-sm {
+  font-size: var(--text-fit-sm);
+}
+.text-fit-base {
+  font-size: var(--text-fit-base);
+}
+.text-fit-lg {
+  font-size: var(--text-fit-lg);
+}
+.text-fit-title {
+  font-size: var(--text-fit-title);
+}
+.text-fit-xl {
+  font-size: var(--text-fit-xl);
 }
 
 .text-2xs {
@@ -142,11 +203,19 @@
     scroll-snap-type: y mandatory;
   }
 
+  /*
+   * Padding matches the design reference's own section padding exactly:
+   * `padding: clamp(64px,9vh,88px) clamp(20px,4vw,56px) clamp(18px,4vh,44px)`.
+   * Top/bottom scale with viewport HEIGHT (that's what keeps the padding
+   * itself from eating the one-viewport budget at short heights); left/
+   * right scale with viewport WIDTH, same as the rest of the width-based
+   * scale.
+   */
   .section-shell {
     min-height: 100dvh;
     scroll-snap-align: start;
-    padding-block: var(--space-xl) var(--space-lg);
-    padding-inline: var(--space-xl);
+    padding-block: clamp(4rem, 9vh, 5.5rem) clamp(1.125rem, 4vh, 2.75rem);
+    padding-inline: clamp(1.25rem, 4vw, 3.5rem);
   }
 }
 

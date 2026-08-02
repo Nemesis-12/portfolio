@@ -18,6 +18,7 @@ import {
   THESIS_TITLE,
 } from '@/data/otherProjects'
 import { getSectionMeta } from '@/data/sections'
+import { useFitToViewport } from '@/lib/useFitToViewport'
 
 const meta = getSectionMeta('more')
 
@@ -50,74 +51,83 @@ const meta = getSectionMeta('more')
  * this section never re-renders on their account.
  */
 export function ProjectsOther() {
+  const fitRef = useFitToViewport<HTMLDivElement>()
+
   return (
     <Section id={meta.id} headingId="more-heading">
-      <div className="flex h-full flex-col gap-[var(--space-sm)]">
-        <div className="flex flex-col gap-[var(--space-2xs)]">
-          <div className="flex items-baseline gap-[var(--space-xs)] flex-wrap">
-            <h2 id="more-heading" className="font-display text-fluid-xl leading-tight text-fg">{OTHER_PROJECTS_TITLE}</h2>
-            <span className="text-2xs tracking-[0.18em] text-dim">{OTHER_PROJECTS_SUBTITLE}</span>
+      <div className="flex flex-col gap-[var(--space-2xs)]">
+        <div className="flex items-baseline gap-[var(--space-xs)] flex-wrap">
+          <h2 id="more-heading" className="font-display text-fluid-xl leading-tight text-fg">{OTHER_PROJECTS_TITLE}</h2>
+          <span className="text-2xs tracking-[0.18em] text-dim">{OTHER_PROJECTS_SUBTITLE}</span>
+        </div>
+        <p className="max-w-2xl text-fluid-base text-fg-2">{OTHER_PROJECTS_LEAD}</p>
+      </div>
+
+      {/*
+       * Matches the reference's `margin-top:clamp(18px,2.6vh,28px)` and
+       * `max-height:680px` on its `[data-fit]` grid, plus the `zoom`
+       * shrink-to-fit safety net (`useFitToViewport`) -- both only active
+       * at/above the 880px panel breakpoint.
+       */}
+      <div
+        ref={fitRef}
+        className="grid flex-1 grid-cols-1 gap-[var(--space-sm)] panel:mt-[clamp(18px,2.6vh,28px)] panel:max-h-[680px] panel:grid-cols-2"
+      >
+        <article className="flex flex-col gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)]">
+          <div className="flex items-baseline gap-[var(--space-2xs)] flex-wrap">
+            <h3 className="font-display text-fluid-lg text-fg">{MLA_TITLE}</h3>
+            <span className="ml-auto text-2xs tracking-[0.18em] text-dim-2">{MLA_BADGE}</span>
           </div>
-          <p className="max-w-2xl text-fluid-base text-fg-2">{OTHER_PROJECTS_LEAD}</p>
-        </div>
 
-        <div className="grid flex-1 grid-cols-1 gap-[var(--space-sm)] panel:grid-cols-2">
-          <article className="flex flex-col gap-[var(--space-xs)] border border-line bg-panel p-[var(--space-sm)]">
-            <div className="flex items-baseline gap-[var(--space-2xs)] flex-wrap">
-              <h3 className="font-display text-fluid-lg text-fg">{MLA_TITLE}</h3>
-              <span className="ml-auto text-2xs tracking-[0.18em] text-dim-2">{MLA_BADGE}</span>
-            </div>
+          <p className="text-fit-lg text-accent-2">{MLA_TAGLINE}</p>
 
-            <p className="text-fluid-base text-accent-2">{MLA_TAGLINE}</p>
+          <p className="text-fit-sm text-fg-2">{MLA_DESCRIPTION}</p>
 
-            <p className="text-fluid-sm text-fg-2">{MLA_DESCRIPTION}</p>
+          <CopyInstallCommand command={MLA_INSTALL_COMMAND} />
 
-            <CopyInstallCommand command={MLA_INSTALL_COMMAND} />
-
-            <div className="flex gap-[var(--space-sm)] border-t border-line pt-[var(--space-xs)]">
-              {MLA_LINKS.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="border-b border-line-2 pb-[2px] text-fluid-sm text-fg-2"
-                >
-                  {link.label} ↗
-                </a>
-              ))}
-            </div>
-          </article>
-
-          <article className="flex flex-col gap-[var(--space-xs)] border border-line bg-panel p-[var(--space-sm)]">
-            <div className="flex items-baseline gap-[var(--space-2xs)] flex-wrap">
-              <h3 className="font-display text-fluid-lg text-fg">Thesis</h3>
-              <span
-                aria-hidden="true"
-                className="ml-auto flex items-center gap-[var(--space-3xs)] text-2xs tracking-[0.18em] text-accent-2"
+          <div className="flex gap-[var(--space-sm)] border-t border-line pt-[var(--space-fit-xs)]">
+            {MLA_LINKS.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+                className="border-b border-line-2 pb-[2px] text-[12.5px] text-fg-2"
               >
-                <span className="inline-block h-[6px] w-[6px] rounded-full bg-accent-2 motion-safe:animate-pulse" />
-                {THESIS_BADGE}
-              </span>
-            </div>
+                {link.label} ↗
+              </a>
+            ))}
+          </div>
+        </article>
 
-            <p className="text-fluid-base text-accent-2">{THESIS_TAGLINE}</p>
+        <article className="flex flex-col gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)]">
+          <div className="flex items-baseline gap-[var(--space-2xs)] flex-wrap">
+            <h3 className="font-display text-fluid-lg text-fg">Thesis</h3>
+            <span
+              aria-hidden="true"
+              className="ml-auto flex items-center gap-[var(--space-3xs)] text-2xs tracking-[0.18em] text-accent-2"
+            >
+              <span className="inline-block h-[6px] w-[6px] rounded-full bg-accent-2 motion-safe:animate-pulse" />
+              {THESIS_BADGE}
+            </span>
+          </div>
 
-            <p className="text-fluid-sm text-fg-2">{THESIS_DESCRIPTION}</p>
-            <p className="sr-only">{THESIS_TITLE}</p>
+          <p className="text-fit-lg text-accent-2">{THESIS_TAGLINE}</p>
 
-            <AgentCluster />
+          <p className="text-fit-sm text-fg-2">{THESIS_DESCRIPTION}</p>
+          <p className="sr-only">{THESIS_TITLE}</p>
 
-            <div className="mt-auto flex gap-[var(--space-md)] border-t border-line pt-[var(--space-xs)]">
-              {THESIS_STATS.map((stat) => (
-                <div key={stat.label} className="flex flex-col">
-                  <span className="font-display text-fluid-sm text-fg">{stat.value}</span>
-                  <span className="mt-[var(--space-3xs)] text-2xs tracking-[0.16em] text-dim-2">{stat.label}</span>
-                </div>
-              ))}
-            </div>
-          </article>
-        </div>
+          <AgentCluster />
+
+          <div className="mt-auto flex gap-[var(--space-md)] border-t border-line pt-[var(--space-fit-xs)]">
+            {THESIS_STATS.map((stat) => (
+              <div key={stat.label} className="flex flex-col">
+                <span className="font-display text-fluid-sm text-fg">{stat.value}</span>
+                <span className="mt-[var(--space-3xs)] text-2xs tracking-[0.16em] text-dim-2">{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        </article>
       </div>
     </Section>
   )
