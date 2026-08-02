@@ -26,3 +26,4 @@ dist-ssr
 .env
 ideas/
 HANDOFF.md
+public/resume.tex
