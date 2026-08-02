@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { Contact } from './Contact'
 import { CONTACT_LINKS, CONTACT_STATEMENT } from '@/data/contact'
-import { sections } from '@/data/sections'
+import { getSectionMeta } from '@/data/sections'
 
 /**
  * Behaviour-only coverage for issue #321: the section landmark, the
@@ -11,11 +11,12 @@ import { sections } from '@/data/sections'
  * per repo test philosophy, public interfaces only.
  */
 describe('Contact', () => {
-  it('renders the contact section with its documented id and label', () => {
+  it('renders the contact section with its documented id, named by its own heading', () => {
     render(<Contact />)
 
-    const region = screen.getByRole('region', { name: sections[5].label })
-    expect(region).toHaveAttribute('id', sections[5].id)
+    const meta = getSectionMeta('contact')
+    const region = screen.getByRole('region', { name: meta.title })
+    expect(region).toHaveAttribute('id', meta.id)
   })
 
   it('states what work is being sought', () => {
@@ -42,7 +43,7 @@ describe('Contact', () => {
     for (const link of CONTACT_LINKS.filter((l) => l.external)) {
       const anchor = screen.getByRole('link', { name: new RegExp(link.label, 'i') })
       expect(anchor).toHaveAttribute('target', '_blank')
-      expect(anchor).toHaveAttribute('rel', 'noreferrer')
+      expect(anchor).toHaveAttribute('rel', 'noopener noreferrer')
     }
   })
 

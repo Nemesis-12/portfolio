@@ -1,8 +1,8 @@
 import { Section } from '@/components/layout/Section'
 import { CONTACT_LINKS, CONTACT_STATEMENT } from '@/data/contact'
-import { sections } from '@/data/sections'
+import { getSectionMeta } from '@/data/sections'
 
-const meta = sections[5]
+const meta = getSectionMeta('contact')
 
 /**
  * Closing section (issue #321): a one-line statement of what work is being
@@ -17,11 +17,11 @@ const meta = sections[5]
  */
 export function Contact() {
   return (
-    <Section id={meta.id} label={meta.label}>
+    <Section id={meta.id} headingId="contact-heading">
       <div className="flex h-full max-w-3xl flex-col justify-center gap-[var(--space-lg)]">
         <div className="flex flex-col gap-[var(--space-sm)]">
           <p className="font-mono text-fluid-xs tracking-[0.2em] text-dim">{meta.eyebrow}</p>
-          <h2 className="font-display text-fluid-2xl leading-tight text-fg">{meta.title}</h2>
+          <h2 id="contact-heading" className="font-display text-fluid-2xl leading-tight text-fg">{meta.title}</h2>
           <p className="max-w-[52ch] text-fluid-base text-fg-2">{CONTACT_STATEMENT}</p>
         </div>
 
@@ -31,7 +31,7 @@ export function Contact() {
               <a
                 href={link.href}
                 target={link.external ? '_blank' : undefined}
-                rel={link.external ? 'noreferrer' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
                 className="flex items-baseline justify-between gap-[var(--space-sm)] py-[var(--space-xs)] text-fluid-sm text-fg-2 transition-colors hover:text-accent-2"
               >
                 <span className="font-display text-fg">{link.label}</span>

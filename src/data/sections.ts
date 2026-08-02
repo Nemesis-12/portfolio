@@ -24,28 +24,28 @@ export const sections: SectionMeta[] = [
     label: 'Hero',
     eyebrow: '00 · HELLO',
     title: 'Farhan Mohammed',
-    blurb: 'Placeholder hero copy -- the Go board replay lands in #316.',
+    blurb: 'Placeholder hero copy — the Go board replay lands in #316.',
   },
   {
     id: 'projects',
     label: 'Projects — featured',
     eyebrow: '01 · PROJECTS',
     title: 'Leviathan',
-    blurb: 'Placeholder featured-project copy -- full content lands in #317.',
+    blurb: 'Placeholder featured-project copy — full content lands in #317.',
   },
   {
     id: 'more',
     label: 'Projects — other',
     eyebrow: '',
     title: 'Other work',
-    blurb: 'Placeholder secondary-projects copy -- full content lands in #318.',
+    blurb: 'Placeholder secondary-projects copy — full content lands in #318.',
   },
   {
     id: 'skills',
     label: 'Skills',
     eyebrow: '02 · SKILLS',
     title: 'Skills',
-    blurb: 'Placeholder skills-graph copy -- full content lands in #319.',
+    blurb: 'Placeholder skills-graph copy — full content lands in #319.',
   },
   {
     id: 'path',
@@ -78,3 +78,20 @@ export const sections: SectionMeta[] = [
     blurb: 'What work is being sought, and direct links to reach out.',
   },
 ]
+
+/**
+ * Looks up a section's metadata by `id`, not by array position.
+ *
+ * Every section component used to do `sections[N]` -- e.g. `sections[4]`
+ * for Timeline -- which silently renders the wrong eyebrow/title/blurb the
+ * moment this array is reordered, with no error anywhere. `getSectionMeta`
+ * replaces that: it fails loudly (throws) if `id` doesn't match an entry,
+ * instead of failing silently by rendering the wrong section's copy.
+ */
+export function getSectionMeta(id: string): SectionMeta {
+  const meta = sections.find((section) => section.id === id)
+  if (!meta) {
+    throw new Error(`No section in src/data/sections.ts has id "${id}".`)
+  }
+  return meta
+}

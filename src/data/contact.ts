@@ -35,7 +35,7 @@ export interface ContactLink {
 }
 
 export const CONTACT_STATEMENT =
-  'Looking for ML, systems, or software engineering work -- model internals, infrastructure, or anywhere the constraint is one GPU and a deadline.'
+  'Looking for ML, systems, or software engineering work — model internals, infrastructure, or anywhere the constraint is one GPU and a deadline.'
 
 export const CONTACT_LINKS: readonly ContactLink[] = [
   {
