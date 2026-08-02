@@ -3,7 +3,7 @@ import { vi } from 'vitest'
 /**
  * Installs a `window.matchMedia` stub that reports `reduced` for
  * `(prefers-reduced-motion: reduce)` and `false` for anything else --
- * enough for components that branch on `useReducedMotion()` without
+ * enough for components that branch on `usePrefersReducedMotion()` without
  * pulling in a full media-query engine.
  */
 export function mockMatchMedia(reduced: boolean): void {

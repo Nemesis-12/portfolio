@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { isTypingDone, typedText } from '@/lib/hero/typewriter'
-import { useReducedMotion } from '@/lib/hero/useReducedMotion'
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 
 interface HeroTaglineProps {
   text: string
@@ -20,7 +20,7 @@ interface HeroTaglineProps {
  * shouldn't start a reveal timer).
  */
 export function HeroTagline({ text, className }: HeroTaglineProps) {
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = usePrefersReducedMotion()
   const [elapsed, setElapsed] = useState(0)
   const startRef = useRef<number | null>(null)
 

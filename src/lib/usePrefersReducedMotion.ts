@@ -12,11 +12,14 @@ function getInitialValue(): boolean {
 /**
  * Tracks the visitor's `prefers-reduced-motion` preference, live. If the OS
  * setting flips while the page is open, consumers (the header clock's tick,
- * its cursor blink, the Go board, the pipeline loop) react immediately
- * rather than only picking it up on next load.
+ * its cursor blink, the Go board, the tagline, the pipeline loop, the
+ * headline-stat counters) react immediately rather than only picking it up
+ * on next load.
  *
  * Defaults to `false` (motion allowed) in environments without
- * `matchMedia` (e.g. some test setups) rather than throwing.
+ * `matchMedia` (e.g. some test setups) rather than throwing. jsdom does not
+ * implement `window.matchMedia` at all (it is `undefined`, not a stub),
+ * which is why both the initial read and the effect guard for it.
  */
 export function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(getInitialValue)
