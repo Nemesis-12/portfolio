@@ -29,7 +29,7 @@ export function Hero() {
           </p>
           <h1 className={cn('font-display text-fluid-hero leading-tight text-fg')}>
             <span className="block">{HERO_NAME_FIRST}</span>
-            <span className="block bg-accent px-[0.05em] text-bg">{HERO_NAME_LAST}</span>
+            <span className="inline-block bg-accent px-[0.05em] text-bg">{HERO_NAME_LAST}</span>
           </h1>
           <HeroTagline
             text={HERO_TAGLINE}

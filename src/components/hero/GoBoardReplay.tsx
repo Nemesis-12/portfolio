@@ -41,6 +41,12 @@ function BoardGrid({ frame }: { frame: BoardFrame }) {
           backgroundImage:
             'linear-gradient(to right, rgb(var(--line)) 1px, transparent 1px), linear-gradient(to bottom, rgb(var(--line)) 1px, transparent 1px)',
           backgroundSize: `calc(100% / ${BOARD_SIZE - 1}) calc(100% / ${BOARD_SIZE - 1})`,
+          // The repeating gradient above only paints a line at each tile's
+          // *start* edge, so it draws 18 of the 19 lines per axis (0/18
+          // through 17/18) and never the one at 100%. Paint that last line
+          // explicitly as an inset box-shadow on the right/bottom edges so
+          // all 19 lines land, matching the same token color.
+          boxShadow: 'inset -1px 0 0 0 rgb(var(--line)), inset 0 -1px 0 0 rgb(var(--line))',
         }}
       >
         {frame.move78Marker ? (
