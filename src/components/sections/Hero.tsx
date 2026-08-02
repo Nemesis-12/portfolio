@@ -2,10 +2,10 @@ import { GoBoardReplay } from '@/components/hero/GoBoardReplay'
 import { HeroTagline } from '@/components/hero/HeroTagline'
 import { Section } from '@/components/layout/Section'
 import { HERO_NAME_FIRST, HERO_NAME_LAST, HERO_ROLE, HERO_TAGLINE } from '@/data/hero'
-import { sections } from '@/data/sections'
+import { getSectionMeta } from '@/data/sections'
 import { cn } from '@/lib/cn'
 
-const meta = sections[0]
+const meta = getSectionMeta('top')
 
 /**
  * The hero (issue #316): states the role and name, types a one-shot
@@ -20,14 +20,14 @@ const meta = sections[0]
  */
 export function Hero() {
   return (
-    <Section id={meta.id} label={meta.label}>
+    <Section id={meta.id} headingId="top-heading">
       <div className="grid w-full items-center gap-[var(--space-lg)] [grid-template-columns:repeat(auto-fit,minmax(330px,1fr))]">
         <div className="flex min-w-0 flex-col gap-[var(--space-sm)]">
           <p className="flex items-center gap-[var(--space-2xs)] font-mono text-fluid-xs tracking-[0.2em] text-dim">
             <span aria-hidden="true" className="h-[9px] w-[9px] rounded-full bg-accent" />
             {HERO_ROLE}
           </p>
-          <h1 className={cn('font-display text-fluid-hero leading-tight text-fg')}>
+          <h1 id="top-heading" className={cn('font-display text-fluid-hero leading-tight text-fg')}>
             <span className="block">{HERO_NAME_FIRST}</span>
             <span className="inline-block bg-accent px-[0.05em] text-bg">{HERO_NAME_LAST}</span>
           </h1>

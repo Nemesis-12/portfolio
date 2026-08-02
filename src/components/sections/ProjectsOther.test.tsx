@@ -5,11 +5,12 @@ import {
   MLA_INSTALL_COMMAND,
   MLA_LINKS,
   MLA_TAGLINE,
+  OTHER_PROJECTS_TITLE,
   THESIS_STATS,
   THESIS_TAGLINE,
   THESIS_TITLE,
 } from '@/data/otherProjects'
-import { sections } from '@/data/sections'
+import { getSectionMeta } from '@/data/sections'
 
 /**
  * Smoke coverage for issue #318: this component is pure presentation over
@@ -21,11 +22,12 @@ import { sections } from '@/data/sections'
  * animated cluster mounting.
  */
 describe('ProjectsOther', () => {
-  it('renders the second projects section with its documented id and label', () => {
+  it('renders the second projects section with its documented id, named by its own heading', () => {
     render(<ProjectsOther />)
 
-    const region = screen.getByRole('region', { name: sections[2].label })
-    expect(region).toHaveAttribute('id', sections[2].id)
+    const meta = getSectionMeta('more')
+    const region = screen.getByRole('region', { name: OTHER_PROJECTS_TITLE })
+    expect(region).toHaveAttribute('id', meta.id)
   })
 
   it('carries no eyebrow section number, unlike the featured screen', () => {

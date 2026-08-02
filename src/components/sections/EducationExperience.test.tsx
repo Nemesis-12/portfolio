@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { EducationExperience } from './EducationExperience'
 import { EDUCATION_COLUMN, EXPERIENCE_COLUMN } from '@/data/timeline'
-import { sections } from '@/data/sections'
+import { getSectionMeta } from '@/data/sections'
 
 /**
  * Smoke coverage for issue #320: this component is pure presentation over
@@ -15,11 +15,12 @@ import { sections } from '@/data/sections'
  * instead.
  */
 describe('EducationExperience', () => {
-  it('renders the timeline section with its documented id and label', () => {
+  it('renders the timeline section with its documented id, named by its own heading', () => {
     render(<EducationExperience />)
 
-    const region = screen.getByRole('region', { name: sections[4].label })
-    expect(region).toHaveAttribute('id', sections[4].id)
+    const meta = getSectionMeta('path')
+    const region = screen.getByRole('region', { name: meta.title })
+    expect(region).toHaveAttribute('id', meta.id)
   })
 
   it('renders both column headings', () => {

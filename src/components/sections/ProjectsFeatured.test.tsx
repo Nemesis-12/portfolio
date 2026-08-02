@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { ProjectsFeatured } from './ProjectsFeatured'
 import { LEVIATHAN_HOOK, LEVIATHAN_LINKS, LEVIATHAN_STATS } from '@/data/leviathan'
-import { sections } from '@/data/sections'
+import { getSectionMeta } from '@/data/sections'
 
 /**
  * Smoke coverage for issue #317: this component is pure presentation over
@@ -14,11 +14,12 @@ import { sections } from '@/data/sections'
  * the right URLs.
  */
 describe('ProjectsFeatured', () => {
-  it('renders the featured-project section with its documented id and label', () => {
+  it('renders the featured-project section with its documented id, named by its own heading', () => {
     render(<ProjectsFeatured />)
 
-    const region = screen.getByRole('region', { name: sections[1].label })
-    expect(region).toHaveAttribute('id', sections[1].id)
+    const meta = getSectionMeta('projects')
+    const region = screen.getByRole('region', { name: 'Leviathan' })
+    expect(region).toHaveAttribute('id', meta.id)
   })
 
   it('states the one-line hook before any supporting detail', () => {

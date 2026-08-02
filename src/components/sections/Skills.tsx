@@ -1,14 +1,14 @@
 import { Section } from '@/components/layout/Section'
 import { SectionPlaceholder } from '@/components/layout/SectionPlaceholder'
-import { sections } from '@/data/sections'
+import { getSectionMeta } from '@/data/sections'
 
-const meta = sections[3]
+const meta = getSectionMeta('skills')
 
 /** Skills graph placeholder. Real content lands in #319. */
 export function Skills() {
   return (
-    <Section id={meta.id} label={meta.label}>
-      <SectionPlaceholder {...meta} />
+    <Section id={meta.id} headingId="skills-heading">
+      <SectionPlaceholder {...meta} headingId="skills-heading" />
     </Section>
   )
 }
