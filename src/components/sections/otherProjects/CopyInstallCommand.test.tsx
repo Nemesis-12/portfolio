@@ -34,15 +34,35 @@ describe('CopyInstallCommand', () => {
     expect(screen.getByRole('button', { name: 'copy' })).toBeInTheDocument()
   })
 
-  it('does not throw when the Clipboard API is unavailable', async () => {
-    vi.stubGlobal('navigator', { ...navigator, clipboard: undefined })
+  it('announces the copy confirmation to assistive tech via a polite live region', async () => {
+    vi.useFakeTimers()
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } })
 
     render(<CopyInstallCommand command="pip install multihead-latent-attention" />)
+
+    expect(screen.queryByText('Command copied to clipboard')).not.toBeInTheDocument()
 
     await act(async () => {
       screen.getByRole('button', { name: 'copy' }).click()
     })
 
-    expect(screen.getByRole('button', { name: 'copy' })).toBeInTheDocument()
+    const status = screen.getByText('Command copied to clipboard')
+    expect(status).toHaveAttribute('aria-live', 'polite')
+  })
+
+  it('disables the copy button, rather than leaving it non-functional, when the Clipboard API is unavailable', async () => {
+    vi.stubGlobal('navigator', { ...navigator, clipboard: undefined })
+
+    render(<CopyInstallCommand command="pip install multihead-latent-attention" />)
+
+    const button = screen.getByRole('button', { name: /copy/i })
+    expect(button).toBeDisabled()
+
+    await act(async () => {
+      button.click()
+    })
+
+    expect(button).toHaveTextContent('copy')
   })
 })
