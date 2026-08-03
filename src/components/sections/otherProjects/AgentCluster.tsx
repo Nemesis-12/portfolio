@@ -37,7 +37,7 @@ const STATE_CLASS: Record<AgentState, string> = {
  * behavioural, model-driven attribute), never the Tailwind class name
  * itself.
  */
-export function AgentCluster() {
+export function AgentCluster({ className }: { className?: string } = {}) {
   const reducedMotion = usePrefersReducedMotion()
   const [tick, setTick] = useState(0)
 
@@ -55,7 +55,7 @@ export function AgentCluster() {
     <div
       role="group"
       aria-label="Simulated organization of LLM agents: mostly idle or active, one occasionally flagged as an insider threat"
-      className="flex flex-wrap gap-[var(--space-3xs)]"
+      className={cn('flex flex-wrap gap-[6px]', className)}
     >
       {dots.map((dot) => (
         <span

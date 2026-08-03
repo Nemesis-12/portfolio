@@ -32,6 +32,22 @@
 
   --font-display: 'Press Start 2P', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /*
+   * `panel:` is the ONE hard breakpoint from src/styles/layout.css
+   * (`@media (min-width: 880px)`, where `.section-shell` gains its fixed
+   * one-viewport height and scroll-snap). Any component-level responsive
+   * class that needs to agree with that layout switch -- going side by
+   * side vs. stacked, for example -- must use `panel:`, never Tailwind's
+   * default `md:` (768px) or `lg:` (1024px), or content can still be in
+   * its narrow/stacked layout while the section has already committed to
+   * a fixed one-screen height. Deliberately not named `md`/`lg`: reusing
+   * either of Tailwind's default names here would silently redefine that
+   * name (768px/1024px) for every OTHER `md:`/`lg:` usage in the codebase
+   * too, not just the layout-critical ones -- `panel:` can't collide with
+   * anything.
+   */
+  --breakpoint-panel: 880px;
 }
 
 html {
@@ -45,6 +61,18 @@ body {
   background-color: rgb(var(--bg));
   color: rgb(var(--fg));
   font-family: var(--font-mono);
+  /*
+   * Sample line 264 (`ideas/Portfolio.html`): the page wrapper sets
+   * `font-size:15px;line-height:1.6;overflow-x:clip`. Base font-size and
+   * line-height are what every unstyled/inherited piece of text on the
+   * page falls back to; without them here neither was ever set, so text
+   * fell back to the browser default (16px/normal) instead. `body` is
+   * this app's document-level counterpart of the sample's single page
+   * wrapper div, so all three properties land here.
+   */
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: clip;
 }
 
 /*
@@ -60,4 +88,51 @@ body {
 :focus-visible {
   outline: 2px solid rgb(var(--accent));
   outline-offset: 3px;
+}
+
+/*
+ * Global keyframes ported verbatim from the sample (lines 254-255,
+ * `ideas/Portfolio.html`) -- `blink` drives the header clock caret and the
+ * hero tagline cursor, `pulse` drives the Timeline's "current" status dot
+ * and label (`EducationExperience.tsx`) and, as of mochi/style-match ("i
+ * wanted the running blinking animation to be similar to the study now
+ * and working now animations"), the Thesis card's "RUNNING · 2026" tag
+ * label too (`ProjectTag.tsx`) -- gated there through the
+ * `usePrefersReducedMotion` hook rather than this file's pure-CSS
+ * `prefers-reduced-motion` scoping, but referencing the exact same
+ * `pulse` keyframe below so both read as one motion language. Declared
+ * once here rather than per-component so every consumer references the
+ * same names the sample uses (`animation:blink ...`, `animation:pulse
+ * ...`).
+ *
+ * Scoped to `prefers-reduced-motion: no-preference`, not zeroed via
+ * `animation-duration:.001ms !important` the way the sample's own global
+ * reduced-motion rule does -- that trick still *plays* every animation,
+ * just instantly, which is the opposite of what the preference asks for.
+ * A reduced-motion visitor gets no `blink`/`pulse` animation applied at
+ * all; consumers should pick a sensible resting state (e.g. opacity: 1)
+ * for that case, same pattern as `.hero-cursor`/`.hero-stone` in
+ * src/styles/hero.css.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
 }

@@ -55,6 +55,25 @@
   }
 }
 
+/*
+ * Per-letter name hover (sample lines 300, 303): each letter in
+ * `Hero.tsx` sets `--hero-letter-rot` inline (the exact per-letter degree
+ * value read off the sample) and gets this shared rule for the transform/
+ * color transition. Plain CSS rather than Tailwind's `hover:` utilities
+ * because Tailwind can't generate a class for a value that varies per
+ * letter/render (`rotate(var(--hero-letter-rot))`) -- arbitrary values
+ * must be static strings at build time, not computed at runtime.
+ */
+.hero-name-letter {
+  transition:
+    transform 0.18s cubic-bezier(0.2, 0.9, 0.2, 1),
+    color 0.18s;
+}
+
+.hero-name-letter:hover {
+  transform: translateY(-9px) rotate(var(--hero-letter-rot, 0deg));
+}
+
 .hero-cursor {
   opacity: 1;
 }

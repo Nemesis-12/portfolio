@@ -55,6 +55,71 @@
   --space-md: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
   --space-lg: clamp(2.4rem, 1.6rem + 2.8vw, 3.6rem);
   --space-xl: clamp(3.2rem, 2rem + 4vw, 5.2rem);
+
+  /*
+   * ---------------------------------------------------------------------
+   * HEIGHT-AWARE ("fit") SCALE
+   * ---------------------------------------------------------------------
+   * The width-based scale above is correct for content OUTSIDE a
+   * section's height-constrained area -- the eyebrow/heading row at the
+   * top of every section, which the design reference itself also sizes
+   * against viewport WIDTH (e.g. the section title is
+   * `clamp(15px,2.2vw,24px)` in the reference markup).
+   *
+   * Everything BELOW that heading row, inside the part of the section
+   * that has to share the remaining viewport HEIGHT with the heading and
+   * the section's own padding, is what the reference sizes against
+   * viewport HEIGHT instead (`clamp(11px,1.5vh,12.5px)`,
+   * `clamp(16px,2.4vh,30px)`, etc.) -- that is the actual mechanism that
+   * keeps a section to one screen at short viewports: text and spacing
+   * shrink with the space actually available, not with how wide the
+   * window happens to be. These tokens reproduce that half of the
+   * reference's scale; the values are the reference's own recurring
+   * clamp ranges, not new ones invented for this codebase.
+   */
+  --text-fit-2xs: clamp(9.5px, 1.3vh, 11px); /* meta labels, e.g. header clock / stat units */
+  --text-fit-meta: clamp(11px, 1.65vh, 13px); /* Timeline meta: status label, date range, column kind label -- raised from the ~9.5-10px range measured "barely visible" at 1440x900 (mochi/style-match task 3) */
+  --text-fit-xs: clamp(11px, 1.5vh, 12.5px); /* card subtitle line */
+  --text-fit-sm: clamp(12.5px, 1.8vh, 15px); /* bullets -- raised (mochi/style-match task 3) so Timeline's bullets (primary content) read unambiguously larger than the qualifier line (--text-fit-xs, secondary) instead of the two ranges nearly overlapping at typical viewport heights */
+  --text-fit-base: clamp(12px, 1.75vh, 14px); /* body copy paragraph */
+  --text-fit-lg: clamp(14px, 2.4vh, 22px); /* hook/tagline */
+  --text-fit-title: clamp(11.5px, 1.8vh, 16px); /* card/entry titles (timeline) -- raised one step (mochi/style-match audit, defect 4), same +1.5px/+0.2vh/+2px increment task 3 used to raise --text-fit-sm; entry titles were left at the pre-task-3 range and read undersized at 1440x900 next to the (already raised) meta/bullet rows around them */
+  --text-fit-xl: clamp(17px, 3.4vh, 34px); /* featured card name (Leviathan) */
+
+  --space-fit-3xs: clamp(5px, 1vh, 9px); /* Leviathan bullet list gap */
+  --space-fit-3xs-tight: clamp(5px, 0.9vh, 8px); /* timeline entry bullet list gap */
+  --space-fit-2xs: clamp(7px, 1.1vh, 11px);
+  --space-fit-xs: clamp(9px, 1.6vh, 15px);
+  --space-fit-sm: clamp(12px, 1.8vh, 22px);
+  --space-fit-md: clamp(14px, 2.2vh, 26px);
+  --space-fit-lg: clamp(16px, 2.4vh, 30px);
+  --space-fit-margin: clamp(18px, 2.6vh, 28px); /* projects fit-box margin-top under a section heading */
+  --space-fit-margin-tight: clamp(16px, 2.4vh, 26px); /* skills/timeline fit-box margin-top */
+}
+
+.text-fit-2xs {
+  font-size: var(--text-fit-2xs);
+}
+.text-fit-meta {
+  font-size: var(--text-fit-meta);
+}
+.text-fit-xs {
+  font-size: var(--text-fit-xs);
+}
+.text-fit-sm {
+  font-size: var(--text-fit-sm);
+}
+.text-fit-base {
+  font-size: var(--text-fit-base);
+}
+.text-fit-lg {
+  font-size: var(--text-fit-lg);
+}
+.text-fit-title {
+  font-size: var(--text-fit-title);
+}
+.text-fit-xl {
+  font-size: var(--text-fit-xl);
 }
 
 .text-2xs {
@@ -120,46 +185,109 @@
 /*
  * `--header-h` is published imperatively by `Header.tsx` (measured, not
  * guessed, since the header's rendered height changes with the fluid type
- * scale and with viewport width). The fallback below only matters for the
- * first paint before that effect runs, or if JS never runs at all.
+ * scale and with viewport width). It is no longer consumed here (see
+ * below); `Header.tsx` still publishes it in case a future consumer needs
+ * a measured header height.
  *
- * `scroll-padding-top` on `:root` -- the real scroll container -- is a
- * single property that solves two distinct fixed-header hazards at once:
- *  - `scroll-snap-align: start` (below) aligns a section to the top of the
- *    scrollport, which a `position: fixed` header would otherwise cover;
- *  - a native `#id` anchor jump (nav links, the skip link, the site mark)
- *    lands at the exact top of the target element, same problem.
- * `scroll-padding-top` shifts the effective top of the scrollport down by
- * the header's height for both cases, so neither ever lands under it.
+ * `scroll-padding-top` was removed from `:root` (mochi/style-match audit):
+ * a prior revision added it reasoning it was needed so `scroll-snap-align:
+ * start` and anchor jumps wouldn't land a section under the fixed header.
+ * The sample (`ideas/Portfolio.html`) never sets `scroll-padding-top` at
+ * all (line 245: `html { scroll-behavior: smooth; scroll-snap-type: y
+ * proximity }`, nothing else) -- it doesn't need to, because every
+ * section's own `padding-block` top clamp already clears the header's
+ * height on its own. Setting `scroll-padding-top` on top of that padding
+ * double-offset the section: `scroll-snap-align: start` landed the
+ * section's top edge `header-height` px below the viewport top (verified
+ * via a real Chromium render: section top sat at y=59 instead of y=0 at
+ * 1440x900), and then the section's own top padding pushed the content
+ * down again from there -- the ~250px empty band above every non-hero
+ * heading. Removing it lets the section land flush at y=0 like the
+ * sample, with the header overlapping only the section's own top padding
+ * (never real content), matching the sample exactly.
+ *
+ * `scroll-snap-type: y proximity` (sample line 245) is applied here
+ * ungated -- at ALL widths, not just at/above 880px. `proximity` only
+ * snaps when a scroll gesture naturally comes to rest near a snap point;
+ * below 880px sections have no fixed height (`.section-shell` only gains
+ * `min-height: 100dvh` + `scroll-snap-align: start` in the 880px block
+ * below), so there's nothing for it to snap TO yet at narrow widths --
+ * this property alone is inert until a section actually opts in. It was
+ * previously `y mandatory`, gated behind the 880px block; the sample
+ * never uses `mandatory` and never gates this property at all.
  */
 :root {
   scroll-behavior: smooth;
-  scroll-padding-top: var(--header-h, 4.5rem);
+  scroll-snap-type: y proximity;
 }
 
 @media (min-width: 880px) {
-  :root {
-    scroll-snap-type: y mandatory;
-  }
-
+  /*
+   * Padding matches the design reference's own section padding exactly:
+   * `padding: clamp(64px,9vh,88px) clamp(20px,4vw,56px) clamp(18px,4vh,44px)`.
+   * Top/bottom scale with viewport HEIGHT (that's what keeps the padding
+   * itself from eating the one-viewport budget at short heights); left/
+   * right scale with viewport WIDTH, same as the rest of the width-based
+   * scale.
+   */
   .section-shell {
     min-height: 100dvh;
     scroll-snap-align: start;
-    padding-block: var(--space-xl) var(--space-lg);
-    padding-inline: var(--space-xl);
+    padding-block: clamp(4rem, 9vh, 5.5rem) clamp(1.125rem, 4vh, 2.75rem);
+    padding-inline: clamp(1.25rem, 4vw, 3.5rem);
   }
 }
 
 /*
- * This block must stay AFTER the `min-width: 880px` block above: both
- * rules target `:root` at equal specificity, so when a reduced-motion
- * user is also above 880px, source order (not just specificity) decides
- * which wins. Placing this last guarantees reduced motion always relaxes
- * snapping and smooth scrolling, regardless of viewport width.
+ * This block must stay AFTER the base `:root` rule above (and after the
+ * `min-width: 880px` block): all target `:root` at equal specificity, so
+ * when a reduced-motion user is also above 880px, source order (not just
+ * specificity) decides which wins. Placing this last guarantees reduced
+ * motion always relaxes snapping and smooth scrolling, regardless of
+ * viewport width -- `scroll-snap-type: y proximity` above is now applied
+ * at every width, so this override matters at every width too.
  */
 @media (prefers-reduced-motion: reduce) {
   :root {
     scroll-behavior: auto;
     scroll-snap-type: none;
+  }
+}
+
+/*
+ * Sample lines 256-258 -- the sample's ONLY media query, reproduced
+ * verbatim. `[data-pathgrid]` is `EducationExperience.tsx`'s Education &
+ * Experience grid (`grid-auto-flow: column` above 880px, laid out as
+ * side-by-side columns); below 880px it forces the grid back to normal
+ * document flow (`row` auto-flow, no fixed row template, no max-height
+ * clamp) so the grid can stack and grow instead of staying pinned to a
+ * column layout that no longer fits. 880px stays the one hard breakpoint
+ * in this file -- this is the same threshold as the `.section-shell`
+ * block above, just inverted (releases a layout instead of applying one).
+ */
+@media (max-width: 880px) {
+  [data-pathgrid] {
+    grid-auto-flow: row !important;
+    grid-template-rows: none !important;
+    max-height: none !important;
+  }
+
+  /*
+   * `TimelineEntryCell` (`EducationExperience.tsx`) is `grid-template-
+   * rows: subgrid` + `row-span-4` above 880px so its four visible bands
+   * (status/title/qualifier/hairline+bullets, the last one `minmax(0,
+   * 1fr)` so it alone absorbs slack -- mochi/style-match slack audit)
+   * share tracks with its row-mate in `[data-pathgrid]` (mochi/style-
+   * match audit, defect 3/4). Below 880px `[data-pathgrid]` itself drops
+   * back to normal flow
+   * (above), so there is no longer a shared row template for `subgrid`
+   * to reference -- falling back to a plain flex column here keeps each
+   * cell's own content top-aligned and self-sized instead of subgridding
+   * against a parent that no longer defines the tracks.
+   */
+  [data-pathgrid] article {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-row: auto !important;
   }
 }

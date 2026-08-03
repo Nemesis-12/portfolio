@@ -32,7 +32,7 @@ export function Clock() {
   const label = formatClock(now)
 
   return (
-    <span className="flex items-center gap-[var(--space-3xs)] text-fluid-xs font-mono text-dim-2">
+    <span className="flex items-center gap-[7px] text-[10.5px] tracking-[0.1em] text-dim-2">
       <span aria-hidden="true">{label}</span>
       <span className="sr-only">Current time {label}</span>
       <span

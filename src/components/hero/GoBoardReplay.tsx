@@ -49,19 +49,6 @@ function BoardGrid({ frame }: { frame: BoardFrame }) {
           boxShadow: 'inset -1px 0 0 0 rgb(var(--line)), inset 0 -1px 0 0 rgb(var(--line))',
         }}
       >
-        {frame.move78Marker ? (
-          <span
-            aria-hidden="true"
-            className="absolute rounded-full border-2 border-accent"
-            style={{
-              left: percentFor(frame.move78Marker.col),
-              top: percentFor(frame.move78Marker.row),
-              width: '7.2%',
-              aspectRatio: '1',
-              transform: 'translate(-50%, -50%)',
-            }}
-          />
-        ) : null}
         {frame.stones.map((stone) => (
           <span
             key={stone.key}
@@ -78,7 +65,7 @@ function BoardGrid({ frame }: { frame: BoardFrame }) {
             style={{
               left: percentFor(stone.col),
               top: percentFor(stone.row),
-              width: stone.variant === 'move78' ? '6.4%' : '5%',
+              width: '5%',
               aspectRatio: '1',
               transform: 'translate(-50%, -50%)',
             }}
@@ -161,15 +148,15 @@ export function GoBoardReplay() {
 
   return (
     <div
-      className="flex min-w-0 w-full max-w-[min(100%,58vh)] flex-col gap-[var(--space-2xs)]"
+      className="mx-auto flex w-full min-w-0 flex-col gap-[12px] panel:w-[min(100%,58vh)]"
       style={{ opacity: containerOpacity }}
     >
-      <div className="flex items-center justify-between gap-[var(--space-xs)] text-2xs font-mono tracking-[0.14em] text-dim">
-        <span className="flex items-center gap-2">
+      <div className="flex min-h-[20px] items-center justify-between gap-[12px] whitespace-nowrap text-[10px] tracking-[0.14em] text-dim">
+        <span className="flex items-center gap-[7px]">
           <span aria-hidden="true" className="h-[9px] w-[9px] rounded-full bg-fg" />
           {GAME4_WHITE_LABEL}
         </span>
-        <span className="flex items-center gap-2">
+        <span className="flex items-center gap-[7px]">
           {GAME4_BLACK_LABEL}
           <span
             aria-hidden="true"
@@ -180,7 +167,7 @@ export function GoBoardReplay() {
 
       <BoardGrid frame={frame} />
 
-      <div className="flex flex-wrap items-center justify-between gap-[var(--space-xs)] text-2xs font-mono tracking-[0.16em] text-dim-3">
+      <div className="flex min-h-[34px] flex-wrap justify-between gap-[12px] text-[9.5px] tracking-[0.16em] text-dim-3">
         <span>{GAME4_CAPTION}</span>
         <span className="text-dim">{moveLabelFor(moveNumber)}</span>
       </div>
