@@ -1,6 +1,7 @@
 import { navItems } from '@/data/nav'
 import { cn } from '@/lib/cn'
 import { Clock } from './Clock'
+import { MobileNav } from './MobileNav'
 import { ScrollProgressBar } from './ScrollProgressBar'
 import { ThemePicker } from './ThemePicker'
 
@@ -9,6 +10,11 @@ import { ThemePicker } from './ThemePicker'
  * the theme picker (`ThemePicker`), and a live clock, with the scroll
  * progress bar as its last child (matching the design reference, which
  * nests the bar inside the header).
+ *
+ * Below the 880px `panel:` breakpoint (#314) the inline `<nav>` is hidden
+ * (`hidden panel:flex`) and `MobileNav` takes its place, so the header
+ * never has to cram all four links plus the theme picker into a phone-width
+ * bar -- see `MobileNav.tsx` for the full-screen menu it opens.
  *
  * Fixed-header / scroll-snap interaction: `scroll-snap-align: start`
  * (`.section-shell`, src/styles/layout.css) aligns each section to the
@@ -38,7 +44,7 @@ export function Header() {
 
         <nav
           aria-label="Section"
-          className="ml-auto flex gap-[clamp(10px,1.8vw,24px)] text-[10.5px] tracking-[0.16em] text-dim"
+          className="ml-auto hidden gap-[clamp(10px,1.8vw,24px)] text-[10.5px] tracking-[0.16em] text-dim panel:flex"
         >
           {navItems.map((item) => (
             <a
@@ -50,6 +56,8 @@ export function Header() {
             </a>
           ))}
         </nav>
+
+        <MobileNav />
 
         <ThemePicker />
 
