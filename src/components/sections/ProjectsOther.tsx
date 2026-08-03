@@ -1,26 +1,11 @@
 import { Section } from '@/components/layout/Section'
 import { SectionHeading } from '@/components/layout/SectionHeading'
-import { AgentCluster } from '@/components/sections/otherProjects/AgentCluster'
-import { CopyInstallCommand } from '@/components/sections/otherProjects/CopyInstallCommand'
-import {
-  MLA_BADGE,
-  MLA_DESCRIPTION,
-  MLA_INSTALL_COMMAND,
-  MLA_LINKS,
-  MLA_STATS,
-  MLA_TAGLINE,
-  MLA_TITLE,
-  THESIS_BADGE,
-  THESIS_DESCRIPTION,
-  THESIS_STATS,
-  THESIS_TAGLINE,
-  THESIS_TITLE,
-} from '@/data/otherProjects'
+import { OtherProjectCard } from '@/components/sections/otherProjects/OtherProjectCard'
+import { OTHER_PROJECTS } from '@/data/otherProjects'
 import { getSectionMeta } from '@/data/sections'
 import { useFitToViewport } from '@/lib/useFitToViewport'
 
 const meta = getSectionMeta('more')
-const packageLink = MLA_LINKS.find((link) => link.label === 'package')
 
 /**
  * Second projects screen: the MLA library and the in-progress thesis
@@ -36,16 +21,11 @@ const packageLink = MLA_LINKS.find((link) => link.label === 'package')
  * cards with no lead paragraph under the heading, so none is rendered
  * here either.
  *
- * Two cards, an `auto-fit` CSS grid side by side above ~640px (sample
- * line 424: `minmax(320px,1fr)`, no `panel:` breakpoint switch needed for
- * the columns themselves): the MLA library (a copyable install command a
- * visitor can use in one step) and the thesis (a running indicator, its
- * expected date, and the animated agent-dot cluster illustrating the
- * thesis's own premise). All copy and figures live in
- * `src/data/otherProjects.ts`, sourced from `public/resume.pdf`; this
- * component is pure presentation. `AgentCluster` and `CopyInstallCommand`
- * each own their own state, scoped to themselves, so this section never
- * re-renders on their account.
+ * All copy and figures live in `src/data/otherProjects.ts`, sourced from
+ * `public/resume.pdf`; this component is pure presentation. `AgentCluster`
+ * and `CopyInstallCommand` (rendered inside `OtherProjectCard`) each own
+ * their own state, scoped to themselves, so this section never re-renders
+ * on their account.
  */
 export function ProjectsOther() {
   const fitRef = useFitToViewport<HTMLDivElement>()
@@ -60,144 +40,78 @@ export function ProjectsOther() {
       />
 
       {/*
-       * Matches the sample's `margin-top:clamp(18px,2.6vh,28px)`
-       * (`--space-fit-margin`, `src/styles/layout.css`) and
-       * `max-height:680px` on its `[data-fit]` grid (line 424), gated to
-       * the 880px `panel:` breakpoint where `.section-shell` fixes the
-       * section to one viewport tall in the first place, plus the `zoom`
-       * shrink-to-fit safety net (`useFitToViewport`).
+       * Cards size to their own content, and the section's leftover height
+       * sits OUTSIDE them as background (mochi/style-match task 1) -- the
+       * opposite of a prior revision's `flex-1` + `minmax(0,1fr)` card row,
+       * which forced each card to stretch to fill the section and dumped
+       * the leftover height inside the card as dead space above the
+       * install command / agent-dot row. That was a deliberate, verified
+       * reproduction of the design reference's OWN behaviour at the time
+       * (see the git history on this file); the owner has since reviewed a
+       * real render and called it wrong for this build, explicitly as a
+       * deviation from the reference -- the cards are "too big for the
+       * content they hold."
        *
-       * `flex-1` is reinstated (mochi/style-match audit): a prior revision
-       * dropped it, reasoning the sample's own inline `flex:1` on this
-       * element "inflates" the box past its content, parking dead space
-       * from `margin-top:auto` (on `CopyInstallCommand` and the
-       * agent-cluster row) in the middle of the card. A real side-by-side
-       * Chromium render of the decoded sample bytes disproves that: the
-       * sample's grid fills flush from the heading row's padding-top down
-       * to the section's padding-bottom with zero extra slack on either
-       * edge -- `flex:1` is what consumes the section's free vertical
-       * space so `.section-shell`'s `justify-content:center` has none
-       * left to redistribute. Dropping `flex-1` left that free space
-       * unconsumed, so centering split it evenly above AND below the
-       * (heading + card row) block instead -- the empty band above the
-       * heading seen in real renders. The `margin-top:auto` rows are the
-       * sample's own footer-pinning pattern, not a bug. `max-height`
-       * still caps the box for unusually long content, paired with the
-       * `useFitToViewport` shrink-to-fit pass.
+       * This wrapper (`flex-1`, so it -- not the heading above it --
+       * consumes the section's leftover vertical space) is a plain flex
+       * column with `justify-center`, so the un-stretched, content-sized
+       * grid below centres vertically WITHIN this wrapper only. The
+       * heading stays pinned at its normal top-of-section position: only
+       * the wrapper (and everything inside it) can grow, so
+       * `.section-shell`'s own `justify-content:center` (on the
+       * heading+wrapper block as a whole) has nothing left to redistribute
+       * -- the wrapper already occupies 100% of the remaining height.
        */}
-      {/*
-       * Explicit `grid-rows` + `subgrid` (mochi/style-match audit, defect
-       * 2): the sample's two cards (line 424-457) are plain flex columns
-       * because ITS title/tagline/description text happens to be the
-       * same length in both cards, so their internal rows land on the
-       * same baselines for free. Our MLA title is the résumé's full name
-       * ("Multi-Head Latent Attention", two lines) against "Thesis" (one
-       * line) -- with independent flex columns the interactive row (the
-       * install command / the agent-dot cluster) and the stat footer
-       * below it end up at different heights per card, which is exactly
-       * what the owner flagged ("the dot row floats ... does not line up
-       * with anything in the neighbouring MLA card"). Five explicit row
-       * tracks shared by both cards via `grid-template-rows:subgrid` on
-       * each `<article>` (`row-span-5`) force title-row, tagline,
-       * description, interactive element, and footer to the same height
-       * band across both cards regardless of which card's content is
-       * taller in a given band.
-       *
-       * Verified against a real Chromium render of the decoded sample
-       * bytes (mochi/style-match slack audit, re-opened after the owner
-       * flagged the `content-between` version as smeared/justified):
-       * the sample's own card markup is `display:flex;flex-direction:
-       * column;gap:...` with `margin-top:auto` on the install-command
-       * div (line 429) and on the agent-dot row (line 445) -- literally
-       * verbatim in the decoded bytes, not an assumption. Rendered at
-       * 1440x900 the sample puts ALL of a card's leftover height in that
-       * ONE spot (measured: 364px between the description's bottom and
-       * the install bar's top; every other adjacent pair -- title→
-       * tagline, tagline→description, install-bar→footer -- stays at
-       * the plain `gap` value, tight). `content-between` (an even split
-       * across all five row gaps) was the wrong reproduction of that;
-       * this reinstates the sample's real, single-spot mechanism: only
-       * the interactive-element row (`row-start-4`) is `minmax(0,1fr)`,
-       * so it alone absorbs the section's leftover height, and the
-       * `self-end`-aligned interactive element sits at the BOTTOM of
-       * that stretched track -- pinned flush against the footer below
-       * it, with the absorbed slack landing above it as the sample's own
-       * void, not spread through the whole card. The other four tracks
-       * stay `auto` (content-sized) so their own gaps never inflate.
-       */}
-      <div
-        ref={fitRef}
-        className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] grid-rows-[auto_auto_auto_minmax(0,1fr)_auto] gap-[clamp(14px,1.6vw,20px)] panel:mt-[var(--space-fit-margin)] panel:max-h-[680px]"
-      >
-        <article className="grid row-span-5 grid-rows-subgrid gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
-          <div className="flex items-start justify-between gap-[12px]">
-            <h3 className="min-w-0 flex-1 font-display text-fluid-lg text-fg">{MLA_TITLE}</h3>
-            <span className="shrink-0 whitespace-nowrap text-2xs tracking-[0.18em] text-dim-2">{MLA_BADGE}</span>
-          </div>
-
-          <p className="text-fit-lg text-accent-2">{MLA_TAGLINE}</p>
-
-          <p className="text-fit-sm text-fg-2">{MLA_DESCRIPTION}</p>
-
-          <CopyInstallCommand command={MLA_INSTALL_COMMAND} className="self-end" />
-
-          <div className="flex flex-wrap items-end gap-[26px] border-t border-line pt-[14px]">
-            {MLA_STATS.map((stat) => (
-              <div key={stat.label} className="flex flex-col">
-                <span className="font-display text-[19px] leading-none text-fg">
-                  {stat.value}
-                  {stat.suffix ? (
-                    <span className="ml-[3px] text-[10px] text-dim-2">{stat.suffix}</span>
-                  ) : null}
-                </span>
-                <span className="mt-[7px] text-[9.5px] tracking-[0.16em] text-dim-2">{stat.label}</span>
-              </div>
-            ))}
-            {packageLink ? (
-              <a
-                href={packageLink.href}
-                target="_blank"
-                rel="noreferrer"
-                className="ml-auto border-b border-line-2 pb-[2px] text-[12.5px] text-fg-2"
-              >
-                {packageLink.label} ↗
-              </a>
-            ) : null}
-          </div>
-        </article>
-
-        <article className="grid row-span-5 grid-rows-subgrid gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
-          <div className="flex items-start justify-between gap-[12px]">
-            <h3 className="min-w-0 flex-1 font-display text-fluid-lg text-fg">Thesis</h3>
-            <span
-              aria-hidden="true"
-              className="shrink-0 whitespace-nowrap text-2xs tracking-[0.18em] text-accent-2 motion-safe:[animation:pulse_1.8s_ease-in-out_infinite]"
-            >
-              ● {THESIS_BADGE}
-            </span>
-          </div>
-
-          <p className="text-fit-lg text-accent-2">{THESIS_TAGLINE}</p>
-
-          <p className="text-fit-sm text-fg-2">{THESIS_DESCRIPTION}</p>
-          <p className="sr-only">{THESIS_TITLE}</p>
-
-          <AgentCluster className="self-end" />
-
-          <div className="flex gap-[26px] border-t border-line pt-[14px]">
-            {THESIS_STATS.map((stat) => (
-              <div key={stat.label} className="flex flex-col">
-                <span className="font-display text-[19px] leading-none text-fg">
-                  {stat.value}
-                  {stat.suffix ? (
-                    <span className="ml-[3px] text-[10px] text-dim-2">{stat.suffix}</span>
-                  ) : null}
-                </span>
-                <span className="mt-[7px] text-[9.5px] tracking-[0.16em] text-dim-2">{stat.label}</span>
-              </div>
-            ))}
-          </div>
-        </article>
+      <div className="flex flex-1 flex-col justify-center panel:mt-[var(--space-fit-margin)]">
+        {/*
+         * `auto-fit`/`minmax(320px,1fr)` (sample line 424) is also the
+         * mechanism that lets this grid reflow as more projects are added
+         * later (mochi/style-match task 2): 2 across today, 3 across or
+         * 2x2 as `OTHER_PROJECTS` (`src/data/otherProjects.ts`) grows. No
+         * column count is hardcoded anywhere in this file. 320px is the
+         * minimum column width where the longest card title (MLA's
+         * two-line name) still reads comfortably without cramping the stat
+         * footer -- verified by temporarily rendering 3, 4, and 6 cards
+         * (mochi/style-match task 2 verification; no extra project entries
+         * are committed).
+         *
+         * No `max-h` here (deliberately, unlike the sample's own
+         * `max-height:680px` on this element): a fixed cap disconnects
+         * this box's own rendered size from its real content once card
+         * count grows past what 2 cards needed, so `useFitToViewport`'s
+         * shrink-to-fit pass -- which measures the OWNING SECTION's
+         * rendered height against the viewport -- silently stops seeing
+         * the overflow (the capped box reports its capped size, not its
+         * true, taller content extent) and never engages. Verified via a
+         * real render: with the cap in place, 6 cards overflowed the
+         * section by 314px with `zoom` never leaving `1`; without it, the
+         * section's own box grows with its real content and the shrink
+         * pass correctly measures and corrects the overflow (see task 2's
+         * card-count ceiling notes for how far that shrinking stays
+         * legible).
+         *
+         * `items-start` overrides CSS Grid's own default (`align-items:
+         * stretch`): without it, a shorter row-mate (the Thesis card,
+         * whose agent-dot row is a fraction of the MLA install-command
+         * bar's height) is silently stretched to match the tallest card in
+         * its row -- reintroducing exactly the interior void task 1
+         * removes, just via the grid's own default instead of an explicit
+         * `flex-1`/`minmax(0,1fr)`. With it, each card's border sizes to
+         * its own content only; title rows still start flush with each
+         * other (both cards' tops sit on the same grid-row edge), but
+         * footers are no longer forced onto a shared baseline when one
+         * card's content is genuinely shorter -- forcing that back would
+         * mean re-stretching a card past its content, which is the thing
+         * being fixed here.
+         */}
+        <div
+          ref={fitRef}
+          className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] items-start gap-[clamp(14px,1.6vw,20px)]"
+        >
+          {OTHER_PROJECTS.map((project) => (
+            <OtherProjectCard key={project.id} project={project} />
+          ))}
+        </div>
       </div>
     </Section>
   )
