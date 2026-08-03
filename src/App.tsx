@@ -9,8 +9,8 @@ import { Skills } from '@/components/sections/Skills'
 import { cn } from '@/lib/cn'
 
 /**
- * The six-section page shell (spec at docs/spec-portfolio-rewrite.md,
- * issue #311), plus the fixed header/nav/skip-link shell (#312). Sections
+ * The six-section page shell (issue #311), plus the fixed header/nav/
+ * skip-link shell (#312). Sections
  * render in a fixed order -- hero, projects (featured), projects (other),
  * skills, education & experience, contact -- each with placeholder content
  * for now.

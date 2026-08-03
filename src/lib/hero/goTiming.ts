@@ -12,9 +12,9 @@
  * `frameAtElapsed` on every tick; everything about *when* a move appears
  * lives here, not scattered across `setTimeout` chains.
  *
- * These constants were originally tuned to a ~30s spec target (see
- * docs/spec-portfolio-rewrite.md), then deliberately slowed to 1.5x that
- * pace (`PACE_MULTIPLIER`) after watching the original timing run in a
+ * These constants were originally tuned to a ~30s spec target, then
+ * deliberately slowed to 1.5x that pace (`PACE_MULTIPLIER`) after
+ * watching the original timing run in a
  * browser -- the ~30s pace read as too rushed, especially through the
  * middlegame and endgame ramps. `LOOP_MS` now lands around ~43s.
  */
