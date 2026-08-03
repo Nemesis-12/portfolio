@@ -113,7 +113,7 @@ export function SkillsGraph() {
     >
       <div
         ref={panelRef}
-        className="relative min-h-0 border border-line-2 bg-panel px-[clamp(30px,5vw,60px)] py-[clamp(22px,3.4vh,42px)]"
+        className="relative aspect-square min-h-0 border border-line-2 bg-panel px-[clamp(30px,5vw,60px)] py-[clamp(22px,3.4vh,42px)] panel:aspect-auto"
       >
         <div className="relative h-full w-full">
           <svg
@@ -149,6 +149,7 @@ export function SkillsGraph() {
               <button
                 key={node.id}
                 type="button"
+                aria-label={node.label}
                 style={{ left: `${node.x}%`, top: `${node.y}%` }}
                 className={cn(
                   'absolute h-0 w-0 border-0 bg-transparent p-0 text-left',
@@ -173,10 +174,19 @@ export function SkillsGraph() {
                       'transition-[transform,border-color] duration-200 [transition-timing-function:cubic-bezier(.2,1.2,.4,1)]',
                   )}
                 />
+                {/* Node labels are `aria-hidden` and hidden outright below the
+                    `panel:` breakpoint (see file header) -- the button carries
+                    its own `aria-label`, so hiding this span costs nothing for
+                    assistive tech. Below 880px the panel is too narrow for 19
+                    `whitespace-nowrap` labels to coexist without overlapping
+                    each other and the hub captions (issue #347); the tap/
+                    focus/hover readout strip beneath the graph is the mobile
+                    substitute for reading a node's name. */}
                 <span
+                  aria-hidden="true"
                   className={cn(
-                    'absolute left-0 -translate-x-1/2 whitespace-nowrap tracking-[0.1em]',
-                    node.hub ? 'top-[16px] text-[10px]' : 'top-[12px] text-[10.5px]',
+                    'hidden tracking-[0.1em] panel:absolute panel:left-0 panel:block panel:-translate-x-1/2 panel:whitespace-nowrap',
+                    node.hub ? 'panel:top-[16px] panel:text-[10px]' : 'panel:top-[12px] panel:text-[10.5px]',
                     isActive ? 'text-fg' : 'text-dim',
                     !reducedMotion && 'transition-colors duration-200',
                   )}
