@@ -43,6 +43,13 @@ export interface PipelineCandidate {
 
 export const LEVIATHAN_HOOK = 'It never searches. It just knows.'
 
+/**
+ * Badge next to the project name (sample line 343: "SHIPPED · 2025").
+ * Résumé: Leviathan's project dates are "Jan 2025 – Dec 2025", so the
+ * project shipped within 2025.
+ */
+export const LEVIATHAN_BADGE = 'SHIPPED · 2025'
+
 export const LEVIATHAN_SUBTITLE = 'searchless transformer chess engine'
 
 export const LEVIATHAN_SUMMARY =
