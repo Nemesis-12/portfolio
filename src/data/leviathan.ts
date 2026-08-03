@@ -5,21 +5,21 @@
  *
  * Every headline figure below is sourced from `public/resume.pdf` (Projects
  * > Leviathan). Where the design reference (`ideas/Portfolio.html`,
- * gitignored, local-only) disagreed with the résumé, the résumé would win
+ * gitignored, local-only) disagreed with the resume, the resume would win
  * — in practice every figure here matched the reference exactly:
  *
- *   - 19ms per-move latency  — résumé: "…19ms per-move latency…"
- *   - 20M parameters         — résumé: "20M-parameter transformer…"
- *   - 3M+ positions trained  — résumé: "Trained on 3M+ chess positions…"
- *   - 8x KV-cache reduction  — résumé: "Reduced KV-cache memory footprint
+ *   - 19ms per-move latency  — resume: "…19ms per-move latency…"
+ *   - 20M parameters         — resume: "20M-parameter transformer…"
+ *   - 3M+ positions trained  — resume: "Trained on 3M+ chess positions…"
+ *   - 8x KV-cache reduction  — resume: "Reduced KV-cache memory footprint
  *                              by 8× through Multi-Head Latent Attention…"
- *   - 4,247-token vocabulary — résumé: "…into 4,247-token vocabulary for
+ *   - 4,247-token vocabulary — resume: "…into 4,247-token vocabulary for
  *                              single-token move prediction."
  *
  * The chess position, token ids, and candidate move sets used by the
  * pipeline widget are illustrative — they demonstrate the *shape* of the
  * pipeline (a real FEN, plausible token ids, plausible policy candidates),
- * not a specific factual claim from the résumé.
+ * not a specific factual claim from the resume.
  */
 
 export interface LeviathanStat {
@@ -45,7 +45,7 @@ export const LEVIATHAN_HOOK = 'It never searches. It just knows.'
 
 /**
  * Badge next to the project name (sample line 343: "SHIPPED · 2025").
- * Résumé: Leviathan's project dates are "Jan 2025 – Dec 2025", so the
+ * Resume: Leviathan's project dates are "Jan 2025 – Dec 2025", so the
  * project shipped within 2025.
  */
 export const LEVIATHAN_BADGE = 'SHIPPED · 2025'
@@ -92,14 +92,14 @@ export const LEVIATHAN_STATS: readonly LeviathanStat[] = [
 ]
 
 /**
- * Source and live demo. The résumé links the "Leviathan" project heading
- * itself to its HuggingFace Space — that is the only URL the résumé gives
+ * Source and live demo. The resume links the "Leviathan" project heading
+ * itself to its HuggingFace Space — that is the only URL the resume gives
  * for this project; it does not separately name a source repository (unlike
  * the MLA project below it, which lists GitHub and PyPI links explicitly).
  *
  * A HuggingFace Space is itself a git repository with a browsable Files
  * tab, so the same Space serves as both the source link and the live demo
- * here. That is a documented decision reusing the résumé's one real URL,
+ * here. That is a documented decision reusing the resume's one real URL,
  * not an invented one.
  */
 export const LEVIATHAN_LINKS: readonly LeviathanLink[] = [
@@ -107,10 +107,10 @@ export const LEVIATHAN_LINKS: readonly LeviathanLink[] = [
   { label: 'live demo', href: 'https://huggingface.co/spaces/NemesisTCO/LeviathanChess' },
 ]
 
-/** Illustrative input position for the pipeline widget — a legal FEN, not a résumé claim. */
+/** Illustrative input position for the pipeline widget — a legal FEN, not a resume claim. */
 export const PIPELINE_POSITION_FEN = 'r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R'
 
-/** Illustrative token ids for the tokenizer stage — shape only, not a résumé claim. */
+/** Illustrative token ids for the tokenizer stage — shape only, not a resume claim. */
 export const PIPELINE_TOKEN_IDS: readonly string[] = [
   '1102',
   '87',
@@ -147,5 +147,5 @@ export const PIPELINE_CANDIDATE_SETS: readonly (readonly PipelineCandidate[])[] 
   ],
 ]
 
-/** Résumé: "…19ms per-move latency…" — reused as the pipeline's output caption. */
+/** Resume: "…19ms per-move latency…" — reused as the pipeline's output caption. */
 export const PIPELINE_OUTPUT_META = '19 ms · one forward pass'

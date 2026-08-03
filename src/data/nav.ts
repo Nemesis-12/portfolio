@@ -16,20 +16,22 @@ export interface NavItem {
  * via the nav.
  *
  * Labels are `"{number} {chrome text}"`, matching the reference design's
- * `<nav>` markup verbatim (`ideas/Portfolio.html` lines 270-273): `01
- * PROJECTS`, `02 SKILLS`, `03 EDUCATION & EXPERIENCE`, `04 CONTACT`. The
- * reference renders the numeral as plain text jammed against the label
- * inside the same anchor -- no separate span, no dimming/sizing treatment
- * -- so it is reproduced the same way here rather than invented as a
- * distinct decorative element. Because it's plain text (not
- * `aria-hidden`), it's part of the link's accessible name too, matching
- * what the reference actually ships.
+ * `<nav>` markup verbatim (`ideas/Portfolio.html` lines 270-273) for three
+ * of the four: `01 PROJECTS`, `02 SKILLS`, `04 CONTACT`. The third renders
+ * `03 TIMELINE`, not the reference's `03 EDUCATION & EXPERIENCE` -- the
+ * owner renamed that section to "Timeline" (#330), and that rename
+ * overrides the reference here. The reference renders the numeral as
+ * plain text jammed against the label inside the same anchor -- no
+ * separate span, no dimming/sizing treatment -- so it is reproduced the
+ * same way here rather than invented as a distinct decorative element.
+ * Because it's plain text (not `aria-hidden`), it's part of the link's
+ * accessible name too.
  *
  * `number` and (for three of the four ids) the label text itself are
  * derived from `getSectionMeta(id)` rather than restated as string
  * literals here, so the nav and the section chrome it points at can't
  * drift apart independently. `contact` needs `NAV_TEXT_OVERRIDE`: that
- * section's `title` field (`src/data/sections.ts`) is résumé-facing body
+ * section's `title` field (`src/data/sections.ts`) is resume-facing body
  * content ("Get in touch"), not the sample's "CONTACT" nav chrome --
  * `Contact.tsx` doesn't even read `title` for its own headline, so there
  * is no section-chrome field to borrow from for that one id.

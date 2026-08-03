@@ -82,21 +82,16 @@ export const sections: SectionMeta[] = [
   },
   {
     id: 'path',
-    // Renamed from "Education and experience"/"Education & experience"
-    // (owner direction, #330): the nav destination is "Timeline", so the
-    // section's accessible name (`label`) stays "Timeline" -- that field
-    // is unread by any component today (aria-labelledby sources the
-    // landmark name from the real heading via `headingId`, not from
-    // this), so it doesn't need to track `eyebrow`/`title`.
-    //
-    // `eyebrow`/`title` themselves drifted from the sample to "03 ·
-    // TIMELINE"/"Timeline" at some point; the sample (lines 493-494) says
-    // "EDUCATION & EXPERIENCE" and `EducationExperience.tsx` renders
-    // `meta.title` directly as its own `<h2>`, so both are restored to
-    // match the sample verbatim (mochi/style-match audit).
+    // Renamed from "Education and experience"/"Education & experience" to
+    // "Timeline" (owner direction, #330). The design reference's sample
+    // (lines 493-494) still says "EDUCATION & EXPERIENCE", but the owner's
+    // rename overrides the reference for this section -- do not restore
+    // the reference's wording here again. `eyebrow`/`title`/`label` all
+    // read "TIMELINE"/"Timeline"; `EducationExperience.tsx` renders
+    // `meta.title` directly as its own `<h2>`.
     label: 'Timeline',
-    eyebrow: '03 · EDUCATION & EXPERIENCE',
-    title: 'EDUCATION & EXPERIENCE',
+    eyebrow: '03 · TIMELINE',
+    title: 'TIMELINE',
     // Real content (issue #320) lives in `src/data/timeline.ts` and is
     // rendered by `EducationExperience.tsx` directly, not through this
     // `blurb`/`SectionPlaceholder` -- this field is unused by that

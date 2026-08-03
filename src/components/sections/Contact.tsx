@@ -12,7 +12,7 @@ const meta = getSectionMeta('contact')
  * The headline and footer are chrome (no sample counterpart existed in the
  * previous version of this component) and are taken verbatim; the
  * statement and link copy/hrefs stay sourced from `src/data/contact.ts`,
- * which is résumé-derived and wins over the sample's own placeholder
+ * which is resume-derived and wins over the sample's own placeholder
  * prose.
  *
  * This is the last section and the page's densest run of links, so tab

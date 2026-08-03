@@ -9,16 +9,16 @@
  * header text is itself hyperlinked -- the underlying link targets were
  * read from the PDF's link annotations (via `pdftohtml`), not guessed:
  *
- *   - Email:    famohammed@shockers.wichita.edu (résumé header, printed)
- *   - GitHub:   https://github.com/Nemesis-12 (résumé header hyperlink)
- *   - LinkedIn: https://linkedin.com/in/fa-mohammed/ (résumé header hyperlink)
+ *   - Email:    famohammed@shockers.wichita.edu (resume header, printed)
+ *   - GitHub:   https://github.com/Nemesis-12 (resume header hyperlink)
+ *   - LinkedIn: https://linkedin.com/in/fa-mohammed/ (resume header hyperlink)
  *
- * The résumé link below points at `/resume.pdf`, the copy of this same PDF
+ * The resume link below points at `/resume.pdf`, the copy of this same PDF
  * tracked at `public/resume.pdf` and served from the site root -- the one
  * document that is the source of truth for every other fact on the page,
  * so it can never disagree with itself.
  *
- * `CONTACT_STATEMENT` is copy, not a résumé fact. It stays consistent with
+ * `CONTACT_STATEMENT` is copy, not a resume fact. It stays consistent with
  * `HERO_ROLE` in `src/data/hero.ts` ("ASPIRING ML + SYSTEMS + SOFTWARE
  * ENGINEER") rather than narrowing to ML alone.
  */
@@ -38,7 +38,7 @@ export interface ContactLink {
    */
   readonly detail: string
   readonly href: string
-  /** Opens in a new tab (external destinations); the résumé PDF and mailto stay same-behaviour as the rest. */
+  /** Opens in a new tab (external destinations); the resume PDF and mailto stay same-behaviour as the rest. */
   readonly external: boolean
 }
 
@@ -47,7 +47,7 @@ export const CONTACT_STATEMENT =
 
 /**
  * Footer line under the contact links (sample line 574: "FARHAN MOHAMMED ·
- * 2026"). The name is the résumé's own header ("Farhan Mohammed",
+ * 2026"). The name is the resume's own header ("Farhan Mohammed",
  * `public/resume.pdf`); the year is the current one, same as the sample's
  * own hardcoded "2026".
  */
@@ -77,7 +77,7 @@ export const CONTACT_LINKS: readonly ContactLink[] = [
   },
   {
     id: 'resume',
-    label: 'Résumé',
+    label: 'Resume',
     detail: 'the full write-up, as a PDF',
     href: '/resume.pdf',
     external: true,

@@ -3,36 +3,36 @@
  *
  * Every date, title, GPA, and honour below is sourced verbatim from
  * `public/resume.pdf`. Where the design reference (`ideas/Portfolio.html`,
- * gitignored, local-only) disagreed with or embellished the résumé, the
- * résumé wins:
+ * gitignored, local-only) disagreed with or embellished the resume, the
+ * resume wins:
  *
- *   - Degree titles use the résumé's exact wording ("Accelerated Master of
+ *   - Degree titles use the resume's exact wording ("Accelerated Master of
  *     Science in Computer Science", "Bachelor of Science in Computer
  *     Science") rather than the reference's abbreviated "MS/BS COMPUTER
  *     SCIENCE".
- *   - GPA and honour: résumé — "GPA: 3.66/4.0, Magna Cum Laude".
- *   - Dean's List range: résumé — "Dean's List: Spring 2022 – Fall 2025".
- *   - Thesis title: résumé — "Thesis: Generative Agent-Based Models for
+ *   - GPA and honour: resume — "GPA: 3.66/4.0, Magna Cum Laude".
+ *   - Dean's List range: resume — "Dean's List: Spring 2022 – Fall 2025".
+ *   - Thesis title: resume — "Thesis: Generative Agent-Based Models for
  *     Insider Threat Detection" (the reference lower-cased and shortened
  *     this).
- *   - Coursework lists reproduce the résumé's own course names rather than
+ *   - Coursework lists reproduce the resume's own course names rather than
  *     the reference's paraphrase ("Machine learning, AI, agents, data
  *     science").
  *   - The NetApp "Software Engineer Intern" role has exactly ONE bullet on
- *     the résumé; it is split into two here (endpoints/refactors vs. code
+ *     the resume; it is split into two here (endpoints/refactors vs. code
  *     review) rather than inventing a second fact the way the reference
  *     did ("Enough PR reviews to have opinions about naming" appears
- *     nowhere on the résumé and is deliberately not reproduced).
- *   - The "Software Engineer in Test" role's four résumé bullets are
+ *     nowhere on the resume and is deliberately not reproduced).
+ *   - The "Software Engineer in Test" role's four resume bullets are
  *     trimmed to the three most substantive, quantified ones (30% manual
  *     -config reduction, 300+ system configurations, 1M+ database
  *     entries) to fit the ticket's two-or-three-bullet limit; the
  *     dropped telemetry-pipeline bullet is the only one without a
  *     headline figure.
- *   - Date ranges reuse the résumé's own formatting exactly, including
+ *   - Date ranges reuse the resume's own formatting exactly, including
  *     the en dash and "(Expected)"/"Present" qualifiers.
  *
- * The two résumé roles at NetApp Inc. — "Software Engineer Intern" (Jun
+ * The two resume roles at NetApp Inc. — "Software Engineer Intern" (Jun
  * 2026 – Present) and "Software Engineer in Test" (Jul 2024 – Jun 2026) —
  * are represented as two distinct entries with their own date ranges, not
  * flattened into one.
@@ -45,13 +45,13 @@ export interface TimelineEntry {
   readonly status: TimelineStatus
   /** Short status word shown next to the status indicator, e.g. "Studying now". */
   readonly statusLabel: string
-  /** Résumé date range, reproduced verbatim. */
+  /** Resume date range, reproduced verbatim. */
   readonly dateRange: string
-  /** Résumé title, reproduced verbatim. */
+  /** Resume title, reproduced verbatim. */
   readonly title: string
   /** Short qualifier line -- GPA/honour, or a one-line role qualifier. */
   readonly qualifier: string
-  /** Two or three supporting bullets, each sourced from the résumé. */
+  /** Two or three supporting bullets, each sourced from the resume. */
   readonly bullets: readonly string[]
 }
 

@@ -24,7 +24,7 @@ const meta = getSectionMeta('top')
  * `R`=-2deg, `H`=3deg, `A`=-3deg, `N`=2deg, then `M`=2deg, `O`=-2deg,
  * `H`=3deg, `A`=-3deg, `M`=2deg, `M`=-2deg, `E`=3deg, `D`=-3deg). Applied
  * by letter INDEX, not by which letter it is, so this still works if
- * `HERO_NAME_FIRST`/`HERO_NAME_LAST` (résumé content) ever change length --
+ * `HERO_NAME_FIRST`/`HERO_NAME_LAST` (resume content) ever change length --
  * cycling via modulo rather than assuming an exact match.
  */
 const FIRST_LINE_ROTATIONS = [-3, 3, -2, 3, -3, 2]

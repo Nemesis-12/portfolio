@@ -27,7 +27,7 @@ interface SectionHeadingProps {
   title: string
   /** DOM id for the `<h2>`, matched by the parent `Section`'s `headingId`. */
   headingId: string
-  /** Right-hand label, e.g. "FEATURED". Omitted for Skills and Education & Experience. */
+  /** Right-hand label, e.g. "FEATURED". Omitted for Skills and Timeline. */
   label?: string
 }
 

@@ -1,6 +1,6 @@
 ## Problem Statement
 
-The current portfolio site presents Farhan's work as a conventional résumé in a browser: a graphite/orange theme, a list of skills, a git-log-styled timeline, and project cards. It says what he has done, but it does not *show* the thing he actually does — model internals, efficient inference, and systems work under constraint. A visitor learns the facts and forgets them.
+The current portfolio site presents Farhan's work as a conventional resume in a browser: a graphite/orange theme, a list of skills, a git-log-styled timeline, and project cards. It says what he has done, but it does not *show* the thing he actually does — model internals, efficient inference, and systems work under constraint. A visitor learns the facts and forgets them.
 
 A new design exists as a bundled Claude artifact at `ideas/Portfolio.html`. It makes a different argument: the page itself is a demonstration. The hero replays AlphaGo vs. Lee Sedol Game 4 stone by stone, highlighting move 78 — the move a human used to beat the machine. The featured project animates its own inference pipeline (position → tokens → attention → policy → move) as the visual argument for a searchless engine. Skills appear as a connected graph with hover notes rather than the skill-bar cliché that pretends "Python 87%" means something.
 
@@ -10,7 +10,7 @@ That design cannot ship as-is. It is not HTML and CSS — it is a Claude artifac
 
 Rewrite the portfolio from scratch in the existing stack (React 19 + TypeScript + Vite + Tailwind v4) to match the new design as closely as possible, fixing the defects rather than porting them.
 
-The visitor gets a six-section page where each section fills exactly one viewport above 880px, five switchable colour themes that persist across visits, a Go board that replays all 180 real moves of Game 4 with captures animating correctly, an animated inference pipeline for the featured project, an interactive skills graph that works with a mouse, a finger, or a keyboard, and a genuine mobile experience. Everything factual on the page is traceable to the résumé.
+The visitor gets a six-section page where each section fills exactly one viewport above 880px, five switchable colour themes that persist across visits, a Go board that replays all 180 real moves of Game 4 with captures animating correctly, an animated inference pipeline for the featured project, an interactive skills graph that works with a mouse, a finger, or a keyboard, and a genuine mobile experience. Everything factual on the page is traceable to the resume.
 
 Only `public/resume.pdf` survives from the current site. All existing components, tests, and stylesheets are deleted.
 
@@ -88,14 +88,14 @@ Only `public/resume.pdf` survives from the current site. All existing components
 53. As a visitor, I want current entries marked distinctly from finished ones, so that I know what is live.
 54. As a visitor, I want two or three supporting bullets per entry, so that I get substance without a wall of text.
 55. As a visitor on a phone, I want the entries to stack in a single readable column, so that nothing is cramped.
-56. As the site owner, I want every date, title, GPA, and honour to match the résumé exactly, so that nothing on the site contradicts the PDF a recruiter downloads.
+56. As the site owner, I want every date, title, GPA, and honour to match the resume exactly, so that nothing on the site contradicts the PDF a recruiter downloads.
 
 ### Contact
 
 57. As a visitor, I want a closing statement of what work is being sought, so that I know whether to get in touch.
-58. As a visitor, I want direct links to email, GitHub, LinkedIn, and the résumé, so that I can act immediately.
+58. As a visitor, I want direct links to email, GitHub, LinkedIn, and the resume, so that I can act immediately.
 59. As a visitor, I want each link labelled with what it actually is, so that I pick the right one first time.
-60. As a visitor, I want the résumé link to open the PDF that is the source of truth for the rest of the page, so that the two never disagree.
+60. As a visitor, I want the resume link to open the PDF that is the source of truth for the rest of the page, so that the two never disagree.
 
 ### Cross-cutting
 
@@ -148,8 +148,8 @@ Only `public/resume.pdf` survives from the current site. All existing components
 
 ### Content and copy
 
-- The reference's copy voice is adopted: short declaratives, dry humour, no résumé-speak. Individual lines are revisable.
-- **The résumé PDF is the source of truth for every fact.** Where the reference's copy and the résumé disagree, the résumé wins.
+- The reference's copy voice is adopted: short declaratives, dry humour, no resume-speak. Individual lines are revisable.
+- **The resume PDF is the source of truth for every fact.** Where the reference's copy and the resume disagree, the resume wins.
 - **Defect fixed:** the reference advertises `pip install mla-pytorch`. The real package is `multihead-latent-attention`.
 - All content lives in data modules. Components are pure presentation. This boundary is enforced by an architecture test.
 
@@ -243,7 +243,7 @@ Tested against the real Game 4 sequence and against hand-built fixtures covering
 
 Pure imports of the data modules, asserting facts rather than rendering.
 
-Covers: every date, title, GPA, and honour matches the résumé (a rewritten résumé audit); the committed Go game is well-formed — exactly 180 moves, strictly alternating colours, all coordinates within the 19×19 board, and move 78 is White at `ki`; and the data-versus-UI boundary holds, with canonical content living in data modules and not inside render components.
+Covers: every date, title, GPA, and honour matches the resume (a rewritten resume audit); the committed Go game is well-formed — exactly 180 moves, strictly alternating colours, all coordinates within the 19×19 board, and move 78 is White at `ki`; and the data-versus-UI boundary holds, with canonical content living in data modules and not inside render components.
 
 *Prior art:* `resume-audit.test.ts` and `architecture.test.ts`, both surviving in rewritten form.
 
@@ -263,7 +263,7 @@ Covers: every date, title, GPA, and honour matches the résumé (a rewritten ré
 - Reinstating the chess replay sequence.
 - Porting the reference's `zoom`-based fit routine as a fallback.
 - Adopting shadcn/ui components in this rewrite, though the groundwork is laid.
-- Redesigning the résumé PDF itself.
+- Redesigning the resume PDF itself.
 - Changing the deployment target or CI configuration beyond what the rewrite requires.
 
 ## Further Notes

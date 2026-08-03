@@ -7,7 +7,7 @@
  *
  * Facts (name) are traceable to `public/resume.pdf`. The tagline is copy,
  * not fact, and follows the design reference (`ideas/Portfolio.html`)
- * where the résumé has no equivalent to contradict. The role line is the
+ * where the resume has no equivalent to contradict. The role line is the
  * project owner's explicit wording choice and deliberately departs from
  * the reference -- it is not meant to track it.
  */
@@ -20,9 +20,9 @@ export const HERO_TAGLINE = 'I build things that are fun.'
 /**
  * Hero stat-strip tiles (sample lines 307-311, mochi/style-match). The
  * sample's own tile text ("SWE Intern · NetApp", "MS Computer Science") is
- * itself résumé-shaped content, not decorative chrome, so it is restated
+ * itself resume-shaped content, not decorative chrome, so it is restated
  * here from `public/resume.pdf` rather than copied from the sample
- * verbatim: résumé lists the current NetApp role as "Software Engineer
+ * verbatim: resume lists the current NetApp role as "Software Engineer
  * Intern" (Jun 2026 - Present) and the degree as "Accelerated Master of
  * Science in Computer Science" (Wichita State, Jan 2026 - May 2027
  * expected). Both values below abbreviate those same facts the same way

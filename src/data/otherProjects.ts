@@ -9,15 +9,15 @@
  * Every fact below is sourced from `public/resume.pdf`:
  *
  *   - MLA translated from DeepSeek-V2 into a modular PyTorch implementation
- *     with clean KV-compression/low-rank-projection abstractions — résumé:
+ *     with clean KV-compression/low-rank-projection abstractions — resume:
  *     "Translated Multi-Head Latent Attention from DeepSeek-V2 research
  *     into modular PyTorch implementation, designing clean abstractions
  *     for KV compression and low-rank projection components."
  *   - Packaged as a production-ready PyPI library with type hints,
- *     documentation, and integration examples — résumé: "Packaged
+ *     documentation, and integration examples — resume: "Packaged
  *     implementation as production-ready PyPI library with type hints,
  *     documentation, and integration examples."
- *   - GitHub + PyPI URLs — taken from the résumé PDF's own link
+ *   - GitHub + PyPI URLs — taken from the resume PDF's own link
  *     annotations (not typed by hand): both point at
  *     `Nemesis-12/multihead-latent-attention`, confirming the real PyPI
  *     package name. The design reference advertises `pip install
@@ -25,27 +25,27 @@
  *     this issue also fixes; the correct command is
  *     `pip install multihead-latent-attention`.
  *   - Thesis title "Generative Agent-Based Models for Insider Threat
- *     Detection" — résumé, Education > Wichita State University
+ *     Detection" — resume, Education > Wichita State University
  *     (Accelerated MS in Computer Science).
- *   - Program dates "Jan 2026 – May 2027 (Expected)" — résumé, same entry.
+ *   - Program dates "Jan 2026 – May 2027 (Expected)" — resume, same entry.
  *     The sample's own stat label for this figure is "DEFENSE" (sample
  *     line 453), which is restored here per the owner's chrome-is-verbatim
- *     ruling (mochi/style-match audit) — but the résumé gives no separate
+ *     ruling (mochi/style-match audit) — but the resume gives no separate
  *     thesis-defence date, only the program's own expected-completion
  *     date, so the value shown is that expected date ("MAY" / "2027"),
  *     never a fabricated specific day.
  *   - The sample's second thesis stat (line 454) is "AGENTS" / "LLM",
  *     restored verbatim as chrome too — it restates the thesis's own
- *     premise (LLM agents) rather than a résumé figure, so nothing is
+ *     premise (LLM agents) rather than a resume figure, so nothing is
  *     invented by using it. This replaces the "Relevant Coursework: NLP,
  *     Reinforcement Learning" stat a previous pass showed under this
  *     label; that fact has no sample counterpart at this position and is
- *     not otherwise lost — it remains on the résumé/Education section.
+ *     not otherwise lost — it remains on the resume/Education section.
  *
  * The agent-dot cluster illustrating the thesis is an illustrative
  * visualization of the thesis's own premise (simulated organizations of
  * LLM agents, some behaving as insider threats) — not a claim about a
- * specific simulation size or result, neither of which the résumé states.
+ * specific simulation size or result, neither of which the resume states.
  */
 
 export interface OtherProjectStat {
@@ -78,7 +78,7 @@ export const MLA_DESCRIPTION =
 /** The exact command a visitor can copy and run in one step (issue #318 acceptance criteria). */
 export const MLA_INSTALL_COMMAND = 'pip install multihead-latent-attention'
 
-/** Both URLs come from the résumé PDF's own link annotations. */
+/** Both URLs come from the resume PDF's own link annotations. */
 export const MLA_LINKS: readonly OtherProjectLink[] = [
   { label: 'source', href: 'https://github.com/Nemesis-12/multihead-latent-attention' },
   { label: 'package', href: 'https://pypi.org/project/multihead-latent-attention' },
@@ -88,13 +88,13 @@ export const MLA_LINKS: readonly OtherProjectLink[] = [
  * Stat footer (sample lines 434-435: "COMPRESSION 8×" / "TYPED 100%") —
  * missing from the card entirely before this pass.
  *
- *   - COMPRESSION 8× — résumé: "Reduced KV-cache memory footprint by 8×
+ *   - COMPRESSION 8× — resume: "Reduced KV-cache memory footprint by 8×
  *     through Multi-Head Latent Attention implementation." That figure is
  *     stated under the Leviathan project bullet, but it is the compression
  *     ratio of the exact same MLA implementation this card is about, so it
  *     is reused here rather than invented.
- *   - TYPED 100% — résumé: "Packaged implementation as production-ready
- *     PyPI library with type hints..." The résumé states the library is
+ *   - TYPED 100% — resume: "Packaged implementation as production-ready
+ *     PyPI library with type hints..." The resume states the library is
  *     fully typed but gives no numeric percentage; "100%" is the literal
  *     reading of "fully typed" onto the sample's own stat shape, not a
  *     fabricated measurement.
@@ -120,5 +120,5 @@ export const THESIS_STATS: readonly OtherProjectStat[] = [
   { label: 'AGENTS', value: 'LLM' },
 ]
 
-/** Number of dots in the illustrative agent cluster — a display choice, not a résumé figure. */
+/** Number of dots in the illustrative agent cluster — a display choice, not a resume figure. */
 export const AGENT_DOT_COUNT = 24
