@@ -24,11 +24,11 @@ import { ThemePicker } from './ThemePicker'
  * `panel:`-gated classes inside `MobileNav`/`ThemePicker`/`Clock`
  * themselves rather than here. This component still owns the ordering:
  * `MobileNav`'s wrapper is `order-last` (inert at desktop, where it's
- * `panel:hidden` and out of flow entirely) and `ThemePicker` carries the
- * `ml-auto` below 880px (the inline `<nav>` supplies it above 880px, so
- * `ThemePicker` cancels its own with `panel:ml-0` there) so the trailing
- * group -- theme picker, clock, hamburger, in that DOM/visual order --
- * is pushed flush right as one unit.
+ * `panel:hidden` and out of flow entirely) and `ThemePicker`'s own flex-item
+ * root carries the `ml-auto` below 880px (the inline `<nav>` supplies it
+ * above 880px, so `ThemePicker` cancels its own with `panel:ml-0` there) so
+ * the trailing group -- theme picker, clock, hamburger, in that DOM/visual
+ * order -- is pushed flush right as one unit.
  *
  * Fixed-header / scroll-snap interaction: `scroll-snap-align: start`
  * (`.section-shell`, src/styles/layout.css) aligns each section to the

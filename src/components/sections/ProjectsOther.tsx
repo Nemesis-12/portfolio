@@ -113,9 +113,19 @@ export function ProjectsOther() {
          * edge either way).
          */}
         {/* minmax(min(320px,100%),1fr): same overflow guard as ProjectsFeatured's grid -- caps the column floor at the container's own width below 880px, a no-op above it. */}
+        {/*
+         * `auto-rows-fr` (below 880px, `auto-fit` only fits one column, so
+         * MLA and Thesis land in two separate grid ROWS, not two columns in
+         * one row -- `align-items: stretch` only equalises siblings sharing
+         * a row, so it did nothing there and Thesis rendered at its own,
+         * shorter, content height). Flexed auto rows with an indefinite
+         * grid-container height resolve every row to the tallest row's own
+         * content size, so both cards end up equal without touching the
+         * 880px+ single-row case (a no-op there, same as today).
+         */}
         <div
           ref={fitRef}
-          className="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-[clamp(14px,1.6vw,20px)]"
+          className="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] auto-rows-fr gap-[clamp(14px,1.6vw,20px)]"
         >
           {OTHER_PROJECTS.map((project) => (
             <OtherProjectCard key={project.id} project={project} />

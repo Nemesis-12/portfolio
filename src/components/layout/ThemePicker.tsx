@@ -95,7 +95,12 @@ export function ThemePicker() {
   }
 
   return (
-    <div ref={containerRef} className="relative">
+    // `ml-auto` lives here, not on the button: this `div` is the actual flex
+    // item in the header row, so it's the element that needs the auto margin
+    // to consume the row's free space. Putting it on the button (an in-flow
+    // child of this shrink-wrapped div, not itself a flex item of the row)
+    // had no free space to push into, so it visually did nothing.
+    <div ref={containerRef} className="relative ml-auto panel:ml-0">
       <button
         ref={triggerRef}
         type="button"
@@ -105,17 +110,17 @@ export function ThemePicker() {
         aria-label={`Theme: ${activeTheme.name}`}
         onClick={() => setOpen((value) => !value)}
         className={cn(
-          // `ml-auto` pushes the trailing group (swatch, clock, hamburger)
-          // flush to the header's right edge below 880px; the inline
-          // `<nav>` supplies its own `ml-auto` at panel width, so this one
-          // is cancelled there to avoid stacking two auto margins.
-          'ml-auto flex h-[30px] w-[30px] shrink-0 items-center justify-center gap-[8px] border-0 bg-transparent p-0',
-          'panel:ml-0 panel:h-auto panel:w-auto panel:justify-start panel:border panel:border-line-2 panel:px-[10px] panel:py-[7px]',
+          'flex h-[30px] w-[30px] shrink-0 items-center justify-center gap-[8px] border-0 bg-transparent p-0',
+          'panel:h-auto panel:w-auto panel:justify-start panel:border panel:border-line-2 panel:px-[10px] panel:py-[7px]',
           'font-mono text-[10px] tracking-[0.16em] text-dim',
           'transition-[color,border-color] duration-150 hover:border-accent hover:text-fg',
         )}
       >
-        <span aria-hidden="true" className="h-[14px] w-[14px] panel:hidden" style={{ background: activeTheme.swatch[0] }} />
+        {/* Mobile trigger uses swatch[1] (the accent colour), not swatch[0]
+            (the background colour) -- swatch[0] on every theme is near-black,
+            near-identical to the header's own background, so a single dot in
+            that colour was rendering but effectively invisible. */}
+        <span aria-hidden="true" className="h-[14px] w-[14px] panel:hidden" style={{ background: activeTheme.swatch[1] }} />
         <span aria-hidden="true" className="hidden gap-[2px] panel:flex">
           {activeTheme.swatch.map((color, index) => (
             <span key={index} className="h-[9px] w-[9px]" style={{ background: color }} />
