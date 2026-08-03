@@ -61,6 +61,18 @@ body {
   background-color: rgb(var(--bg));
   color: rgb(var(--fg));
   font-family: var(--font-mono);
+  /*
+   * Sample line 264 (`ideas/Portfolio.html`): the page wrapper sets
+   * `font-size:15px;line-height:1.6;overflow-x:clip`. Base font-size and
+   * line-height are what every unstyled/inherited piece of text on the
+   * page falls back to; without them here neither was ever set, so text
+   * fell back to the browser default (16px/normal) instead. `body` is
+   * this app's document-level counterpart of the sample's single page
+   * wrapper div, so all three properties land here.
+   */
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: clip;
 }
 
 /*
@@ -76,4 +88,44 @@ body {
 :focus-visible {
   outline: 2px solid rgb(var(--accent));
   outline-offset: 3px;
+}
+
+/*
+ * Global keyframes ported verbatim from the sample (lines 254-255,
+ * `ideas/Portfolio.html`) -- `blink` drives the header clock caret and the
+ * hero tagline cursor, `pulse` drives "in progress" style badges (e.g. the
+ * THESIS "RUNNING" badge on the second projects screen). Declared once
+ * here rather than per-component so every consumer references the same
+ * names the sample uses (`animation:blink ...`, `animation:pulse ...`).
+ *
+ * Scoped to `prefers-reduced-motion: no-preference`, not zeroed via
+ * `animation-duration:.001ms !important` the way the sample's own global
+ * reduced-motion rule does -- that trick still *plays* every animation,
+ * just instantly, which is the opposite of what the preference asks for.
+ * A reduced-motion visitor gets no `blink`/`pulse` animation applied at
+ * all; consumers should pick a sensible resting state (e.g. opacity: 1)
+ * for that case, same pattern as `.hero-cursor`/`.hero-stone` in
+ * src/styles/hero.css.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
 }

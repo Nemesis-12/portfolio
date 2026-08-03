@@ -51,7 +51,16 @@ export function HeroTagline({ text, className }: HeroTaglineProps) {
   return (
     <p className={cn('min-h-[1.6em]', className)}>
       {visible}
-      <span aria-hidden="true" className="hero-cursor ml-[0.12em] inline-block h-[1em] w-[0.5em] translate-y-[0.12em] bg-accent align-text-bottom" />
+      {/*
+       * Sample line 306: `.5em` wide, `1em` tall, `vertical-align:-.12em`,
+       * `margin-left:.12em`, `background:var(--accent)`. Tailwind has no
+       * bare `align-[...]` utility for `vertical-align`, so it's set via
+       * the arbitrary-property escape hatch.
+       */}
+      <span
+        aria-hidden="true"
+        className="hero-cursor ml-[0.12em] inline-block h-[1em] w-[0.5em] bg-accent [vertical-align:-.12em]"
+      />
     </p>
   )
 }

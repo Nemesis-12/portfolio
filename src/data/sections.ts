@@ -16,59 +16,95 @@ export interface SectionMeta {
   title: string
   /** Placeholder supporting line. */
   blurb: string
+  /**
+   * The chrome section number shown next to the title in `SectionHeading`
+   * (`src/components/layout/SectionHeading.tsx`), e.g. "01" -- sample
+   * lines 332-337, 417-422, 461-465, 492-496. Empty for sections that
+   * don't use that heading row (`top`, `contact`).
+   */
+  number: string
+  /**
+   * The right-hand label in `SectionHeading`'s rule row, e.g. "FEATURED" --
+   * sample lines 336, 421. `undefined` for sections whose sample markup
+   * has no fourth span (`skills`, `path`) as well as those that don't use
+   * the component at all (`top`, `contact`).
+   */
+  label2?: string
 }
 
 export const sections: SectionMeta[] = [
   {
     id: 'top',
     label: 'Hero',
-    eyebrow: '00 · HELLO',
+    // The sample's hero (lines 294-328) has no eyebrow row of the
+    // "NN · WORD" shape every other section uses above its heading --
+    // `00 · HELLO` here was invented with no sample counterpart
+    // (mochi/style-match audit). `Hero.tsx` doesn't read this field at
+    // all (its own eyebrow line is `HERO_ROLE` from `src/data/hero.ts`),
+    // but it's cleared so the data doesn't assert a row that was never
+    // real.
+    eyebrow: '',
     title: 'Farhan Mohammed',
     blurb: 'Placeholder hero copy — the Go board replay lands in #316.',
+    number: '',
   },
   {
     id: 'projects',
     label: 'Projects — featured',
     eyebrow: '01 · PROJECTS',
-    title: 'Leviathan',
+    // Chrome heading text for `SectionHeading` (sample lines 332-337) --
+    // distinct from `ProjectsFeatured.tsx`'s own hardcoded "Leviathan"
+    // project-name heading, which this field is not consumed by.
+    title: 'PROJECTS',
     blurb: 'Placeholder featured-project copy — full content lands in #317.',
+    number: '01',
+    label2: 'FEATURED',
   },
   {
     id: 'more',
     label: 'Projects — other',
     eyebrow: '',
-    title: 'Other work',
+    // Sample lines 417-422: the second projects screen repeats "01
+    // PROJECTS" verbatim (same number as `projects`, not a new one).
+    title: 'PROJECTS',
     blurb: 'Placeholder secondary-projects copy — full content lands in #318.',
+    number: '01',
+    label2: 'THE OTHER STUFF I WORKED ON',
   },
   {
     id: 'skills',
     label: 'Skills',
     eyebrow: '02 · SKILLS',
-    title: 'Skills',
+    title: 'SKILLS',
     blurb: 'Placeholder skills-graph copy — full content lands in #319.',
+    number: '02',
+    // No fourth span in the sample's Skills heading row (lines 461-465).
   },
   {
     id: 'path',
     // Renamed from "Education and experience"/"Education & experience"
     // (owner direction, #330): the nav destination is "Timeline", so the
-    // section's accessible name (`label`), visible heading (`title`), and
-    // eyebrow all agree with it -- eyebrow follows the same
-    // "NN · <primary word, uppercased>" convention every other section
-    // uses (PROJECTS, SKILLS, CONTACT each echo their own `label`/`title`
-    // word, not the old id), so it becomes TIMELINE rather than PATH.
-    // `id` stays 'path' -- other branches and every scroll/nav target
-    // depend on it. `blurb` was placeholder copy owned by #320; it is
-    // now updated below and no longer consumed by this section's real
-    // content (`src/components/sections/EducationExperience.tsx`).
+    // section's accessible name (`label`) stays "Timeline" -- that field
+    // is unread by any component today (aria-labelledby sources the
+    // landmark name from the real heading via `headingId`, not from
+    // this), so it doesn't need to track `eyebrow`/`title`.
+    //
+    // `eyebrow`/`title` themselves drifted from the sample to "03 ·
+    // TIMELINE"/"Timeline" at some point; the sample (lines 493-494) says
+    // "EDUCATION & EXPERIENCE" and `EducationExperience.tsx` renders
+    // `meta.title` directly as its own `<h2>`, so both are restored to
+    // match the sample verbatim (mochi/style-match audit).
     label: 'Timeline',
-    eyebrow: '03 · TIMELINE',
-    title: 'Timeline',
+    eyebrow: '03 · EDUCATION & EXPERIENCE',
+    title: 'EDUCATION & EXPERIENCE',
     // Real content (issue #320) lives in `src/data/timeline.ts` and is
     // rendered by `EducationExperience.tsx` directly, not through this
     // `blurb`/`SectionPlaceholder` -- this field is unused by that
     // section now, but is kept meaningful rather than left as
     // placeholder copy, since `SectionMeta` still requires it.
     blurb: 'Education and experience, side by side.',
+    number: '03',
+    // No fourth span in the sample's heading row (lines 492-496).
   },
   {
     id: 'contact',
@@ -76,6 +112,9 @@ export const sections: SectionMeta[] = [
     eyebrow: '04 · CONTACT',
     title: 'Get in touch',
     blurb: 'What work is being sought, and direct links to reach out.',
+    // Contact doesn't use `SectionHeading` (sample lines 560-564 differ
+    // from the shared row) -- `number`/`label2` are unread here.
+    number: '04',
   },
 ]
 

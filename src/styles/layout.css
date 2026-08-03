@@ -192,17 +192,24 @@
  *    lands at the exact top of the target element, same problem.
  * `scroll-padding-top` shifts the effective top of the scrollport down by
  * the header's height for both cases, so neither ever lands under it.
+ *
+ * `scroll-snap-type: y proximity` (sample line 245) is applied here
+ * ungated -- at ALL widths, not just at/above 880px. `proximity` only
+ * snaps when a scroll gesture naturally comes to rest near a snap point;
+ * below 880px sections have no fixed height (`.section-shell` only gains
+ * `min-height: 100dvh` + `scroll-snap-align: start` in the 880px block
+ * below), so there's nothing for it to snap TO yet at narrow widths --
+ * this property alone is inert until a section actually opts in. It was
+ * previously `y mandatory`, gated behind the 880px block; the sample
+ * never uses `mandatory` and never gates this property at all.
  */
 :root {
   scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
   scroll-padding-top: var(--header-h, 4.5rem);
 }
 
 @media (min-width: 880px) {
-  :root {
-    scroll-snap-type: y mandatory;
-  }
-
   /*
    * Padding matches the design reference's own section padding exactly:
    * `padding: clamp(64px,9vh,88px) clamp(20px,4vw,56px) clamp(18px,4vh,44px)`.
@@ -220,15 +227,36 @@
 }
 
 /*
- * This block must stay AFTER the `min-width: 880px` block above: both
- * rules target `:root` at equal specificity, so when a reduced-motion
- * user is also above 880px, source order (not just specificity) decides
- * which wins. Placing this last guarantees reduced motion always relaxes
- * snapping and smooth scrolling, regardless of viewport width.
+ * This block must stay AFTER the base `:root` rule above (and after the
+ * `min-width: 880px` block): all target `:root` at equal specificity, so
+ * when a reduced-motion user is also above 880px, source order (not just
+ * specificity) decides which wins. Placing this last guarantees reduced
+ * motion always relaxes snapping and smooth scrolling, regardless of
+ * viewport width -- `scroll-snap-type: y proximity` above is now applied
+ * at every width, so this override matters at every width too.
  */
 @media (prefers-reduced-motion: reduce) {
   :root {
     scroll-behavior: auto;
     scroll-snap-type: none;
+  }
+}
+
+/*
+ * Sample lines 256-258 -- the sample's ONLY media query, reproduced
+ * verbatim. `[data-pathgrid]` is `EducationExperience.tsx`'s Education &
+ * Experience grid (`grid-auto-flow: column` above 880px, laid out as
+ * side-by-side columns); below 880px it forces the grid back to normal
+ * document flow (`row` auto-flow, no fixed row template, no max-height
+ * clamp) so the grid can stack and grow instead of staying pinned to a
+ * column layout that no longer fits. 880px stays the one hard breakpoint
+ * in this file -- this is the same threshold as the `.section-shell`
+ * block above, just inverted (releases a layout instead of applying one).
+ */
+@media (max-width: 880px) {
+  [data-pathgrid] {
+    grid-auto-flow: row !important;
+    grid-template-rows: none !important;
+    max-height: none !important;
   }
 }
