@@ -39,12 +39,28 @@ export function EducationExperience() {
        * normal document flow below 880px. `data-fit` keeps the existing
        * `useFitToViewport` shrink-to-fit wired up, matching the sample's
        * own `data-fit` attribute on this same element (line 498).
+       *
+       * Deliberately NOT `flex-1` (mochi/style-match audit, same call as
+       * `ProjectsOther`/`ProjectsFeatured`): rendering the sample's own
+       * markup standalone shows `flex:1` + `max-height:720px` inflates
+       * this grid to the full 720px regardless of how little the four
+       * cells actually need, and because the cells are
+       * `justify-content:flex-start` (not centered or bottom-anchored),
+       * that slack lands as dead space *below* every cell's content
+       * instead of being absorbed anywhere -- reproducible from the
+       * sample's own bytes. Without `flex-1` the grid's two
+       * `minmax(0,1fr)` entry rows fall back to sizing each row from its
+       * own tallest cell's actual content instead of splitting a forced
+       * 720px evenly, `max-height` stays only as an emergency ceiling for
+       * unusually long bullet lists, and `.section-shell`'s
+       * `justify-content:center` centers the (heading + grid) block in
+       * the section -- matching "shrink to fit, never inflate to fill".
        */}
       <div
         ref={fitRef}
         data-pathgrid=""
         data-fit=""
-        className="mt-[var(--space-fit-margin-tight)] grid grid-flow-col auto-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)] gap-px border border-line-2 bg-line max-h-[720px] flex-1"
+        className="mt-[var(--space-fit-margin-tight)] grid grid-flow-col auto-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)] gap-px border border-line-2 bg-line max-h-[720px]"
       >
         <TimelineColumnCells column={EDUCATION_COLUMN} kind="education" />
         <TimelineColumnCells column={EXPERIENCE_COLUMN} kind="experience" />
