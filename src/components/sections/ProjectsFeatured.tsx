@@ -82,14 +82,22 @@ export function ProjectsFeatured() {
          * unconditional grid (line 339); `minmax(340px,1fr)` alone
          * collapses it to one column once two 340px panes no longer fit
          * side by side, no `panel:` breakpoint switch needed for the
-         * columns themselves. `items-start` stops CSS Grid's own default
-         * (`align-items:stretch`) from forcing the shorter column to
-         * stretch and match the taller one -- without it, whichever
-         * column is shorter gets force-expanded with nothing inside it to
-         * fill that space, recreating the same kind of interior void this
-         * pass removes. The inference-pipeline column legitimately needs
-         * more height than the text column at this content length; that
-         * asymmetry is left alone rather than forced to match.
+         * columns themselves. CSS Grid's default `align-items: stretch`
+         * is deliberately left in effect (mochi/style-match audit, defect
+         * 3): an `items-start` override here previously left the
+         * inference-pipeline column's `bg-panel-2` fill only as tall as
+         * `InferencePipeline`'s own content, short of the taller text
+         * column's height, so the panel's darker background stopped short
+         * of the card's bottom edge with the card's own `bg-panel`
+         * showing through the gap underneath -- a visual glitch, not an
+         * interior-void case (the void concern that motivated
+         * `items-start` doesn't apply here: this column already carries a
+         * background colour and a `justify-center` flex column ready to
+         * centre its content in extra height, so stretching it fills the
+         * column with intentional panel chrome instead of dead space).
+         * With stretch restored, the right column's box -- and its
+         * background -- now matches the left (taller, content-defining)
+         * column's height on every render.
          *
          * No `max-h` here (mochi/style-match task 2 finding, applied here
          * too): a fixed cap disconnects this box's own rendered size from
@@ -103,7 +111,7 @@ export function ProjectsFeatured() {
          */}
         <div
           ref={fitRef}
-          className="grid grid-cols-[repeat(auto-fit,minmax(340px,1fr))] items-start border border-line-2 bg-panel"
+          className="grid grid-cols-[repeat(auto-fit,minmax(340px,1fr))] border border-line-2 bg-panel"
         >
           <div className="flex min-w-0 flex-col gap-[var(--space-fit-xs)] p-[clamp(16px,2.4vh,30px)_clamp(18px,2.2vw,30px)]">
             {/*
