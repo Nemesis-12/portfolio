@@ -51,13 +51,17 @@
  * LLM agents, some behaving as insider threats) — not a claim about a
  * specific simulation size or result, neither of which the resume states.
  *
- * `THESIS_PROJECT`'s `tagline`/`description` were rewritten per an explicit
- * owner correction (post-#318): the thesis's real aim is studying the
- * behavioural precursors that might drift someone toward becoming an
- * insider threat, before any damage occurs — not detecting a breach after
- * the fact, and not generating an attack dataset. No numbers, dataset
- * names, accuracy figures, or citations are invented here or in the copy;
- * this is an unpublished prototype and none exist in the source material.
+ * `THESIS_PROJECT`'s `tagline`/`description` were rewritten twice: first
+ * per an explicit owner correction (post-#318) to state the thesis's real
+ * aim — studying the build-up that might drift someone toward becoming an
+ * insider threat, before any damage occurs, not detecting a breach after
+ * the fact and not generating an attack dataset; then again per a second
+ * owner correction (thesis-copy) to strip the remaining theory jargon
+ * ("LLM personas", "OCC appraisal", "PAD mood", "JD-R stress",
+ * "precursors") so a non-technical reader gets the idea on first read. No
+ * numbers, dataset names, accuracy figures, or citations are invented
+ * here or in the copy; this is an unpublished prototype and none exist in
+ * the source material.
  */
 
 export interface OtherProjectStat {
@@ -179,15 +183,18 @@ const THESIS_PROJECT: OtherProject = {
   badge: { label: 'RUNNING', year: 2026, blink: true },
   /**
    * `tagline`/`description` rewritten per an explicit owner correction: the
-   * thesis studies the behavioural precursors that might drift someone
-   * toward becoming an insider threat, before any damage occurs -- it is
-   * not a post-breach detector and not an attack-log generator. See the
-   * file header for the fuller note; no numbers/datasets/citations are
-   * invented, as none exist yet for this unpublished prototype.
+   * thesis studies the slow build-up — stress, resentment, feeling
+   * treated unfairly — that might drift someone toward becoming an
+   * insider threat, before any damage occurs -- it is not a post-breach
+   * detector and not an attack-log generator. A second owner correction
+   * (thesis-copy) then stripped the remaining theory jargon so the copy
+   * reads in plain words on first pass. See the file header for the
+   * fuller note; no numbers/datasets/citations are invented, as none
+   * exist yet for this unpublished prototype.
    */
-  tagline: 'Not the breach. The build-up to it.',
+  tagline: 'Not the breach. The build-up.',
   description:
-    'A simulated office of LLM personas layered with OCC appraisal, PAD mood, and JD-R stress — tracing how grievance and strain drift toward insider risk, the precursors, not the breach.',
+    'A simulated office of AI workers with their own moods and feelings, tracking how stress and unfair treatment build up over time — the warning signs before someone turns against their employer.',
   interactive: { kind: 'agent-cluster' },
   stats: [
     { label: 'DEFENSE', value: 'SPRING', suffix: '2027' },
