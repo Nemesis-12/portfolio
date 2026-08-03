@@ -29,6 +29,19 @@ import { DEFAULT_THEME_ID, THEMES } from '@/theme/themes'
  * state, seeded from whatever was already stored (or the default) so a
  * page that loaded with a previously-chosen theme shows the right theme
  * immediately rather than flashing back to ORIGINAL.
+ *
+ * Mobile-only collapse (owner review on #314's PR): below the 880px
+ * `panel:` breakpoint the trigger has no room for the full swatch row,
+ * the visible theme name, or its own bordered box (three colour squares
+ * plus "ORIGINAL" inside a wide border was measured overflowing/colliding
+ * with the hamburger at phone widths). Below `panel:` the trigger renders
+ * as one square swatch (the active theme's first colour) with no border
+ * and no visible text; `aria-label` (not the visible name text, which is
+ * `hidden` and therefore stripped from the accessible name below the
+ * breakpoint) carries the accessible name at every width, so the control
+ * stays keyboard-operable and namer-complete on its own regardless of
+ * which visual it's rendering. `panel:` classes restore the desktop
+ * swatch row, name, and bordered box exactly as before.
  */
 export function ThemePicker() {
   const [themeId, setThemeId] = useState(() => getStoredThemeId() ?? DEFAULT_THEME_ID)
@@ -89,20 +102,24 @@ export function ThemePicker() {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
+        aria-label={`Theme: ${activeTheme.name}`}
         onClick={() => setOpen((value) => !value)}
         className={cn(
-          'flex items-center gap-[8px] border border-line-2 bg-transparent px-[10px] py-[7px]',
+          'flex h-[30px] w-[30px] shrink-0 items-center justify-center gap-[8px] border-0 bg-transparent p-0',
+          'panel:h-auto panel:w-auto panel:justify-start panel:border panel:border-line-2 panel:px-[10px] panel:py-[7px]',
           'font-mono text-[10px] tracking-[0.16em] text-dim',
           'transition-[color,border-color] duration-150 hover:border-accent hover:text-fg',
         )}
       >
-        <span aria-hidden="true" className="flex gap-[2px]">
+        <span aria-hidden="true" className="h-[14px] w-[14px] panel:hidden" style={{ background: activeTheme.swatch[0] }} />
+        <span aria-hidden="true" className="hidden gap-[2px] panel:flex">
           {activeTheme.swatch.map((color, index) => (
             <span key={index} className="h-[9px] w-[9px]" style={{ background: color }} />
           ))}
         </span>
-        <span className="sr-only">Theme: </span>
-        {activeTheme.name}
+        <span aria-hidden="true" className="hidden panel:inline">
+          {activeTheme.name}
+        </span>
       </button>
 
       {open ? (

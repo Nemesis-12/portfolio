@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { navItems } from '@/data/nav'
 import { cn } from '@/lib/cn'
 
@@ -49,6 +50,22 @@ import { cn } from '@/lib/cn'
  *    trap -- Tab still leaves the panel, it just has nothing invisible
  *    left to land on) is applied to everything else in the document while
  *    open and lifted on close.
+ *
+ * The open panel itself is rendered through a `createPortal` into
+ * `document.body` rather than in place. `Header.tsx`'s `<header>` sets
+ * `backdrop-blur-[9px]` (a `filter`), which per the CSS containing-block
+ * rules makes `header` itself the containing block for any
+ * `position:fixed` descendant -- so a plain in-place `fixed inset-0` here
+ * sizes/positions against the header's own (content-sized) box instead of
+ * the viewport. The header's auto height is set only by its normal-flow
+ * top bar, so the panel's background box ended up pinned to that thin
+ * strip while its flex content overflowed downward past it, unbacked,
+ * directly on top of the real page -- the "transparent panel, floating
+ * nav text over the hero" defect this shipped with. Portalling to
+ * `document.body` (which has no containing-block-establishing ancestor)
+ * restores `fixed inset-0` to a solid, opaque, full-viewport surface, with
+ * the four nav links sitting on top of it and nothing else visible
+ * through it.
  */
 export function MobileNav() {
   const [open, setOpen] = useState(false)
@@ -107,7 +124,7 @@ export function MobileNav() {
   const close = () => setOpen(false)
 
   return (
-    <div ref={wrapperRef} className="ml-auto panel:hidden">
+    <div ref={wrapperRef} className="order-last panel:hidden">
       <button
         ref={triggerRef}
         type="button"
@@ -142,43 +159,43 @@ export function MobileNav() {
         </span>
       </button>
 
-      {open ? (
-        <div
-          id={panelId}
-          className="fixed inset-0 z-[70] flex flex-col bg-bg"
-        >
-          <div className="flex items-center justify-end px-[clamp(20px,4vw,56px)] py-[12px]">
-            <button
-              type="button"
-              aria-label="Close menu"
-              onClick={close}
-              className="flex h-[30px] w-[30px] items-center justify-center border border-line-2 text-fg"
-            >
-              <span aria-hidden="true" className="relative block h-[14px] w-[14px]">
-                <span className="absolute inset-x-0 top-1/2 h-[1.5px] -translate-y-1/2 rotate-45 bg-fg" />
-                <span className="absolute inset-x-0 top-1/2 h-[1.5px] -translate-y-1/2 -rotate-45 bg-fg" />
-              </span>
-            </button>
-          </div>
+      {open
+        ? createPortal(
+            <div id={panelId} className="fixed inset-0 z-[70] flex flex-col bg-bg">
+              <div className="flex items-center justify-end px-[clamp(20px,4vw,56px)] py-[12px]">
+                <button
+                  type="button"
+                  aria-label="Close menu"
+                  onClick={close}
+                  className="flex h-[30px] w-[30px] items-center justify-center border border-line-2 text-fg"
+                >
+                  <span aria-hidden="true" className="relative block h-[14px] w-[14px]">
+                    <span className="absolute inset-x-0 top-1/2 h-[1.5px] -translate-y-1/2 rotate-45 bg-fg" />
+                    <span className="absolute inset-x-0 top-1/2 h-[1.5px] -translate-y-1/2 -rotate-45 bg-fg" />
+                  </span>
+                </button>
+              </div>
 
-          <nav
-            aria-label="Section"
-            className="flex flex-1 flex-col items-center justify-center gap-[var(--space-md)]"
-          >
-            {navItems.map((item, index) => (
-              <a
-                key={item.id}
-                ref={index === 0 ? firstLinkRef : undefined}
-                href={`#${item.id}`}
-                onClick={close}
-                className="font-display text-fluid-lg tracking-[0.14em] text-dim transition-colors duration-150 hover:text-accent-2"
+              <nav
+                aria-label="Section"
+                className="flex flex-1 flex-col items-center justify-center gap-[var(--space-md)]"
               >
-                {item.label}
-              </a>
-            ))}
-          </nav>
-        </div>
-      ) : null}
+                {navItems.map((item, index) => (
+                  <a
+                    key={item.id}
+                    ref={index === 0 ? firstLinkRef : undefined}
+                    href={`#${item.id}`}
+                    onClick={close}
+                    className="font-display text-fluid-lg tracking-[0.14em] text-dim transition-colors duration-150 hover:text-accent-2"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </nav>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   )
 }
