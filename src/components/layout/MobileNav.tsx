@@ -27,9 +27,32 @@ import { cn } from '@/lib/cn'
  * Document scroll is suspended while the panel is open (`documentElement`
  * is the real scroll container per `src/styles/layout.css`'s scroll-snap
  * note) so the full-screen list doesn't fight page scroll underneath it.
+ *
+ * Two things outside the panel itself have to be kept in sync while it's
+ * open, both driven from this one effect:
+ *
+ * 1. Crossing the 880px `panel:` breakpoint (matching `useFitToViewport`'s
+ *    `matchMedia` pattern) purely by CSS -- `panel:hidden` on this
+ *    component's own root -- would hide the fixed full-screen panel (it's
+ *    a descendant, so `display:none` cascades to it) while leaving `open`
+ *    (and therefore the scroll lock) true, since resizing never touches
+ *    React state on its own. A `matchMedia` listener closes the menu the
+ *    moment the viewport crosses into desktop width so the lock always
+ *    gets released.
+ * 2. Not trapping focus (see above) still leaves every *other* focusable
+ *    thing on the page -- the trigger button itself, the site mark link,
+ *    the theme picker, the clock, the skip link, all of `<main>` -- in
+ *    the normal tab sequence, sitting directly behind this panel's opaque
+ *    `bg-bg`. Without something marking them non-interactive, Tab/Shift+Tab
+ *    from the panel's own controls would silently move focus onto
+ *    controls the user cannot see under the overlay. `inert` (not a focus
+ *    trap -- Tab still leaves the panel, it just has nothing invisible
+ *    left to land on) is applied to everything else in the document while
+ *    open and lifted on close.
  */
 export function MobileNav() {
   const [open, setOpen] = useState(false)
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const firstLinkRef = useRef<HTMLAnchorElement>(null)
   const panelId = useId()
@@ -50,16 +73,41 @@ export function MobileNav() {
     }
     document.addEventListener('keydown', onKeyDown)
 
+    const panelQuery = window.matchMedia('(min-width: 880px)')
+    const onPanelChange = (event: MediaQueryListEvent) => {
+      if (event.matches) setOpen(false)
+    }
+    panelQuery.addEventListener('change', onPanelChange)
+
+    const inertTargets: HTMLElement[] = []
+    const wrapper = wrapperRef.current
+    if (wrapper?.parentElement) {
+      for (const sibling of Array.from(wrapper.parentElement.children)) {
+        if (sibling !== wrapper && sibling instanceof HTMLElement) inertTargets.push(sibling)
+      }
+    }
+    const scrollBar = document.querySelector<HTMLElement>('header > [role="progressbar"]')
+    if (scrollBar) inertTargets.push(scrollBar)
+    const skipLink = document.querySelector<HTMLElement>('a[href="#main-content"]')
+    if (skipLink) inertTargets.push(skipLink)
+    const main = document.getElementById('main-content')
+    if (main) inertTargets.push(main)
+    if (triggerRef.current) inertTargets.push(triggerRef.current)
+
+    for (const el of inertTargets) el.inert = true
+
     return () => {
       root.style.overflow = previousOverflow
       document.removeEventListener('keydown', onKeyDown)
+      panelQuery.removeEventListener('change', onPanelChange)
+      for (const el of inertTargets) el.inert = false
     }
   }, [open])
 
   const close = () => setOpen(false)
 
   return (
-    <div className="ml-auto panel:hidden">
+    <div ref={wrapperRef} className="ml-auto panel:hidden">
       <button
         ref={triggerRef}
         type="button"
