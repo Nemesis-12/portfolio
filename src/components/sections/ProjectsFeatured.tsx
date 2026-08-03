@@ -65,10 +65,21 @@ export function ProjectsFeatured() {
        * sample's own unconditional grid (line 339), and `minmax(340px,1fr)`
        * alone collapses it to one column once two 340px panes no longer fit
        * side by side.
+       *
+       * Deliberately NOT `flex-1` (mochi/style-match audit, same call as
+       * `ProjectsOther`/`EducationExperience` -- see those components for
+       * the reproduction): the sample's own `flex:1` + `max-height:760px`
+       * combo inflates this article to the full 760px regardless of
+       * content, and the left pane's `mt-auto` stat/link row then parks
+       * the resulting slack as a gap above itself instead of the card
+       * actually being sized for what it holds. `max-height` stays as an
+       * emergency ceiling only; the box now sizes to its own content and
+       * `.section-shell`'s `justify-content:center` centers it in the
+       * section.
        */}
       <div
         ref={fitRef}
-        className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(340px,1fr))] border border-line-2 bg-panel panel:mt-[var(--space-fit-margin)] panel:max-h-[760px]"
+        className="grid grid-cols-[repeat(auto-fit,minmax(340px,1fr))] border border-line-2 bg-panel panel:mt-[var(--space-fit-margin)] panel:max-h-[760px]"
       >
         <div className="flex min-w-0 flex-col gap-[var(--space-fit-xs)] p-[clamp(16px,2.4vh,30px)_clamp(18px,2.2vw,30px)]">
           <div className="flex items-baseline gap-[12px] flex-wrap">
