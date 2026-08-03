@@ -1,6 +1,8 @@
 /*
- * Project-tag blink (mochi/style-match task 2: the Thesis card's
- * "RUNNING · 2026" tag).
+ * Project-tag blink (mochi/style-match: the Thesis card's "RUNNING" label
+ * inside its "RUNNING · 2026" tag box). Applied to the inner label span
+ * only (`ProjectTag.tsx`, defect 2) -- the box and the "· 2026" fragment
+ * stay static, matching the pre-boxed blink this restores.
  *
  * Same shape as the header clock's cursor blink (`header.css`, #312): a
  * dedicated keyframe here (not Tailwind's `motion-safe:[animation:...]`
