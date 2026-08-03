@@ -48,8 +48,10 @@ import { cn } from '@/lib/cn'
  * section's own `padding-block` top clamp (`clamp(4rem,9vh,5.5rem)` in
  * `.section-shell`, ~64-88px) already clears the fixed header's own
  * height (~59-64px) on every load, scrolled or not -- same as the sample.
- * `scroll-padding-top` (`layout.css`) still exists for the scrolling/
- * anchor-jump case (a real, separate concern this padding never solved).
+ * `scroll-padding-top` (`layout.css`) was a separate, now-removed attempt
+ * to solve the scrolling/anchor-jump case the same way -- see `layout.css`
+ * for why that also double-offset sections and was removed in favor of
+ * relying purely on the section's own top padding, matching the sample.
  *
  * Out of scope here: the Go board (#316) and real section content
  * (#317-#321). The mobile hamburger menu (#314) is a separate ticket --

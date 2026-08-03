@@ -181,17 +181,26 @@
 /*
  * `--header-h` is published imperatively by `Header.tsx` (measured, not
  * guessed, since the header's rendered height changes with the fluid type
- * scale and with viewport width). The fallback below only matters for the
- * first paint before that effect runs, or if JS never runs at all.
+ * scale and with viewport width). It is no longer consumed here (see
+ * below); `Header.tsx` still publishes it in case a future consumer needs
+ * a measured header height.
  *
- * `scroll-padding-top` on `:root` -- the real scroll container -- is a
- * single property that solves two distinct fixed-header hazards at once:
- *  - `scroll-snap-align: start` (below) aligns a section to the top of the
- *    scrollport, which a `position: fixed` header would otherwise cover;
- *  - a native `#id` anchor jump (nav links, the skip link, the site mark)
- *    lands at the exact top of the target element, same problem.
- * `scroll-padding-top` shifts the effective top of the scrollport down by
- * the header's height for both cases, so neither ever lands under it.
+ * `scroll-padding-top` was removed from `:root` (mochi/style-match audit):
+ * a prior revision added it reasoning it was needed so `scroll-snap-align:
+ * start` and anchor jumps wouldn't land a section under the fixed header.
+ * The sample (`ideas/Portfolio.html`) never sets `scroll-padding-top` at
+ * all (line 245: `html { scroll-behavior: smooth; scroll-snap-type: y
+ * proximity }`, nothing else) -- it doesn't need to, because every
+ * section's own `padding-block` top clamp already clears the header's
+ * height on its own. Setting `scroll-padding-top` on top of that padding
+ * double-offset the section: `scroll-snap-align: start` landed the
+ * section's top edge `header-height` px below the viewport top (verified
+ * via a real Chromium render: section top sat at y=59 instead of y=0 at
+ * 1440x900), and then the section's own top padding pushed the content
+ * down again from there -- the ~250px empty band above every non-hero
+ * heading. Removing it lets the section land flush at y=0 like the
+ * sample, with the header overlapping only the section's own top padding
+ * (never real content), matching the sample exactly.
  *
  * `scroll-snap-type: y proximity` (sample line 245) is applied here
  * ungated -- at ALL widths, not just at/above 880px. `proximity` only
@@ -206,7 +215,6 @@
 :root {
   scroll-behavior: smooth;
   scroll-snap-type: y proximity;
-  scroll-padding-top: var(--header-h, 4.5rem);
 }
 
 @media (min-width: 880px) {
