@@ -136,16 +136,26 @@ function TimelineColumnCells({
         <span aria-hidden="true" className="h-3 w-3 rounded-full bg-bg" />
         <span className="font-display text-[clamp(12px,1.5vw,15px)]">{column.heading}</span>
         {/*
-         * Size raised from a fixed 10px to the shared `text-fit-meta`
-         * token, and opacity raised from .65/.75 to .9 (mochi/style-match
-         * task 3): at .65/.75 the experience column's label (near-black
-         * text on the accent-blue header) measured well under WCAG AA's
-         * 4.5:1 for normal text even at full opacity (the accent blue
-         * itself caps this pairing around 4.3:1) -- .9 gets both columns
-         * as close to that ceiling as this token pairing allows without
-         * changing the theme's accent colour, which is out of scope here.
+         * Opacity dropped entirely and weight raised to `font-medium`
+         * (mochi/style-match task 1, second pass): the owner reported the
+         * meta text still reading "almost transparent" even after the
+         * task-3 size bump, and traced it to colour/weight, not size.
+         * Any `<1` opacity here composites `text-bg` against the header's
+         * own fill colour, which *lowers* contrast, not raises it -- on
+         * the accent-blue header the previous `.9` measured 3.91:1
+         * against `--accent`, actually worse than plain full-opacity
+         * `text-bg` (4.27:1). Full opacity is strictly better on both
+         * headers: 15.45:1 on the cream (`--fg`) header, 4.27:1 on the
+         * accent-blue one. 4.27:1 is the ceiling this token pairing can
+         * reach -- `text-bg` is already the darkest text colour in the
+         * palette, and `--accent`'s own luminance is what caps it under
+         * WCAG AA's 4.5:1 floor; reaching 4.5 here needs a different
+         * accent colour, which is out of scope for this task. `font-
+         * medium` (500) is the heavier of the two self-hosted IBM Plex
+         * Mono weights (`src/styles/fonts.css`), so this stays a real
+         * weight, not a browser-synthesized fake bold.
          */}
-        <span className="ml-auto text-fit-meta uppercase tracking-[0.2em] opacity-90">{column.kind}</span>
+        <span className="ml-auto text-fit-meta font-medium uppercase tracking-[0.2em]">{column.kind}</span>
       </div>
 
       {column.entries.map((entry) => (
@@ -168,15 +178,21 @@ function TimelineEntryCell({
   return (
     <article className="grid row-span-4 grid-rows-subgrid gap-[var(--space-fit-2xs)] bg-panel px-[clamp(14px,1.8vw,22px)] py-[var(--space-fit-sm)]">
       {/*
-       * `text-fit-meta` + `text-dim` (mochi/style-match task 3): the
-       * owner's own report at 1440x900 -- the status label and date range
-       * were "barely visible" at the old fixed 9.5px / `text-dim-2`
-       * pairing, which measures 3.1:1 against the card background, under
-       * WCAG AA's 4.5:1 floor for normal text. `text-dim` alone measures
-       * 5.7:1 (passes); the size bump (raised token, not a scattered
-       * literal) covers the rest.
+       * `text-fit-meta` + `text-fg-2` + `font-medium` (mochi/style-match
+       * task 1, second pass): task 3 moved this row from `text-dim-2`
+       * (3.1:1, fails AA) to `text-dim` (5.7:1, passes) and raised the
+       * size, but the owner still read the date range as "almost
+       * transparent" -- weight and colour, not size, was the actual
+       * complaint. `text-dim` is still the dimmest token in active use
+       * here; `text-fg-2` (9.21:1 against `--panel`) is the next step up
+       * and comfortably clears AA with margin instead of sitting just
+       * above the floor. `font-medium` is IBM Plex Mono's heavier
+       * self-hosted weight (500, see `src/styles/fonts.css`) -- a real
+       * face, not synthesized. The `isCurrent` overrides below
+       * (`text-accent-2`/`text-fg`) are already brighter than this and
+       * inherit the new weight from this row.
        */}
-      <div className="flex flex-wrap items-center gap-[12px] text-fit-meta uppercase tracking-[0.18em] text-dim">
+      <div className="flex flex-wrap items-center gap-[12px] text-fit-meta font-medium uppercase tracking-[0.18em] text-fg-2">
         <span
           className={cn(
             'flex items-center gap-[12px]',
@@ -204,7 +220,14 @@ function TimelineEntryCell({
       </div>
 
       <div className="font-display text-fit-title leading-[1.45] text-fg">{entry.title}</div>
-      <div className="text-fit-xs text-dim">{entry.qualifier}</div>
+      {/*
+       * Same task-1-second-pass fix as the status/date row above: the
+       * "Thesis track" qualifier was one of the elements the owner
+       * measured as too dim (`text-dim`, 154/147/133) -- lifted to
+       * `text-fg-2` + `font-medium` for the same reason and the same
+       * numbers (5.7:1 -> 9.21:1 against `--panel`).
+       */}
+      <div className="text-fit-xs font-medium text-fg-2">{entry.qualifier}</div>
 
       {/*
        * Bullets are the entry's primary content -- the qualifier line
