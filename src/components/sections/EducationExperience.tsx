@@ -40,27 +40,28 @@ export function EducationExperience() {
        * `useFitToViewport` shrink-to-fit wired up, matching the sample's
        * own `data-fit` attribute on this same element (line 498).
        *
-       * Deliberately NOT `flex-1` (mochi/style-match audit, same call as
-       * `ProjectsOther`/`ProjectsFeatured`): rendering the sample's own
-       * markup standalone shows `flex:1` + `max-height:720px` inflates
-       * this grid to the full 720px regardless of how little the four
-       * cells actually need, and because the cells are
-       * `justify-content:flex-start` (not centered or bottom-anchored),
-       * that slack lands as dead space *below* every cell's content
-       * instead of being absorbed anywhere -- reproducible from the
-       * sample's own bytes. Without `flex-1` the grid's two
-       * `minmax(0,1fr)` entry rows fall back to sizing each row from its
-       * own tallest cell's actual content instead of splitting a forced
-       * 720px evenly, `max-height` stays only as an emergency ceiling for
-       * unusually long bullet lists, and `.section-shell`'s
-       * `justify-content:center` centers the (heading + grid) block in
-       * the section -- matching "shrink to fit, never inflate to fill".
+       * `flex-1` is reinstated (mochi/style-match audit, same call as
+       * `ProjectsOther`/`ProjectsFeatured`): a prior revision dropped it,
+       * reasoning `flex:1` + `max-height:720px` "inflates" this grid past
+       * what the four cells need, parking the slack as dead space below
+       * each cell's content since the cells are
+       * `justify-content:flex-start`. A real side-by-side Chromium render
+       * of the decoded sample bytes shows the sample's own grid does
+       * exactly the same thing -- cells sit top-aligned inside rows sized
+       * from the section's available height, not from cell content, and
+       * `flex:1` is what makes the grid consume the section's free
+       * vertical space (so `.section-shell`'s `justify-content:center`
+       * has none left to redistribute). Dropping `flex-1` left that space
+       * unconsumed, so centering split it above AND below the (heading +
+       * grid) block instead -- the empty band above the heading seen in
+       * real renders. `max-height` still caps the grid for unusually long
+       * bullet lists.
        */}
       <div
         ref={fitRef}
         data-pathgrid=""
         data-fit=""
-        className="mt-[var(--space-fit-margin-tight)] grid grid-flow-col auto-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)] gap-px border border-line-2 bg-line max-h-[720px]"
+        className="mt-[var(--space-fit-margin-tight)] grid flex-1 grid-flow-col auto-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)] gap-px border border-line-2 bg-line max-h-[720px]"
       >
         <TimelineColumnCells column={EDUCATION_COLUMN} kind="education" />
         <TimelineColumnCells column={EXPERIENCE_COLUMN} kind="experience" />

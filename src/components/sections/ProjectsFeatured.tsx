@@ -66,20 +66,27 @@ export function ProjectsFeatured() {
        * alone collapses it to one column once two 340px panes no longer fit
        * side by side.
        *
-       * Deliberately NOT `flex-1` (mochi/style-match audit, same call as
+       * `flex-1` is reinstated (mochi/style-match audit, same call as
        * `ProjectsOther`/`EducationExperience` -- see those components for
-       * the reproduction): the sample's own `flex:1` + `max-height:760px`
-       * combo inflates this article to the full 760px regardless of
-       * content, and the left pane's `mt-auto` stat/link row then parks
-       * the resulting slack as a gap above itself instead of the card
-       * actually being sized for what it holds. `max-height` stays as an
-       * emergency ceiling only; the box now sizes to its own content and
-       * `.section-shell`'s `justify-content:center` centers it in the
-       * section.
+       * the shared reasoning): a prior revision dropped it, reasoning the
+       * sample's own `flex:1` + `max-height:760px` combo "inflates" this
+       * article past its content. A real side-by-side Chromium render of
+       * the decoded sample bytes disproves that -- the sample's article
+       * fills flush from the heading row's padding-top down to the
+       * section's padding-bottom with zero extra slack on either edge
+       * (`flex:1` consumes the free space `.section-shell`'s
+       * `justify-content:center` would otherwise split above AND below
+       * the whole block). Dropping `flex-1` left nothing to consume that
+       * free space, so centering split it evenly around the (heading +
+       * article) block instead -- the empty band above the heading seen
+       * in real renders. `mt-auto` on the stat/link row inside the card
+       * is the sample's own footer-pinning pattern (line 353), not a bug
+       * to route around. `max-height` still caps the box for unusually
+       * long copy.
        */}
       <div
         ref={fitRef}
-        className="grid grid-cols-[repeat(auto-fit,minmax(340px,1fr))] border border-line-2 bg-panel panel:mt-[var(--space-fit-margin)] panel:max-h-[760px]"
+        className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(340px,1fr))] border border-line-2 bg-panel panel:mt-[var(--space-fit-margin)] panel:max-h-[760px]"
       >
         <div className="flex min-w-0 flex-col gap-[var(--space-fit-xs)] p-[clamp(16px,2.4vh,30px)_clamp(18px,2.2vw,30px)]">
           <div className="flex items-baseline gap-[12px] flex-wrap">

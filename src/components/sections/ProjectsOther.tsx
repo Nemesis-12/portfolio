@@ -67,28 +67,27 @@ export function ProjectsOther() {
        * section to one viewport tall in the first place, plus the `zoom`
        * shrink-to-fit safety net (`useFitToViewport`).
        *
-       * Deliberately NOT `flex-1` (mochi/style-match audit): the sample's
-       * own inline `flex:1` on this element reads, at a glance, like it
-       * should grow to fill the section -- but rendering the sample's
-       * literal markup standalone (same viewport, same browser) proves
-       * that combination genuinely inflates this box to the full 680px
-       * ceiling regardless of content, leaving a dead gap that
-       * `margin-top:auto` on `CopyInstallCommand` (and the agent-cluster
-       * row below) then parks in the middle of the card -- reproducible
-       * even from the sample's own bytes, not something this port
-       * introduced. `max-height` here is kept purely as an emergency
-       * ceiling for unusually long content (paired with the `useFitToViewport`
-       * shrink-to-fit pass, which measures the whole section, not this
-       * box), not a growth target: the box now sizes to its own content
-       * and `.section-shell`'s `justify-content:center` centers the
-       * (heading + card row) block in the section, matching the actual
-       * "shrink to fit, never inflate to fill" promise the sample's
-       * `data-fit`/`zoom` machinery is documented (and, everywhere else,
-       * actually observed) to keep.
+       * `flex-1` is reinstated (mochi/style-match audit): a prior revision
+       * dropped it, reasoning the sample's own inline `flex:1` on this
+       * element "inflates" the box past its content, parking dead space
+       * from `margin-top:auto` (on `CopyInstallCommand` and the
+       * agent-cluster row) in the middle of the card. A real side-by-side
+       * Chromium render of the decoded sample bytes disproves that: the
+       * sample's grid fills flush from the heading row's padding-top down
+       * to the section's padding-bottom with zero extra slack on either
+       * edge -- `flex:1` is what consumes the section's free vertical
+       * space so `.section-shell`'s `justify-content:center` has none
+       * left to redistribute. Dropping `flex-1` left that free space
+       * unconsumed, so centering split it evenly above AND below the
+       * (heading + card row) block instead -- the empty band above the
+       * heading seen in real renders. The `margin-top:auto` rows are the
+       * sample's own footer-pinning pattern, not a bug. `max-height`
+       * still caps the box for unusually long content, paired with the
+       * `useFitToViewport` shrink-to-fit pass.
        */}
       <div
         ref={fitRef}
-        className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[clamp(14px,1.6vw,20px)] panel:mt-[var(--space-fit-margin)] panel:max-h-[680px]"
+        className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[clamp(14px,1.6vw,20px)] panel:mt-[var(--space-fit-margin)] panel:max-h-[680px]"
       >
         <article className="flex flex-col gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
           <div className="flex items-baseline gap-[12px] flex-wrap">
