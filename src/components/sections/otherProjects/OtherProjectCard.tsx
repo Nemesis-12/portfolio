@@ -54,7 +54,7 @@ export function OtherProjectCard({ project }: { project: OtherProject }) {
         <AgentCluster className="mt-auto" />
       )}
 
-      <div className="flex flex-wrap items-end gap-[26px] border-t border-line pt-[14px]">
+      <div className="flex flex-wrap items-end gap-[26px] border-t border-line pt-[var(--space-fit-md)]">
         {project.stats.map((stat) => (
           <div key={stat.label} className="flex flex-col">
             <span className="font-display text-[19px] leading-none text-fg">

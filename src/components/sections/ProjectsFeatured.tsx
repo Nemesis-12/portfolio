@@ -160,7 +160,7 @@ export function ProjectsFeatured() {
              * than being pinned to the bottom of a box stretched past its
              * content -- see the note above the outer grid.
              */}
-            <div className="flex flex-wrap items-end gap-[clamp(16px,2.4vw,32px)] border-t border-line pt-[15px]">
+            <div className="flex flex-wrap items-end gap-[clamp(16px,2.4vw,32px)] border-t border-line pt-[var(--space-fit-md)]">
               {LEVIATHAN_STATS.map((stat) => (
                 <StatCounter key={stat.id} stat={stat} />
               ))}
