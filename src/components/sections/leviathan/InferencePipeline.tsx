@@ -9,44 +9,52 @@ import {
 import { cn } from '@/lib/cn'
 import {
   ATTENTION_ROW_COUNT,
+  buildAttentionCellModels,
+  buildFenCharModels,
+  buildTokenModels,
   candidateSetIndexForCycle,
   computePipelineFrame,
   settledPipelineFrame,
 } from '@/lib/leviathan/pipeline'
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 
-const FRAME_INTERVAL_MS = 120
-
-/** Total cells in the attention grid (sample line 384: `hint-placeholder-count="100"`), 10x10. */
-const ATTENTION_CELL_COUNT = ATTENTION_ROW_COUNT * ATTENTION_ROW_COUNT
+/** Frame tick cadence (sample line 703: `setInterval(..., 110)`). */
+const FRAME_INTERVAL_MS = 110
 
 /**
  * One pipeline row: a `66px minmax(0,1fr)` grid (sample lines 362, 371,
  * 380, 392, 405) pairing the row's dim label with its content. `align`
  * lets the attention/policy rows start-align their taller content while
- * position/tokens/move stay baseline-centered, same as the sample.
+ * position/tokens/move stay baseline-centered, same as the sample. The
+ * `move` row's border-top and top padding sit on this outer grid (sample
+ * line 405: `border-top:1px solid var(--line);padding-top:...` is on the
+ * row itself, not on the content column), so `rowBorderTop` lets that one
+ * row opt in without affecting the others.
  */
 function PipelineRow({
   label,
   children,
   align = 'center',
   labelPaddingTop,
+  rowBorderTop = false,
 }: {
   label: string
   children: ReactNode
   align?: 'center' | 'start'
   labelPaddingTop?: string
+  rowBorderTop?: boolean
 }) {
   return (
     <div
       className={cn(
         'grid grid-cols-[66px_minmax(0,1fr)] gap-x-3',
         align === 'center' ? 'items-center' : 'items-start',
+        rowBorderTop && 'border-t border-line pt-[clamp(9px,1.5vh,14px)]',
       )}
     >
       <span
         style={labelPaddingTop ? { paddingTop: labelPaddingTop } : undefined}
-        className="whitespace-nowrap text-2xs tracking-[0.18em] text-dim-3"
+        className="whitespace-nowrap text-[9.5px] tracking-[0.18em] text-dim-3"
       >
         {label}
       </span>
@@ -100,9 +108,9 @@ export function InferencePipeline() {
   const candidates = PIPELINE_CANDIDATE_SETS[candidateIndex]
   const topCandidate = candidates[0]
 
-  const positionShown = PIPELINE_POSITION_FEN.slice(0, frameModel.positionRevealCount)
-  const tokensShown = PIPELINE_TOKEN_IDS.slice(0, frameModel.tokensRevealedCount)
-  const revealedAttentionCells = frameModel.attentionRowsRevealed * ATTENTION_ROW_COUNT
+  const fenChars = buildFenCharModels(PIPELINE_POSITION_FEN, frameModel.positionRevealCount)
+  const tokenCells = buildTokenModels(PIPELINE_TOKEN_IDS, frameModel.tokensRevealedCount)
+  const attentionCells = buildAttentionCellModels(frameModel.attentionRowsRevealed)
 
   return (
     <div
@@ -112,9 +120,13 @@ export function InferencePipeline() {
     >
       <PipelineRow label="position">
         <span aria-hidden="true" className="flex flex-wrap text-[clamp(9px,1.4vh,13px)]">
-          {(positionShown || ' ').split('').map((ch, index) => (
-            <span key={index} className="font-mono text-fg-2">
-              {ch}
+          {fenChars.map((cell, index) => (
+            <span
+              key={index}
+              className={cn('font-mono transition-[color,background-color] duration-150', cell.revealed ? 'text-fg' : 'text-line-2')}
+              style={{ backgroundColor: cell.isCursor ? 'rgb(var(--accent))' : 'transparent' }}
+            >
+              {cell.ch}
             </span>
           ))}
         </span>
@@ -122,12 +134,17 @@ export function InferencePipeline() {
 
       <PipelineRow label="tokens">
         <div aria-hidden="true" className="flex flex-wrap gap-[5px]">
-          {tokensShown.map((id, index) => (
+          {tokenCells.map((cell, index) => (
             <span
-              key={`${id}-${index}`}
-              className="border border-line-2 bg-panel px-2 py-[clamp(2px,0.5vh,4px)] text-fit-2xs font-mono text-accent-2"
+              key={index}
+              className={cn(
+                'border text-fit-2xs font-mono transition-all duration-200',
+                'px-2 py-[clamp(2px,0.5vh,4px)]',
+                cell.revealed ? 'border-line-2 bg-panel text-accent-2' : 'border-line bg-transparent text-line-2',
+              )}
+              style={{ transform: cell.revealed ? 'translateY(0)' : 'translateY(5px)' }}
             >
-              {id}
+              {cell.id}
             </span>
           ))}
         </div>
@@ -136,13 +153,11 @@ export function InferencePipeline() {
       <PipelineRow label="attention" align="start" labelPaddingTop="3px">
         <div className="flex min-w-0 flex-col gap-2">
           <div aria-hidden="true" className="grid w-[min(100%,19vh)] grid-cols-10 gap-[2px]">
-            {Array.from({ length: ATTENTION_CELL_COUNT }, (_, index) => (
+            {attentionCells.map((cell, index) => (
               <span
                 key={index}
-                className={cn(
-                  'aspect-square transition-colors duration-300',
-                  index < revealedAttentionCells ? 'bg-accent' : 'bg-line',
-                )}
+                className="aspect-square transition-colors duration-300"
+                style={{ backgroundColor: `rgb(var(--accent) / ${cell.intensity})` }}
               />
             ))}
           </div>
@@ -156,31 +171,50 @@ export function InferencePipeline() {
 
       <PipelineRow label="policy" align="start" labelPaddingTop="4px">
         <div aria-hidden="true" className="flex flex-col gap-2">
-          {candidates.map((candidate, index) => (
-            <div key={candidate.move} className="flex items-center gap-[11px]">
-              <span className="min-w-[50px] font-display text-[10.5px] text-dim-3">
-                {frameModel.policyRevealed ? candidate.move : ''}
-              </span>
-              <span className="relative h-[7px] flex-1 overflow-hidden bg-line">
+          {candidates.map((candidate, index) => {
+            const isTop = index === 0
+            return (
+              <div key={candidate.move} className="flex items-center gap-[11px]">
                 <span
                   className={cn(
-                    'absolute inset-y-0 left-0 transition-[width]',
-                    index === 0 ? 'bg-accent' : 'bg-dim-3',
+                    'min-w-[50px] font-display text-[10.5px] transition-colors duration-300',
+                    frameModel.policyRevealed && isTop ? 'text-accent-2' : 'text-dim-3',
                   )}
-                  style={{ width: frameModel.policyRevealed ? `${candidate.percent}%` : '0%' }}
-                />
-              </span>
-              <span className="min-w-[40px] text-right text-[11px] text-dim-2">
-                {frameModel.policyRevealed ? `${candidate.percent}%` : ''}
-              </span>
-            </div>
-          ))}
+                >
+                  {candidate.move}
+                </span>
+                <span className="relative h-[7px] flex-1 overflow-hidden bg-line">
+                  <span
+                    className={cn(
+                      'absolute inset-y-0 left-0 transition-[width,background-color] duration-300',
+                      isTop ? 'bg-accent' : 'bg-line-2',
+                    )}
+                    style={{ width: frameModel.policyRevealed ? `${candidate.percent}%` : '0%' }}
+                  />
+                </span>
+                <span
+                  className={cn(
+                    'min-w-[40px] text-right text-[11px] transition-colors duration-300',
+                    frameModel.policyRevealed && isTop ? 'text-fg' : 'text-dim-3',
+                  )}
+                >
+                  {frameModel.policyRevealed ? `${candidate.percent}%` : ''}
+                </span>
+              </div>
+            )
+          })}
         </div>
       </PipelineRow>
 
-      <PipelineRow label="move">
-        <div className="flex items-baseline gap-[clamp(12px,2vw,22px)] border-t border-line pt-[clamp(9px,1.5vh,14px)]">
-          <span aria-hidden="true" className="font-display text-[clamp(16px,3vh,30px)] text-fg">
+      <PipelineRow label="move" rowBorderTop>
+        <div className="flex flex-wrap items-baseline gap-[clamp(12px,2vw,22px)]">
+          <span
+            aria-hidden="true"
+            className={cn(
+              'font-display text-[clamp(16px,3vh,30px)] transition-colors duration-300',
+              frameModel.moveRevealed ? 'text-fg' : 'text-line-2',
+            )}
+          >
             {frameModel.moveRevealed ? topCandidate.move : '···'}
           </span>
           <span className="text-[11.5px] text-dim-2">{frameModel.moveRevealed ? PIPELINE_OUTPUT_META : ''}</span>

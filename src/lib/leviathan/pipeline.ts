@@ -130,6 +130,85 @@ export function candidateSetIndexForCycle(cycle: number, setCount: number): numb
   return ((cycle % setCount) + setCount) % setCount
 }
 
+export interface FenCharModel {
+  readonly ch: string
+  /** Whether the scan has passed this character yet. */
+  readonly revealed: boolean
+  /** Whether this is the single character the scan cursor is on right now. */
+  readonly isCursor: boolean
+}
+
+/**
+ * Per-character reveal state for the position row (sample lines 364-368:
+ * every character of the FEN renders always, dimmed until the scan passes
+ * it, with a one-character accent-highlighted "cursor" at the scan head).
+ */
+export function buildFenCharModels(fen: string, revealCount: number): readonly FenCharModel[] {
+  return fen.split('').map((ch, index) => ({
+    ch,
+    revealed: index < revealCount,
+    isCursor: index === revealCount - 1,
+  }))
+}
+
+export interface TokenCellModel {
+  readonly id: string
+  readonly revealed: boolean
+}
+
+/**
+ * Per-token reveal state for the tokens row (sample lines 373-377): every
+ * token slot renders always, ghosted and offset until the tokenizer stage
+ * reaches it.
+ */
+export function buildTokenModels(
+  tokenIds: readonly string[],
+  revealedCount: number,
+): readonly TokenCellModel[] {
+  return tokenIds.map((id, index) => ({ id, revealed: index < revealedCount }))
+}
+
+export interface AttentionCellModel {
+  readonly row: number
+  readonly col: number
+  /** True for a cell the causal mask hides (future token) or an unrevealed row. */
+  readonly masked: boolean
+  /** 0-1 alpha for `rgb(var(--accent) / intensity)` — a flat wash when masked. */
+  readonly intensity: number
+}
+
+/** Alpha applied to every masked (causal-future or not-yet-revealed) attention cell. */
+const ATTENTION_MASKED_INTENSITY = 0.05
+
+/**
+ * Per-cell state for the attention grid (sample line 384): a real causal
+ * self-attention pattern, not a plain reveal-by-index fill. Row `r` only
+ * ever attends to columns `c <= r` (a token cannot attend to a token that
+ * comes after it); cells above that diagonal, and every cell in a row the
+ * reveal hasn't reached yet, sit at a faint constant accent wash. Revealed,
+ * unmasked cells get a graduated intensity so the grid reads as a real
+ * attention heatmap rather than two flat colors.
+ */
+export function buildAttentionCellModels(
+  attentionRowsRevealed: number,
+  rowCount: number = ATTENTION_ROW_COUNT,
+): readonly AttentionCellModel[] {
+  return Array.from({ length: rowCount * rowCount }, (_, k) => {
+    const row = Math.floor(k / rowCount)
+    const col = k % rowCount
+    const masked = col > row || row >= attentionRowsRevealed
+    if (masked) {
+      return { row, col, masked, intensity: ATTENTION_MASKED_INTENSITY }
+    }
+    const intensity =
+      0.18 +
+      0.82 *
+        Math.pow((col + 1) / (row + 1), 1.6) *
+        (0.55 + 0.45 * Math.abs(Math.sin((row * 7 + col * 3) * 0.9)))
+    return { row, col, masked, intensity }
+  })
+}
+
 /**
  * The single settled frame rendered under a reduced-motion preference: the
  * loop's final frame, fully resolved (every stage revealed), with no timer
