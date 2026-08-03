@@ -85,14 +85,34 @@ export function ProjectsOther() {
        * still caps the box for unusually long content, paired with the
        * `useFitToViewport` shrink-to-fit pass.
        */}
+      {/*
+       * Explicit `grid-rows` + `subgrid` (mochi/style-match audit, defect
+       * 2): the sample's two cards (line 424-457) are plain flex columns
+       * because ITS title/tagline/description text happens to be the
+       * same length in both cards, so their internal rows land on the
+       * same baselines for free. Our MLA title is the résumé's full name
+       * ("Multi-Head Latent Attention", two lines) against "Thesis" (one
+       * line) -- with independent flex columns the interactive row (the
+       * install command / the agent-dot cluster) and the stat footer
+       * below it end up at different heights per card, which is exactly
+       * what the owner flagged ("the dot row floats ... does not line up
+       * with anything in the neighbouring MLA card"). Five explicit row
+       * tracks shared by both cards via `grid-template-rows:subgrid` on
+       * each `<article>` (`row-span-5`) force title-row, tagline,
+       * description, interactive element, and footer to the same height
+       * band across both cards regardless of which card's content is
+       * taller in a given band; the 4th band is `minmax(0,1fr)` so it
+       * absorbs the slack (replacing the old per-card `mt-auto` hack,
+       * which could not coordinate across two independent flex columns).
+       */}
       <div
         ref={fitRef}
-        className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[clamp(14px,1.6vw,20px)] panel:mt-[var(--space-fit-margin)] panel:max-h-[680px]"
+        className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] grid-rows-[auto_auto_auto_minmax(0,1fr)_auto] gap-[clamp(14px,1.6vw,20px)] panel:mt-[var(--space-fit-margin)] panel:max-h-[680px]"
       >
-        <article className="flex flex-col gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
-          <div className="flex items-baseline gap-[12px] flex-wrap">
-            <h3 className="font-display text-fluid-lg text-fg">{MLA_TITLE}</h3>
-            <span className="ml-auto text-2xs tracking-[0.18em] text-dim-2">{MLA_BADGE}</span>
+        <article className="grid row-span-5 grid-rows-subgrid gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
+          <div className="flex items-start justify-between gap-[12px]">
+            <h3 className="min-w-0 flex-1 font-display text-fluid-lg text-fg">{MLA_TITLE}</h3>
+            <span className="shrink-0 whitespace-nowrap text-2xs tracking-[0.18em] text-dim-2">{MLA_BADGE}</span>
           </div>
 
           <p className="text-fit-lg text-accent-2">{MLA_TAGLINE}</p>
@@ -126,12 +146,12 @@ export function ProjectsOther() {
           </div>
         </article>
 
-        <article className="flex flex-col gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
-          <div className="flex items-baseline gap-[12px] flex-wrap">
-            <h3 className="font-display text-fluid-lg text-fg">Thesis</h3>
+        <article className="grid row-span-5 grid-rows-subgrid gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
+          <div className="flex items-start justify-between gap-[12px]">
+            <h3 className="min-w-0 flex-1 font-display text-fluid-lg text-fg">Thesis</h3>
             <span
               aria-hidden="true"
-              className="ml-auto text-2xs tracking-[0.18em] text-accent-2 motion-safe:[animation:pulse_1.8s_ease-in-out_infinite]"
+              className="shrink-0 whitespace-nowrap text-2xs tracking-[0.18em] text-accent-2 motion-safe:[animation:pulse_1.8s_ease-in-out_infinite]"
             >
               ● {THESIS_BADGE}
             </span>
@@ -144,7 +164,7 @@ export function ProjectsOther() {
 
           <AgentCluster />
 
-          <div className="mt-auto flex gap-[26px] border-t border-line pt-[14px]">
+          <div className="flex gap-[26px] border-t border-line pt-[14px]">
             {THESIS_STATS.map((stat) => (
               <div key={stat.label} className="flex flex-col">
                 <span className="font-display text-[19px] leading-none text-fg">

@@ -89,11 +89,28 @@ export function ProjectsFeatured() {
         className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(340px,1fr))] border border-line-2 bg-panel panel:mt-[var(--space-fit-margin)] panel:max-h-[760px]"
       >
         <div className="flex min-w-0 flex-col gap-[var(--space-fit-xs)] p-[clamp(16px,2.4vh,30px)_clamp(18px,2.2vw,30px)]">
-          <div className="flex items-baseline gap-[12px] flex-wrap">
-            <span className="font-display text-fit-xl leading-tight tracking-[-0.03em] text-fg">
+          {/*
+           * Title row is `justify-between` + `items-start`, not the
+           * sample's literal `items-baseline`/`flex-wrap` (line 341):
+           * the sample's own title ("LEVIATHAN") never wraps, so hugging
+           * the badge right after it via plain `gap` reads as "same row"
+           * there. Our title text differs card to card (résumé wording,
+           * see `src/data/otherProjects.ts`) and the MLA card's title
+           * DOES wrap to two lines, so `gap`-only hugging silently
+           * degrades to the badge sitting immediately next to the title
+           * word or dropping below a wrapped title (mochi/style-match
+           * audit, defect 1). `justify-between` with the title in a
+           * `min-w-0 flex-1` block pushes the badge to the row's right
+           * edge regardless of title line count, and `items-start` keeps
+           * it flush with the title's cap height instead of the
+           * (undefined once multi-line) baseline. Same pattern reused
+           * verbatim in `ProjectsOther.tsx` for both its cards.
+           */}
+          <div className="flex items-start justify-between gap-[12px]">
+            <span className="min-w-0 flex-1 font-display text-fit-xl leading-tight tracking-[-0.03em] text-fg">
               Leviathan
             </span>
-            <span className="border border-line-2 px-2 py-[4px] text-[9.5px] tracking-[0.18em] text-dim">
+            <span className="shrink-0 whitespace-nowrap border border-line-2 px-2 py-[4px] text-[9.5px] tracking-[0.18em] text-dim">
               {LEVIATHAN_BADGE}
             </span>
           </div>
