@@ -18,6 +18,19 @@
  * document that is the source of truth for every other fact on the page,
  * so it can never disagree with itself.
  *
+ * `detail` is the row's left-hand text (rendered before `label` in
+ * `Contact.tsx`). It is NOT the raw href target -- the sample
+ * (`ideas/Portfolio.html` lines 567-570) never prints the email address (or
+ * any other URL) in plain text on the page; each row leads with a short
+ * descriptive phrase instead ("send me an email", "read the code", "the
+ * professional one", "the long version") and only the right-hand tag names
+ * the destination in the abstract ("MAIL", "GITHUB", "LINKEDIN", "RESUME").
+ * The actual address/URL only ever appears in `href`, which is not visible
+ * text (owner direction: the email must not be out in the open on the
+ * page). The sample's own `href`s are placeholders, though, so those are
+ * NOT copied -- `href` below stays the real mailto/GitHub/LinkedIn/resume
+ * targets sourced above.
+ *
  * `CONTACT_STATEMENT` is copy, not a resume fact. It stays consistent with
  * `HERO_ROLE` in `src/data/hero.ts` ("ASPIRING ML + SYSTEMS + SOFTWARE
  * ENGINEER") rather than narrowing to ML alone.
@@ -57,7 +70,7 @@ export const CONTACT_LINKS: readonly ContactLink[] = [
   {
     id: 'email',
     label: 'Email',
-    detail: 'famohammed@shockers.wichita.edu',
+    detail: 'send me an email',
     href: 'mailto:famohammed@shockers.wichita.edu',
     external: false,
   },
@@ -71,14 +84,14 @@ export const CONTACT_LINKS: readonly ContactLink[] = [
   {
     id: 'linkedin',
     label: 'LinkedIn',
-    detail: 'the professional profile',
+    detail: 'the professional one',
     href: 'https://linkedin.com/in/fa-mohammed/',
     external: true,
   },
   {
     id: 'resume',
     label: 'Resume',
-    detail: 'the full write-up, as a PDF',
+    detail: 'the long version',
     href: '/resume.pdf',
     external: true,
   },
