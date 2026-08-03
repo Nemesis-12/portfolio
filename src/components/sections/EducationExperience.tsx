@@ -129,12 +129,31 @@ function TimelineColumnCells({
     <>
       <div
         className={cn(
-          'flex flex-wrap items-center gap-[13px] px-[18px] py-[clamp(11px,1.8vh,16px)]',
+          /*
+           * Below 880px this row is forced `flex-nowrap` with the heading
+           * truncating (`min-w-0` + `truncate` below) instead of wrapping
+           * (mochi/issue-348): at 375px the education heading ("Wichita
+           * State University") plus its "EDUCATION" tag don't fit on one
+           * line under the original unconditional `flex-wrap`, so the tag
+           * got pushed onto its own row -- taller block, tag placement
+           * that didn't match the (shorter) experience heading, which
+           * happened to still fit inline. Forcing nowrap + truncation
+           * keeps the tag inline on the same row for every header
+           * regardless of heading length, so header shape and tag
+           * placement stay identical across both categories. `panel:`
+           * (880px, the one breakpoint) restores the original unconditional
+           * `flex-wrap` + fixed `px-[18px]` for desktop, which is
+           * untouched by this change -- headings there already fit inline
+           * with room to spare, so this is a no-op above 880px.
+           */
+          'flex flex-nowrap items-center gap-[var(--space-fit-3xs)] px-[clamp(14px,1.8vw,22px)] py-[clamp(11px,1.8vh,16px)] panel:flex-wrap panel:gap-[13px] panel:px-[18px]',
           isExperience ? 'bg-accent text-bg' : 'bg-fg text-bg',
         )}
       >
-        <span aria-hidden="true" className="h-3 w-3 rounded-full bg-bg" />
-        <span className="font-display text-[clamp(12px,1.5vw,15px)]">{column.heading}</span>
+        <span aria-hidden="true" className="h-[9px] w-[9px] shrink-0 rounded-full bg-bg panel:h-3 panel:w-3" />
+        <span className="min-w-0 flex-1 truncate whitespace-nowrap font-display text-[clamp(12px,1.5vw,15px)] panel:flex-initial panel:overflow-visible panel:whitespace-normal">
+          {column.heading}
+        </span>
         {/*
          * Opacity dropped entirely and weight raised to `font-medium`
          * (mochi/style-match task 1, second pass): the owner reported the
@@ -155,7 +174,9 @@ function TimelineColumnCells({
          * Mono weights (`src/styles/fonts.css`), so this stays a real
          * weight, not a browser-synthesized fake bold.
          */}
-        <span className="ml-auto text-fit-meta font-medium uppercase tracking-[0.2em]">{column.kind}</span>
+        <span className="ml-auto shrink-0 text-fit-meta font-medium uppercase tracking-[0.1em] panel:tracking-[0.2em]">
+          {column.kind}
+        </span>
       </div>
 
       {column.entries.map((entry) => (
@@ -192,7 +213,22 @@ function TimelineEntryCell({
        * (`text-accent-2`/`text-fg`) are already brighter than this and
        * inherit the new weight from this row.
        */}
-      <div className="flex flex-wrap items-center gap-[12px] text-fit-meta font-medium uppercase tracking-[0.18em] text-fg-2">
+      {/*
+       * Below 880px this row is forced into a column (status pill, then
+       * date, always in that order) instead of the original unconditional
+       * `flex-wrap` row (mochi/issue-348): at 375px the longer date
+       * ranges ("JAN 2026 - MAY 2027 (EXPECTED)") don't fit next to their
+       * status pill and wrap onto their own line, while shorter ranges
+       * ("JAN 2022 - DEC 2025") stay inline -- so titles below started at
+       * different offsets card to card depending on which entry's date
+       * happened to wrap. Forcing a column on mobile makes every entry
+       * use the same two-row shape (pill row, then date row) regardless
+       * of date length, so titles land at the same offset everywhere.
+       * `panel:` (880px, the one breakpoint) restores the original
+       * unconditional row + wrap + centered items for desktop, which is
+       * untouched by this change.
+       */}
+      <div className="flex flex-col items-start gap-[var(--space-fit-3xs-tight)] text-fit-meta font-medium uppercase tracking-[0.18em] text-fg-2 panel:flex-row panel:flex-wrap panel:items-center panel:gap-[12px]">
         {/*
          * This `pulse` animation is intentionally mirrored by the Thesis
          * project card's "RUNNING" tag label (`ProjectTag.tsx`,
@@ -224,7 +260,7 @@ function TimelineEntryCell({
             {entry.statusLabel}
           </span>
         </span>
-        <span className="ml-auto">{entry.dateRange}</span>
+        <span className="panel:ml-auto">{entry.dateRange}</span>
       </div>
 
       <div className="font-display text-fit-title leading-[1.45] text-fg">{entry.title}</div>
