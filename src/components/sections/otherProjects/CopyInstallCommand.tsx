@@ -62,15 +62,7 @@ export function CopyInstallCommand({ command, className }: CopyInstallCommandPro
       <span aria-hidden="true" className="shrink-0 text-accent-2">
         $
       </span>
-      {/*
-       * `min-w-0` is required alongside `flex-1` here: a flex item's
-       * default min-width is its content's min-content size, and
-       * `whitespace-nowrap` makes that the full, unbroken command string --
-       * so without `min-w-0` this span (and the row around it) refused to
-       * shrink below the command's full width, pushing the "copy" button
-       * off the card and clipping the command text at the viewport edge
-       * instead of ever engaging `overflow-x-auto` (#314 owner review).
-       */}
+      {/* min-w-0: a flex item's default min-width is its (nowrap) content size, which blocked overflow-x-auto from ever kicking in. */}
       <span className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap">{command}</span>
       <button
         type="button"
