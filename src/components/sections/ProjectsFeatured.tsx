@@ -56,18 +56,19 @@ export function ProjectsFeatured() {
 
       {/*
        * `mt`/`max-h` reproduce the reference article's own
-       * `margin-top:clamp(18px,2.6vh,28px)` and `max-height:760px` on
-       * `[data-fit]`, gated to the 880px `panel:` breakpoint where
-       * `.section-shell` fixes the section to one viewport tall in the
-       * first place -- below it the article is ordinary flow content and
-       * nothing needs to be capped. `grid-cols-[repeat(auto-fit,...)]`
-       * itself is NOT gated: it is the sample's own unconditional grid
-       * (line 339), and `minmax(340px,1fr)` alone collapses it to one
-       * column once two 340px panes no longer fit side by side.
+       * `margin-top:clamp(18px,2.6vh,28px)` (`--space-fit-margin`,
+       * `src/styles/layout.css`) and `max-height:760px` on `[data-fit]`,
+       * gated to the 880px `panel:` breakpoint where `.section-shell` fixes
+       * the section to one viewport tall in the first place -- below it the
+       * article is ordinary flow content and nothing needs to be capped.
+       * `grid-cols-[repeat(auto-fit,...)]` itself is NOT gated: it is the
+       * sample's own unconditional grid (line 339), and `minmax(340px,1fr)`
+       * alone collapses it to one column once two 340px panes no longer fit
+       * side by side.
        */}
       <div
         ref={fitRef}
-        className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(340px,1fr))] border border-line-2 bg-panel panel:mt-[clamp(18px,2.6vh,28px)] panel:max-h-[760px]"
+        className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(340px,1fr))] border border-line-2 bg-panel panel:mt-[var(--space-fit-margin)] panel:max-h-[760px]"
       >
         <div className="flex min-w-0 flex-col gap-[var(--space-fit-xs)] p-[clamp(16px,2.4vh,30px)_clamp(18px,2.2vw,30px)]">
           <div className="flex items-baseline gap-[var(--space-xs)] flex-wrap">

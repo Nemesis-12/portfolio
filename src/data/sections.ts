@@ -94,9 +94,9 @@ export const sections: SectionMeta[] = [
     title: 'TIMELINE',
     // Real content (issue #320) lives in `src/data/timeline.ts` and is
     // rendered by `EducationExperience.tsx` directly, not through this
-    // `blurb`/`SectionPlaceholder` -- this field is unused by that
-    // section now, but is kept meaningful rather than left as
-    // placeholder copy, since `SectionMeta` still requires it.
+    // `blurb` -- this field is unused by that section now, but is kept
+    // meaningful rather than left as placeholder copy, since `SectionMeta`
+    // still requires it.
     blurb: 'Education and experience, side by side.',
     number: '03',
     // No fourth span in the sample's heading row (lines 492-496).

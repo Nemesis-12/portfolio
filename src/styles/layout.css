@@ -92,7 +92,7 @@
   --space-fit-sm: clamp(12px, 1.8vh, 22px);
   --space-fit-md: clamp(14px, 2.2vh, 26px);
   --space-fit-lg: clamp(16px, 2.4vh, 30px);
-  --space-fit-margin: clamp(16px, 2.4vh, 28px); /* fit-box margin-top under a section heading */
+  --space-fit-margin: clamp(18px, 2.6vh, 28px); /* projects fit-box margin-top under a section heading */
   --space-fit-margin-tight: clamp(16px, 2.4vh, 26px); /* skills/timeline fit-box margin-top */
 }
 

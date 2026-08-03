@@ -60,7 +60,8 @@ export function ProjectsOther() {
       />
 
       {/*
-       * Matches the sample's `margin-top:clamp(18px,2.6vh,28px)` and
+       * Matches the sample's `margin-top:clamp(18px,2.6vh,28px)`
+       * (`--space-fit-margin`, `src/styles/layout.css`) and
        * `max-height:680px` on its `[data-fit]` grid (line 424), gated to
        * the 880px `panel:` breakpoint where `.section-shell` fixes the
        * section to one viewport tall in the first place, plus the `zoom`
@@ -68,7 +69,7 @@ export function ProjectsOther() {
        */}
       <div
         ref={fitRef}
-        className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[clamp(14px,1.6vw,20px)] panel:mt-[clamp(18px,2.6vh,28px)] panel:max-h-[680px]"
+        className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[clamp(14px,1.6vw,20px)] panel:mt-[var(--space-fit-margin)] panel:max-h-[680px]"
       >
         <article className="flex flex-col gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
           <div className="flex items-baseline gap-[var(--space-2xs)] flex-wrap">
