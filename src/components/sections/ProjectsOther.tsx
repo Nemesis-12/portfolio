@@ -72,7 +72,7 @@ export function ProjectsOther() {
         className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[clamp(14px,1.6vw,20px)] panel:mt-[var(--space-fit-margin)] panel:max-h-[680px]"
       >
         <article className="flex flex-col gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
-          <div className="flex items-baseline gap-[var(--space-2xs)] flex-wrap">
+          <div className="flex items-baseline gap-[12px] flex-wrap">
             <h3 className="font-display text-fluid-lg text-fg">{MLA_TITLE}</h3>
             <span className="ml-auto text-2xs tracking-[0.18em] text-dim-2">{MLA_BADGE}</span>
           </div>
@@ -83,7 +83,7 @@ export function ProjectsOther() {
 
           <CopyInstallCommand command={MLA_INSTALL_COMMAND} />
 
-          <div className="flex flex-wrap items-end gap-[var(--space-md)] border-t border-line pt-[var(--space-fit-xs)]">
+          <div className="flex flex-wrap items-end gap-[26px] border-t border-line pt-[14px]">
             {MLA_STATS.map((stat) => (
               <div key={stat.label} className="flex flex-col">
                 <span className="font-display text-[19px] leading-none text-fg">
@@ -109,7 +109,7 @@ export function ProjectsOther() {
         </article>
 
         <article className="flex flex-col gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
-          <div className="flex items-baseline gap-[var(--space-2xs)] flex-wrap">
+          <div className="flex items-baseline gap-[12px] flex-wrap">
             <h3 className="font-display text-fluid-lg text-fg">Thesis</h3>
             <span
               aria-hidden="true"
@@ -126,7 +126,7 @@ export function ProjectsOther() {
 
           <AgentCluster />
 
-          <div className="mt-auto flex gap-[var(--space-md)] border-t border-line pt-[var(--space-fit-xs)]">
+          <div className="mt-auto flex gap-[26px] border-t border-line pt-[14px]">
             {THESIS_STATS.map((stat) => (
               <div key={stat.label} className="flex flex-col">
                 <span className="font-display text-[19px] leading-none text-fg">

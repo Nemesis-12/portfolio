@@ -51,7 +51,7 @@ export function CopyInstallCommand({ command }: CopyInstallCommandProps) {
   }
 
   return (
-    <div className="mt-auto flex items-center gap-[var(--space-2xs)] bg-panel-2 px-[var(--space-xs)] py-[var(--space-2xs)] font-mono text-2xs text-fg-2">
+    <div className="mt-auto flex items-center gap-[9px] bg-panel-2 px-[14px] py-[12px] font-mono text-2xs text-fg-2">
       <span aria-hidden="true" className="text-accent-2">
         $
       </span>
