@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from 'react'
 import { navItems } from '@/data/nav'
 import { cn } from '@/lib/cn'
 import { Clock } from './Clock'
@@ -39,16 +40,39 @@ import { ThemePicker } from './ThemePicker'
  * `scroll-snap-type`) -- it relies purely on every section's own top
  * `padding-block` clamp (`.section-shell`) already exceeding the header's
  * rendered height, so the header only ever overlaps padding, never real
- * content. This component previously measured its own rendered height
- * and published it as a `--header-h` custom property so `layout.css`
- * could offset `scroll-padding-top` by it; that offset was removed
- * (mochi/style-match audit -- see `layout.css`) because stacking it on
- * top of the section's own padding double-offset every section below the
- * header, so the height-measuring effect that fed it is removed here too.
+ * content. This held at 880px+ (`clamp(4rem,9vh,5.5rem)` there comfortably
+ * clears the header) but not below it, where `.section-shell`'s base
+ * padding floors at 2.4rem/38.4px against a mobile header nearer 55-60px
+ * tall -- the hero eyebrow and every other section's heading row rendered
+ * partly behind the header (#314 owner review). `--header-h` is
+ * republished here (measured via `ResizeObserver`, not guessed, since the
+ * header's rendered height changes with the fluid type scale) so
+ * `layout.css`'s base `.section-shell` rule can clear it with
+ * `max(var(--space-lg), var(--header-h))`; the 880px+ override still uses
+ * its own clamp unconditionally, so desktop is unaffected.
  */
 export function Header() {
+  const headerRef = useRef<HTMLElement>(null)
+
+  useLayoutEffect(() => {
+    const el = headerRef.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+
+    const publish = () => {
+      document.documentElement.style.setProperty('--header-h', `${el.getBoundingClientRect().height}px`)
+    }
+
+    publish()
+    const observer = new ResizeObserver(publish)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <header className="fixed inset-x-0 top-0 z-[60] border-b border-line bg-bg-glass backdrop-blur-[9px]">
+    <header
+      ref={headerRef}
+      className="fixed inset-x-0 top-0 z-[60] border-b border-line bg-bg-glass backdrop-blur-[9px]"
+    >
       <div className="flex items-center gap-[clamp(10px,1.6vw,20px)] px-[clamp(20px,4vw,56px)] py-[12px]">
         <a href="#top" className="flex items-center gap-[9px] font-display text-[11px] text-fg">
           <span aria-hidden="true" className="inline-block h-[11px] w-[11px] rounded-full bg-fg" />

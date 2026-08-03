@@ -130,28 +130,29 @@ function TimelineColumnCells({
       <div
         className={cn(
           /*
-           * Below 880px this row is forced `flex-nowrap` with the heading
-           * truncating (`min-w-0` + `truncate` below) instead of wrapping
-           * (mochi/issue-348): at 375px the education heading ("Wichita
-           * State University") plus its "EDUCATION" tag don't fit on one
-           * line under the original unconditional `flex-wrap`, so the tag
-           * got pushed onto its own row -- taller block, tag placement
-           * that didn't match the (shorter) experience heading, which
-           * happened to still fit inline. Forcing nowrap + truncation
-           * keeps the tag inline on the same row for every header
-           * regardless of heading length, so header shape and tag
-           * placement stay identical across both categories. `panel:`
-           * (880px, the one breakpoint) restores the original unconditional
-           * `flex-wrap` + fixed `px-[18px]` for desktop, which is
-           * untouched by this change -- headings there already fit inline
-           * with room to spare, so this is a no-op above 880px.
+           * Below 880px this row keeps the tag inline via `flex-nowrap`,
+           * but the heading itself is no longer truncated (rejected,
+           * #314 owner review -- a longer institution name was getting
+           * clipped to "Wichita State Uni…", which the owner called
+           * unacceptable: any real heading text must always be fully
+           * readable). `min-w-0` still lets the heading shrink to make
+           * room for the tag, and it now wraps onto a second line instead
+           * of being cut off -- `items-start` (was `items-center`) keeps
+           * the tag pinned to the first line's cap height instead of
+           * re-centering against a heading that may now be two lines
+           * tall, so tag placement still reads the same way across both
+           * the education and experience headers regardless of which
+           * one's heading wraps. `panel:` (880px, the one breakpoint)
+           * restores the original unconditional `flex-wrap` + centered
+           * items + fixed `px-[18px]` for desktop, untouched by this
+           * change.
            */
-          'flex flex-nowrap items-center gap-[var(--space-fit-3xs)] px-[clamp(14px,1.8vw,22px)] py-[clamp(11px,1.8vh,16px)] panel:flex-wrap panel:gap-[13px] panel:px-[18px]',
+          'flex flex-nowrap items-start gap-[var(--space-fit-3xs)] px-[clamp(14px,1.8vw,22px)] py-[clamp(11px,1.8vh,16px)] panel:flex-wrap panel:items-center panel:gap-[13px] panel:px-[18px]',
           isExperience ? 'bg-accent text-bg' : 'bg-fg text-bg',
         )}
       >
         <span aria-hidden="true" className="h-[9px] w-[9px] shrink-0 rounded-full bg-bg panel:h-3 panel:w-3" />
-        <span className="min-w-0 flex-1 truncate whitespace-nowrap font-display text-[clamp(12px,1.5vw,15px)] panel:flex-initial panel:overflow-visible panel:whitespace-normal">
+        <span className="min-w-0 flex-1 font-display text-[clamp(12px,1.5vw,15px)] panel:flex-initial">
           {column.heading}
         </span>
         {/*

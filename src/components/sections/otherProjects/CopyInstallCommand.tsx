@@ -59,16 +59,25 @@ export function CopyInstallCommand({ command, className }: CopyInstallCommandPro
         className,
       )}
     >
-      <span aria-hidden="true" className="text-accent-2">
+      <span aria-hidden="true" className="shrink-0 text-accent-2">
         $
       </span>
-      <span className="flex-1 overflow-x-auto whitespace-nowrap">{command}</span>
+      {/*
+       * `min-w-0` is required alongside `flex-1` here: a flex item's
+       * default min-width is its content's min-content size, and
+       * `whitespace-nowrap` makes that the full, unbroken command string --
+       * so without `min-w-0` this span (and the row around it) refused to
+       * shrink below the command's full width, pushing the "copy" button
+       * off the card and clipping the command text at the viewport edge
+       * instead of ever engaging `overflow-x-auto` (#314 owner review).
+       */}
+      <span className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap">{command}</span>
       <button
         type="button"
         onClick={handleCopy}
         disabled={!clipboardAvailable}
         aria-label={clipboardAvailable ? undefined : 'Copy unavailable -- select the command text above instead'}
-        className="whitespace-nowrap border border-line-2 px-[var(--space-2xs)] py-[2px] text-2xs text-dim tracking-[0.1em] hover:border-accent hover:text-accent-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-line-2 disabled:hover:text-dim"
+        className="shrink-0 whitespace-nowrap border border-line-2 px-[var(--space-2xs)] py-[2px] text-2xs text-dim tracking-[0.1em] hover:border-accent hover:text-accent-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-line-2 disabled:hover:text-dim"
       >
         {copied ? 'copied' : 'copy'}
       </button>

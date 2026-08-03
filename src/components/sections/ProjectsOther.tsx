@@ -61,8 +61,12 @@ export function ProjectsOther() {
        * `.section-shell`'s own `justify-content:center` (on the
        * heading+wrapper block as a whole) has nothing left to redistribute
        * -- the wrapper already occupies 100% of the remaining height.
+       *
+       * `mt-` was `panel:`-only, leaving zero gap below 880px between the
+       * "THE OTHER STUFF I WORKED ON" caption and the first card (#314
+       * owner review) -- unconditional now, same margin at every width.
        */}
-      <div className="flex flex-1 flex-col justify-center panel:mt-[var(--space-fit-margin)]">
+      <div className="mt-[var(--space-fit-margin)] flex flex-1 flex-col justify-center">
         {/*
          * `auto-fit`/`minmax(320px,1fr)` (sample line 424) is also the
          * mechanism that lets this grid reflow as more projects are added

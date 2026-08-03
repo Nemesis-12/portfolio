@@ -76,7 +76,7 @@ export function ProjectsFeatured() {
        * its normal top-of-section position, same mechanism as
        * `ProjectsOther.tsx`.
        */}
-      <div className="flex flex-1 flex-col justify-center panel:mt-[var(--space-fit-margin)]">
+      <div className="mt-[var(--space-fit-margin)] flex flex-1 flex-col justify-center">
         {/*
          * `grid-cols-[repeat(auto-fit,...)]` is the sample's own
          * unconditional grid (line 339); `minmax(340px,1fr)` alone
@@ -130,8 +130,21 @@ export function ProjectsFeatured() {
              * it flush with the title's cap height instead of the
              * (undefined once multi-line) baseline. Same pattern reused
              * verbatim in `ProjectsOther.tsx` for both its cards.
+             *
+             * Below 880px this stacks into a column instead (#314 owner
+             * review): "Leviathan" renders through `text-fit-xl`, a
+             * height-based clamp up to 34px in the blocky display font --
+             * at narrow mobile widths its glyphs visually overhang their
+             * own measured box (verified via pixel-sampling a real render:
+             * ink extends well past the text node's own
+             * `getBoundingClientRect` width), landing on the badge's left
+             * edge even though the two boxes don't geometrically overlap.
+             * Giving the badge its own row below the title removes the
+             * collision outright regardless of that overhang. `panel:
+             * flex-row` restores the side-by-side row at 880px+, where the
+             * smaller `panel:` title size doesn't exhibit it.
              */}
-            <div className="flex items-start justify-between gap-[12px]">
+            <div className="flex flex-col items-start gap-[var(--space-2xs)] panel:flex-row panel:items-start panel:justify-between panel:gap-[12px]">
               <span className="min-w-0 flex-1 font-display text-fit-xl leading-tight tracking-[-0.03em] text-fg">
                 Leviathan
               </span>
