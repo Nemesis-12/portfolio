@@ -3,11 +3,13 @@ import { navItems } from '@/data/nav'
 import { cn } from '@/lib/cn'
 import { Clock } from './Clock'
 import { ScrollProgressBar } from './ScrollProgressBar'
+import { ThemePicker } from './ThemePicker'
 
 /**
- * Fixed site header (#312): site mark, the four nav destinations, and a
- * live clock, with the scroll progress bar as its last child (matching
- * the design reference, which nests the bar inside the header).
+ * Fixed site header (#312, #313): site mark, the four nav destinations,
+ * the theme picker (`ThemePicker`), and a live clock, with the scroll
+ * progress bar as its last child (matching the design reference, which
+ * nests the bar inside the header).
  *
  * Fixed-header / scroll-snap interaction: `scroll-snap-align: start`
  * (`.section-shell`, src/styles/layout.css) aligns each section to the
@@ -48,31 +50,30 @@ export function Header() {
   return (
     <header
       ref={headerRef}
-      className="fixed inset-x-0 top-0 z-50 border-b border-line bg-bg-glass/92 backdrop-blur-md"
+      className="fixed inset-x-0 top-0 z-[60] border-b border-line bg-bg-glass backdrop-blur-[9px]"
     >
-      <div className="flex items-center gap-[var(--space-sm)] px-[var(--space-md)] py-[var(--space-2xs)]">
-        <a
-          href="#top"
-          className="flex items-center gap-[var(--space-3xs)] font-display text-2xs text-fg"
-        >
+      <div className="flex items-center gap-[clamp(10px,1.6vw,20px)] px-[clamp(20px,4vw,56px)] py-[12px]">
+        <a href="#top" className="flex items-center gap-[9px] font-display text-[11px] text-fg">
           <span aria-hidden="true" className="inline-block h-[11px] w-[11px] rounded-full bg-fg" />
           F.M
         </a>
 
-        <nav aria-label="Section" className="ml-auto flex gap-[var(--space-sm)]">
+        <nav
+          aria-label="Section"
+          className="ml-auto flex gap-[clamp(10px,1.8vw,24px)] text-[10.5px] tracking-[0.16em] text-dim"
+        >
           {navItems.map((item) => (
             <a
               key={item.id}
               href={`#${item.id}`}
-              className={cn(
-                'text-fluid-xs font-mono uppercase tracking-[0.16em] text-dim',
-                'transition-colors hover:text-accent-2',
-              )}
+              className={cn('transition-colors duration-150 hover:text-accent-2')}
             >
               {item.label}
             </a>
           ))}
         </nav>
+
+        <ThemePicker />
 
         <Clock />
       </div>

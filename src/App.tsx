@@ -38,9 +38,9 @@ import { cn } from '@/lib/cn'
  * anchor jump.
  *
  * Out of scope here: the Go board (#316) and real section content
- * (#317-#321). The mobile hamburger menu (#314) and the theme picker
- * (#313) are separate tickets -- the nav links and header rendered here
- * are the desktop shape only.
+ * (#317-#321). The mobile hamburger menu (#314) is a separate ticket --
+ * the nav links and header rendered here are the desktop shape only. The
+ * theme picker (#313) is wired up inside `<Header>` itself.
  */
 function App() {
   return (

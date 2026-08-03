@@ -1,4 +1,4 @@
-import { sections } from './sections'
+import { getSectionMeta, sections } from './sections'
 
 /** A single header nav destination. */
 export interface NavItem {
@@ -15,46 +15,42 @@ export interface NavItem {
  * deliberately absent -- the spec reaches those by scrolling only, not
  * via the nav.
  *
- * Labels carry the reference design's numeric prefix (`ideas/Portfolio.html`,
- * decoded `<nav>` markup: `01 PROJECTS`, `02 SKILLS`, `03 ...`, `04
- * CONTACT`). The reference renders the numeral as plain text jammed
- * against the label inside the same anchor -- no separate span, no
- * dimming/sizing treatment -- so it is reproduced the same way here
- * rather than invented as a distinct decorative element. Because it's
- * plain text (not `aria-hidden`), it's part of the link's accessible
- * name too, matching what the reference actually ships.
+ * Labels are `"{number} {chrome text}"`, matching the reference design's
+ * `<nav>` markup verbatim (`ideas/Portfolio.html` lines 270-273): `01
+ * PROJECTS`, `02 SKILLS`, `03 EDUCATION & EXPERIENCE`, `04 CONTACT`. The
+ * reference renders the numeral as plain text jammed against the label
+ * inside the same anchor -- no separate span, no dimming/sizing treatment
+ * -- so it is reproduced the same way here rather than invented as a
+ * distinct decorative element. Because it's plain text (not
+ * `aria-hidden`), it's part of the link's accessible name too, matching
+ * what the reference actually ships.
  *
- * `path`'s destination is "Timeline" per owner direction (`Education &
- * Experience` was the working title from the reference; the project
- * owner has since renamed it). `src/data/sections.ts`'s `path` entry's
- * accessible `label` was updated to match, so the nav link and the
- * section landmark it points to agree on the destination's name.
- *
- * IDs are validated against `src/data/sections.ts` at import time. This
- * list must never drift from the section shell -- `nav.test.ts` asserts
- * the strict invariant that every declared target resolves to a real
- * section, so drift is caught in CI. At runtime, though, a mismatch
- * degrades to a dropped nav entry (logged via `console.error`) rather
- * than a thrown exception: every consumer of this module evaluates its
- * body, so throwing here would turn one dead nav link into a blank page
- * for the whole shipped bundle.
+ * `number` and (for three of the four ids) the label text itself are
+ * derived from `getSectionMeta(id)` rather than restated as string
+ * literals here, so the nav and the section chrome it points at can't
+ * drift apart independently. `contact` needs `NAV_TEXT_OVERRIDE`: that
+ * section's `title` field (`src/data/sections.ts`) is résumé-facing body
+ * content ("Get in touch"), not the sample's "CONTACT" nav chrome --
+ * `Contact.tsx` doesn't even read `title` for its own headline, so there
+ * is no section-chrome field to borrow from for that one id.
  */
-const NAV_LABELS: ReadonlyArray<readonly [id: string, label: string]> = [
-  ['projects', '01 Projects'],
-  ['skills', '02 Skills'],
-  ['path', '03 Timeline'],
-  ['contact', '04 Contact'],
-]
+const NAV_IDS = ['projects', 'skills', 'path', 'contact'] as const
+
+const NAV_TEXT_OVERRIDE: Partial<Record<string, string>> = {
+  contact: 'CONTACT',
+}
 
 const sectionIds = new Set(sections.map((section) => section.id))
 
-export const navItems: NavItem[] = NAV_LABELS.filter(([id]) => {
+export const navItems: NavItem[] = NAV_IDS.flatMap((id) => {
   if (!sectionIds.has(id)) {
     console.error(
       `Nav target "${id}" does not match any section id in src/data/sections.ts -- ` +
         'dropping it from the header nav. Update one or the other so the two cannot drift apart.',
     )
-    return false
+    return []
   }
-  return true
-}).map(([id, label]) => ({ id, label }))
+  const meta = getSectionMeta(id)
+  const text = NAV_TEXT_OVERRIDE[id] ?? meta.title
+  return [{ id, label: `${meta.number} ${text}` }]
+})
