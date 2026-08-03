@@ -77,46 +77,37 @@ export function EducationExperience() {
        * qualifier, hairline, bullets -- lands on the same line across
        * the row regardless of which cell's title wrapped.
        *
-       * Each entry now gets two extra subrows -- flexible spacers, one
-       * before hairline+bullets and one after it, each `minmax(0,1fr)`
-       * -- instead of making the bullets row itself `1fr` (owner-approved
-       * slack audit). Three mechanisms were tried and rejected first:
-       * (1) making only the bullets row `1fr` (the original code) left
-       * bullet content top-aligned inside it, so 100% of the slack landed
-       * in one place, after the last bullet -- the "stranded" look the
-       * owner flagged; (2) centering the hairline+bullets block within
-       * that oversized row split the slack in two but broke row-2's
-       * hairline pairing, because the two row-2 entries have different
-       * bullet counts (education: 2 bullets, experience: 3) -- centering
-       * offsets each column's hairline by half of ITS OWN content
-       * height, which differs, so the hairlines landed ~25px apart
-       * instead of level (verified via a real render); (3) an
-       * `align-content:space-between` override on the whole grid splits
-       * the slack cleanly but does it by enlarging the `gap-px`-over-
-       * `bg-line` seams (the hairline-between-cells trick above) into
-       * full-width background-colored bars between the header and the
-       * entries and between the two entries -- confirmed via pixel
-       * sampling on a real render (the bar is a visibly different shade
-       * from the cells' own `bg-panel`), reading as a layout bug, not a
-       * deliberate style. Two dedicated, EMPTY spacer rows (no markup
-       * needed -- `TimelineEntryCell` below only ever renders 4 real
-       * children into `row-span-6`, so rows 4 and 6 are always blank)
-       * avoid all three problems at once: their size is a track-level
-       * property, shared identically by both columns in a row band (not
-       * derived from either column's own content height), so the
-       * hairline's start position -- immediately after the pre-hairline
-       * spacer -- still lands on the same line for both row-mates
-       * regardless of bullet count; and because both spacers sit inside
-       * each `TimelineEntryCell`'s own `row-span-6` subgrid, they are
-       * painted with that cell's own `bg-panel`, never the container's
-       * `bg-line`, so nothing but the intended 1px hairline seam is ever
-       * drawn between cells.
+       * The bullets row alone is `minmax(0,1fr)` (mochi/style-match
+       * slack audit, re-opened after the owner flagged the double-spacer
+       * version as smeared/justified). A real Chromium render of the
+       * decoded sample bytes settles this directly: the sample's own
+       * cell is `display:flex;flex-direction:column;gap:...;
+       * justify-content:flex-start` (line 505) inside an outer grid row
+       * that is `minmax(0,1fr)` (line 498) -- i.e. the WHOLE cell
+       * stretches to fill its row band, and `flex-start` leaves every
+       * gap at its plain `gap` value and dumps 100% of the leftover
+       * height in exactly one place: below the last bullet. Measured at
+       * 1440x900: 166px of empty space after the last bullet in every
+       * cell, and the status→title, title→qualifier, qualifier→hairline
+       * gaps all sitting at the plain ~10-20px `gap`/`padding` values,
+       * not inflated. The double-spacer version (one `minmax(0,1fr)`
+       * track before the hairline, one after) was a guess at avoiding a
+       * "stranded content" look without checking what the sample
+       * actually does -- the sample does exactly that "stranded" look on
+       * purpose. Only the bullets row (`row-start-4` of the 4-row
+       * subgrid below) is `minmax(0,1fr)`; the other three stay `auto`.
+       * Row-mate pairing still holds because these are shared OUTER grid
+       * tracks (one explicit row-template for the whole `data-pathgrid`,
+       * not one per column) -- the taller of a row band's two titles (or
+       * two bullet lists) still sets that shared track's height for both
+       * cells, same mechanism as before, just without the two empty
+       * spacer tracks.
        */}
       <div
         ref={fitRef}
         data-pathgrid=""
         data-fit=""
-        className="mt-[var(--space-fit-margin-tight)] grid flex-1 grid-flow-col auto-cols-[minmax(0,1fr)] grid-rows-[auto_repeat(2,auto_auto_auto_minmax(0,1fr)_auto_minmax(0,1fr))] gap-px border border-line-2 bg-line max-h-[720px]"
+        className="mt-[var(--space-fit-margin-tight)] grid flex-1 grid-flow-col auto-cols-[minmax(0,1fr)] grid-rows-[auto_repeat(2,auto_auto_auto_minmax(0,1fr))] gap-px border border-line-2 bg-line max-h-[720px]"
       >
         <TimelineColumnCells column={EDUCATION_COLUMN} kind="education" />
         <TimelineColumnCells column={EXPERIENCE_COLUMN} kind="experience" />
@@ -172,7 +163,7 @@ function TimelineEntryCell({
   const isCurrent = entry.status === 'current'
 
   return (
-    <article className="grid row-span-6 grid-rows-subgrid gap-[var(--space-fit-2xs)] bg-panel px-[clamp(14px,1.8vw,22px)] py-[var(--space-fit-sm)]">
+    <article className="grid row-span-4 grid-rows-subgrid gap-[var(--space-fit-2xs)] bg-panel px-[clamp(14px,1.8vw,22px)] py-[var(--space-fit-sm)]">
       <div className="flex flex-wrap items-center gap-[12px] text-[9.5px] uppercase tracking-[0.18em] text-dim-2">
         <span
           className={cn(
@@ -203,7 +194,7 @@ function TimelineEntryCell({
       <div className="font-display text-fit-title leading-[1.45] text-fg">{entry.title}</div>
       <div className="text-fit-xs text-dim">{entry.qualifier}</div>
 
-      <div className="row-start-5 flex flex-col gap-[var(--space-fit-3xs-tight)] border-t border-line pt-[clamp(8px,1.4vh,12px)] text-[clamp(11.5px,1.45vh,13px)] leading-[1.6] text-fg-2">
+      <div className="flex flex-col gap-[var(--space-fit-3xs-tight)] border-t border-line pt-[clamp(8px,1.4vh,12px)] text-[clamp(11.5px,1.45vh,13px)] leading-[1.6] text-fg-2">
         {entry.bullets.map((bullet) => (
           <div key={bullet} className="flex gap-[11px]">
             <span aria-hidden="true" className={isExperience ? 'text-accent' : 'text-fg'}>

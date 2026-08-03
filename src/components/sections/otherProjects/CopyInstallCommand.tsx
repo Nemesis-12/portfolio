@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { cn } from '@/lib/cn'
 
 const COPIED_LABEL_MS = 1500
 
 interface CopyInstallCommandProps {
   command: string
+  className?: string
 }
 
 /**
@@ -22,7 +24,7 @@ interface CopyInstallCommandProps {
  * active while doing nothing on click -- the command itself is always
  * plain selectable text, so a visitor can still copy it by hand.
  */
-export function CopyInstallCommand({ command }: CopyInstallCommandProps) {
+export function CopyInstallCommand({ command, className }: CopyInstallCommandProps) {
   const [copied, setCopied] = useState(false)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
@@ -51,7 +53,12 @@ export function CopyInstallCommand({ command }: CopyInstallCommandProps) {
   }
 
   return (
-    <div className="flex items-center gap-[9px] bg-panel-2 px-[14px] py-[12px] font-mono text-2xs text-fg-2">
+    <div
+      className={cn(
+        'flex items-center gap-[9px] bg-panel-2 px-[14px] py-[12px] font-mono text-2xs text-fg-2',
+        className,
+      )}
+    >
       <span aria-hidden="true" className="text-accent-2">
         $
       </span>

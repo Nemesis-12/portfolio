@@ -103,38 +103,33 @@ export function ProjectsOther() {
        * band across both cards regardless of which card's content is
        * taller in a given band.
        *
-       * All five tracks are content-sized (`auto`), not `minmax(0,1fr)`
-       * (owner-approved divergence from the sample, mochi/style-match
-       * slack audit): the résumé copy is short relative to a 100dvh
-       * section, so a single `1fr` band -- combined with `self-end` on
-       * `CopyInstallCommand`/`AgentCluster` -- dumped ~300px of dead air
-       * in one spot (between the description and the interactive row)
-       * while the row below it stayed cramped. `content-between`
-       * (`align-content:space-between`) on this grid distributes
-       * whatever height `flex-1` leaves unclaimed as gaps between the
-       * five row bands.
-       *
-       * `items-start` on each `<article>` is required alongside that --
-       * without it, grid items default to `align-self:stretch`, and a
-       * real Chromium render showed the redistributed leftover space
-       * inflating the row TRACKS themselves (not just the gaps between
-       * them), stretching `CopyInstallCommand`'s own box from its
-       * ~50px content height to ~119px, i.e. a visibly oversized bar
-       * with a blank void around one line of text -- the same
-       * "stranded content" defect this fix exists to remove, just moved
-       * inside the element instead of around it. `items-start` keeps
-       * every row's content pinned to its own intrinsic height
-       * regardless of how much the track itself grows, so the
-       * distributed slack reads purely as gaps between title, tagline,
-       * description, the interactive element, and the footer, which is
-       * what the sample's own "flush top to flush bottom, no internal
-       * dead zone" footer-pinning intent actually implies.
+       * Verified against a real Chromium render of the decoded sample
+       * bytes (mochi/style-match slack audit, re-opened after the owner
+       * flagged the `content-between` version as smeared/justified):
+       * the sample's own card markup is `display:flex;flex-direction:
+       * column;gap:...` with `margin-top:auto` on the install-command
+       * div (line 429) and on the agent-dot row (line 445) -- literally
+       * verbatim in the decoded bytes, not an assumption. Rendered at
+       * 1440x900 the sample puts ALL of a card's leftover height in that
+       * ONE spot (measured: 364px between the description's bottom and
+       * the install bar's top; every other adjacent pair -- title→
+       * tagline, tagline→description, install-bar→footer -- stays at
+       * the plain `gap` value, tight). `content-between` (an even split
+       * across all five row gaps) was the wrong reproduction of that;
+       * this reinstates the sample's real, single-spot mechanism: only
+       * the interactive-element row (`row-start-4`) is `minmax(0,1fr)`,
+       * so it alone absorbs the section's leftover height, and the
+       * `self-end`-aligned interactive element sits at the BOTTOM of
+       * that stretched track -- pinned flush against the footer below
+       * it, with the absorbed slack landing above it as the sample's own
+       * void, not spread through the whole card. The other four tracks
+       * stay `auto` (content-sized) so their own gaps never inflate.
        */}
       <div
         ref={fitRef}
-        className="grid flex-1 content-between grid-cols-[repeat(auto-fit,minmax(320px,1fr))] grid-rows-[auto_auto_auto_auto_auto] gap-[clamp(14px,1.6vw,20px)] panel:mt-[var(--space-fit-margin)] panel:max-h-[680px]"
+        className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] grid-rows-[auto_auto_auto_minmax(0,1fr)_auto] gap-[clamp(14px,1.6vw,20px)] panel:mt-[var(--space-fit-margin)] panel:max-h-[680px]"
       >
-        <article className="grid row-span-5 grid-rows-subgrid items-start gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
+        <article className="grid row-span-5 grid-rows-subgrid gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
           <div className="flex items-start justify-between gap-[12px]">
             <h3 className="min-w-0 flex-1 font-display text-fluid-lg text-fg">{MLA_TITLE}</h3>
             <span className="shrink-0 whitespace-nowrap text-2xs tracking-[0.18em] text-dim-2">{MLA_BADGE}</span>
@@ -144,7 +139,7 @@ export function ProjectsOther() {
 
           <p className="text-fit-sm text-fg-2">{MLA_DESCRIPTION}</p>
 
-          <CopyInstallCommand command={MLA_INSTALL_COMMAND} />
+          <CopyInstallCommand command={MLA_INSTALL_COMMAND} className="self-end" />
 
           <div className="flex flex-wrap items-end gap-[26px] border-t border-line pt-[14px]">
             {MLA_STATS.map((stat) => (
@@ -171,7 +166,7 @@ export function ProjectsOther() {
           </div>
         </article>
 
-        <article className="grid row-span-5 grid-rows-subgrid items-start gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
+        <article className="grid row-span-5 grid-rows-subgrid gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
           <div className="flex items-start justify-between gap-[12px]">
             <h3 className="min-w-0 flex-1 font-display text-fluid-lg text-fg">Thesis</h3>
             <span
@@ -187,7 +182,7 @@ export function ProjectsOther() {
           <p className="text-fit-sm text-fg-2">{THESIS_DESCRIPTION}</p>
           <p className="sr-only">{THESIS_TITLE}</p>
 
-          <AgentCluster />
+          <AgentCluster className="self-end" />
 
           <div className="flex gap-[26px] border-t border-line pt-[14px]">
             {THESIS_STATS.map((stat) => (
