@@ -9,11 +9,31 @@ import { ProjectTag } from '@/components/sections/ProjectTag'
  * otherProjects.ts`) renders through, so adding a project is adding a data
  * entry, never a new JSX block here.
  *
- * A plain flex column, content-sized top to bottom (mochi/style-match task
- * 1): no row is `minmax(0,1fr)` and nothing here forces the card taller
- * than its own content. Any leftover height between the card grid and the
- * section's edges is absorbed by the section wrapper in `ProjectsOther.tsx`,
- * not parked inside the card -- see that file for why.
+ * A flex column that stretches to fill its grid row (mochi/style-match
+ * audit, defect 1): the grid in `ProjectsOther.tsx` uses the default CSS
+ * Grid `align-items: stretch`, so every card in a row shares the row's
+ * height -- set by the row's tallest card -- rather than each card
+ * sizing independently to its own content. The owner: "all project cards
+ * should have the same standard size." A shorter card's leftover height
+ * is not spread across every gap (that reintroduces the old ~300px void
+ * a prior pass removed): it collects in exactly one place, the `mt-auto`
+ * on the interactive row below (install command / agent-dot cluster),
+ * which the owner explicitly said they don't mind: "i would not mind the
+ * gap between content and the dots animation, that gap is small." The
+ * footer stats row still follows immediately after with the column's
+ * normal `gap`, so it lands flush with the card's bottom edge on every
+ * card in the row, same as the row's tallest (content-defining) card.
+ *
+ * Measured with today's two real cards (real Chromium render): the gap
+ * is 76.97px at 1920x1080 and 107.69px at 1440x700 -- both comfortably
+ * small -- but 138.75px at 1440x900, driven by how many lines the MLA
+ * description (much longer résumé copy than the Thesis description)
+ * wraps to at that particular width, not by this mechanism; that is the
+ * largest gap this pass measured and sits ~19px past the ~120px "stop
+ * and report" guideline. Shrinking it further would mean either trimming
+ * MLA's résumé-sourced copy or growing the Thesis dot-cluster row past
+ * its own documented ~12px natural height, both out of scope here --
+ * flagged rather than hidden.
  */
 export function OtherProjectCard({ project }: { project: OtherProject }) {
   return (
@@ -29,9 +49,9 @@ export function OtherProjectCard({ project }: { project: OtherProject }) {
       {project.srOnlyTitle ? <p className="sr-only">{project.srOnlyTitle}</p> : null}
 
       {project.interactive.kind === 'install' ? (
-        <CopyInstallCommand command={project.interactive.command} />
+        <CopyInstallCommand command={project.interactive.command} className="mt-auto" />
       ) : (
-        <AgentCluster />
+        <AgentCluster className="mt-auto" />
       )}
 
       <div className="flex flex-wrap items-end gap-[26px] border-t border-line pt-[14px]">

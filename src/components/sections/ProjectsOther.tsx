@@ -90,23 +90,27 @@ export function ProjectsOther() {
          * card-count ceiling notes for how far that shrinking stays
          * legible).
          *
-         * `items-start` overrides CSS Grid's own default (`align-items:
-         * stretch`): without it, a shorter row-mate (the Thesis card,
-         * whose agent-dot row is a fraction of the MLA install-command
-         * bar's height) is silently stretched to match the tallest card in
-         * its row -- reintroducing exactly the interior void task 1
-         * removes, just via the grid's own default instead of an explicit
-         * `flex-1`/`minmax(0,1fr)`. With it, each card's border sizes to
-         * its own content only; title rows still start flush with each
-         * other (both cards' tops sit on the same grid-row edge), but
-         * footers are no longer forced onto a shared baseline when one
-         * card's content is genuinely shorter -- forcing that back would
-         * mean re-stretching a card past its content, which is the thing
-         * being fixed here.
+         * CSS Grid's own default (`align-items: stretch`) is deliberately
+         * left in effect here (mochi/style-match audit, defect 1): a prior
+         * pass overrode it with `items-start` specifically so a shorter
+         * row-mate (the Thesis card) would not stretch to match the
+         * taller one, but the owner reviewed that render and asked for
+         * the opposite -- "all project cards should have the same
+         * standard size." Stretch now sizes every card in a row to the
+         * row's tallest card; `OtherProjectCard.tsx` puts the resulting
+         * leftover height in exactly one place inside the shorter card
+         * (an `mt-auto` on its interactive row, right before the
+         * install-command/agent-dot element) rather than spreading it
+         * across every gap, keeping that leftover small instead of
+         * reintroducing the old ~300px void -- see that file for the full
+         * writeup and the owner's own "that gap is small [and] I would
+         * not mind [it]" call. Title rows still start flush with each
+         * other regardless (both cards' tops sit on the same grid-row
+         * edge either way).
          */}
         <div
           ref={fitRef}
-          className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] items-start gap-[clamp(14px,1.6vw,20px)]"
+          className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[clamp(14px,1.6vw,20px)]"
         >
           {OTHER_PROJECTS.map((project) => (
             <OtherProjectCard key={project.id} project={project} />
