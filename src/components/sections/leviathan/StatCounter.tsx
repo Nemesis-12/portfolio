@@ -80,9 +80,9 @@ export function StatCounter({ stat }: StatCounterProps) {
     <div ref={ref} role="group" aria-label={stat.accessibleName} className="flex flex-col">
       <div aria-hidden="true" className="font-display leading-none text-fluid-xl text-fg">
         {displayed}
-        <span className="ml-[2px] text-fluid-xs text-dim-2">{stat.suffix}</span>
+        <span className="ml-[3px] text-fluid-xs text-dim-2">{stat.suffix}</span>
       </div>
-      <div className="mt-[var(--space-3xs)] text-2xs tracking-[0.16em] text-dim-2">{stat.label}</div>
+      <div className="mt-[7px] text-2xs tracking-[0.16em] text-dim-2">{stat.label}</div>
     </div>
   )
 }

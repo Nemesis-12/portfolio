@@ -71,7 +71,7 @@ export function ProjectsFeatured() {
         className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(340px,1fr))] border border-line-2 bg-panel panel:mt-[var(--space-fit-margin)] panel:max-h-[760px]"
       >
         <div className="flex min-w-0 flex-col gap-[var(--space-fit-xs)] p-[clamp(16px,2.4vh,30px)_clamp(18px,2.2vw,30px)]">
-          <div className="flex items-baseline gap-[var(--space-xs)] flex-wrap">
+          <div className="flex items-baseline gap-[12px] flex-wrap">
             <span className="font-display text-fit-xl leading-tight tracking-[-0.03em] text-fg">
               Leviathan
             </span>
@@ -87,7 +87,7 @@ export function ProjectsFeatured() {
 
           <ul className="flex flex-col gap-[var(--space-fit-3xs)] text-fit-sm text-fg-2">
             {LEVIATHAN_BULLETS.map((bullet) => (
-              <li key={bullet} className="flex gap-[var(--space-2xs)]">
+              <li key={bullet} className="flex gap-[12px]">
                 <span aria-hidden="true" className="text-accent">
                   →
                 </span>
@@ -96,12 +96,12 @@ export function ProjectsFeatured() {
             ))}
           </ul>
 
-          <div className="mt-auto flex flex-wrap items-end gap-[var(--space-md)] border-t border-line pt-[var(--space-xs)]">
+          <div className="mt-auto flex flex-wrap items-end gap-[clamp(16px,2.4vw,32px)] border-t border-line pt-[15px]">
             {LEVIATHAN_STATS.map((stat) => (
               <StatCounter key={stat.id} stat={stat} />
             ))}
 
-            <div className="ml-auto flex gap-[var(--space-sm)]">
+            <div className="ml-auto flex gap-[16px]">
               {LEVIATHAN_LINKS.map((link) => (
                 <a
                   key={link.label}
