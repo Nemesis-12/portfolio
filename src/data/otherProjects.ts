@@ -32,8 +32,12 @@
  *     line 453), which is restored here per the owner's chrome-is-verbatim
  *     ruling (mochi/style-match audit) — but the resume gives no separate
  *     thesis-defence date, only the program's own expected-completion
- *     date, so the value shown is that expected date ("MAY" / "2027"),
- *     never a fabricated specific day.
+ *     date, so the value shown is that expected date. The owner asked for
+ *     "SPRING" in place of "MAY" (mochi/style-match task 2, copy change)
+ *     — "May" falls within the resume's own "Spring" academic-term
+ *     convention (the same resume entry ends its Bachelor's Dean's List
+ *     range at "Spring 2022"), so this is a coarser rendering of the same
+ *     expected date, not a different one.
  *   - The sample's second thesis stat (line 454) is "AGENTS" / "LLM",
  *     restored verbatim as chrome too — it restates the thesis's own
  *     premise (LLM agents) rather than a resume figure, so nothing is
@@ -77,8 +81,9 @@ export type OtherProjectInteractive =
 
 export interface OtherProjectBadge {
   readonly label: string
-  /** Pulsing accent-coloured "in progress" badge (the Thesis's "● RUNNING"), vs. a plain static one. */
-  readonly pulse?: boolean
+  readonly year: number
+  /** Blinking "in progress" tag (the Thesis's "RUNNING · 2026"), vs. a plain static one. */
+  readonly blink?: boolean
 }
 
 /**
@@ -109,7 +114,13 @@ export interface OtherProject {
 const MLA_PROJECT: OtherProject = {
   id: 'mla',
   title: 'Multi-Head Latent Attention',
-  badge: { label: 'PUBLISHED' },
+  /**
+   * Boxed `PUBLISHED · 2025` tag (mochi/style-match task 2, unifying
+   * every project card on the shared `ProjectTag` style Leviathan
+   * already used). Year: resume — "Multi-Head Latent Attention (MLA) ···
+   * Jun 2025 – Aug 2025", so the library was published within 2025.
+   */
+  badge: { label: 'PUBLISHED', year: 2025 },
   tagline: 'Read the paper. Wrote the library.',
   description:
     'Multi-Head Latent Attention from DeepSeek-V2, translated into a modular PyTorch implementation with clean abstractions for KV compression and low-rank projection — packaged as a production-ready PyPI library with type hints, documentation, and integration examples.',
@@ -148,13 +159,22 @@ const THESIS_PROJECT: OtherProject = {
   id: 'thesis',
   title: 'Thesis',
   srOnlyTitle: 'Generative Agent-Based Models for Insider Threat Detection',
-  badge: { label: 'RUNNING', pulse: true },
+  /**
+   * Boxed `RUNNING · 2026` tag, blinking (mochi/style-match task 2 --
+   * the owner explicitly asked for "the blinking running as a tag with
+   * the year"). Year: resume — "Accelerated Master of Science in
+   * Computer Science ··· Jan 2026 – May 2027 (Expected)"; the thesis
+   * program started in 2026 and is still running (unlike Leviathan/MLA,
+   * which report their *completion* year, an in-progress project has no
+   * completion year yet, so this reports the year it started running).
+   */
+  badge: { label: 'RUNNING', year: 2026, blink: true },
   tagline: 'Fake employees, real behavioural data.',
   description:
     'A simulated organization staffed by generative LLM agents, some of them behaving as insider threats, producing the labelled behavioural data real security teams can rarely share.',
   interactive: { kind: 'agent-cluster' },
   stats: [
-    { label: 'DEFENSE', value: 'MAY', suffix: '2027' },
+    { label: 'DEFENSE', value: 'SPRING', suffix: '2027' },
     { label: 'AGENTS', value: 'LLM' },
   ],
 }

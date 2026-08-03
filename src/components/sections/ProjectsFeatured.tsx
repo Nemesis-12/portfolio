@@ -2,8 +2,10 @@ import { Section } from '@/components/layout/Section'
 import { SectionHeading } from '@/components/layout/SectionHeading'
 import { InferencePipeline } from '@/components/sections/leviathan/InferencePipeline'
 import { StatCounter } from '@/components/sections/leviathan/StatCounter'
+import { ProjectTag } from '@/components/sections/ProjectTag'
 import {
-  LEVIATHAN_BADGE,
+  LEVIATHAN_BADGE_LABEL,
+  LEVIATHAN_BADGE_YEAR,
   LEVIATHAN_BULLETS,
   LEVIATHAN_HOOK,
   LEVIATHAN_LINKS,
@@ -125,9 +127,7 @@ export function ProjectsFeatured() {
               <span className="min-w-0 flex-1 font-display text-fit-xl leading-tight tracking-[-0.03em] text-fg">
                 Leviathan
               </span>
-              <span className="shrink-0 whitespace-nowrap border border-line-2 px-2 py-[4px] text-[9.5px] tracking-[0.18em] text-dim">
-                {LEVIATHAN_BADGE}
-              </span>
+              <ProjectTag label={LEVIATHAN_BADGE_LABEL} year={LEVIATHAN_BADGE_YEAR} />
             </div>
             <div className="text-fit-xs text-dim">{LEVIATHAN_SUBTITLE}</div>
 

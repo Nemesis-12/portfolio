@@ -1,0 +1,34 @@
+/*
+ * Project-tag blink (mochi/style-match task 2: the Thesis card's
+ * "RUNNING · 2026" tag).
+ *
+ * Same shape as the header clock's cursor blink (`header.css`, #312): a
+ * dedicated keyframe here (not Tailwind's `motion-safe:[animation:...]`
+ * arbitrary-value pattern used elsewhere for `pulse`) because
+ * `ProjectTag.tsx` gates this class through `usePrefersReducedMotion`,
+ * the codebase's one consolidated reduced-motion hook, rather than a
+ * pure-CSS media query alone -- the media query below is a
+ * belt-and-braces fallback in case the class is ever applied
+ * unconditionally by a future change, not the primary mechanism.
+ */
+@keyframes project-tag-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-project-tag-blink {
+  animation: project-tag-blink 1.2s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-project-tag-blink {
+    animation: none;
+    opacity: 1;
+  }
+}

@@ -1,6 +1,7 @@
 import type { OtherProject } from '@/data/otherProjects'
 import { AgentCluster } from '@/components/sections/otherProjects/AgentCluster'
 import { CopyInstallCommand } from '@/components/sections/otherProjects/CopyInstallCommand'
+import { ProjectTag } from '@/components/sections/ProjectTag'
 
 /**
  * One card on the second projects screen (mochi/style-match task 2): a
@@ -19,18 +20,7 @@ export function OtherProjectCard({ project }: { project: OtherProject }) {
     <article className="flex flex-col gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
       <div className="flex items-start justify-between gap-[12px]">
         <h3 className="min-w-0 flex-1 font-display text-fluid-lg text-fg">{project.title}</h3>
-        {project.badge.pulse ? (
-          <span
-            aria-hidden="true"
-            className="shrink-0 whitespace-nowrap text-2xs tracking-[0.18em] text-accent-2 motion-safe:[animation:pulse_1.8s_ease-in-out_infinite]"
-          >
-            ● {project.badge.label}
-          </span>
-        ) : (
-          <span className="shrink-0 whitespace-nowrap text-2xs tracking-[0.18em] text-dim-2">
-            {project.badge.label}
-          </span>
-        )}
+        <ProjectTag label={project.badge.label} year={project.badge.year} blink={project.badge.blink} />
       </div>
 
       <p className="text-fit-lg text-accent-2">{project.tagline}</p>

@@ -44,11 +44,15 @@ export interface PipelineCandidate {
 export const LEVIATHAN_HOOK = 'It never searches. It just knows.'
 
 /**
- * Badge next to the project name (sample line 343: "SHIPPED · 2025").
+ * Badge next to the project name (sample line 343: "SHIPPED · 2025"),
+ * split into `label`/`year` (mochi/style-match task 2) so it can be
+ * passed straight into the shared `ProjectTag` component every project
+ * card now renders through (`src/components/sections/ProjectTag.tsx`).
  * Resume: Leviathan's project dates are "Jan 2025 – Dec 2025", so the
  * project shipped within 2025.
  */
-export const LEVIATHAN_BADGE = 'SHIPPED · 2025'
+export const LEVIATHAN_BADGE_LABEL = 'SHIPPED'
+export const LEVIATHAN_BADGE_YEAR = 2025
 
 export const LEVIATHAN_SUBTITLE = 'searchless transformer chess engine'
 
