@@ -49,19 +49,6 @@ function BoardGrid({ frame }: { frame: BoardFrame }) {
           boxShadow: 'inset -1px 0 0 0 rgb(var(--line)), inset 0 -1px 0 0 rgb(var(--line))',
         }}
       >
-        {frame.move78Marker ? (
-          <span
-            aria-hidden="true"
-            className="absolute rounded-full border-2 border-accent"
-            style={{
-              left: percentFor(frame.move78Marker.col),
-              top: percentFor(frame.move78Marker.row),
-              width: '7.2%',
-              aspectRatio: '1',
-              transform: 'translate(-50%, -50%)',
-            }}
-          />
-        ) : null}
         {frame.stones.map((stone) => (
           <span
             key={stone.key}
@@ -78,7 +65,7 @@ function BoardGrid({ frame }: { frame: BoardFrame }) {
             style={{
               left: percentFor(stone.col),
               top: percentFor(stone.row),
-              width: stone.variant === 'move78' ? '6.4%' : '5%',
+              width: '5%',
               aspectRatio: '1',
               transform: 'translate(-50%, -50%)',
             }}
@@ -161,7 +148,7 @@ export function GoBoardReplay() {
 
   return (
     <div
-      className="mx-auto flex w-[min(100%,58vh)] min-w-0 flex-col gap-[12px]"
+      className="mx-auto flex w-full min-w-0 flex-col gap-[12px] panel:w-[min(100%,58vh)]"
       style={{ opacity: containerOpacity }}
     >
       <div className="flex min-h-[20px] items-center justify-between gap-[12px] whitespace-nowrap text-[10px] tracking-[0.14em] text-dim">
