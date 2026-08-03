@@ -270,10 +270,12 @@
 
   /*
    * `TimelineEntryCell` (`EducationExperience.tsx`) is `grid-template-
-   * rows: subgrid` + `row-span-4` above 880px so its four internal bands
-   * (status/title/qualifier/hairline+bullets) share tracks with its
-   * row-mate in `[data-pathgrid]` (mochi/style-match audit, defect 3/4).
-   * Below 880px `[data-pathgrid]` itself drops back to normal flow
+   * rows: subgrid` + `row-span-6` above 880px so its four visible bands
+   * (status/title/qualifier/hairline+bullets, plus two flexible spacer
+   * tracks that absorb slack -- mochi/style-match slack audit) share
+   * tracks with its row-mate in `[data-pathgrid]` (mochi/style-match
+   * audit, defect 3/4). Below 880px `[data-pathgrid]` itself drops back
+   * to normal flow
    * (above), so there is no longer a shared row template for `subgrid`
    * to reference -- falling back to a plain flex column here keeps each
    * cell's own content top-aligned and self-sized instead of subgridding
