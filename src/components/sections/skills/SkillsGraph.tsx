@@ -195,10 +195,13 @@ export function SkillsGraph() {
           this) renders top-jammed. items-baseline still keeps the three spans aligned to
           each other within the line; content-center just centres that line in the box. */}
       <div className="flex min-h-[60px] flex-wrap content-center items-baseline gap-[clamp(14px,2.4vw,28px)] border border-line bg-panel-2 px-[18px] py-[14px]">
+        {/* relative top-[2px]: Press Start 2P reserves descender space its glyphs never
+            use, so against items-baseline it sits ~2px higher than the IBM Plex Mono
+            siblings below. This optical nudge, not a font swap, corrects it. */}
         <span
           aria-live="polite"
           className={cn(
-            'font-display text-[clamp(11px,1.4vw,14px)]',
+            'relative top-[2px] font-display text-[clamp(11px,1.4vw,14px)]',
             readout.isActive ? 'text-fg' : 'text-dim-2',
           )}
         >
