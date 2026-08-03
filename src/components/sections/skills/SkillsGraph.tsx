@@ -189,7 +189,12 @@ export function SkillsGraph() {
         </div>
       </div>
 
-      <div className="flex min-h-[60px] flex-wrap items-baseline gap-[clamp(14px,2.4vw,28px)] border border-line bg-panel-2 px-[18px] py-[14px]">
+      {/* content-center: min-h-[60px] makes this box taller than one flex line, and with
+          flex-wrap set, align-content (not items-baseline) decides where that line sits —
+          the default flex-start packs it to the top, so the sample reference (which lacks
+          this) renders top-jammed. items-baseline still keeps the three spans aligned to
+          each other within the line; content-center just centres that line in the box. */}
+      <div className="flex min-h-[60px] flex-wrap content-center items-baseline gap-[clamp(14px,2.4vw,28px)] border border-line bg-panel-2 px-[18px] py-[14px]">
         <span
           aria-live="polite"
           className={cn(
