@@ -184,10 +184,17 @@
  * the header until this was added (#314 owner review). The 880px+ override
  * below keeps its own unconditional clamp (already proven to clear the
  * header there, see `App.tsx`), so this only changes mobile.
+ *
+ * `+ var(--space-md)` on the `--header-h` branch adds real breathing room
+ * below the bar itself (clearing the header alone left content flush
+ * against it, #314 owner follow-up) -- `--space-md` (1.6-2.4rem) matches
+ * the hero's own internal block rhythm (its `mt-[...]` gaps run
+ * 20-34px), so the gap under the header reads as deliberate, not
+ * token-sized.
  */
 .section-shell {
   width: 100%;
-  padding-block: max(var(--space-lg), var(--header-h, 4rem)) var(--space-md);
+  padding-block: max(var(--space-lg), var(--header-h, 4rem) + var(--space-md)) var(--space-md);
   padding-inline: var(--space-md);
   display: flex;
   flex-direction: column;
