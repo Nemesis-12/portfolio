@@ -109,9 +109,19 @@ export function ProjectsFeatured() {
          * with real content and the shrink pass correctly measure and
          * correct any future overflow instead.
          */}
+        {/*
+         * `minmax(min(340px,100%),1fr)`, not a bare `minmax(340px,1fr)`:
+         * the bare form's 340px floor can exceed the section's available
+         * inline size below 880px (owner review, #314) -- wrapping it in
+         * `min(...,100%)` caps the floor at the grid's own width whenever
+         * that's narrower than 340px, so the column can never demand more
+         * room than actually exists. `min(340px,100%) === 340px` whenever
+         * the container is wide enough, so this is a no-op above that
+         * width -- desktop is unaffected.
+         */}
         <div
           ref={fitRef}
-          className="grid grid-cols-[repeat(auto-fit,minmax(340px,1fr))] border border-line-2 bg-panel"
+          className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] border border-line-2 bg-panel"
         >
           <div className="flex min-w-0 flex-col gap-[var(--space-fit-xs)] p-[clamp(16px,2.4vh,30px)_clamp(18px,2.2vw,30px)]">
             {/*

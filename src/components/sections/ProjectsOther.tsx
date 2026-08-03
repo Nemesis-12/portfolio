@@ -112,9 +112,10 @@ export function ProjectsOther() {
          * other regardless (both cards' tops sit on the same grid-row
          * edge either way).
          */}
+        {/* minmax(min(320px,100%),1fr): same overflow guard as ProjectsFeatured's grid -- caps the column floor at the container's own width below 880px, a no-op above it. */}
         <div
           ref={fitRef}
-          className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[clamp(14px,1.6vw,20px)]"
+          className="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-[clamp(14px,1.6vw,20px)]"
         >
           {OTHER_PROJECTS.map((project) => (
             <OtherProjectCard key={project.id} project={project} />

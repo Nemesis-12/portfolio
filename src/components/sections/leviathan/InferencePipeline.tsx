@@ -119,7 +119,8 @@ export function InferencePipeline() {
       className="flex flex-col gap-[clamp(10px,2vh,22px)]"
     >
       <PipelineRow label="position">
-        <span aria-hidden="true" className="flex flex-wrap text-[clamp(9px,1.4vh,13px)]">
+        {/* min-w-0: each char is its own flex item so this already wraps freely, but the container still needs permission to shrink below its content's width. */}
+        <span aria-hidden="true" className="flex min-w-0 flex-wrap text-[clamp(9px,1.4vh,13px)]">
           {fenChars.map((cell, index) => (
             <span
               key={index}
@@ -133,7 +134,7 @@ export function InferencePipeline() {
       </PipelineRow>
 
       <PipelineRow label="tokens">
-        <div aria-hidden="true" className="flex flex-wrap gap-[5px]">
+        <div aria-hidden="true" className="flex min-w-0 flex-wrap gap-[5px]">
           {tokenCells.map((cell, index) => (
             <span
               key={index}
