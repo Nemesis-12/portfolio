@@ -101,13 +101,27 @@ export function ProjectsOther() {
        * each `<article>` (`row-span-5`) force title-row, tagline,
        * description, interactive element, and footer to the same height
        * band across both cards regardless of which card's content is
-       * taller in a given band; the 4th band is `minmax(0,1fr)` so it
-       * absorbs the slack (replacing the old per-card `mt-auto` hack,
-       * which could not coordinate across two independent flex columns).
+       * taller in a given band.
+       *
+       * All five tracks are content-sized (`auto`), not `minmax(0,1fr)`
+       * (owner-approved divergence from the sample, mochi/style-match
+       * slack audit): the résumé copy is short relative to a 100dvh
+       * section, so a single `1fr` band -- combined with `self-end` on
+       * `CopyInstallCommand`/`AgentCluster` -- dumped ~300px of dead air
+       * in one spot (between the description and the interactive row)
+       * while the row below it stayed cramped. With every row
+       * content-sized, `content-between` (`align-content:space-between`)
+       * distributes whatever height `flex-1` leaves unclaimed as even
+       * gaps between all five bands instead, so title/tagline/description/
+       * interactive-element/footer read as one evenly-paced block, title
+       * flush at the card's top edge and footer flush at its bottom edge
+       * -- matching the sample's own "flush top to flush bottom, no
+       * internal dead zone" footer-pinning intent, just spread across
+       * every seam instead of concentrated in one.
        */}
       <div
         ref={fitRef}
-        className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] grid-rows-[auto_auto_auto_minmax(0,1fr)_auto] gap-[clamp(14px,1.6vw,20px)] panel:mt-[var(--space-fit-margin)] panel:max-h-[680px]"
+        className="grid flex-1 content-between grid-cols-[repeat(auto-fit,minmax(320px,1fr))] grid-rows-[auto_auto_auto_auto_auto] gap-[clamp(14px,1.6vw,20px)] panel:mt-[var(--space-fit-margin)] panel:max-h-[680px]"
       >
         <article className="grid row-span-5 grid-rows-subgrid gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
           <div className="flex items-start justify-between gap-[12px]">

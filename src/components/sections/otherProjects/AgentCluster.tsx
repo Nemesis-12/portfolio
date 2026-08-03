@@ -55,7 +55,7 @@ export function AgentCluster() {
     <div
       role="group"
       aria-label="Simulated organization of LLM agents: mostly idle or active, one occasionally flagged as an insider threat"
-      className="self-end flex flex-wrap gap-[6px]"
+      className="flex flex-wrap gap-[6px]"
     >
       {dots.map((dot) => (
         <span
