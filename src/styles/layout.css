@@ -267,4 +267,21 @@
     grid-template-rows: none !important;
     max-height: none !important;
   }
+
+  /*
+   * `TimelineEntryCell` (`EducationExperience.tsx`) is `grid-template-
+   * rows: subgrid` + `row-span-4` above 880px so its four internal bands
+   * (status/title/qualifier/hairline+bullets) share tracks with its
+   * row-mate in `[data-pathgrid]` (mochi/style-match audit, defect 3/4).
+   * Below 880px `[data-pathgrid]` itself drops back to normal flow
+   * (above), so there is no longer a shared row template for `subgrid`
+   * to reference -- falling back to a plain flex column here keeps each
+   * cell's own content top-aligned and self-sized instead of subgridding
+   * against a parent that no longer defines the tracks.
+   */
+  [data-pathgrid] article {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-row: auto !important;
+  }
 }

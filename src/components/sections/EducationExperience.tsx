@@ -57,11 +57,31 @@ export function EducationExperience() {
        * real renders. `max-height` still caps the grid for unusually long
        * bullet lists.
        */}
+      {/*
+       * Each entry band (header aside) is split into four explicit
+       * subrows -- status line, title, qualifier, hairline+bullets --
+       * repeated once per entry (mochi/style-match audit, defect 3/4).
+       * The sample never needs this: its own titles ("MS COMPUTER
+       * SCIENCE", "SOFTWARE ENGINEER INTERN") are always one line, so a
+       * plain flex column per cell coincidentally keeps every cell's
+       * hairline rule at the same height for free. The résumé wording
+       * used here (`src/data/timeline.ts`, "résumé is source of truth")
+       * is longer -- "Accelerated Master of Science in Computer Science"
+       * wraps to two lines while its row-mate "Software Engineer Intern"
+       * does not -- so independent flex columns put the two cells'
+       * hairline rules at different heights (verified via a real
+       * Chromium render: ~20px apart at 1440x900). `TimelineEntryCell`
+       * below is `grid-template-rows:subgrid` over these four shared
+       * tracks (`row-span-4`), so the taller cell in a row band widens
+       * the shared subrow for BOTH cells and every subsequent element --
+       * qualifier, hairline, bullets -- lands on the same line across
+       * the row regardless of which cell's title wrapped.
+       */}
       <div
         ref={fitRef}
         data-pathgrid=""
         data-fit=""
-        className="mt-[var(--space-fit-margin-tight)] grid flex-1 grid-flow-col auto-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)] gap-px border border-line-2 bg-line max-h-[720px]"
+        className="mt-[var(--space-fit-margin-tight)] grid flex-1 grid-flow-col auto-cols-[minmax(0,1fr)] grid-rows-[auto_repeat(2,auto_auto_auto_minmax(0,1fr))] gap-px border border-line-2 bg-line max-h-[720px]"
       >
         <TimelineColumnCells column={EDUCATION_COLUMN} kind="education" />
         <TimelineColumnCells column={EXPERIENCE_COLUMN} kind="experience" />
@@ -117,7 +137,7 @@ function TimelineEntryCell({
   const isCurrent = entry.status === 'current'
 
   return (
-    <article className="flex flex-col justify-start gap-[var(--space-fit-2xs)] bg-panel px-[clamp(14px,1.8vw,22px)] py-[var(--space-fit-sm)]">
+    <article className="grid row-span-4 grid-rows-subgrid gap-[var(--space-fit-2xs)] bg-panel px-[clamp(14px,1.8vw,22px)] py-[var(--space-fit-sm)]">
       <div className="flex flex-wrap items-center gap-[12px] text-[9.5px] uppercase tracking-[0.18em] text-dim-2">
         <span
           className={cn(
