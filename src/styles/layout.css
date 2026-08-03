@@ -173,9 +173,28 @@
  * hard to scroll within an overflowing section. Not addressed here.
  */
 
+/*
+ * `--header-h` is published imperatively by `Header.tsx` (measured, not
+ * guessed, since the header's rendered height changes with the fluid type
+ * scale and with viewport width). The base (below-880px) top padding uses
+ * `max(var(--space-lg), var(--header-h))` so the fixed header never covers
+ * a section's real content at mobile widths, where `--space-lg` alone
+ * (2.4-3.6rem) can floor below the header's rendered height (~55-60px) --
+ * the hero eyebrow and other sections' heading rows rendered partly behind
+ * the header until this was added (#314 owner review). The 880px+ override
+ * below keeps its own unconditional clamp (already proven to clear the
+ * header there, see `App.tsx`), so this only changes mobile.
+ *
+ * `+ var(--space-md)` on the `--header-h` branch adds real breathing room
+ * below the bar itself (clearing the header alone left content flush
+ * against it, #314 owner follow-up) -- `--space-md` (1.6-2.4rem) matches
+ * the hero's own internal block rhythm (its `mt-[...]` gaps run
+ * 20-34px), so the gap under the header reads as deliberate, not
+ * token-sized.
+ */
 .section-shell {
   width: 100%;
-  padding-block: var(--space-lg) var(--space-md);
+  padding-block: max(var(--space-lg), var(--header-h, 4rem) + var(--space-md)) var(--space-md);
   padding-inline: var(--space-md);
   display: flex;
   flex-direction: column;
@@ -183,12 +202,6 @@
 }
 
 /*
- * `--header-h` is published imperatively by `Header.tsx` (measured, not
- * guessed, since the header's rendered height changes with the fluid type
- * scale and with viewport width). It is no longer consumed here (see
- * below); `Header.tsx` still publishes it in case a future consumer needs
- * a measured header height.
- *
  * `scroll-padding-top` was removed from `:root` (mochi/style-match audit):
  * a prior revision added it reasoning it was needed so `scroll-snap-align:
  * start` and anchor jumps wouldn't land a section under the fixed header.

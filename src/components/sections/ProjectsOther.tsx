@@ -61,8 +61,12 @@ export function ProjectsOther() {
        * `.section-shell`'s own `justify-content:center` (on the
        * heading+wrapper block as a whole) has nothing left to redistribute
        * -- the wrapper already occupies 100% of the remaining height.
+       *
+       * `mt-` was `panel:`-only, leaving zero gap below 880px between the
+       * "THE OTHER STUFF I WORKED ON" caption and the first card (#314
+       * owner review) -- unconditional now, same margin at every width.
        */}
-      <div className="flex flex-1 flex-col justify-center panel:mt-[var(--space-fit-margin)]">
+      <div className="mt-[var(--space-fit-margin)] flex flex-1 flex-col justify-center">
         {/*
          * `auto-fit`/`minmax(320px,1fr)` (sample line 424) is also the
          * mechanism that lets this grid reflow as more projects are added
@@ -108,9 +112,20 @@ export function ProjectsOther() {
          * other regardless (both cards' tops sit on the same grid-row
          * edge either way).
          */}
+        {/* minmax(min(320px,100%),1fr): same overflow guard as ProjectsFeatured's grid -- caps the column floor at the container's own width below 880px, a no-op above it. */}
+        {/*
+         * `auto-rows-fr` (below 880px, `auto-fit` only fits one column, so
+         * MLA and Thesis land in two separate grid ROWS, not two columns in
+         * one row -- `align-items: stretch` only equalises siblings sharing
+         * a row, so it did nothing there and Thesis rendered at its own,
+         * shorter, content height). Flexed auto rows with an indefinite
+         * grid-container height resolve every row to the tallest row's own
+         * content size, so both cards end up equal without touching the
+         * 880px+ single-row case (a no-op there, same as today).
+         */}
         <div
           ref={fitRef}
-          className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[clamp(14px,1.6vw,20px)]"
+          className="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] auto-rows-fr gap-[clamp(14px,1.6vw,20px)]"
         >
           {OTHER_PROJECTS.map((project) => (
             <OtherProjectCard key={project.id} project={project} />

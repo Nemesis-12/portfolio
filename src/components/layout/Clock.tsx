@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react'
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 import { cn } from '@/lib/cn'
 
-function formatClock(date: Date): string {
+function formatClock(date: Date): { hm: string; s: string } {
   const pad = (value: number) => String(value).padStart(2, '0')
-  return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+  return {
+    hm: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
+    s: pad(date.getSeconds()),
+  }
 }
 
 /**
@@ -17,6 +20,15 @@ function formatClock(date: Date): string {
  * stops blinking and sits solid. A visitor who has asked for less motion
  * gets a clock that reads as "the time", not a widget that updates in
  * front of them every second.
+ *
+ * Mobile-only truncation (owner review on #314's PR): below the 880px
+ * `panel:` breakpoint the header shows hours and minutes only (`13:55`,
+ * not `13:55:11`) -- the seconds field is measured out of a phone-width
+ * header once the theme picker and hamburger are also in the row.
+ * `formatClock` splits the value into an `hm` and `s` part so the `:ss`
+ * suffix can be a separate span hidden below `panel:` in CSS rather than
+ * reformatting the string in JS per breakpoint; the `sr-only` live value
+ * always announces full hh:mm:ss precision regardless of viewport.
  */
 export function Clock() {
   const reducedMotion = usePrefersReducedMotion()
@@ -29,12 +41,17 @@ export function Clock() {
     return () => clearInterval(id)
   }, [reducedMotion])
 
-  const label = formatClock(now)
+  const { hm, s } = formatClock(now)
 
   return (
     <span className="flex items-center gap-[7px] text-[10.5px] tracking-[0.1em] text-dim-2">
-      <span aria-hidden="true">{label}</span>
-      <span className="sr-only">Current time {label}</span>
+      <span aria-hidden="true">
+        {hm}
+        <span className="hidden panel:inline">:{s}</span>
+      </span>
+      <span className="sr-only">
+        Current time {hm}:{s}
+      </span>
       <span
         aria-hidden="true"
         className={cn(

@@ -55,20 +55,23 @@ export function CopyInstallCommand({ command, className }: CopyInstallCommandPro
   return (
     <div
       className={cn(
-        'flex items-center gap-[9px] bg-panel-2 px-[14px] py-[12px] font-mono text-2xs text-fg-2',
+        'flex flex-col gap-[9px] bg-panel-2 px-[14px] py-[12px] font-mono text-2xs text-fg-2 panel:flex-row panel:items-center',
         className,
       )}
     >
-      <span aria-hidden="true" className="text-accent-2">
-        $
-      </span>
-      <span className="flex-1 overflow-x-auto whitespace-nowrap">{command}</span>
+      {/* Command wraps (word-break: break-word) instead of scrolling below 880px -- horizontal scroll inside a strip this narrow isn't discoverable on a phone. */}
+      <div className="flex items-start gap-[9px] panel:min-w-0 panel:flex-1 panel:items-center">
+        <span aria-hidden="true" className="shrink-0 text-accent-2">
+          $
+        </span>
+        <span className="min-w-0 flex-1 break-words">{command}</span>
+      </div>
       <button
         type="button"
         onClick={handleCopy}
         disabled={!clipboardAvailable}
         aria-label={clipboardAvailable ? undefined : 'Copy unavailable -- select the command text above instead'}
-        className="whitespace-nowrap border border-line-2 px-[var(--space-2xs)] py-[2px] text-2xs text-dim tracking-[0.1em] hover:border-accent hover:text-accent-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-line-2 disabled:hover:text-dim"
+        className="shrink-0 self-end whitespace-nowrap border border-line-2 px-[var(--space-2xs)] py-[2px] text-2xs text-dim tracking-[0.1em] hover:border-accent hover:text-accent-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-line-2 disabled:hover:text-dim panel:self-auto"
       >
         {copied ? 'copied' : 'copy'}
       </button>
