@@ -4,7 +4,6 @@
 @import './styles/layout.css';
 @import './styles/header.css';
 @import './styles/hero.css';
-@import './styles/projectTag.css';
 
 /*
  * Tailwind's theme keys are mapped onto the swappable custom properties
@@ -95,12 +94,13 @@ body {
  * Global keyframes ported verbatim from the sample (lines 254-255,
  * `ideas/Portfolio.html`) -- `blink` drives the header clock caret and the
  * hero tagline cursor, `pulse` drives the Timeline's "current" status dot
- * and label (`EducationExperience.tsx`). The Thesis card's "RUNNING ·
- * 2026" tag used `pulse` here originally but now blinks instead, via its
- * own `usePrefersReducedMotion`-gated keyframe in
- * `src/styles/projectTag.css` -- kept separate from this pair because it
- * is driven by the JS hook rather than this file's pure-CSS
- * `prefers-reduced-motion` scoping (mochi/style-match task 2). Declared
+ * and label (`EducationExperience.tsx`) and, as of mochi/style-match ("i
+ * wanted the running blinking animation to be similar to the study now
+ * and working now animations"), the Thesis card's "RUNNING · 2026" tag
+ * label too (`ProjectTag.tsx`) -- gated there through the
+ * `usePrefersReducedMotion` hook rather than this file's pure-CSS
+ * `prefers-reduced-motion` scoping, but referencing the exact same
+ * `pulse` keyframe below so both read as one motion language. Declared
  * once here rather than per-component so every consumer references the
  * same names the sample uses (`animation:blink ...`, `animation:pulse
  * ...`).

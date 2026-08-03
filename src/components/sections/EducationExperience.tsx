@@ -193,6 +193,14 @@ function TimelineEntryCell({
        * inherit the new weight from this row.
        */}
       <div className="flex flex-wrap items-center gap-[12px] text-fit-meta font-medium uppercase tracking-[0.18em] text-fg-2">
+        {/*
+         * This `pulse` animation is intentionally mirrored by the Thesis
+         * project card's "RUNNING" tag label (`ProjectTag.tsx`,
+         * mochi/style-match) -- same keyframe, same 1.8s ease-in-out, same
+         * opacity range -- gated there via `usePrefersReducedMotion`
+         * instead of `motion-safe:`. Keep the two in sync if this timing
+         * ever changes.
+         */}
         <span
           className={cn(
             'flex items-center gap-[12px]',
