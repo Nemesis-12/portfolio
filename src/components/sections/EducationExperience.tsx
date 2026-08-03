@@ -135,14 +135,17 @@ function TimelineColumnCells({
       >
         <span aria-hidden="true" className="h-3 w-3 rounded-full bg-bg" />
         <span className="font-display text-[clamp(12px,1.5vw,15px)]">{column.heading}</span>
-        <span
-          className={cn(
-            'ml-auto text-[10px] uppercase tracking-[0.2em]',
-            isExperience ? 'opacity-75' : 'opacity-65',
-          )}
-        >
-          {column.kind}
-        </span>
+        {/*
+         * Size raised from a fixed 10px to the shared `text-fit-meta`
+         * token, and opacity raised from .65/.75 to .9 (mochi/style-match
+         * task 3): at .65/.75 the experience column's label (near-black
+         * text on the accent-blue header) measured well under WCAG AA's
+         * 4.5:1 for normal text even at full opacity (the accent blue
+         * itself caps this pairing around 4.3:1) -- .9 gets both columns
+         * as close to that ceiling as this token pairing allows without
+         * changing the theme's accent colour, which is out of scope here.
+         */}
+        <span className="ml-auto text-fit-meta uppercase tracking-[0.2em] opacity-90">{column.kind}</span>
       </div>
 
       {column.entries.map((entry) => (
@@ -164,7 +167,16 @@ function TimelineEntryCell({
 
   return (
     <article className="grid row-span-4 grid-rows-subgrid gap-[var(--space-fit-2xs)] bg-panel px-[clamp(14px,1.8vw,22px)] py-[var(--space-fit-sm)]">
-      <div className="flex flex-wrap items-center gap-[12px] text-[9.5px] uppercase tracking-[0.18em] text-dim-2">
+      {/*
+       * `text-fit-meta` + `text-dim` (mochi/style-match task 3): the
+       * owner's own report at 1440x900 -- the status label and date range
+       * were "barely visible" at the old fixed 9.5px / `text-dim-2`
+       * pairing, which measures 3.1:1 against the card background, under
+       * WCAG AA's 4.5:1 floor for normal text. `text-dim` alone measures
+       * 5.7:1 (passes); the size bump (raised token, not a scattered
+       * literal) covers the rest.
+       */}
+      <div className="flex flex-wrap items-center gap-[12px] text-fit-meta uppercase tracking-[0.18em] text-dim">
         <span
           className={cn(
             'flex items-center gap-[12px]',
@@ -194,10 +206,31 @@ function TimelineEntryCell({
       <div className="font-display text-fit-title leading-[1.45] text-fg">{entry.title}</div>
       <div className="text-fit-xs text-dim">{entry.qualifier}</div>
 
-      <div className="flex flex-col gap-[var(--space-fit-3xs-tight)] border-t border-line pt-[clamp(8px,1.4vh,12px)] text-[clamp(11.5px,1.45vh,13px)] leading-[1.6] text-fg-2">
+      {/*
+       * Bullets are the entry's primary content -- the qualifier line
+       * above (`text-fit-xs`, `text-dim`) is secondary. Before this pass
+       * the two read almost identically (bullets: 11.5-13px `text-fg-2`;
+       * qualifier: 11-12.5px `text-dim`) despite bullets technically
+       * measuring larger, and the owner reported the bullets "seem
+       * smaller than the qualifier" (mochi/style-match task 3). Diagnosed
+       * via a real render (`text-fg-2` on `text-dim` already gives
+       * bullets MORE contrast, so contrast wasn't the cause): the
+       * `+`-marker's own strong colour (`text-accent`/`text-fg`, the same
+       * saturated colours used for status dots and titles elsewhere in
+       * this card) was pulling the eye to the marker glyph rather than
+       * the bullet text next to it, and the two type ranges were close
+       * enough in practice (13px vs. 12.5px at typical viewport heights)
+       * that the size difference alone couldn't win against that pull.
+       * Fixed on both ends: `text-fit-sm` is raised (12.5-15px, shared
+       * token, see `src/styles/layout.css`) so bullets measure clearly
+       * larger, not marginally so, and the marker drops to `text-dim` --
+       * quiet enough to read as a list marker instead of competing with
+       * the (now brighter, larger) bullet text for attention.
+       */}
+      <div className="flex flex-col gap-[var(--space-fit-3xs-tight)] border-t border-line pt-[clamp(8px,1.4vh,12px)] text-fit-sm leading-[1.6] text-fg-2">
         {entry.bullets.map((bullet) => (
           <div key={bullet} className="flex gap-[11px]">
-            <span aria-hidden="true" className={isExperience ? 'text-accent' : 'text-fg'}>
+            <span aria-hidden="true" className="text-dim">
               +
             </span>
             <span>{bullet}</span>

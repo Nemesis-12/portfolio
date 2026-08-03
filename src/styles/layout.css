@@ -78,8 +78,9 @@
    * clamp ranges, not new ones invented for this codebase.
    */
   --text-fit-2xs: clamp(9.5px, 1.3vh, 11px); /* meta labels, e.g. header clock / stat units */
+  --text-fit-meta: clamp(11px, 1.65vh, 13px); /* Timeline meta: status label, date range, column kind label -- raised from the ~9.5-10px range measured "barely visible" at 1440x900 (mochi/style-match task 3) */
   --text-fit-xs: clamp(11px, 1.5vh, 12.5px); /* card subtitle line */
-  --text-fit-sm: clamp(11px, 1.6vh, 13px); /* bullets */
+  --text-fit-sm: clamp(12.5px, 1.8vh, 15px); /* bullets -- raised (mochi/style-match task 3) so Timeline's bullets (primary content) read unambiguously larger than the qualifier line (--text-fit-xs, secondary) instead of the two ranges nearly overlapping at typical viewport heights */
   --text-fit-base: clamp(12px, 1.75vh, 14px); /* body copy paragraph */
   --text-fit-lg: clamp(14px, 2.4vh, 22px); /* hook/tagline */
   --text-fit-title: clamp(10px, 1.6vh, 14px); /* card/entry titles (timeline) */
@@ -98,6 +99,9 @@
 
 .text-fit-2xs {
   font-size: var(--text-fit-2xs);
+}
+.text-fit-meta {
+  font-size: var(--text-fit-meta);
 }
 .text-fit-xs {
   font-size: var(--text-fit-xs);
