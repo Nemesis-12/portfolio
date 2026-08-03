@@ -6,10 +6,12 @@
  * gitignored, local-only) disagreed with or embellished the resume, the
  * resume wins:
  *
- *   - Degree titles use the resume's exact wording ("Accelerated Master of
- *     Science in Computer Science", "Bachelor of Science in Computer
- *     Science") rather than the reference's abbreviated "MS/BS COMPUTER
- *     SCIENCE".
+ *   - Degree titles are the owner's shortened display wording
+ *     ("Accelerated MS Computer Science", "BS Computer Science") -- an
+ *     explicit owner override of the resume's fuller phrasing ("Accelerated
+ *     Master of Science in Computer Science", "Bachelor of Science in
+ *     Computer Science"), not an error, and also distinct from the
+ *     reference's own abbreviated "MS/BS COMPUTER SCIENCE".
  *   - GPA and honour: resume — "GPA: 3.66/4.0, Magna Cum Laude".
  *   - Dean's List range: resume — "Dean's List: Spring 2022 – Fall 2025".
  *   - Thesis title: resume — "Thesis: Generative Agent-Based Models for
@@ -74,7 +76,7 @@ export const EDUCATION_COLUMN: TimelineColumn = {
       status: 'current',
       statusLabel: 'Studying now',
       dateRange: 'Jan 2026 – May 2027 (Expected)',
-      title: 'Accelerated Master of Science in Computer Science',
+      title: 'Accelerated MS Computer Science',
       qualifier: 'Thesis track',
       bullets: [
         'Thesis: Generative Agent-Based Models for Insider Threat Detection',
@@ -86,7 +88,7 @@ export const EDUCATION_COLUMN: TimelineColumn = {
       status: 'complete',
       statusLabel: 'Graduated',
       dateRange: 'Jan 2022 – Dec 2025',
-      title: 'Bachelor of Science in Computer Science',
+      title: 'BS Computer Science',
       qualifier: 'GPA 3.66/4.0 · Magna Cum Laude',
       bullets: [
         "Dean's List: Spring 2022 – Fall 2025",

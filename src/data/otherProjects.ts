@@ -50,6 +50,18 @@
  * visualization of the thesis's own premise (simulated organizations of
  * LLM agents, some behaving as insider threats) — not a claim about a
  * specific simulation size or result, neither of which the resume states.
+ *
+ * `THESIS_PROJECT`'s `tagline`/`description` were rewritten twice: first
+ * per an explicit owner correction (post-#318) to state the thesis's real
+ * aim — studying the build-up that might drift someone toward becoming an
+ * insider threat, before any damage occurs, not detecting a breach after
+ * the fact and not generating an attack dataset; then again per a second
+ * owner correction (thesis-copy) to strip the remaining theory jargon
+ * ("LLM personas", "OCC appraisal", "PAD mood", "JD-R stress",
+ * "precursors") so a non-technical reader gets the idea on first read. No
+ * numbers, dataset names, accuracy figures, or citations are invented
+ * here or in the copy; this is an unpublished prototype and none exist in
+ * the source material.
  */
 
 export interface OtherProjectStat {
@@ -169,9 +181,20 @@ const THESIS_PROJECT: OtherProject = {
    * completion year yet, so this reports the year it started running).
    */
   badge: { label: 'RUNNING', year: 2026, blink: true },
-  tagline: 'Fake employees, real behavioural data.',
+  /**
+   * `tagline`/`description` rewritten per an explicit owner correction: the
+   * thesis studies the slow build-up — stress, resentment, feeling
+   * treated unfairly — that might drift someone toward becoming an
+   * insider threat, before any damage occurs -- it is not a post-breach
+   * detector and not an attack-log generator. A second owner correction
+   * (thesis-copy) then stripped the remaining theory jargon so the copy
+   * reads in plain words on first pass. See the file header for the
+   * fuller note; no numbers/datasets/citations are invented, as none
+   * exist yet for this unpublished prototype.
+   */
+  tagline: 'Not the breach. The build-up.',
   description:
-    'A simulated organization staffed by generative LLM agents, some of them behaving as insider threats, producing the labelled behavioural data real security teams can rarely share.',
+    'A simulated office of AI workers with their own moods and feelings, tracking how stress and unfair treatment build up over time — the warning signs before someone turns against their employer.',
   interactive: { kind: 'agent-cluster' },
   stats: [
     { label: 'DEFENSE', value: 'SPRING', suffix: '2027' },
