@@ -1,5 +1,6 @@
 import { Section } from '@/components/layout/Section'
-import { EDUCATION_COLUMN, EXPERIENCE_COLUMN, type TimelineColumn } from '@/data/timeline'
+import { SectionHeading } from '@/components/layout/SectionHeading'
+import { EDUCATION_COLUMN, EXPERIENCE_COLUMN, type TimelineColumn, type TimelineEntry } from '@/data/timeline'
 import { getSectionMeta } from '@/data/sections'
 import { cn } from '@/lib/cn'
 import { useFitToViewport } from '@/lib/useFitToViewport'
@@ -7,14 +8,19 @@ import { useFitToViewport } from '@/lib/useFitToViewport'
 const meta = getSectionMeta('path')
 
 /**
- * Timeline section (issue #320): education and experience side by side, so
- * a visitor sees the whole trajectory at once. Above the 880px breakpoint
- * the two columns sit in a two-column grid within one viewport; below it
- * they stack into a single column (`grid-cols-1 panel:grid-cols-2`, where
- * `panel:` is the 880px breakpoint defined in `src/index.css` -- not
- * Tailwind's default `lg:`, which is 1024px and would disagree with the
- * layout shell's own 880px switch), same pattern the layout system already
- * uses elsewhere.
+ * Timeline section (issue #320, mochi/style-match): education and
+ * experience as ONE hairline grid (sample lines 491-557,
+ * `ideas/Portfolio.html`), not two separate flex columns.
+ *
+ * The grid is `grid-auto-flow:column` over a 3-row template (header,
+ * entry, entry) with `gap:1px` on a `--line`-colored background -- that
+ * gap-over-background is what draws the seams between cells, so it is
+ * reproduced as-is rather than faked with per-cell borders (line 498).
+ * `grid-auto-flow:column` fills top-to-bottom then left-to-right, so the
+ * DOM order below (education header, education entry, education entry,
+ * experience header, experience entry, experience entry) is what actually
+ * lays the two columns out side by side above the 880px `data-pathgrid`
+ * breakpoint (`src/styles/layout.css`).
  *
  * All copy and dates live in `src/data/timeline.ts` -- every figure there
  * is sourced from `public/resume.pdf`. This component is pure
@@ -25,84 +31,116 @@ export function EducationExperience() {
 
   return (
     <Section id={meta.id} headingId="path-heading">
-      <div className="flex items-baseline gap-[var(--space-sm)] flex-wrap">
-        <p className="font-mono text-fluid-xs tracking-[0.2em] text-dim">{meta.eyebrow}</p>
-        <h2 id="path-heading" className="font-display text-fluid-2xl leading-tight text-fg">{meta.title}</h2>
-        <span className="h-px flex-1 min-w-[2rem] bg-line" aria-hidden="true" />
-      </div>
+      <SectionHeading number={meta.number} title={meta.title} headingId="path-heading" />
 
       {/*
-       * Matches the reference `data-pathgrid` `[data-fit]` element's own
-       * `margin-top:clamp(16px,2.4vh,26px)` and `max-height:720px`, plus
-       * the `zoom` shrink-to-fit safety net -- both only active at/above
-       * the 880px panel breakpoint, where the two columns also go
-       * side-by-side (`panel:grid-cols-2`).
+       * `data-pathgrid` is the hook `src/styles/layout.css`'s only media
+       * query (sample lines 256-258) targets to release this grid back to
+       * normal document flow below 880px. `data-fit` keeps the existing
+       * `useFitToViewport` shrink-to-fit wired up, matching the sample's
+       * own `data-fit` attribute on this same element (line 498).
        */}
       <div
         ref={fitRef}
-        className="grid flex-1 grid-cols-1 gap-[var(--space-xs)] panel:mt-[clamp(16px,2.4vh,26px)] panel:max-h-[720px] panel:grid-cols-2"
+        data-pathgrid=""
+        data-fit=""
+        className="mt-[var(--space-fit-margin-tight)] grid grid-flow-col auto-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)] gap-px border border-line-2 bg-line max-h-[720px] flex-1"
       >
-        <TimelineColumnPanel column={EDUCATION_COLUMN} />
-        <TimelineColumnPanel column={EXPERIENCE_COLUMN} />
+        <TimelineColumnCells column={EDUCATION_COLUMN} kind="education" />
+        <TimelineColumnCells column={EXPERIENCE_COLUMN} kind="experience" />
       </div>
     </Section>
   )
 }
 
-function TimelineColumnPanel({ column }: { column: TimelineColumn }) {
+function TimelineColumnCells({
+  column,
+  kind,
+}: {
+  column: TimelineColumn
+  kind: 'education' | 'experience'
+}) {
+  const isExperience = kind === 'experience'
+
   return (
-    <div className="flex flex-col gap-[var(--space-2xs)]">
-      <div className="flex items-center gap-[var(--space-2xs)] border border-line-2 bg-panel-2 px-[18px] py-[clamp(11px,1.8vh,16px)]">
-        <h3 className="font-display text-fluid-sm leading-tight text-fg">{column.heading}</h3>
-        <span className="ml-auto text-2xs tracking-[0.2em] text-dim">
-          {column.kind.toUpperCase()}
+    <>
+      <div
+        className={cn(
+          'flex flex-wrap items-center gap-[13px] px-[18px] py-[clamp(11px,1.8vh,16px)]',
+          isExperience ? 'bg-accent text-bg' : 'bg-fg text-bg',
+        )}
+      >
+        <span aria-hidden="true" className="h-3 w-3 rounded-full bg-bg" />
+        <span className="font-display text-[clamp(12px,1.5vw,15px)]">{column.heading}</span>
+        <span
+          className={cn(
+            'ml-auto text-[10px] uppercase tracking-[0.2em]',
+            isExperience ? 'opacity-75' : 'opacity-65',
+          )}
+        >
+          {column.kind}
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col gap-[var(--space-2xs)]">
-        {column.entries.map((entry) => (
-          <article
-            key={entry.id}
+      {column.entries.map((entry) => (
+        <TimelineEntryCell key={entry.id} entry={entry} kind={kind} />
+      ))}
+    </>
+  )
+}
+
+function TimelineEntryCell({
+  entry,
+  kind,
+}: {
+  entry: TimelineEntry
+  kind: 'education' | 'experience'
+}) {
+  const isExperience = kind === 'experience'
+  const isCurrent = entry.status === 'current'
+
+  return (
+    <article className="flex flex-col justify-start gap-[var(--space-fit-2xs)] bg-panel px-[clamp(14px,1.8vw,22px)] py-[var(--space-fit-sm)]">
+      <div className="flex flex-wrap items-center gap-[12px] text-[9.5px] uppercase tracking-[0.18em] text-dim-2">
+        <span
+          className={cn(
+            'flex items-center gap-[12px]',
+            isCurrent && 'motion-safe:[animation:pulse_1.8s_ease-in-out_infinite]',
+          )}
+        >
+          <span
+            aria-hidden="true"
             className={cn(
-              'flex flex-1 flex-col gap-[var(--space-fit-2xs)] border bg-panel px-[clamp(14px,1.8vw,22px)] py-[var(--space-fit-sm)]',
-              entry.status === 'current' ? 'border-accent' : 'border-line-2',
+              'h-[9px] w-[9px] rounded-full border',
+              isCurrent
+                ? isExperience
+                  ? 'border-accent bg-accent'
+                  : 'border-fg bg-fg'
+                : isExperience
+                  ? 'border-accent bg-transparent'
+                  : 'border-fg bg-transparent',
             )}
-          >
-            <div className="flex flex-wrap items-center gap-[var(--space-2xs)] text-2xs tracking-[0.18em]">
-              <span
-                aria-hidden="true"
-                className={cn(
-                  'inline-block h-[9px] w-[9px] rounded-full border',
-                  entry.status === 'current'
-                    ? 'border-accent bg-accent'
-                    : 'border-dim-3 bg-transparent',
-                )}
-              />
-              <span className={entry.status === 'current' ? 'text-accent-2' : 'text-dim'}>
-                {entry.statusLabel}
-              </span>
-              <span className="ml-auto text-dim">{entry.dateRange}</span>
-            </div>
+          />
+          <span className={isCurrent ? (isExperience ? 'text-accent-2' : 'text-fg') : undefined}>
+            {entry.statusLabel}
+          </span>
+        </span>
+        <span className="ml-auto">{entry.dateRange}</span>
+      </div>
 
-            <h4 className="font-display text-fit-title leading-snug text-fg">{entry.title}</h4>
-            <p className="text-fit-xs text-dim">{entry.qualifier}</p>
+      <div className="font-display text-fit-title leading-[1.45] text-fg">{entry.title}</div>
+      <div className="text-fit-xs text-dim">{entry.qualifier}</div>
 
-            <ul className="flex flex-col gap-[var(--space-fit-3xs-tight)] border-t border-line pt-[var(--space-fit-2xs)] text-fit-sm text-fg-2">
-              {entry.bullets.map((bullet) => (
-                <li key={bullet} className="flex gap-[var(--space-2xs)]">
-                  <span
-                    aria-hidden="true"
-                    className={entry.status === 'current' ? 'text-accent' : 'text-fg'}
-                  >
-                    +
-                  </span>
-                  <span>{bullet}</span>
-                </li>
-              ))}
-            </ul>
-          </article>
+      <div className="flex flex-col gap-[var(--space-fit-3xs-tight)] border-t border-line pt-[clamp(8px,1.4vh,12px)] text-[clamp(11.5px,1.45vh,13px)] leading-[1.6] text-fg-2">
+        {entry.bullets.map((bullet) => (
+          <div key={bullet} className="flex gap-[11px]">
+            <span aria-hidden="true" className={isExperience ? 'text-accent' : 'text-fg'}>
+              +
+            </span>
+            <span>{bullet}</span>
+          </div>
         ))}
       </div>
-    </div>
+    </article>
   )
 }

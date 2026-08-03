@@ -25,9 +25,17 @@
 
 export interface ContactLink {
   readonly id: string
-  /** What the link actually is, e.g. "Email" -- the accessible name leads with this. */
+  /**
+   * Short right-hand tag rendered in caps next to the arrow (sample lines
+   * 567-570 use "MAIL"/"GITHUB"/"LINKEDIN"/"RESUME") -- e.g. "Email".
+   */
   readonly label: string
-  /** Supporting detail shown alongside the label, e.g. the address or a short verb phrase. */
+  /**
+   * Left-hand descriptive text the row leads with, e.g. the address or a
+   * short verb phrase -- the accessible name leads with this (mochi/
+   * style-match: `Contact.tsx` renders `detail` before `label`, matching
+   * the sample's own left-descriptive/right-tag row order).
+   */
   readonly detail: string
   readonly href: string
   /** Opens in a new tab (external destinations); the résumé PDF and mailto stay same-behaviour as the rest. */
@@ -36,6 +44,14 @@ export interface ContactLink {
 
 export const CONTACT_STATEMENT =
   'Looking for ML, systems, or software engineering work — model internals, infrastructure, or anywhere the constraint is one GPU and a deadline.'
+
+/**
+ * Footer line under the contact links (sample line 574: "FARHAN MOHAMMED ·
+ * 2026"). The name is the résumé's own header ("Farhan Mohammed",
+ * `public/resume.pdf`); the year is the current one, same as the sample's
+ * own hardcoded "2026".
+ */
+export const CONTACT_FOOTER = 'FARHAN MOHAMMED · 2026'
 
 export const CONTACT_LINKS: readonly ContactLink[] = [
   {

@@ -109,7 +109,16 @@ export const sections: SectionMeta[] = [
   {
     id: 'contact',
     label: 'Contact',
-    eyebrow: '04 · CONTACT',
+    // Sample line 562: "04 · CONTACT · REPLIES WITHIN A DAY", not the
+    // shorter "04 · CONTACT" this drifted to -- chrome text, taken
+    // verbatim (mochi/style-match audit).
+    eyebrow: '04 · CONTACT · REPLIES WITHIN A DAY',
+    // Unread by `Contact.tsx` (mochi/style-match audit): the sample's
+    // headline (line 563) is "LET'S BUILD / SOMETHING / SMALL AND FAST"
+    // split across `<br>`s with the third line highlighted, which doesn't
+    // fit this flat string field -- that chrome text is inlined directly
+    // in the component instead. Kept here only because `SectionMeta`
+    // still requires a `title`.
     title: 'Get in touch',
     blurb: 'What work is being sought, and direct links to reach out.',
     // Contact doesn't use `SectionHeading` (sample lines 560-564 differ
