@@ -83,7 +83,7 @@
   --text-fit-sm: clamp(12.5px, 1.8vh, 15px); /* bullets -- raised (mochi/style-match task 3) so Timeline's bullets (primary content) read unambiguously larger than the qualifier line (--text-fit-xs, secondary) instead of the two ranges nearly overlapping at typical viewport heights */
   --text-fit-base: clamp(12px, 1.75vh, 14px); /* body copy paragraph */
   --text-fit-lg: clamp(14px, 2.4vh, 22px); /* hook/tagline */
-  --text-fit-title: clamp(10px, 1.6vh, 14px); /* card/entry titles (timeline) */
+  --text-fit-title: clamp(11.5px, 1.8vh, 16px); /* card/entry titles (timeline) -- raised one step (mochi/style-match audit, defect 4), same +1.5px/+0.2vh/+2px increment task 3 used to raise --text-fit-sm; entry titles were left at the pre-task-3 range and read undersized at 1440x900 next to the (already raised) meta/bullet rows around them */
   --text-fit-xl: clamp(17px, 3.4vh, 34px); /* featured card name (Leviathan) */
 
   --space-fit-3xs: clamp(5px, 1vh, 9px); /* Leviathan bullet list gap */
