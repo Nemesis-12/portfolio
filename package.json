@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "test": "vitest run",
     "typecheck": "tsc -b",
     "sandcastle": "npx tsx .sandcastle/main.ts",
     "generate:game4-moves": "tsx scripts/extract-game4-moves.ts"
@@ -37,6 +38,7 @@
     "tsx": "^4.22.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.12"
+    "vite": "^8.0.12",
+    "vitest": "^4.1.10"
   }
 }
