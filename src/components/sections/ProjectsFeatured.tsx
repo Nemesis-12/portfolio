@@ -217,12 +217,23 @@ export function ProjectsFeatured() {
             </ul>
 
             {/*
-             * No `mt-auto`: the stat/link footer follows the bullets with
-             * the column's normal `gap` (mochi/style-match task 1) rather
-             * than being pinned to the bottom of a box stretched past its
-             * content -- see the note above the outer grid.
+             * `mt-auto` is back: the outer grid now carries
+             * `panel:min-h-[68dvh]` (see the note above the outer grid), a
+             * height FLOOR taller than the card's own content, so there is
+             * slack to collect somewhere in this column. The owner chose to
+             * collect it ABOVE the footer -- `mt-auto` pins the footer to
+             * the bottom of the card's content column -- rather than below
+             * it, where it previously floated the footer in the middle of
+             * the card (owner report, issue #357 follow-up). This is the
+             * known cost of a shared floor rather than a content-sized
+             * card: a prior full-height (`flex-1`) revision measured a
+             * 239px gap at 1440x900 between the last bullet and the footer
+             * (see the note above the outer grid); with the card now
+             * floored at `panel:min-h-[68dvh]` instead of stretched to fill
+             * the whole section, that gap is smaller, but the mechanism
+             * absorbing it is the same `mt-auto`.
              */}
-            <ProjectCardStatsFooter>
+            <ProjectCardStatsFooter className="mt-auto">
               {LEVIATHAN_STATS.map((stat) => (
                 <StatCounter key={stat.id} stat={stat} />
               ))}

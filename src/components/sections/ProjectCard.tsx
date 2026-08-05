@@ -92,6 +92,10 @@ export interface ProjectCardStatsFooterProps {
    * for the featured card, plain stat divs and an optional single link for
    * the others). The footer only supplies the shared row chrome. */
   readonly children: ReactNode
+  /** Optional extra classes merged onto the footer's own (e.g. `mt-auto`
+   * to pin the footer to the bottom of a card taller than its content --
+   * see `ProjectsFeatured.tsx`). */
+  readonly className?: string
 }
 
 /**
@@ -103,9 +107,14 @@ export interface ProjectCardStatsFooterProps {
  * the source of truth, and the two smaller cards' hardcoded gaps move to
  * match it.
  */
-export function ProjectCardStatsFooter({ children }: ProjectCardStatsFooterProps) {
+export function ProjectCardStatsFooter({ children, className }: ProjectCardStatsFooterProps) {
   return (
-    <div className="flex flex-wrap items-end gap-[clamp(16px,2.4vw,32px)] border-t border-line pt-[var(--space-fit-md)]">
+    <div
+      className={cn(
+        'flex flex-wrap items-end gap-[clamp(16px,2.4vw,32px)] border-t border-line pt-[var(--space-fit-md)]',
+        className,
+      )}
+    >
       {children}
     </div>
   )
