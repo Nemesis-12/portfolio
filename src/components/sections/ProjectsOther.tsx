@@ -46,13 +46,21 @@ export function ProjectsOther() {
        * viewport). Cause: this wrapper's `flex-1` swallows the section's
        * leftover vertical height, and `justify-center` then splits that
        * leftover evenly above and below the content-sized grid below --
-       * those two halves were the bands. Fix: the grid itself (the
-       * `fitRef` element) now also carries `flex-1`, so it grows to fill
-       * the space this wrapper hands it instead of staying content-sized
-       * and floating within it. `justify-center` stays on this wrapper
-       * (it still centers on the rare frame where the grid's own
-       * min-content height is shorter than the space available) but with
-       * the grid stretching, there is normally no leftover left to center.
+       * those two halves were the bands. First fix: giving the grid itself
+       * (the `fitRef` element) `flex-1` too, so it grows to fill all the
+       * space this wrapper hands it. The owner reviewed THAT render and
+       * called it too far the other way -- the grid filled the entire
+       * section, an awkward full-height stretch they'd already rejected
+       * once before. Current fix: `flex-1` is removed from the grid below
+       * and replaced with `panel:min-h-[68dvh]` -- a height FLOOR rather
+       * than a claim on all remaining space. The grid still grows well
+       * past its own content height, but stops short of the section edge,
+       * leaving the wrapper's `justify-center` a small remainder to split
+       * above and below instead of none at all. `68dvh` is a tuning value,
+       * not derived from anything measured -- expect the owner to adjust
+       * it after seeing this render. `justify-center` stays on this
+       * wrapper for the same reason as before: it centers whatever
+       * leftover height remains once the grid below has taken its floor.
        *
        * This is a different fix from a prior revision's `flex-1` +
        * `minmax(0,1fr)` card row, which forced each individual CARD to
@@ -61,22 +69,26 @@ export function ProjectsOther() {
        * deliberate, verified reproduction of the design reference's OWN
        * behaviour at the time (see the git history on this file); the
        * owner reviewed a real render and called it wrong for this build --
-       * the cards were "too big for the content they hold." The `flex-1`
-       * added here is on the outer GRID container, not on the individual
-       * cards, so it does not reintroduce that per-card stretching; see
+       * the cards were "too big for the content they hold." Neither the
+       * now-removed `flex-1` nor the current `panel:min-h-[68dvh]` touch
+       * the individual cards -- both apply to the outer GRID container
+       * only, so neither reintroduces that per-card stretching; see
        * `OtherProjectCard.tsx` for how row-mate height equalisation is
        * still handled (`align-items: stretch` + a small, deliberate
        * `mt-auto` inside the shorter card).
        *
        * This wrapper (`flex-1`, so it -- not the heading above it --
        * consumes the section's leftover vertical space) is a plain flex
-       * column with `justify-center`, so the grid below now fills that
-       * leftover space instead of floating within it. The heading stays
-       * pinned at its normal top-of-section position: only the wrapper
-       * (and everything inside it) can grow, so `.section-shell`'s own
-       * `justify-content:center` (on the heading+wrapper block as a whole)
-       * has nothing left to redistribute -- the wrapper already occupies
-       * 100% of the remaining height.
+       * column with `justify-center`. With the grid below now floored at
+       * `panel:min-h-[68dvh]` rather than stretched via `flex-1`, this
+       * wrapper's `justify-center` has a real, if modest, remainder to
+       * split above and below the grid -- unlike the full-fill case, where
+       * there was normally nothing left to center. The heading stays
+       * pinned at its normal top-of-section position regardless: only the
+       * wrapper (and everything inside it) can grow, so `.section-shell`'s
+       * own `justify-content:center` (on the heading+wrapper block as a
+       * whole) has nothing left to redistribute -- the wrapper already
+       * occupies 100% of the remaining height.
        *
        * `mt-` was `panel:`-only, leaving zero gap below 880px between the
        * "THE OTHER STUFF I WORKED ON" caption and the first card (#314
@@ -110,23 +122,42 @@ export function ProjectsOther() {
          * card-count ceiling notes for how far that shrinking stays
          * legible).
          *
-         * This build deliberately does not restore that cap even now that
-         * `flex-1` has been added below (owner's float/dead-band fix, see
-         * the wrapper comment above), because on the owner's screen this
-         * grid already renders ~858px tall for 2 cards -- a 680px cap
-         * would SHRINK it below its natural content height, the opposite
-         * of the fix. This is an approved deviation from the reference.
+         * This build deliberately does not restore that cap now that
+         * `panel:min-h-[68dvh]` is on this element (see the wrapper
+         * comment above), because on the owner's screen this grid already
+         * renders ~858px tall for 2 cards -- a 680px cap would SHRINK it
+         * below its natural content height, the opposite of the fix. This
+         * is an approved deviation from the reference.
          *
-         * Re-verified with `flex-1` added: the reasoning above still
-         * holds. `flex-1` only lets this box grow to consume leftover
-         * space handed to it by its `flex-col` parent; it does not add a
-         * max-height, and a flex item's default `min-height: auto` still
-         * stops it from ever shrinking below its own content height. So
-         * this box still can't under-report its true size, and the
-         * section can still grow taller than the viewport when content
-         * genuinely overflows -- the shrink pass keeps seeing real
-         * overflow via `section.getBoundingClientRect()` exactly as
-         * before.
+         * This element previously carried `flex-1` here (the owner's
+         * float/dead-band fix, see the wrapper comment above), but the
+         * owner reviewed that render and called it too far: `flex-1` let
+         * the grid consume ALL of the section's remaining height, filling
+         * the section edge-to-edge -- an awkward full-height stretch the
+         * owner had already rejected once before. `flex-1` is now replaced
+         * with `panel:min-h-[68dvh]`, a height FLOOR instead of a claim on
+         * all remaining space: the grid grows well past its own content
+         * height without swallowing whatever the wrapper's `justify-center`
+         * has left over, so a modest band remains above and below rather
+         * than none. `68dvh` is a tuning value the owner will adjust after
+         * seeing this render, not a figure derived from the 858px/314px
+         * measurements above. `dvh` matches `.section-shell`'s own
+         * `min-height: 100dvh` (`src/styles/layout.css`). Gated behind
+         * `panel:` because below 880px `.section-shell` has no fixed
+         * height at all -- sections are ordinary flow content there, so a
+         * viewport-height floor would be wrong (see `useFitToViewport.ts`,
+         * which is likewise only active at/above that width).
+         *
+         * Re-checked against `useFitToViewport` with `min-h` in place of
+         * `flex-1`: the note above still holds. The hook measures the
+         * OWNING SECTION's `getBoundingClientRect()`, not this element's --
+         * a `min-height` floor, like `flex-1` before it, only sets a lower
+         * bound on this box's size and never caps it, so the box still
+         * cannot under-report its true rendered height, and the section
+         * can still grow taller than the viewport when content genuinely
+         * overflows. The shrink pass keeps seeing real overflow exactly as
+         * before; swapping the growth mechanism here doesn't change what
+         * the hook measures.
          *
          * CSS Grid's own default (`align-items: stretch`) is deliberately
          * left in effect here (mochi/style-match audit, defect 1): a prior
@@ -159,7 +190,7 @@ export function ProjectsOther() {
          */}
         <div
           ref={fitRef}
-          className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] auto-rows-fr gap-[clamp(14px,1.6vw,20px)]"
+          className="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] auto-rows-fr gap-[clamp(14px,1.6vw,20px)] panel:min-h-[68dvh]"
         >
           {OTHER_PROJECTS.map((project) => (
             <OtherProjectCard key={project.id} project={project} />

@@ -63,14 +63,21 @@ export function ProjectsFeatured() {
        * viewport). Cause: this wrapper's `flex-1` swallows the section's
        * leftover vertical height, and `justify-center` then splits that
        * leftover evenly above and below the content-sized card below --
-       * those two halves were the bands. Fix: the card itself (the
-       * `fitRef` grid) now also carries `flex-1`, so it grows to fill the
-       * space this wrapper hands it instead of staying content-sized and
-       * floating within it. `justify-center` stays on this wrapper (it
-       * still centers on the rare frame where the card's own min-content
-       * height is shorter than the space available, e.g. a future project
-       * list with less copy) but with the card stretching, there is
-       * normally no leftover left to center.
+       * those two halves were the bands. First fix: giving the card itself
+       * (the `fitRef` grid) `flex-1` too, so it grows to fill all the space
+       * this wrapper hands it. The owner reviewed THAT render and called it
+       * too far the other way -- the card filled the entire section, an
+       * awkward full-height stretch they'd already rejected once before.
+       * Current fix: `flex-1` is removed from the grid below and replaced
+       * with `panel:min-h-[68dvh]` -- a height FLOOR rather than a claim on
+       * all remaining space. The grid still grows well past its own content
+       * height, but stops short of the section edge, leaving the wrapper's
+       * `justify-center` a small remainder to split above and below instead
+       * of none at all. `68dvh` is a tuning value, not derived from
+       * anything measured -- expect the owner to adjust it after seeing
+       * this render. `justify-center` stays on this wrapper for the same
+       * reason as before: it centers whatever leftover height remains once
+       * the grid below has taken its floor.
        *
        * A prior revision kept `flex-1` + `max-height:760px` + `mt-auto` on
        * the stat/link row specifically because a real render of the design
@@ -129,17 +136,35 @@ export function ProjectsFeatured() {
          * height, which is the opposite of the fix below. This is an
          * approved deviation from the reference.
          *
-         * Re-verified with `flex-1` added to this element (owner's
-         * float/dead-band fix, see the wrapper comment above): the
-         * reasoning above still holds. `flex-1` only lets this box grow to
-         * consume leftover space handed to it by its `flex-col` parent; it
-         * does not add a max-height, and a flex item's default
-         * `min-height: auto` still stops it from ever shrinking below its
-         * own content height. So this box still can't under-report its
-         * true size, and the section can still grow taller than the
-         * viewport when content genuinely overflows -- the shrink pass
-         * keeps seeing real overflow via `section.getBoundingClientRect()`
-         * exactly as before.
+         * This element previously carried `flex-1` here (the owner's
+         * float/dead-band fix, see the wrapper comment above), but the
+         * owner reviewed that render and called it too far: `flex-1` let
+         * the card consume ALL of the section's remaining height, filling
+         * the section edge-to-edge -- an awkward full-height stretch the
+         * owner had already rejected once before. `flex-1` is now replaced
+         * with `panel:min-h-[68dvh]`, a height FLOOR instead of a claim on
+         * all remaining space: the card grows well past its own content
+         * height without swallowing whatever the wrapper's `justify-center`
+         * has left over, so a modest band remains above and below rather
+         * than none. `68dvh` is a tuning value the owner will adjust after
+         * seeing this render, not a figure derived from the 858px/239px
+         * measurements above. `dvh` matches `.section-shell`'s own
+         * `min-height: 100dvh` (`src/styles/layout.css`). Gated behind
+         * `panel:` because below 880px `.section-shell` has no fixed
+         * height at all -- sections are ordinary flow content there, so a
+         * viewport-height floor would be wrong (see `useFitToViewport.ts`,
+         * which is likewise only active at/above that width).
+         *
+         * Re-checked against `useFitToViewport` with `min-h` in place of
+         * `flex-1`: the note above still holds. The hook measures the
+         * OWNING SECTION's `getBoundingClientRect()`, not this element's --
+         * a `min-height` floor, like `flex-1` before it, only sets a lower
+         * bound on this box's size and never caps it, so the box still
+         * cannot under-report its true rendered height, and the section
+         * can still grow taller than the viewport when content genuinely
+         * overflows. The shrink pass keeps seeing real overflow exactly as
+         * before; swapping the growth mechanism here doesn't change what
+         * the hook measures.
          */}
         {/*
          * `minmax(min(340px,100%),1fr)`, not a bare `minmax(340px,1fr)`:
@@ -153,7 +178,7 @@ export function ProjectsFeatured() {
          */}
         <div
           ref={fitRef}
-          className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] border border-line-2 bg-panel"
+          className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] border border-line-2 bg-panel panel:min-h-[68dvh]"
         >
           <ProjectCardShell>
             {/*
