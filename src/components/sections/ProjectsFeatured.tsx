@@ -2,7 +2,7 @@ import { Section } from '@/components/layout/Section'
 import { SectionHeading } from '@/components/layout/SectionHeading'
 import { InferencePipeline } from '@/components/sections/leviathan/InferencePipeline'
 import { StatCounter } from '@/components/sections/leviathan/StatCounter'
-import { ProjectTag } from '@/components/sections/ProjectTag'
+import { ProjectCardShell, ProjectCardStatsFooter, ProjectCardTitleRow } from '@/components/sections/ProjectCard'
 import {
   LEVIATHAN_BADGE_LABEL,
   LEVIATHAN_BADGE_YEAR,
@@ -57,24 +57,44 @@ export function ProjectsFeatured() {
       />
 
       {/*
-       * Card sizes to its own content; leftover section height sits
-       * OUTSIDE it, as section background (mochi/style-match task 1 --
-       * same call as `ProjectsOther.tsx`, see that file for the fuller
-       * writeup). A prior revision kept `flex-1` + `max-height:760px` +
-       * `mt-auto` on the stat/link row specifically because a real render
-       * of the design reference does the exact same thing -- but the owner
-       * has since reviewed a real render of THIS build and called it wrong
-       * here too: at 1440x900 that combination measured a 239px gap
-       * between the last bullet and the stat footer, sitting in the
-       * card's text column for no reason other than "the section has that
-       * much leftover height to distribute." This is an approved
-       * deviation from the reference for that reason.
+       * Owner report (with screenshots): on a tall desktop viewport the
+       * card floated in the vertical middle of the section with a large
+       * dead band above AND below it (~250px each at a ~1500px-tall
+       * viewport). Cause: this wrapper's `flex-1` swallows the section's
+       * leftover vertical height, and `justify-center` then splits that
+       * leftover evenly above and below the content-sized card below --
+       * those two halves were the bands. First fix: giving the card itself
+       * (the `fitRef` grid) `flex-1` too, so it grows to fill all the space
+       * this wrapper hands it. The owner reviewed THAT render and called it
+       * too far the other way -- the card filled the entire section, an
+       * awkward full-height stretch they'd already rejected once before.
+       * Current fix: `flex-1` is removed from the grid below and replaced
+       * with `panel:min-h-[68dvh]` -- a height FLOOR rather than a claim on
+       * all remaining space. The grid still grows well past its own content
+       * height, but stops short of the section edge, leaving the wrapper's
+       * `justify-center` a small remainder to split above and below instead
+       * of none at all. `68dvh` is a tuning value, not derived from
+       * anything measured -- expect the owner to adjust it after seeing
+       * this render. `justify-center` stays on this wrapper for the same
+       * reason as before: it centers whatever leftover height remains once
+       * the grid below has taken its floor.
        *
-       * This wrapper (`flex-1` + `justify-center`) is what now consumes
-       * the section's leftover vertical space, centering the
-       * content-sized card within it -- the heading above stays pinned at
-       * its normal top-of-section position, same mechanism as
-       * `ProjectsOther.tsx`.
+       * A prior revision kept `flex-1` + `max-height:760px` + `mt-auto` on
+       * the stat/link row specifically because a real render of the design
+       * reference does the exact same thing -- but the owner reviewed a
+       * real render of THIS build and called it wrong: at 1440x900 that
+       * combination measured a 239px gap between the last bullet and the
+       * stat footer, sitting INSIDE the card's text column for no reason
+       * other than "the section has that much leftover height to
+       * distribute." That is why the fix above does not restore either the
+       * `max-height` cap (see the note on the grid div below) or the
+       * `mt-auto` on the stat/link row -- both were the mechanism that
+       * produced that in-card gap, and neither is being brought back.
+       *
+       * This wrapper (`flex-1` + `justify-center`) is what consumes the
+       * section's leftover vertical space and hands it to the card below
+       * -- the heading above stays pinned at its normal top-of-section
+       * position, same mechanism as `ProjectsOther.tsx`.
        */}
       <div className="mt-[var(--space-fit-margin)] flex flex-1 flex-col justify-center">
         {/*
@@ -108,6 +128,43 @@ export function ProjectsFeatured() {
          * exposed this. Leaving the box uncapped lets the section grow
          * with real content and the shrink pass correctly measure and
          * correct any future overflow instead.
+         *
+         * The design reference caps this element at `max-height:760px`
+         * (line 338); this build deliberately does not restore that cap,
+         * because on the owner's screen this card already renders ~858px
+         * tall -- a 760px cap would SHRINK it below its natural content
+         * height, which is the opposite of the fix below. This is an
+         * approved deviation from the reference.
+         *
+         * This element previously carried `flex-1` here (the owner's
+         * float/dead-band fix, see the wrapper comment above), but the
+         * owner reviewed that render and called it too far: `flex-1` let
+         * the card consume ALL of the section's remaining height, filling
+         * the section edge-to-edge -- an awkward full-height stretch the
+         * owner had already rejected once before. `flex-1` is now replaced
+         * with `panel:min-h-[68dvh]`, a height FLOOR instead of a claim on
+         * all remaining space: the card grows well past its own content
+         * height without swallowing whatever the wrapper's `justify-center`
+         * has left over, so a modest band remains above and below rather
+         * than none. `68dvh` is a tuning value the owner will adjust after
+         * seeing this render, not a figure derived from the 858px/239px
+         * measurements above. `dvh` matches `.section-shell`'s own
+         * `min-height: 100dvh` (`src/styles/layout.css`). Gated behind
+         * `panel:` because below 880px `.section-shell` has no fixed
+         * height at all -- sections are ordinary flow content there, so a
+         * viewport-height floor would be wrong (see `useFitToViewport.ts`,
+         * which is likewise only active at/above that width).
+         *
+         * Re-checked against `useFitToViewport` with `min-h` in place of
+         * `flex-1`: the note above still holds. The hook measures the
+         * OWNING SECTION's `getBoundingClientRect()`, not this element's --
+         * a `min-height` floor, like `flex-1` before it, only sets a lower
+         * bound on this box's size and never caps it, so the box still
+         * cannot under-report its true rendered height, and the section
+         * can still grow taller than the viewport when content genuinely
+         * overflows. The shrink pass keeps seeing real overflow exactly as
+         * before; swapping the growth mechanism here doesn't change what
+         * the hook measures.
          */}
         {/*
          * `minmax(min(340px,100%),1fr)`, not a bare `minmax(340px,1fr)`:
@@ -121,45 +178,27 @@ export function ProjectsFeatured() {
          */}
         <div
           ref={fitRef}
-          className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] border border-line-2 bg-panel"
+          className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] border border-line-2 bg-panel panel:min-h-[68dvh]"
         >
-          <div className="flex min-w-0 flex-col gap-[var(--space-fit-xs)] p-[clamp(16px,2.4vh,30px)_clamp(18px,2.2vw,30px)]">
+          <ProjectCardShell>
             {/*
-             * Title row is `justify-between` + `items-start`, not the
-             * sample's literal `items-baseline`/`flex-wrap` (line 341):
-             * the sample's own title ("LEVIATHAN") never wraps, so hugging
-             * the badge right after it via plain `gap` reads as "same row"
-             * there. Our title text differs card to card (résumé wording,
-             * see `src/data/otherProjects.ts`) and the MLA card's title
-             * DOES wrap to two lines, so `gap`-only hugging silently
-             * degrades to the badge sitting immediately next to the title
-             * word or dropping below a wrapped title (mochi/style-match
-             * audit, defect 1). `justify-between` with the title in a
-             * `min-w-0 flex-1` block pushes the badge to the row's right
-             * edge regardless of title line count, and `items-start` keeps
-             * it flush with the title's cap height instead of the
-             * (undefined once multi-line) baseline. Same pattern reused
-             * verbatim in `ProjectsOther.tsx` for both its cards.
-             *
-             * Below 880px this stacks into a column instead (#314 owner
-             * review): "Leviathan" renders through `text-fit-xl`, a
-             * height-based clamp up to 34px in the blocky display font --
-             * at narrow mobile widths its glyphs visually overhang their
-             * own measured box (verified via pixel-sampling a real render:
-             * ink extends well past the text node's own
-             * `getBoundingClientRect` width), landing on the badge's left
-             * edge even though the two boxes don't geometrically overlap.
-             * Giving the badge its own row below the title removes the
-             * collision outright regardless of that overhang. `panel:
-             * flex-row` restores the side-by-side row at 880px+, where the
-             * smaller `panel:` title size doesn't exhibit it.
+             * Title row is the shared `ProjectCardTitleRow`
+             * (`ProjectCard.tsx`): stacks into a column below 880px and
+             * only becomes a side-by-side row at `panel:` (880px+) so a
+             * long title can never collide with the badge at any width,
+             * regardless of how many lines it wraps to. Its own doc
+             * comment (`ProjectCard.tsx`) has the full history -- this was
+             * previously duplicated here and, differently, in
+             * `OtherProjectCard.tsx` (issue #357).
              */}
-            <div className="flex flex-col items-start gap-[var(--space-2xs)] panel:flex-row panel:items-start panel:justify-between panel:gap-[12px]">
-              <span className="min-w-0 flex-1 font-display text-fit-xl leading-tight tracking-[-0.03em] text-fg">
-                Leviathan
-              </span>
-              <ProjectTag label={LEVIATHAN_BADGE_LABEL} year={LEVIATHAN_BADGE_YEAR} />
-            </div>
+            <ProjectCardTitleRow
+              title={
+                <span className="font-display text-fit-xl leading-tight tracking-[-0.03em] text-fg">
+                  Leviathan
+                </span>
+              }
+              badge={{ label: LEVIATHAN_BADGE_LABEL, year: LEVIATHAN_BADGE_YEAR }}
+            />
             <div className="text-fit-xs text-dim">{LEVIATHAN_SUBTITLE}</div>
 
             <p className="text-fit-lg text-accent-2">{LEVIATHAN_HOOK}</p>
@@ -178,12 +217,23 @@ export function ProjectsFeatured() {
             </ul>
 
             {/*
-             * No `mt-auto`: the stat/link footer follows the bullets with
-             * the column's normal `gap` (mochi/style-match task 1) rather
-             * than being pinned to the bottom of a box stretched past its
-             * content -- see the note above the outer grid.
+             * `mt-auto` is back: the outer grid now carries
+             * `panel:min-h-[68dvh]` (see the note above the outer grid), a
+             * height FLOOR taller than the card's own content, so there is
+             * slack to collect somewhere in this column. The owner chose to
+             * collect it ABOVE the footer -- `mt-auto` pins the footer to
+             * the bottom of the card's content column -- rather than below
+             * it, where it previously floated the footer in the middle of
+             * the card (owner report, issue #357 follow-up). This is the
+             * known cost of a shared floor rather than a content-sized
+             * card: a prior full-height (`flex-1`) revision measured a
+             * 239px gap at 1440x900 between the last bullet and the footer
+             * (see the note above the outer grid); with the card now
+             * floored at `panel:min-h-[68dvh]` instead of stretched to fill
+             * the whole section, that gap is smaller, but the mechanism
+             * absorbing it is the same `mt-auto`.
              */}
-            <div className="flex flex-wrap items-end gap-[clamp(16px,2.4vw,32px)] border-t border-line pt-[var(--space-fit-md)]">
+            <ProjectCardStatsFooter className="mt-auto">
               {LEVIATHAN_STATS.map((stat) => (
                 <StatCounter key={stat.id} stat={stat} />
               ))}
@@ -201,8 +251,8 @@ export function ProjectsFeatured() {
                   </a>
                 ))}
               </div>
-            </div>
-          </div>
+            </ProjectCardStatsFooter>
+          </ProjectCardShell>
 
           <div className="flex min-w-0 flex-col justify-center border-line bg-panel-2 p-[clamp(14px,2.2vh,26px)_clamp(16px,2vw,26px)] panel:border-l">
             <InferencePipeline />
