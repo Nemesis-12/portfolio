@@ -32,15 +32,17 @@ export interface ProjectCardShellProps {
  * shares. Padding was `clamp(16px,2.4vh,30px) clamp(18px,2.2vw,30px)` on
  * the featured card and `clamp(16px,2.4vh,28px) clamp(18px,2.2vw,28px)` on
  * the other two -- same mins, same vh/vw factors, different max only.
- * Converged on 28px (`ideas/Portfolio.html` lines 425 and 440, the MLA and
- * Thesis cards): that's the value two of the reference's three real card
- * instances use, against one for 30px (line 340).
+ * Converged on 30px, the featured card's value (`ideas/Portfolio.html`
+ * line 340): the featured LEVIATHAN card is the reference's primary,
+ * highest-fidelity instance, so its declaration is the source of truth
+ * here, and the two smaller cards (MLA and Thesis, lines 425 and 440)
+ * move to match it rather than the other way around.
  */
 export function ProjectCardShell({ as: Tag = 'div', className, children }: ProjectCardShellProps) {
   return (
     <Tag
       className={cn(
-        'flex min-w-0 flex-col gap-[var(--space-fit-xs)] p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)]',
+        'flex min-w-0 flex-col gap-[var(--space-fit-xs)] p-[clamp(16px,2.4vh,30px)_clamp(18px,2.2vw,30px)]',
         className,
       )}
     >
@@ -96,13 +98,14 @@ export interface ProjectCardStatsFooterProps {
  * Stats/links footer shared by every card. Gap was a fluid
  * `clamp(16px,2.4vw,32px)` on the featured card and a hardcoded `26px` on
  * the others (`ideas/Portfolio.html` line 353 vs. lines 433/452).
- * Converged on the hardcoded 26px: same majority reasoning as the shell
- * padding above -- two of the reference's three real card footers pin it,
- * one pins the fluid value.
+ * Converged on the featured card's fluid value: same reasoning as the
+ * shell padding above -- the featured card's declaration (line 353) is
+ * the source of truth, and the two smaller cards' hardcoded gaps move to
+ * match it.
  */
 export function ProjectCardStatsFooter({ children }: ProjectCardStatsFooterProps) {
   return (
-    <div className="flex flex-wrap items-end gap-[26px] border-t border-line pt-[var(--space-fit-md)]">
+    <div className="flex flex-wrap items-end gap-[clamp(16px,2.4vw,32px)] border-t border-line pt-[var(--space-fit-md)]">
       {children}
     </div>
   )
