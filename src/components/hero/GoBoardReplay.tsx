@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { GAME4_BLACK_LABEL, GAME4_CAPTION, GAME4_WHITE_LABEL } from '@/data/hero'
+import { startAnimationFrameLoop } from '@/lib/animationFrameLoop'
 import { cn } from '@/lib/cn'
 import { BOARD_SIZE } from '@/lib/go/board'
 import {
@@ -91,13 +92,10 @@ function BoardGrid({ frame }: { frame: BoardFrame }) {
 export function GoBoardReplay() {
   const reducedMotion = usePrefersReducedMotion()
   const [elapsed, setElapsed] = useState(0)
-  const startRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (reducedMotion) return undefined
 
-    startRef.current = null
-    let frameId: number
     // Signature of "what would render" (move number, phase, whether a
     // capture is mid-fade) for the most recent tick that actually
     // triggered a re-render. Ticks that would produce an identical
@@ -112,9 +110,7 @@ export function GoBoardReplay() {
     // by JS every tick, not CSS, so it must never skip.
     let lastSignature: string | null = null
 
-    const tick = (timestamp: number) => {
-      if (startRef.current === null) startRef.current = timestamp
-      const nextElapsed = timestamp - startRef.current
+    return startAnimationFrameLoop((nextElapsed) => {
       const timing = frameAtElapsed(nextElapsed)
       const signature = `${timing.moveNumber}|${timing.phase}|${hasActiveCaptureFade(timing.loopElapsed)}`
 
@@ -122,12 +118,7 @@ export function GoBoardReplay() {
         lastSignature = signature
         setElapsed(nextElapsed)
       }
-
-      frameId = requestAnimationFrame(tick)
-    }
-    frameId = requestAnimationFrame(tick)
-
-    return () => cancelAnimationFrame(frameId)
+    })
   }, [reducedMotion])
 
   let frame: BoardFrame

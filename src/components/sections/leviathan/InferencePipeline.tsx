@@ -7,6 +7,7 @@ import {
   PIPELINE_TOKEN_IDS,
 } from '@/data/leviathan'
 import { cn } from '@/lib/cn'
+import { startIntervalTick } from '@/lib/intervalTick'
 import {
   ATTENTION_ROW_COUNT,
   buildAttentionCellModels,
@@ -95,9 +96,8 @@ export function InferencePipeline() {
   const [tick, setTick] = useState(0)
 
   useEffect(() => {
-    if (reducedMotion) return
-    const id = setInterval(() => setTick((t) => t + 1), FRAME_INTERVAL_MS)
-    return () => clearInterval(id)
+    if (reducedMotion) return undefined
+    return startIntervalTick(() => setTick((t) => t + 1), FRAME_INTERVAL_MS)
   }, [reducedMotion])
 
   const frameModel = reducedMotion

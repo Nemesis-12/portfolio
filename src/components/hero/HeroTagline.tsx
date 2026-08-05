@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { startAnimationFrameLoop } from '@/lib/animationFrameLoop'
 import { cn } from '@/lib/cn'
 import { isTypingDone, typedText } from '@/lib/hero/typewriter'
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
@@ -22,26 +23,15 @@ interface HeroTaglineProps {
 export function HeroTagline({ text, className }: HeroTaglineProps) {
   const reducedMotion = usePrefersReducedMotion()
   const [elapsed, setElapsed] = useState(0)
-  const startRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (reducedMotion) return undefined
     if (isTypingDone(text, 0)) return undefined
 
-    startRef.current = null
-    let frameId: number
-
-    const tick = (timestamp: number) => {
-      if (startRef.current === null) startRef.current = timestamp
-      const next = timestamp - startRef.current
+    return startAnimationFrameLoop((next) => {
       setElapsed(next)
-      if (!isTypingDone(text, next)) {
-        frameId = requestAnimationFrame(tick)
-      }
-    }
-    frameId = requestAnimationFrame(tick)
-
-    return () => cancelAnimationFrame(frameId)
+      return !isTypingDone(text, next)
+    })
     // Runs once per mount / per reduced-motion change; `text` is static content.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reducedMotion])

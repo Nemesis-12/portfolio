@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 import { cn } from '@/lib/cn'
+import { startIntervalTick } from '@/lib/intervalTick'
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 
 function formatClock(date: Date): { hm: string; s: string } {
   const pad = (value: number) => String(value).padStart(2, '0')
@@ -35,10 +36,9 @@ export function Clock() {
   const [now, setNow] = useState(() => new Date())
 
   useEffect(() => {
-    if (reducedMotion) return
+    if (reducedMotion) return undefined
 
-    const id = setInterval(() => setNow(new Date()), 1000)
-    return () => clearInterval(id)
+    return startIntervalTick(() => setNow(new Date()), 1000)
   }, [reducedMotion])
 
   const { hm, s } = formatClock(now)
