@@ -1,13 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 
 const QUERY = '(prefers-reduced-motion: reduce)'
-
-function getInitialValue(): boolean {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return false
-  }
-  return window.matchMedia(QUERY).matches
-}
 
 /**
  * Tracks the visitor's `prefers-reduced-motion` preference, live. If the OS
@@ -16,24 +9,13 @@ function getInitialValue(): boolean {
  * headline-stat counters) react immediately rather than only picking it up
  * on next load.
  *
- * Defaults to `false` (motion allowed) in environments without
- * `matchMedia` (e.g. some test setups) rather than throwing. jsdom does not
- * implement `window.matchMedia` at all (it is `undefined`, not a stub),
- * which is why both the initial read and the effect guard for it.
+ * Delegates the actual subscribe/read/cleanup dance to `useMediaQuery`
+ * (#354) -- this hook is just that generic hook pinned to the
+ * reduced-motion query. Defaults to `false` (motion allowed) in
+ * environments without `matchMedia` (e.g. some test setups) rather than
+ * throwing; see `useMediaQuery`'s own handling of that case. jsdom does not
+ * implement `window.matchMedia` at all (it is `undefined`, not a stub).
  */
 export function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(getInitialValue)
-
-  useEffect(() => {
-    if (typeof window.matchMedia !== 'function') return
-
-    const mql = window.matchMedia(QUERY)
-    const onChange = () => setReduced(mql.matches)
-
-    onChange()
-    mql.addEventListener('change', onChange)
-    return () => mql.removeEventListener('change', onChange)
-  }, [])
-
-  return reduced
+  return useMediaQuery(QUERY)
 }

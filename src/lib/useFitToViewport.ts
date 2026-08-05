@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react'
-
-const PANEL_QUERY = '(min-width: 880px)'
+import { PANEL_QUERY, queryMatches, subscribeToMediaQuery } from '@/lib/useMediaQuery'
 
 /**
  * Reproduces the design reference's `[data-fit]` shrink-to-fit mechanism.
@@ -29,12 +28,10 @@ export function useFitToViewport<T extends HTMLElement>(): React.RefObject<T | n
       return
     }
 
-    const mql = window.matchMedia(PANEL_QUERY)
-
     const fit = () => {
       const section = el.closest('section')
       el.style.setProperty('zoom', '1')
-      if (!section || !mql.matches) return
+      if (!section || !queryMatches(PANEL_QUERY)) return
 
       for (let pass = 0; pass < 3; pass++) {
         const over = section.getBoundingClientRect().height - window.innerHeight
@@ -56,7 +53,7 @@ export function useFitToViewport<T extends HTMLElement>(): React.RefObject<T | n
     fit()
     const initialTimer = setTimeout(fit, 300)
     window.addEventListener('resize', fitSoon, { passive: true })
-    mql.addEventListener('change', fitSoon)
+    const unsubscribe = subscribeToMediaQuery(PANEL_QUERY, fitSoon)
 
     let cancelled = false
     if (document.fonts && document.fonts.ready) {
@@ -70,7 +67,7 @@ export function useFitToViewport<T extends HTMLElement>(): React.RefObject<T | n
       clearTimeout(fitTimer)
       clearTimeout(initialTimer)
       window.removeEventListener('resize', fitSoon)
-      mql.removeEventListener('change', fitSoon)
+      unsubscribe()
     }
   }, [])
 
