@@ -57,24 +57,37 @@ export function ProjectsFeatured() {
       />
 
       {/*
-       * Card sizes to its own content; leftover section height sits
-       * OUTSIDE it, as section background (mochi/style-match task 1 --
-       * same call as `ProjectsOther.tsx`, see that file for the fuller
-       * writeup). A prior revision kept `flex-1` + `max-height:760px` +
-       * `mt-auto` on the stat/link row specifically because a real render
-       * of the design reference does the exact same thing -- but the owner
-       * has since reviewed a real render of THIS build and called it wrong
-       * here too: at 1440x900 that combination measured a 239px gap
-       * between the last bullet and the stat footer, sitting in the
-       * card's text column for no reason other than "the section has that
-       * much leftover height to distribute." This is an approved
-       * deviation from the reference for that reason.
+       * Owner report (with screenshots): on a tall desktop viewport the
+       * card floated in the vertical middle of the section with a large
+       * dead band above AND below it (~250px each at a ~1500px-tall
+       * viewport). Cause: this wrapper's `flex-1` swallows the section's
+       * leftover vertical height, and `justify-center` then splits that
+       * leftover evenly above and below the content-sized card below --
+       * those two halves were the bands. Fix: the card itself (the
+       * `fitRef` grid) now also carries `flex-1`, so it grows to fill the
+       * space this wrapper hands it instead of staying content-sized and
+       * floating within it. `justify-center` stays on this wrapper (it
+       * still centers on the rare frame where the card's own min-content
+       * height is shorter than the space available, e.g. a future project
+       * list with less copy) but with the card stretching, there is
+       * normally no leftover left to center.
        *
-       * This wrapper (`flex-1` + `justify-center`) is what now consumes
-       * the section's leftover vertical space, centering the
-       * content-sized card within it -- the heading above stays pinned at
-       * its normal top-of-section position, same mechanism as
-       * `ProjectsOther.tsx`.
+       * A prior revision kept `flex-1` + `max-height:760px` + `mt-auto` on
+       * the stat/link row specifically because a real render of the design
+       * reference does the exact same thing -- but the owner reviewed a
+       * real render of THIS build and called it wrong: at 1440x900 that
+       * combination measured a 239px gap between the last bullet and the
+       * stat footer, sitting INSIDE the card's text column for no reason
+       * other than "the section has that much leftover height to
+       * distribute." That is why the fix above does not restore either the
+       * `max-height` cap (see the note on the grid div below) or the
+       * `mt-auto` on the stat/link row -- both were the mechanism that
+       * produced that in-card gap, and neither is being brought back.
+       *
+       * This wrapper (`flex-1` + `justify-center`) is what consumes the
+       * section's leftover vertical space and hands it to the card below
+       * -- the heading above stays pinned at its normal top-of-section
+       * position, same mechanism as `ProjectsOther.tsx`.
        */}
       <div className="mt-[var(--space-fit-margin)] flex flex-1 flex-col justify-center">
         {/*
@@ -108,6 +121,25 @@ export function ProjectsFeatured() {
          * exposed this. Leaving the box uncapped lets the section grow
          * with real content and the shrink pass correctly measure and
          * correct any future overflow instead.
+         *
+         * The design reference caps this element at `max-height:760px`
+         * (line 338); this build deliberately does not restore that cap,
+         * because on the owner's screen this card already renders ~858px
+         * tall -- a 760px cap would SHRINK it below its natural content
+         * height, which is the opposite of the fix below. This is an
+         * approved deviation from the reference.
+         *
+         * Re-verified with `flex-1` added to this element (owner's
+         * float/dead-band fix, see the wrapper comment above): the
+         * reasoning above still holds. `flex-1` only lets this box grow to
+         * consume leftover space handed to it by its `flex-col` parent; it
+         * does not add a max-height, and a flex item's default
+         * `min-height: auto` still stops it from ever shrinking below its
+         * own content height. So this box still can't under-report its
+         * true size, and the section can still grow taller than the
+         * viewport when content genuinely overflows -- the shrink pass
+         * keeps seeing real overflow via `section.getBoundingClientRect()`
+         * exactly as before.
          */}
         {/*
          * `minmax(min(340px,100%),1fr)`, not a bare `minmax(340px,1fr)`:
@@ -121,7 +153,7 @@ export function ProjectsFeatured() {
          */}
         <div
           ref={fitRef}
-          className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] border border-line-2 bg-panel"
+          className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] border border-line-2 bg-panel"
         >
           <div className="flex min-w-0 flex-col gap-[var(--space-fit-xs)] p-[clamp(16px,2.4vh,30px)_clamp(18px,2.2vw,30px)]">
             {/*

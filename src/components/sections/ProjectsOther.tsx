@@ -40,27 +40,43 @@ export function ProjectsOther() {
       />
 
       {/*
-       * Cards size to their own content, and the section's leftover height
-       * sits OUTSIDE them as background (mochi/style-match task 1) -- the
-       * opposite of a prior revision's `flex-1` + `minmax(0,1fr)` card row,
-       * which forced each card to stretch to fill the section and dumped
-       * the leftover height inside the card as dead space above the
-       * install command / agent-dot row. That was a deliberate, verified
-       * reproduction of the design reference's OWN behaviour at the time
-       * (see the git history on this file); the owner has since reviewed a
-       * real render and called it wrong for this build, explicitly as a
-       * deviation from the reference -- the cards are "too big for the
-       * content they hold."
+       * Owner report (with screenshots): on a tall desktop viewport the
+       * card grid floated in the vertical middle of the section with a
+       * large dead band above AND below it (~250px each at a ~1500px-tall
+       * viewport). Cause: this wrapper's `flex-1` swallows the section's
+       * leftover vertical height, and `justify-center` then splits that
+       * leftover evenly above and below the content-sized grid below --
+       * those two halves were the bands. Fix: the grid itself (the
+       * `fitRef` element) now also carries `flex-1`, so it grows to fill
+       * the space this wrapper hands it instead of staying content-sized
+       * and floating within it. `justify-center` stays on this wrapper
+       * (it still centers on the rare frame where the grid's own
+       * min-content height is shorter than the space available) but with
+       * the grid stretching, there is normally no leftover left to center.
+       *
+       * This is a different fix from a prior revision's `flex-1` +
+       * `minmax(0,1fr)` card row, which forced each individual CARD to
+       * stretch and dumped the leftover height inside each card as dead
+       * space above the install command / agent-dot row. That was a
+       * deliberate, verified reproduction of the design reference's OWN
+       * behaviour at the time (see the git history on this file); the
+       * owner reviewed a real render and called it wrong for this build --
+       * the cards were "too big for the content they hold." The `flex-1`
+       * added here is on the outer GRID container, not on the individual
+       * cards, so it does not reintroduce that per-card stretching; see
+       * `OtherProjectCard.tsx` for how row-mate height equalisation is
+       * still handled (`align-items: stretch` + a small, deliberate
+       * `mt-auto` inside the shorter card).
        *
        * This wrapper (`flex-1`, so it -- not the heading above it --
        * consumes the section's leftover vertical space) is a plain flex
-       * column with `justify-center`, so the un-stretched, content-sized
-       * grid below centres vertically WITHIN this wrapper only. The
-       * heading stays pinned at its normal top-of-section position: only
-       * the wrapper (and everything inside it) can grow, so
-       * `.section-shell`'s own `justify-content:center` (on the
-       * heading+wrapper block as a whole) has nothing left to redistribute
-       * -- the wrapper already occupies 100% of the remaining height.
+       * column with `justify-center`, so the grid below now fills that
+       * leftover space instead of floating within it. The heading stays
+       * pinned at its normal top-of-section position: only the wrapper
+       * (and everything inside it) can grow, so `.section-shell`'s own
+       * `justify-content:center` (on the heading+wrapper block as a whole)
+       * has nothing left to redistribute -- the wrapper already occupies
+       * 100% of the remaining height.
        *
        * `mt-` was `panel:`-only, leaving zero gap below 880px between the
        * "THE OTHER STUFF I WORKED ON" caption and the first card (#314
@@ -94,6 +110,24 @@ export function ProjectsOther() {
          * card-count ceiling notes for how far that shrinking stays
          * legible).
          *
+         * This build deliberately does not restore that cap even now that
+         * `flex-1` has been added below (owner's float/dead-band fix, see
+         * the wrapper comment above), because on the owner's screen this
+         * grid already renders ~858px tall for 2 cards -- a 680px cap
+         * would SHRINK it below its natural content height, the opposite
+         * of the fix. This is an approved deviation from the reference.
+         *
+         * Re-verified with `flex-1` added: the reasoning above still
+         * holds. `flex-1` only lets this box grow to consume leftover
+         * space handed to it by its `flex-col` parent; it does not add a
+         * max-height, and a flex item's default `min-height: auto` still
+         * stops it from ever shrinking below its own content height. So
+         * this box still can't under-report its true size, and the
+         * section can still grow taller than the viewport when content
+         * genuinely overflows -- the shrink pass keeps seeing real
+         * overflow via `section.getBoundingClientRect()` exactly as
+         * before.
+         *
          * CSS Grid's own default (`align-items: stretch`) is deliberately
          * left in effect here (mochi/style-match audit, defect 1): a prior
          * pass overrode it with `items-start` specifically so a shorter
@@ -125,7 +159,7 @@ export function ProjectsOther() {
          */}
         <div
           ref={fitRef}
-          className="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] auto-rows-fr gap-[clamp(14px,1.6vw,20px)]"
+          className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] auto-rows-fr gap-[clamp(14px,1.6vw,20px)]"
         >
           {OTHER_PROJECTS.map((project) => (
             <OtherProjectCard key={project.id} project={project} />
