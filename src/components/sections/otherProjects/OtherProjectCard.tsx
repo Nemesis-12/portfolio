@@ -1,7 +1,7 @@
 import type { OtherProject } from '@/data/otherProjects'
 import { AgentCluster } from '@/components/sections/otherProjects/AgentCluster'
 import { CopyInstallCommand } from '@/components/sections/otherProjects/CopyInstallCommand'
-import { ProjectTag } from '@/components/sections/ProjectTag'
+import { ProjectCardShell, ProjectCardStatsFooter, ProjectCardTitleRow } from '@/components/sections/ProjectCard'
 
 /**
  * One card on the second projects screen (mochi/style-match task 2): a
@@ -37,34 +37,50 @@ import { ProjectTag } from '@/components/sections/ProjectTag'
  */
 export function OtherProjectCard({ project }: { project: OtherProject }) {
   return (
-    <article className="flex flex-col gap-[var(--space-fit-xs)] border border-line bg-panel p-[clamp(16px,2.4vh,28px)_clamp(18px,2.2vw,28px)] transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]">
-      <div className="flex items-start justify-between gap-[12px]">
-        {/*
-         * Title sizing is width-driven (`text-fluid-lg`, `--text-lg`
-         * ~19.2-24px) ONLY from 880px up, restored via the `panel:`
-         * override (issue #346 fix). Below 880px the base classes switch to
-         * `text-fit-title` (`--text-fit-title`, a height-based clamp
-         * ~11.5-16px, the same token `EducationExperience.tsx` already uses
-         * for its own card/entry titles) with a tighter `leading-[1.45]`.
-         *
-         * At 375px, the unconditional width-based size (~20px, near its own
-         * floor already) was still wide enough that MLA's four-word title
-         * ("Multi-Head Latent Attention") wrapped one word per line in the
-         * blocky `font-display` ("Press Start 2P") -- ballooning that card
-         * to roughly triple the height of the one-line "Thesis" card below
-         * it and breaking the shared title/description/metric/footer
-         * rhythm the two cards are meant to share (issue #346). The
-         * height-based scale shrinks with viewport HEIGHT, not width, so it
-         * isn't pinned near its own max at narrow widths the way the
-         * width-based scale is -- it renders small enough for the long
-         * title to wrap to two lines instead of four, without touching the
-         * `panel:`-gated desktop size at all.
-         */}
-        <h3 className="min-w-0 flex-1 font-display text-fit-title leading-[1.45] text-fg panel:text-fluid-lg panel:leading-[1.6]">
-          {project.title}
-        </h3>
-        <ProjectTag label={project.badge.label} year={project.badge.year} blink={project.badge.blink} />
-      </div>
+    <ProjectCardShell
+      as="article"
+      className="border border-line bg-panel transition-[border-color,transform] duration-200 hover:border-accent motion-safe:hover:-translate-y-[3px]"
+    >
+      {/*
+       * Title row is the shared `ProjectCardTitleRow` (`ProjectCard.tsx`):
+       * stacks below 880px, side-by-side row at `panel:` (880px+), same
+       * mechanism `ProjectsFeatured.tsx` uses for Leviathan's title/badge.
+       * This card previously used a plain, unconditional
+       * `items-start justify-between` row here and leaned only on
+       * shrinking the title's own font at narrow widths (issue #346, see
+       * the sizing note below) to keep it clear of the badge -- a second,
+       * different fix for the same defect class the shared row now solves
+       * generally, regardless of title length (issue #357).
+       */}
+      <ProjectCardTitleRow
+        title={
+          <h3 className="font-display text-fit-title leading-[1.45] text-fg panel:text-fluid-lg panel:leading-[1.6]">
+            {/*
+             * Title sizing is width-driven (`text-fluid-lg`, `--text-lg`
+             * ~19.2-24px) ONLY from 880px up, restored via the `panel:`
+             * override (issue #346 fix). Below 880px the base classes switch to
+             * `text-fit-title` (`--text-fit-title`, a height-based clamp
+             * ~11.5-16px, the same token `EducationExperience.tsx` already uses
+             * for its own card/entry titles) with a tighter `leading-[1.45]`.
+             *
+             * At 375px, the unconditional width-based size (~20px, near its own
+             * floor already) was still wide enough that MLA's four-word title
+             * ("Multi-Head Latent Attention") wrapped one word per line in the
+             * blocky `font-display` ("Press Start 2P") -- ballooning that card
+             * to roughly triple the height of the one-line "Thesis" card below
+             * it and breaking the shared title/description/metric/footer
+             * rhythm the two cards are meant to share (issue #346). The
+             * height-based scale shrinks with viewport HEIGHT, not width, so it
+             * isn't pinned near its own max at narrow widths the way the
+             * width-based scale is -- it renders small enough for the long
+             * title to wrap to two lines instead of four, without touching the
+             * `panel:`-gated desktop size at all.
+             */}
+            {project.title}
+          </h3>
+        }
+        badge={{ label: project.badge.label, year: project.badge.year, blink: project.badge.blink }}
+      />
 
       <p className="text-fit-lg text-accent-2">{project.tagline}</p>
 
@@ -77,7 +93,7 @@ export function OtherProjectCard({ project }: { project: OtherProject }) {
         <AgentCluster className="mt-auto" />
       )}
 
-      <div className="flex flex-wrap items-end gap-[26px] border-t border-line pt-[var(--space-fit-md)]">
+      <ProjectCardStatsFooter>
         {project.stats.map((stat) => (
           <div key={stat.label} className="flex flex-col">
             <span className="font-display text-[19px] leading-none text-fg">
@@ -97,7 +113,7 @@ export function OtherProjectCard({ project }: { project: OtherProject }) {
             {project.extraLink.label} ↗
           </a>
         ) : null}
-      </div>
-    </article>
+      </ProjectCardStatsFooter>
+    </ProjectCardShell>
   )
 }

@@ -2,7 +2,7 @@ import { Section } from '@/components/layout/Section'
 import { SectionHeading } from '@/components/layout/SectionHeading'
 import { InferencePipeline } from '@/components/sections/leviathan/InferencePipeline'
 import { StatCounter } from '@/components/sections/leviathan/StatCounter'
-import { ProjectTag } from '@/components/sections/ProjectTag'
+import { ProjectCardShell, ProjectCardStatsFooter, ProjectCardTitleRow } from '@/components/sections/ProjectCard'
 import {
   LEVIATHAN_BADGE_LABEL,
   LEVIATHAN_BADGE_YEAR,
@@ -123,43 +123,25 @@ export function ProjectsFeatured() {
           ref={fitRef}
           className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] border border-line-2 bg-panel"
         >
-          <div className="flex min-w-0 flex-col gap-[var(--space-fit-xs)] p-[clamp(16px,2.4vh,30px)_clamp(18px,2.2vw,30px)]">
+          <ProjectCardShell>
             {/*
-             * Title row is `justify-between` + `items-start`, not the
-             * sample's literal `items-baseline`/`flex-wrap` (line 341):
-             * the sample's own title ("LEVIATHAN") never wraps, so hugging
-             * the badge right after it via plain `gap` reads as "same row"
-             * there. Our title text differs card to card (résumé wording,
-             * see `src/data/otherProjects.ts`) and the MLA card's title
-             * DOES wrap to two lines, so `gap`-only hugging silently
-             * degrades to the badge sitting immediately next to the title
-             * word or dropping below a wrapped title (mochi/style-match
-             * audit, defect 1). `justify-between` with the title in a
-             * `min-w-0 flex-1` block pushes the badge to the row's right
-             * edge regardless of title line count, and `items-start` keeps
-             * it flush with the title's cap height instead of the
-             * (undefined once multi-line) baseline. Same pattern reused
-             * verbatim in `ProjectsOther.tsx` for both its cards.
-             *
-             * Below 880px this stacks into a column instead (#314 owner
-             * review): "Leviathan" renders through `text-fit-xl`, a
-             * height-based clamp up to 34px in the blocky display font --
-             * at narrow mobile widths its glyphs visually overhang their
-             * own measured box (verified via pixel-sampling a real render:
-             * ink extends well past the text node's own
-             * `getBoundingClientRect` width), landing on the badge's left
-             * edge even though the two boxes don't geometrically overlap.
-             * Giving the badge its own row below the title removes the
-             * collision outright regardless of that overhang. `panel:
-             * flex-row` restores the side-by-side row at 880px+, where the
-             * smaller `panel:` title size doesn't exhibit it.
+             * Title row is the shared `ProjectCardTitleRow`
+             * (`ProjectCard.tsx`): stacks into a column below 880px and
+             * only becomes a side-by-side row at `panel:` (880px+) so a
+             * long title can never collide with the badge at any width,
+             * regardless of how many lines it wraps to. Its own doc
+             * comment (`ProjectCard.tsx`) has the full history -- this was
+             * previously duplicated here and, differently, in
+             * `OtherProjectCard.tsx` (issue #357).
              */}
-            <div className="flex flex-col items-start gap-[var(--space-2xs)] panel:flex-row panel:items-start panel:justify-between panel:gap-[12px]">
-              <span className="min-w-0 flex-1 font-display text-fit-xl leading-tight tracking-[-0.03em] text-fg">
-                Leviathan
-              </span>
-              <ProjectTag label={LEVIATHAN_BADGE_LABEL} year={LEVIATHAN_BADGE_YEAR} />
-            </div>
+            <ProjectCardTitleRow
+              title={
+                <span className="font-display text-fit-xl leading-tight tracking-[-0.03em] text-fg">
+                  Leviathan
+                </span>
+              }
+              badge={{ label: LEVIATHAN_BADGE_LABEL, year: LEVIATHAN_BADGE_YEAR }}
+            />
             <div className="text-fit-xs text-dim">{LEVIATHAN_SUBTITLE}</div>
 
             <p className="text-fit-lg text-accent-2">{LEVIATHAN_HOOK}</p>
@@ -183,7 +165,7 @@ export function ProjectsFeatured() {
              * than being pinned to the bottom of a box stretched past its
              * content -- see the note above the outer grid.
              */}
-            <div className="flex flex-wrap items-end gap-[clamp(16px,2.4vw,32px)] border-t border-line pt-[var(--space-fit-md)]">
+            <ProjectCardStatsFooter>
               {LEVIATHAN_STATS.map((stat) => (
                 <StatCounter key={stat.id} stat={stat} />
               ))}
@@ -201,8 +183,8 @@ export function ProjectsFeatured() {
                   </a>
                 ))}
               </div>
-            </div>
-          </div>
+            </ProjectCardStatsFooter>
+          </ProjectCardShell>
 
           <div className="flex min-w-0 flex-col justify-center border-line bg-panel-2 p-[clamp(14px,2.2vh,26px)_clamp(16px,2vw,26px)] panel:border-l">
             <InferencePipeline />
