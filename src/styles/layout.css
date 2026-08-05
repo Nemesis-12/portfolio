@@ -14,22 +14,16 @@
  *   --text-2xs   clamp(0.66rem, 0.6rem  + 0.3vw, 0.78rem)  micro labels, meta
  *   --text-xs    clamp(0.78rem, 0.7rem  + 0.4vw, 0.92rem)  captions, eyebrows
  *   --text-sm    clamp(0.9rem,  0.8rem  + 0.5vw, 1.05rem)  body small
- *   --text-base  clamp(1rem,    0.9rem  + 0.6vw, 1.2rem)   body
  *   --text-lg    clamp(1.2rem,  1.05rem + 0.9vw, 1.5rem)   section lede / intro line
  *   --text-xl    clamp(1.55rem, 1.3rem  + 1.6vw, 2.1rem)   subheadings
- *   --text-2xl   clamp(2.1rem,  1.6rem  + 3vw,   3.4rem)   section titles
- *   --text-hero  clamp(2.6rem,  1.7rem  + 5.5vw, 5.4rem)   hero display line
  *
  * Spacing follows the same construction so gaps and padding stay
  * proportional to the viewport rather than being retro-fitted per section:
  *
- *   --space-3xs  clamp(0.25rem, 0.2rem  + 0.2vw, 0.4rem)
  *   --space-2xs  clamp(0.4rem,  0.3rem  + 0.3vw, 0.6rem)
- *   --space-xs   clamp(0.65rem, 0.5rem  + 0.5vw, 0.95rem)
  *   --space-sm   clamp(1rem,    0.8rem  + 0.8vw, 1.5rem)
  *   --space-md   clamp(1.6rem,  1.2rem  + 1.6vw, 2.4rem)
  *   --space-lg   clamp(2.4rem,  1.6rem  + 2.8vw, 3.6rem)
- *   --space-xl   clamp(3.2rem,  2rem    + 4vw,   5.2rem)
  *
  * These are plain custom properties (not Tailwind `@theme` keys) so they
  * stay decoupled from Tailwind's own `text-*`/`spacing-*` namespace and the
@@ -42,19 +36,13 @@
   --text-2xs: clamp(0.66rem, 0.6rem + 0.3vw, 0.78rem);
   --text-xs: clamp(0.78rem, 0.7rem + 0.4vw, 0.92rem);
   --text-sm: clamp(0.9rem, 0.8rem + 0.5vw, 1.05rem);
-  --text-base: clamp(1rem, 0.9rem + 0.6vw, 1.2rem);
   --text-lg: clamp(1.2rem, 1.05rem + 0.9vw, 1.5rem);
   --text-xl: clamp(1.55rem, 1.3rem + 1.6vw, 2.1rem);
-  --text-2xl: clamp(2.1rem, 1.6rem + 3vw, 3.4rem);
-  --text-hero: clamp(2.6rem, 1.7rem + 5.5vw, 5.4rem);
 
-  --space-3xs: clamp(0.25rem, 0.2rem + 0.2vw, 0.4rem);
   --space-2xs: clamp(0.4rem, 0.3rem + 0.3vw, 0.6rem);
-  --space-xs: clamp(0.65rem, 0.5rem + 0.5vw, 0.95rem);
   --space-sm: clamp(1rem, 0.8rem + 0.8vw, 1.5rem);
   --space-md: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
   --space-lg: clamp(2.4rem, 1.6rem + 2.8vw, 3.6rem);
-  --space-xl: clamp(3.2rem, 2rem + 4vw, 5.2rem);
 
   /*
    * ---------------------------------------------------------------------
@@ -92,7 +80,6 @@
   --space-fit-xs: clamp(9px, 1.6vh, 15px);
   --space-fit-sm: clamp(12px, 1.8vh, 22px);
   --space-fit-md: clamp(14px, 2.2vh, 26px);
-  --space-fit-lg: clamp(16px, 2.4vh, 30px);
   --space-fit-margin: clamp(18px, 2.6vh, 28px); /* projects fit-box margin-top under a section heading */
   --space-fit-margin-tight: clamp(16px, 2.4vh, 26px); /* skills/timeline fit-box margin-top */
 }
@@ -131,20 +118,11 @@
 .text-fluid-sm {
   font-size: var(--text-sm);
 }
-.text-fluid-base {
-  font-size: var(--text-base);
-}
 .text-fluid-lg {
   font-size: var(--text-lg);
 }
 .text-fluid-xl {
   font-size: var(--text-xl);
-}
-.text-fluid-2xl {
-  font-size: var(--text-2xl);
-}
-.text-fluid-hero {
-  font-size: var(--text-hero);
 }
 
 /*
