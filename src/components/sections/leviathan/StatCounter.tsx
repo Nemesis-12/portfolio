@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { LeviathanStat } from '@/data/leviathan'
+import { startAnimationFrameLoop } from '@/lib/animationFrameLoop'
 import { countUpValue } from '@/lib/leviathan/countUp'
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 
@@ -43,18 +44,13 @@ export function StatCounter({ stat }: StatCounterProps) {
     const node = ref.current
     if (!node) return
 
-    let frameId = 0
+    let cancelLoop: (() => void) | undefined
 
     const startCountUp = () => {
-      const start = performance.now()
-      const tick = (now: number) => {
-        const elapsed = now - start
+      cancelLoop = startAnimationFrameLoop((elapsed) => {
         setAnimated(countUpValue(stat.target, elapsed, COUNT_DURATION_MS))
-        if (elapsed < COUNT_DURATION_MS) {
-          frameId = requestAnimationFrame(tick)
-        }
-      }
-      frameId = requestAnimationFrame(tick)
+        return elapsed < COUNT_DURATION_MS
+      })
     }
 
     const observer = new IntersectionObserver(
@@ -72,7 +68,7 @@ export function StatCounter({ stat }: StatCounterProps) {
 
     return () => {
       observer.disconnect()
-      if (frameId) cancelAnimationFrame(frameId)
+      cancelLoop?.()
     }
   }, [showFinal, stat])
 
