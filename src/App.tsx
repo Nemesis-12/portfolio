@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { Header } from '@/components/layout/Header'
 import { SkipLink } from '@/components/layout/SkipLink'
 import { Contact } from '@/components/sections/Contact'
@@ -57,13 +58,30 @@ import { cn } from '@/lib/cn'
  * (#317-#321). The mobile hamburger menu (#314) is a separate ticket --
  * the nav links and header rendered here are the desktop shape only. The
  * theme picker (#313) is wired up inside `<Header>` itself.
+ *
+ * Overlay background (#355): `MobileNav`'s full-screen panel needs to mark
+ * everything else on the page `inert` while it's open. That "everything
+ * else" is exactly this component's three top-level children --
+ * `<SkipLink>`, `<Header>` (which itself contains the nav links, theme
+ * picker, clock, and progress bar -- inerting the header cascades to all of
+ * them, including `MobileNav`'s own trigger), and `<main>`. This module is
+ * the one place that composes those three, so it is the one place that
+ * *declares* the background list -- three refs, handed down as a prop --
+ * rather than `MobileNav` rediscovering them by selector or id. See
+ * `src/lib/overlay.ts` for why that distinction matters.
  */
 function App() {
+  const skipLinkRef = useRef<HTMLAnchorElement>(null)
+  const headerRef = useRef<HTMLElement>(null)
+  const mainRef = useRef<HTMLElement>(null)
+  const overlayBackground = [skipLinkRef, headerRef, mainRef]
+
   return (
     <>
-      <SkipLink />
-      <Header />
+      <SkipLink ref={skipLinkRef} />
+      <Header ref={headerRef} overlayBackground={overlayBackground} />
       <main
+        ref={mainRef}
         id="main-content"
         tabIndex={-1}
         className={cn('snap-shell', 'flex min-h-screen flex-col', 'bg-bg text-fg')}
