@@ -1,12 +1,17 @@
 /**
- * The correction math `useFitToViewport` runs each pass, factored out as a
- * swappable, DOM-free `FitStrategy` so the shrink-to-fit *mechanism* (CSS
- * `zoom`, a 0.6 floor, up to 3 passes) is one interchangeable implementation
- * of the hook's contract ("given how far the section overflows, propose a
- * smaller scale") rather than baked into the hook itself.
+ * The design reference's `[data-fit]` shrink-to-fit mechanism (see
+ * `useFitToViewport.ts`'s header comment for the full history): shrink an
+ * element via CSS `zoom` until its owning section fits `window.innerHeight`,
+ * floor at 0.6x, give up after 3 correction passes.
+ *
+ * There is exactly one implementation of this today (`zoomFitStrategy`),
+ * and it owns the *whole* pass loop -- not just the per-pass math -- so
+ * the hook that drives it never has to know a CSS property name, a floor
+ * value, or a pass count. It hands over the element and its section and
+ * gets back whether the section ended up fitting.
  */
 
-/** One pass's measurements, gathered from the live DOM by the caller. */
+/** One pass's measurements, gathered from the live DOM by `zoomFitStrategy.run`. */
 export interface FitPassInput {
   /** How many px the owning section's rendered height exceeds `window.innerHeight` by. Non-positive means it already fits. */
   overflowPx: number
@@ -22,46 +27,71 @@ export interface FitCorrection {
   cssValue: string
 }
 
+/** The result of running a strategy's full pass loop against an element. */
+export type FitOutcome =
+  | { fitted: true }
+  | {
+      fitted: false
+      /** How many px of overflow remained when the strategy gave up. */
+      overflowPx: number
+      /** The floor scale the strategy stopped at. */
+      floor: number
+    }
+
 export interface FitStrategy {
-  /** CSS property this strategy drives (e.g. `'zoom'`). */
-  readonly cssProperty: string
-  /** Value that neutralises the property, applied before each measurement pass and on cleanup. */
-  readonly resetValue: string
-  /** The smallest scale this strategy will ever propose. */
-  readonly floor: number
-  /** Maximum correction passes attempted before giving up. */
-  readonly maxPasses: number
-  /** Proposes the next correction, or `null` if no further correction should be attempted (already fits, or nothing more to try). */
-  nextCorrection(input: FitPassInput): FitCorrection | null
+  /** Resets any correction previously applied to `el`, before a fresh measurement pass. */
+  reset(el: HTMLElement): void
+  /** Measures and corrects `el` against how far `section` overflows `window.innerHeight`, returning whether it ended up fitting. */
+  run(el: HTMLElement, section: HTMLElement): FitOutcome
 }
 
-const FLOOR = 0.6
+/** The smallest scale `zoomFitStrategy` will ever propose. */
+export const FLOOR = 0.6
+
+const MAX_PASSES = 3
 
 /**
- * Direct port of the design reference's own runtime behaviour (see
- * `useFitToViewport.ts`'s header comment for the full history): shrink via
- * CSS `zoom`, floor at 0.6x, stop once the section is within 1px of fitting
- * or the element reports no height to measure against.
+ * The pure per-pass correction math, factored out of the DOM-touching loop
+ * so it stays unit-testable without a real layout engine -- jsdom has none
+ * (`getBoundingClientRect` always reports 0 there), so this is the only
+ * part of the mechanism that CAN be exercised outside a real browser.
  */
-export const zoomFitStrategy: FitStrategy = {
-  cssProperty: 'zoom',
-  resetValue: '1',
-  floor: FLOOR,
-  maxPasses: 3,
-  nextCorrection({ overflowPx, elementHeightPx, currentScale }) {
-    if (overflowPx <= 1) return null
-    if (elementHeightPx <= 0) return null
-    const scale = Math.max(FLOOR, currentScale * Math.max(FLOOR, (elementHeightPx - overflowPx) / elementHeightPx))
-    return { scale, cssValue: String(scale) }
-  },
+export function nextZoomCorrection({ overflowPx, elementHeightPx, currentScale }: FitPassInput): FitCorrection | null {
+  if (overflowPx <= 1) return null
+  if (elementHeightPx <= 0) return null
+  const scale = Math.max(FLOOR, currentScale * Math.max(FLOOR, (elementHeightPx - overflowPx) / elementHeightPx))
+  return { scale, cssValue: String(scale) }
 }
 
 /**
  * Whether a finished fit pass should be surfaced to a developer as a "gave
  * up, content still overflows" case rather than silently leaving the
- * section too tall for the viewport. True once the strategy's floor has
- * been reached and real overflow still remains.
+ * section too tall for the viewport. True once the floor has been reached
+ * and real overflow still remains.
  */
-export function isResidualOverflow(finalOverflowPx: number, finalScale: number, strategy: FitStrategy): boolean {
-  return finalOverflowPx > 1 && finalScale <= strategy.floor
+export function isResidualOverflow(finalOverflowPx: number, finalScale: number): boolean {
+  return finalOverflowPx > 1 && finalScale <= FLOOR
+}
+
+export const zoomFitStrategy: FitStrategy = {
+  reset(el) {
+    el.style.setProperty('zoom', '1')
+  },
+  run(el, section) {
+    let scale = 1
+    let overflowPx = 0
+    for (let pass = 0; pass < MAX_PASSES; pass++) {
+      overflowPx = section.getBoundingClientRect().height - window.innerHeight
+      const elementHeightPx = el.getBoundingClientRect().height
+      const correction = nextZoomCorrection({ overflowPx, elementHeightPx, currentScale: scale })
+      if (!correction) break
+      scale = correction.scale
+      el.style.setProperty('zoom', correction.cssValue)
+    }
+
+    if (isResidualOverflow(overflowPx, scale)) {
+      return { fitted: false, overflowPx, floor: FLOOR }
+    }
+    return { fitted: true }
+  },
 }

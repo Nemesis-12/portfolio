@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
-import type { FitClaim } from '@/lib/fitClaim'
-import { isResidualOverflow, zoomFitStrategy, type FitStrategy } from '@/lib/fitStrategy'
+import type { SectionFitContextValue } from '@/components/layout/sectionFitContext'
+import { zoomFitStrategy, type FitStrategy } from '@/lib/fitStrategy'
 import { PANEL_QUERY, queryMatches, subscribeToMediaQuery } from '@/lib/useMediaQuery'
 
 /**
@@ -10,7 +10,7 @@ import { PANEL_QUERY, queryMatches, subscribeToMediaQuery } from '@/lib/useMedia
  * tokens in `src/styles/layout.css`) is the primary defence against a
  * section growing past one viewport tall, but the reference does not rely
  * on that alone -- every `data-fit` element also gets a runtime pass that
- * measures its owning `<section>` against `window.innerHeight` and, if it
+ * measures its owning section against `window.innerHeight` and, if it
  * still overflows, scales the element down (via `strategy`, `zoomFitStrategy`
  * by default -- CSS `zoom`, floor 0.6x, up to 3 correction passes) until it
  * fits or the strategy gives up. That is the actual mechanism that
@@ -23,15 +23,18 @@ import { PANEL_QUERY, queryMatches, subscribeToMediaQuery } from '@/lib/useMedia
  *
  * This is the low-level primitive `FitRegion` (`src/components/layout/
  * FitRegion.tsx`) is built on -- it is not meant to be reached for
- * directly. It requires a `FitClaim` (from `src/lib/fitClaim.ts`) as proof
- * that a section has already agreed to host exactly one fit region: the
- * only sanctioned way to obtain one is `Section`'s own context, so a
- * caller reaching for this hook still has to go through `FitRegion` (or
- * explicitly work around that contract) rather than being able to attach
- * fit behaviour to an arbitrary element with no owning section.
+ * directly. It requires a `SectionFitContextValue` (`src/components/
+ * layout/sectionFitContext.ts`), which carries both the owning section's
+ * element (what actually gets measured -- no `closest('section')` DOM
+ * crawl needed) and proof that this section has agreed to host exactly
+ * one fit region. The only sanctioned way to obtain one is `Section`'s own
+ * context, so a caller reaching for this hook still has to go through
+ * `FitRegion` (or explicitly work around that contract) rather than being
+ * able to attach fit behaviour to an arbitrary element with no owning
+ * section.
  */
 export function useFitToViewport<T extends HTMLElement>(
-  claim: FitClaim,
+  sectionFit: SectionFitContextValue,
   strategy: FitStrategy = zoomFitStrategy,
 ): React.RefObject<T | null> {
   const ref = useRef<T | null>(null)
@@ -42,7 +45,7 @@ export function useFitToViewport<T extends HTMLElement>(
       return
     }
 
-    if (!claim.claim()) {
+    if (!sectionFit.claimFit()) {
       // Deliberately surfaced: two fit regions in one section would otherwise silently compound their zoom.
       console.error(
         '[useFitToViewport] Another fit region is already active in this section; nesting two is not supported. This region will not shrink to fit.',
@@ -51,25 +54,15 @@ export function useFitToViewport<T extends HTMLElement>(
     }
 
     const fit = () => {
-      const section = el.closest('section')
-      el.style.setProperty(strategy.cssProperty, strategy.resetValue)
+      strategy.reset(el)
+      const section = sectionFit.sectionRef.current
       if (!section || !queryMatches(PANEL_QUERY)) return
 
-      let scale = 1
-      let overflowPx = 0
-      for (let pass = 0; pass < strategy.maxPasses; pass++) {
-        overflowPx = section.getBoundingClientRect().height - window.innerHeight
-        const elementHeightPx = el.getBoundingClientRect().height
-        const correction = strategy.nextCorrection({ overflowPx, elementHeightPx, currentScale: scale })
-        if (!correction) break
-        scale = correction.scale
-        el.style.setProperty(strategy.cssProperty, correction.cssValue)
-      }
-
-      if (isResidualOverflow(overflowPx, scale, strategy)) {
+      const outcome = strategy.run(el, section)
+      if (!outcome.fitted) {
         // Deliberately surfaced: previously this case was silent (the section is left overflowing the viewport with no signal anywhere).
         console.warn(
-          `[useFitToViewport] Gave up shrinking a section to fit the viewport: still ${Math.round(overflowPx)}px too tall at the ${strategy.floor}x floor.`,
+          `[useFitToViewport] Gave up shrinking a section to fit the viewport: still ${Math.round(outcome.overflowPx)}px too tall at the ${outcome.floor}x floor.`,
           section,
         )
       }
@@ -99,9 +92,9 @@ export function useFitToViewport<T extends HTMLElement>(
       clearTimeout(initialTimer)
       window.removeEventListener('resize', fitSoon)
       unsubscribe()
-      claim.release()
+      sectionFit.releaseFit()
     }
-  }, [claim, strategy])
+  }, [sectionFit, strategy])
 
   return ref
 }

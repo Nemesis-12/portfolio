@@ -1,7 +1,6 @@
-import { useState, type ReactNode } from 'react'
-import { SectionFitContext } from '@/components/layout/sectionFitContext'
+import { useRef, useState, type ReactNode } from 'react'
+import { createFitClaimant, SectionFitContext, type SectionFitContextValue } from '@/components/layout/sectionFitContext'
 import { cn } from '@/lib/cn'
-import { createFitClaim } from '@/lib/fitClaim'
 
 interface SectionProps {
   id: string
@@ -34,21 +33,28 @@ interface SectionProps {
  * instead of a separate `aria-label` string that has to be kept in sync
  * with a heading assistive tech users can already see and hear.
  *
- * Also provides the `FitClaim` (`src/lib/fitClaim.ts`) its subtree's
- * `FitRegion`(s) (`FitRegion.tsx`) contend for -- one instance per
- * `Section`, stable for its whole lifetime, so at most one `FitRegion`
+ * Also provides the `SectionFitContextValue` (`sectionFitContext.ts`) its
+ * subtree's `FitRegion`(s) (`FitRegion.tsx`) read: a ref to this section's
+ * own DOM element (what `useFitToViewport` actually measures and shrinks
+ * against) plus the claim its `FitRegion`(s) contend for -- one instance
+ * per `Section`, stable for its whole lifetime, so at most one `FitRegion`
  * inside it can ever be active at a time (#356).
  */
 export function Section({ id, headingId, children, className }: SectionProps) {
-  const [fitClaim] = useState(createFitClaim)
+  const sectionRef = useRef<HTMLElement | null>(null)
+  const [fitContext] = useState<SectionFitContextValue>(() => ({
+    sectionRef,
+    ...createFitClaimant(),
+  }))
 
   return (
     <section
+      ref={sectionRef}
       id={id}
       aria-labelledby={headingId}
       className={cn('section-shell', className)}
     >
-      <SectionFitContext.Provider value={fitClaim}>{children}</SectionFitContext.Provider>
+      <SectionFitContext.Provider value={fitContext}>{children}</SectionFitContext.Provider>
     </section>
   )
 }
