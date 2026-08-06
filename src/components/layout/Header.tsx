@@ -31,26 +31,18 @@ import { ThemePicker } from './ThemePicker'
  * the trailing group -- theme picker, clock, hamburger, in that DOM/visual
  * order -- is pushed flush right as one unit.
  *
- * Fixed-header / scroll-snap interaction: `scroll-snap-align: start`
- * (`.section-shell`, src/styles/layout.css) aligns each section to the
- * top of the scrollport, and native `#id` anchor jumps land at the exact
- * top of the target element -- both of which a `position: fixed` header
- * would otherwise cover. The sample (`ideas/Portfolio.html`) never
- * compensates for this at the scroll-container level (no
- * `scroll-padding-top`; line 245 sets only `scroll-behavior`/
- * `scroll-snap-type`) -- it relies purely on every section's own top
- * `padding-block` clamp (`.section-shell`) already exceeding the header's
- * rendered height, so the header only ever overlaps padding, never real
- * content. This held at 880px+ (`clamp(4rem,9vh,5.5rem)` there comfortably
- * clears the header) but not below it, where `.section-shell`'s base
- * padding floors at 2.4rem/38.4px against a mobile header nearer 55-60px
- * tall -- the hero eyebrow and every other section's heading row rendered
- * partly behind the header (#314 owner review). `--header-h` is
- * republished here (measured via `ResizeObserver`, not guessed, since the
- * header's rendered height changes with the fluid type scale) so
- * `layout.css`'s base `.section-shell` rule can clear it with
- * `max(var(--space-lg), var(--header-h))`; the 880px+ override still uses
- * its own clamp unconditionally, so desktop is unaffected.
+ * Fixed-header / scroll-snap interaction: a `position: fixed` header would
+ * otherwise cover a section's top when `scroll-snap-align: start`
+ * (`.section-shell`) aligns it to the scrollport, or a native `#id` anchor
+ * jump lands there. `src/styles/layout.css` has the full story of why the
+ * fix is sizing (every section's own top `padding-block` clamp already
+ * exceeds the header's height) rather than a `scroll-padding-top` offset
+ * (tried and removed -- see that file for why).
+ *
+ * `--header-h` is published here via `ResizeObserver` rather than a fixed
+ * guess, since the header's rendered height changes with the fluid type
+ * scale and with viewport width; `layout.css`'s base `.section-shell` rule
+ * consumes it in `max(var(--space-lg), var(--header-h) + var(--space-md))`.
  *
  * `overlayBackground` (#355): forwarded straight through to `MobileNav`,
  * unopened -- `App.tsx` is the one place that declares what counts as

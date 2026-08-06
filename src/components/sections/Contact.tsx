@@ -125,12 +125,9 @@ export function Contact() {
       </div>
 
       {/*
-       * Divider top padding (#359): was a fixed inline `20px`; unified onto
-       * `--space-fit-md`, the same border-t+padding-top treatment now
-       * shared by `ProjectCard.tsx`'s stats footer, Education &
-       * Experience's bullet list divider, and the Leviathan pipeline's
-       * "move" row -- four dividers that previously each had a different
-       * top padding.
+       * Divider top padding: unified onto `--space-fit-md` along with three
+       * other dividers across the codebase (#359) -- see
+       * `ProjectCardStatsFooter` in `ProjectCard.tsx` for the full story.
        *
        * `panel:mt-[clamp(40px,7.5vh,95px)]` (#372): grows the gap between
        * the grid and the footer at desktop so the block's own internal

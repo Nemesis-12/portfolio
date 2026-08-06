@@ -16,14 +16,11 @@ import { cn } from '@/lib/cn'
  * skills, education & experience, contact -- each with placeholder content
  * for now.
  *
- * Layout/viewport-fit system: above 880px `.section-shell` (src/styles/
- * layout.css) makes every section exactly one viewport tall, while the
- * scroll-snap itself lives on `:root` (the document is the real scroll
- * container, not `<main>`) so sections snap between whole screens; below
- * 880px both release and sections stack as ordinary flow content.
- * `.snap-shell` on <main> is a marker class only -- it carries no CSS of
- * its own. There is no JavaScript measuring loop -- fit comes entirely
- * from the fluid type scale and CSS documented in that file.
+ * Layout/viewport-fit system: `src/styles/layout.css` (`.section-shell`,
+ * the 880px breakpoint, scroll-snap on `:root`) and `src/lib/
+ * useFitToViewport.ts` (the runtime shrink-to-fit pass) own that mechanism
+ * end to end -- see those files. `.snap-shell` on <main> is a marker class
+ * only -- it carries no CSS of its own.
  *
  * `<SkipLink>` is rendered first, before `<Header>`, so it is the very
  * first focusable element in DOM order -- a keyboard user's first Tab
@@ -37,9 +34,9 @@ import { cn } from '@/lib/cn'
  * fixed header (mochi/style-match audit -- a prior revision added
  * `padding-top: var(--header-h, ...)` here, reasoning the header would
  * otherwise cover the hero on first paint). The sample never does this
- * (`ideas/Portfolio.html` line 264-266: `<section id="top">` is a direct
- * sibling of `<header>`, no offset wrapper) and that padding was actively
- * wrong: every `.section-shell` is already `min-height:100dvh`, so adding
+ * (`ideas/Portfolio.html` line 294: `<section id="top">`, the hero, is a
+ * direct sibling of `<header>`, no offset wrapper) and that padding was
+ * actively wrong: every `.section-shell` is already `min-height:100dvh`, so adding
  * the header's height on top of that made the FIRST section render
  * `header-height` pixels taller than one viewport -- it no longer fit one
  * screen, defeating the whole one-section-one-screen/scroll-snap premise,

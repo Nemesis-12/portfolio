@@ -20,11 +20,10 @@ import { DEFAULT_THEME_ID, THEMES } from '@/theme/themes'
  * Dismissal (#355) is `useOverlay`/`src/lib/overlay.ts`'s job, not this
  * component's own: Escape closes the menu and returns focus to the
  * trigger; a pointerdown or focus-out landing outside `containerRef`
- * closes it too, but deliberately does NOT refocus the trigger (the click
- * or Tab that triggered it already moved focus somewhere real -- pulling
- * it back would fight that). This picker locks no scroll and inerts no
- * background; it's a small dropdown, not a full-screen panel like
- * `MobileNav`'s.
+ * closes it too (see `overlay.ts`'s `outsideDismissBoundary` doc for why
+ * that path deliberately doesn't refocus anything). This picker locks no
+ * scroll and inerts no background; it's a small dropdown, not a
+ * full-screen panel like `MobileNav`'s.
  *
  * Colour data (`THEMES[].swatch`) is the one legitimate place a literal
  * hex value appears in this codebase -- it's runtime data from

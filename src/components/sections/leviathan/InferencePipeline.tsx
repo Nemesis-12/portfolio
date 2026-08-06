@@ -32,11 +32,9 @@ const FRAME_INTERVAL_MS = 110
  * row itself, not on the content column), so `rowBorderTop` lets that one
  * row opt in without affecting the others.
  *
- * The row's top padding was its own inline `clamp(9px,1.5vh,14px)`;
- * unified (#359) onto `--space-fit-md`, the same divider treatment now
- * shared by `ProjectCard.tsx`'s stats footer, Education & Experience's
- * bullet list divider, and Contact's footer -- four border-t+padding-top
- * dividers that previously each had a different top padding.
+ * The row's top padding is unified onto `--space-fit-md` along with three
+ * other dividers across the codebase (#359) -- see `ProjectCardStatsFooter`
+ * in `ProjectCard.tsx` for the full story.
  */
 function PipelineRow({
   label,
