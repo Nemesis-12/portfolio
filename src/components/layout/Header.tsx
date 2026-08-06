@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
+import type { Ref, RefObject } from 'react'
 import { navItems } from '@/data/nav'
 import { cn } from '@/lib/cn'
 import { Clock } from './Clock'
@@ -50,8 +51,24 @@ import { ThemePicker } from './ThemePicker'
  * `layout.css`'s base `.section-shell` rule can clear it with
  * `max(var(--space-lg), var(--header-h))`; the 880px+ override still uses
  * its own clamp unconditionally, so desktop is unaffected.
+ *
+ * `overlayBackground` (#355): forwarded straight through to `MobileNav`,
+ * unopened -- `App.tsx` is the one place that declares what counts as
+ * "background" for the mobile nav's overlay (see its docstring), and this
+ * component is just the layer that composition happens to pass through.
+ * `ref` here is a second, independent thing: it's *this* header element's
+ * own node being merged into `App.tsx`'s background list (the header, and
+ * everything inside it -- nav links, theme picker, clock, progress bar,
+ * `MobileNav`'s own trigger -- all become `inert` together when the panel
+ * marks it as background), not something `Header` itself reads.
  */
-export function Header() {
+export function Header({
+  ref,
+  overlayBackground,
+}: {
+  ref?: Ref<HTMLElement>
+  overlayBackground: RefObject<HTMLElement | null>[]
+}) {
   const headerRef = useRef<HTMLElement>(null)
 
   useLayoutEffect(() => {
@@ -70,7 +87,11 @@ export function Header() {
 
   return (
     <header
-      ref={headerRef}
+      ref={(node) => {
+        headerRef.current = node
+        if (typeof ref === 'function') ref(node)
+        else if (ref) ref.current = node
+      }}
       className="fixed inset-x-0 top-0 z-[60] border-b border-line bg-bg-glass backdrop-blur-[9px]"
     >
       <div className="flex items-center gap-[clamp(10px,1.6vw,20px)] px-[clamp(20px,4vw,56px)] py-[12px]">
@@ -94,7 +115,7 @@ export function Header() {
           ))}
         </nav>
 
-        <MobileNav />
+        <MobileNav overlayBackground={overlayBackground} />
 
         <ThemePicker />
 

@@ -1,7 +1,9 @@
 import { useEffect, useId, useRef, useState } from 'react'
+import type { RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { navItems } from '@/data/nav'
 import { cn } from '@/lib/cn'
+import { useOverlay } from '@/lib/useOverlay'
 import { PANEL_QUERY, subscribeToMediaQuery } from '@/lib/useMediaQuery'
 
 /**
@@ -30,28 +32,28 @@ import { PANEL_QUERY, subscribeToMediaQuery } from '@/lib/useMediaQuery'
  * is the real scroll container per `src/styles/layout.css`'s scroll-snap
  * note) so the full-screen list doesn't fight page scroll underneath it.
  *
- * Two things outside the panel itself have to be kept in sync while it's
- * open, both driven from this one effect:
+ * Crossing the 880px `panel:` breakpoint purely by CSS -- `panel:hidden` on
+ * this component's own root -- would hide the fixed full-screen panel (it's
+ * a descendant, so `display:none` cascades to it) while leaving `open`
+ * (and therefore the scroll lock) true, since resizing never touches React
+ * state on its own. Subscribing to the shared panel query
+ * (`subscribeToMediaQuery(PANEL_QUERY, ...)` from `useMediaQuery`, #354 --
+ * the same module `useFitToViewport` and `usePrefersReducedMotion`
+ * consume) closes the menu the moment the viewport crosses into desktop
+ * width so the lock always gets released.
  *
- * 1. Crossing the 880px `panel:` breakpoint purely by CSS -- `panel:hidden`
- *    on this component's own root -- would hide the fixed full-screen panel
- *    (it's a descendant, so `display:none` cascades to it) while leaving
- *    `open` (and therefore the scroll lock) true, since resizing never
- *    touches React state on its own. Subscribing to the shared panel query
- *    (`subscribeToMediaQuery(PANEL_QUERY, ...)` from `useMediaQuery`, #354 --
- *    the same module `useFitToViewport` and `usePrefersReducedMotion`
- *    consume) closes the menu the moment the viewport crosses into desktop
- *    width so the lock always gets released.
- * 2. Not trapping focus (see above) still leaves every *other* focusable
- *    thing on the page -- the trigger button itself, the site mark link,
- *    the theme picker, the clock, the skip link, all of `<main>` -- in
- *    the normal tab sequence, sitting directly behind this panel's opaque
- *    `bg-bg`. Without something marking them non-interactive, Tab/Shift+Tab
- *    from the panel's own controls would silently move focus onto
- *    controls the user cannot see under the overlay. `inert` (not a focus
- *    trap -- Tab still leaves the panel, it just has nothing invisible
- *    left to land on) is applied to everything else in the document while
- *    open and lifted on close.
+ * Scroll lock, background `inert`, and focus restore (#355) are owned by
+ * `useOverlay`/`src/lib/overlay.ts`, not this component. Not trapping focus
+ * (see above) still leaves every *other* focusable thing on the page --
+ * the trigger button itself, the site mark link, the theme picker, the
+ * clock, the skip link, all of `<main>` -- in the normal tab sequence,
+ * sitting directly behind this panel's opaque `bg-bg`. Without something
+ * marking them non-interactive, Tab/Shift+Tab from the panel's own
+ * controls would silently move focus onto controls the user cannot see
+ * under the overlay. `inert` (not a focus trap -- Tab still leaves the
+ * panel, it just has nothing invisible left to land on) is applied to the
+ * `overlayBackground` elements the app shell (`App.tsx`) declares -- this
+ * component never queries the DOM to find them itself.
  *
  * The open panel itself is rendered through a `createPortal` into
  * `document.body` rather than in place. `Header.tsx`'s `<header>` sets
@@ -69,62 +71,35 @@ import { PANEL_QUERY, subscribeToMediaQuery } from '@/lib/useMediaQuery'
  * the four nav links sitting on top of it and nothing else visible
  * through it.
  */
-export function MobileNav() {
+export function MobileNav({ overlayBackground }: { overlayBackground: RefObject<HTMLElement | null>[] }) {
   const [open, setOpen] = useState(false)
-  const wrapperRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const firstLinkRef = useRef<HTMLAnchorElement>(null)
   const panelId = useId()
 
+  useOverlay(open, {
+    onDismiss: () => setOpen(false),
+    backgroundRefs: overlayBackground,
+    lockScrollRoot: document.documentElement,
+    initialFocus: firstLinkRef,
+    dismissOnEscape: true,
+    restoreFocusOnEscape: triggerRef,
+  })
+
   useEffect(() => {
     if (!open) return
-
-    firstLinkRef.current?.focus()
-
-    const root = document.documentElement
-    const previousOverflow = root.style.overflow
-    root.style.overflow = 'hidden'
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      setOpen(false)
-      triggerRef.current?.focus()
-    }
-    document.addEventListener('keydown', onKeyDown)
 
     const unsubscribeFromPanelQuery = subscribeToMediaQuery(PANEL_QUERY, (matches) => {
       if (matches) setOpen(false)
     })
 
-    const inertTargets: HTMLElement[] = []
-    const wrapper = wrapperRef.current
-    if (wrapper?.parentElement) {
-      for (const sibling of Array.from(wrapper.parentElement.children)) {
-        if (sibling !== wrapper && sibling instanceof HTMLElement) inertTargets.push(sibling)
-      }
-    }
-    const scrollBar = document.querySelector<HTMLElement>('header > [role="progressbar"]')
-    if (scrollBar) inertTargets.push(scrollBar)
-    const skipLink = document.querySelector<HTMLElement>('a[href="#main-content"]')
-    if (skipLink) inertTargets.push(skipLink)
-    const main = document.getElementById('main-content')
-    if (main) inertTargets.push(main)
-    if (triggerRef.current) inertTargets.push(triggerRef.current)
-
-    for (const el of inertTargets) el.inert = true
-
-    return () => {
-      root.style.overflow = previousOverflow
-      document.removeEventListener('keydown', onKeyDown)
-      unsubscribeFromPanelQuery()
-      for (const el of inertTargets) el.inert = false
-    }
+    return unsubscribeFromPanelQuery
   }, [open])
 
   const close = () => setOpen(false)
 
   return (
-    <div ref={wrapperRef} className="order-last panel:hidden">
+    <div className="order-last panel:hidden">
       <button
         ref={triggerRef}
         type="button"

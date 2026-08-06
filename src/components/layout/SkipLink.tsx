@@ -1,4 +1,4 @@
-import type { MouseEvent } from 'react'
+import type { MouseEvent, Ref } from 'react'
 
 /**
  * Skip link (#312). Must be the very first focusable element in DOM order
@@ -12,8 +12,13 @@ import type { MouseEvent } from 'react'
  * activating this link moves focus there explicitly rather than relying on
  * browsers' inconsistent "focus the fragment target" behaviour -- the
  * target carries `tabIndex={-1}` (see `App.tsx`) precisely so this works.
+ *
+ * `ref` (#355): `App.tsx` needs this element itself -- not a selector
+ * matching its `href` -- to declare it as part of `MobileNav`'s overlay
+ * background. React 19 allows `ref` as a plain prop, no `forwardRef`
+ * needed.
  */
-export function SkipLink() {
+export function SkipLink({ ref }: { ref?: Ref<HTMLAnchorElement> }) {
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     const target = document.getElementById('main-content')
     if (!target) return
@@ -28,6 +33,7 @@ export function SkipLink() {
 
   return (
     <a
+      ref={ref}
       href="#main-content"
       onClick={handleClick}
       className="sr-only focus:not-sr-only focus:fixed focus:top-[var(--space-2xs)] focus:left-[var(--space-2xs)] focus:z-[100] focus:border focus:border-line-2 focus:bg-bg focus:px-[var(--space-sm)] focus:py-[var(--space-2xs)] focus:text-fluid-sm focus:font-mono focus:text-fg"

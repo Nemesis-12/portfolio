@@ -1,5 +1,6 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
+import { useOverlay } from '@/lib/useOverlay'
 import { getStoredThemeId, setTheme as persistTheme } from '@/theme/persistence'
 import { DEFAULT_THEME_ID, THEMES } from '@/theme/themes'
 
@@ -13,9 +14,17 @@ import { DEFAULT_THEME_ID, THEMES } from '@/theme/themes'
  * shape exactly (see the literal clamp/px values below, matched against
  * the sample line-by-line) but adds the interaction contract a mockup
  * never had: `aria-expanded`/`aria-haspopup` on the trigger, `Escape` and
- * outside-click/focus-out dismissal that returns focus to the trigger,
- * and `aria-checked` on the selected row instead of relying on colour
- * alone.
+ * outside-click/focus-out dismissal, and `aria-checked` on the selected
+ * row instead of relying on colour alone.
+ *
+ * Dismissal (#355) is `useOverlay`/`src/lib/overlay.ts`'s job, not this
+ * component's own: Escape closes the menu and returns focus to the
+ * trigger; a pointerdown or focus-out landing outside `containerRef`
+ * closes it too, but deliberately does NOT refocus the trigger (the click
+ * or Tab that triggered it already moved focus somewhere real -- pulling
+ * it back would fight that). This picker locks no scroll and inerts no
+ * background; it's a small dropdown, not a full-screen panel like
+ * `MobileNav`'s.
  *
  * Colour data (`THEMES[].swatch`) is the one legitimate place a literal
  * hex value appears in this codebase -- it's runtime data from
@@ -52,40 +61,12 @@ export function ThemePicker() {
 
   const activeTheme = THEMES.find((theme) => theme.id === themeId) ?? THEMES[0]
 
-  useEffect(() => {
-    if (!open) return
-
-    const container = containerRef.current
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      setOpen(false)
-      triggerRef.current?.focus()
-    }
-
-    const onPointerDown = (event: MouseEvent) => {
-      if (container && !container.contains(event.target as Node)) {
-        setOpen(false)
-      }
-    }
-
-    const onFocusOut = (event: FocusEvent) => {
-      const next = event.relatedTarget as Node | null
-      if (!container || !next || !container.contains(next)) {
-        setOpen(false)
-      }
-    }
-
-    document.addEventListener('keydown', onKeyDown)
-    document.addEventListener('mousedown', onPointerDown)
-    container?.addEventListener('focusout', onFocusOut)
-
-    return () => {
-      document.removeEventListener('keydown', onKeyDown)
-      document.removeEventListener('mousedown', onPointerDown)
-      container?.removeEventListener('focusout', onFocusOut)
-    }
-  }, [open])
+  useOverlay(open, {
+    onDismiss: () => setOpen(false),
+    dismissOnEscape: true,
+    restoreFocusOnEscape: triggerRef,
+    outsideDismissBoundary: containerRef,
+  })
 
   const pick = (id: string) => {
     persistTheme(id)
