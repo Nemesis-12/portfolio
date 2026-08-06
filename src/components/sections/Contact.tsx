@@ -91,13 +91,28 @@ export function Contact() {
         </div>
 
         <ul className="flex flex-col border-t border-line">
+          {/*
+           * Link row sizing (owner follow-up, #372): the first pass's
+           * `panel:text-[clamp(16px,2.4vh,26px)]` detail text ("send me an
+           * email", "read the code", ...) read too large next to the rest
+           * of the block. Brought down one step to
+           * `clamp(15px,1.9vh,20px)` -- still clearly bigger than the
+           * pre-#372 fixed `14px`, just no longer competing with the
+           * statement line for attention. `panel:py-[...]` was raised in
+           * the same move (`clamp(20px,3.6vh,44px)` ->
+           * `clamp(22px,3.9vh,48px)`) so each row's total height (padding
+           * + text) stays within ~1px of what it was before this tweak at
+           * every viewport height checked (900/1160/800px) -- the list's
+           * overall block height, and the section's fill, shouldn't
+           * change, only the text/whitespace balance within each row.
+           */}
           {CONTACT_LINKS.map((link) => (
             <li key={link.id} className="border-b border-line">
               <a
                 href={link.href}
                 target={link.external ? '_blank' : undefined}
                 rel={link.external ? 'noopener noreferrer' : undefined}
-                className="flex items-baseline justify-between gap-[14px] py-[17px] text-[14px] text-fg-2 transition-[padding-left,color] duration-[180ms] hover:text-accent-2 motion-safe:hover:pl-[10px] panel:py-[clamp(20px,3.6vh,44px)] panel:text-[clamp(16px,2.4vh,26px)]"
+                className="flex items-baseline justify-between gap-[14px] py-[17px] text-[14px] text-fg-2 transition-[padding-left,color] duration-[180ms] hover:text-accent-2 motion-safe:hover:pl-[10px] panel:py-[clamp(22px,3.9vh,48px)] panel:text-[clamp(15px,1.9vh,20px)]"
               >
                 <span className="text-fg">{link.detail}</span>
                 <span className="text-[10px] uppercase tracking-[0.16em] text-dim-2 panel:text-fit-xs">
