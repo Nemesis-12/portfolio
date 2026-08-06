@@ -31,7 +31,9 @@ export function Contact() {
        */}
       <div className="grid items-end gap-[clamp(28px,4vw,60px)] [grid-template-columns:repeat(auto-fit,minmax(300px,1fr))]">
         <div>
-          <p className="text-[10px] tracking-[0.2em] text-accent-2">{meta.eyebrow}</p>
+          <p className="text-[10px] tracking-[0.2em] text-accent-2 panel:text-fit-xs">
+            {meta.eyebrow}
+          </p>
 
           {/*
            * Sample line 563: "LET'S BUILD<br>SOMETHING<br><span
@@ -43,11 +45,26 @@ export function Contact() {
            * line-broken markup is then hidden from assistive tech so the
            * two representations of the same heading are never both
            * exposed to it.
+           *
+           * Sizing (owner follow-up, #372): the reference's own
+           * `clamp(20px,3.8vw,46px)` reads squished at desktop -- the
+           * whole content block sat under half the section's height with
+           * large empty bands top and bottom. Above 880px this now scales
+           * against viewport HEIGHT instead of width
+           * (`clamp(30px,5.6vh,74px)`, same vh-clamp idiom the reference
+           * uses for everything below a section's heading row, see
+           * `src/styles/layout.css`), so the headline grows with the
+           * space the section actually has and shrinks back down at short
+           * viewports instead of overflowing `100dvh`. The 74px ceiling
+           * keeps `SOMETHING` (the widest line) clear of the ~387px
+           * column width at the 880px breakpoint's narrowest two-column
+           * layout. Below 880px the original width-based clamp is
+           * untouched -- this growth is a desktop-only fix.
            */}
           <h2
             id="contact-heading"
             aria-label="LET'S BUILD SOMETHING SMALL AND FAST"
-            className="m-0 mt-[20px] font-display text-[clamp(20px,3.8vw,46px)] leading-[1.35] text-fg"
+            className="m-0 mt-[20px] font-display text-[clamp(20px,3.8vw,46px)] leading-[1.35] text-fg panel:text-[clamp(30px,5.6vh,74px)]"
           >
             <span aria-hidden="true">
               LET&apos;S BUILD
@@ -58,7 +75,17 @@ export function Contact() {
             </span>
           </h2>
 
-          <p className="mt-[24px] max-w-[52ch] text-[15px] leading-[1.8] text-dim [text-wrap:pretty]">
+          {/*
+           * Statement sizing (#372): `max-w-[52ch]` is in `ch` units, so it
+           * scales in lockstep with font-size -- growing the font doesn't
+           * add a 4th wrapped line, it keeps the same ~3-line shape at a
+           * larger scale. `panel:mt-[var(--space-fit-margin)]` reuses the
+           * existing "fit-box margin under a heading" token rather than
+           * inventing one; the font-size itself needs a taller ceiling
+           * than any of the `--text-fit-*` tokens offer (all cap by
+           * ~920vh), so it stays a one-off vh clamp here.
+           */}
+          <p className="mt-[24px] max-w-[52ch] text-[15px] leading-[1.8] text-dim [text-wrap:pretty] panel:mt-[var(--space-fit-margin)] panel:text-[clamp(16px,2.6vh,34px)]">
             {CONTACT_STATEMENT}
           </p>
         </div>
@@ -70,10 +97,10 @@ export function Contact() {
                 href={link.href}
                 target={link.external ? '_blank' : undefined}
                 rel={link.external ? 'noopener noreferrer' : undefined}
-                className="flex items-baseline justify-between gap-[14px] py-[17px] text-[14px] text-fg-2 transition-[padding-left,color] duration-[180ms] hover:text-accent-2 motion-safe:hover:pl-[10px]"
+                className="flex items-baseline justify-between gap-[14px] py-[17px] text-[14px] text-fg-2 transition-[padding-left,color] duration-[180ms] hover:text-accent-2 motion-safe:hover:pl-[10px] panel:py-[clamp(20px,3.6vh,44px)] panel:text-[clamp(16px,2.4vh,26px)]"
               >
                 <span className="text-fg">{link.detail}</span>
-                <span className="text-[10px] uppercase tracking-[0.16em] text-dim-2">
+                <span className="text-[10px] uppercase tracking-[0.16em] text-dim-2 panel:text-fit-xs">
                   {link.label} <span aria-hidden="true">→</span>
                 </span>
               </a>
@@ -89,8 +116,18 @@ export function Contact() {
        * Experience's bullet list divider, and the Leviathan pipeline's
        * "move" row -- four dividers that previously each had a different
        * top padding.
+       *
+       * `panel:mt-[clamp(40px,7.5vh,95px)]` (#372): grows the gap between
+       * the grid and the footer at desktop so the block's own internal
+       * rhythm scales along with the headline/statement/links above,
+       * rather than leaving that whitespace fixed while everything around
+       * it grows -- part of closing the ~45%-of-section-height gap
+       * without pushing the block edge-to-edge (the footer itself, and
+       * the eyebrow above the grid, are deliberately left closer to their
+       * original scale so the block keeps a light top/bottom edge rather
+       * than reading as uniformly blown up).
        */}
-      <div className="mt-[clamp(30px,5vh,52px)] border-t border-line pt-[var(--space-fit-md)] text-[9.5px] tracking-[0.18em] text-dim-3">
+      <div className="mt-[clamp(30px,5vh,52px)] border-t border-line pt-[var(--space-fit-md)] text-[9.5px] tracking-[0.18em] text-dim-3 panel:mt-[clamp(40px,7.5vh,95px)] panel:pt-[var(--space-fit-margin)] panel:text-fit-2xs">
         <span>{CONTACT_FOOTER}</span>
       </div>
     </Section>
