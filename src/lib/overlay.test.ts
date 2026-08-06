@@ -91,6 +91,29 @@ describe('lockScroll', () => {
     releaseFirst()
     expect(root.style.overflow).toBe('scroll')
   })
+
+  it('refuses to lock a second, different root while the first is still held, and says so loudly', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const rootA = { style: { overflow: 'visible' } }
+    const rootB = { style: { overflow: 'auto' } }
+
+    const releaseA = lockScroll(rootA)
+    expect(rootA.style.overflow).toBe('hidden')
+
+    const releaseB = lockScroll(rootB)
+    // The mismatched root is never touched -- not locked, not restored.
+    expect(rootB.style.overflow).toBe('auto')
+    expect(consoleError).toHaveBeenCalledTimes(1)
+
+    // The no-op release for the refused lock must not disturb rootA's lock.
+    releaseB()
+    expect(rootA.style.overflow).toBe('hidden')
+
+    releaseA()
+    expect(rootA.style.overflow).toBe('visible')
+
+    consoleError.mockRestore()
+  })
 })
 
 describe('applyInert', () => {

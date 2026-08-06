@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
-import { activateOverlay, type Inertable } from './overlay'
+import { activateOverlay } from './overlay'
 
 /**
  * React wrapper around `activateOverlay` (#355). This file is deliberately
@@ -20,12 +20,9 @@ import { activateOverlay, type Inertable } from './overlay'
 export interface UseOverlayConfig {
   /** Called to close the overlay (typically `() => setOpen(false)`). */
   onDismiss: () => void
-  /** Elements to mark `inert` while open -- declared by the caller. */
-  background?: Iterable<Inertable>
   /**
    * Refs to elements to mark `inert` while open, resolved to their
-   * `.current` value at effect time rather than at render time -- use this
-   * (instead of `background`) when the elements come from refs that may
+   * `.current` value at effect time rather than at render time -- refs may
    * not be mounted yet on the render that flips `active` to true.
    */
   backgroundRefs?: RefObject<HTMLElement | null>[]
@@ -64,10 +61,8 @@ export function useOverlay(active: boolean, config: UseOverlayConfig): void {
 
     const current = configRef.current
     const background = current.backgroundRefs
-      ? current.backgroundRefs
-          .map((ref) => ref.current)
-          .filter((element): element is HTMLElement => element !== null)
-      : current.background
+      ?.map((ref) => ref.current)
+      .filter((element): element is HTMLElement => element !== null)
 
     return activateOverlay(
       { document },

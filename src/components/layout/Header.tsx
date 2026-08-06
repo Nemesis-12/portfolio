@@ -1,5 +1,5 @@
-import { useLayoutEffect, useRef } from 'react'
-import type { Ref, RefObject } from 'react'
+import { useLayoutEffect } from 'react'
+import type { RefObject } from 'react'
 import { navItems } from '@/data/nav'
 import { cn } from '@/lib/cn'
 import { Clock } from './Clock'
@@ -56,23 +56,21 @@ import { ThemePicker } from './ThemePicker'
  * unopened -- `App.tsx` is the one place that declares what counts as
  * "background" for the mobile nav's overlay (see its docstring), and this
  * component is just the layer that composition happens to pass through.
- * `ref` here is a second, independent thing: it's *this* header element's
- * own node being merged into `App.tsx`'s background list (the header, and
- * everything inside it -- nav links, theme picker, clock, progress bar,
- * `MobileNav`'s own trigger -- all become `inert` together when the panel
- * marks it as background), not something `Header` itself reads.
+ * `ref` here is a second, independent thing: `App.tsx` already owns a
+ * `headerRef` for that same background list, so it's the one `ref` this
+ * component needs for its own `--header-h` measurement too -- no separate
+ * internal ref or merge callback required, just one `RefObject` used for
+ * both purposes.
  */
 export function Header({
   ref,
   overlayBackground,
 }: {
-  ref?: Ref<HTMLElement>
+  ref: RefObject<HTMLElement | null>
   overlayBackground: RefObject<HTMLElement | null>[]
 }) {
-  const headerRef = useRef<HTMLElement>(null)
-
   useLayoutEffect(() => {
-    const el = headerRef.current
+    const el = ref.current
     if (!el || typeof ResizeObserver === 'undefined') return
 
     const publish = () => {
@@ -83,15 +81,11 @@ export function Header({
     const observer = new ResizeObserver(publish)
     observer.observe(el)
     return () => observer.disconnect()
-  }, [])
+  }, [ref])
 
   return (
     <header
-      ref={(node) => {
-        headerRef.current = node
-        if (typeof ref === 'function') ref(node)
-        else if (ref) ref.current = node
-      }}
+      ref={ref}
       className="fixed inset-x-0 top-0 z-[60] border-b border-line bg-bg-glass backdrop-blur-[9px]"
     >
       <div className="flex items-center gap-[clamp(10px,1.6vw,20px)] px-[clamp(20px,4vw,56px)] py-[12px]">

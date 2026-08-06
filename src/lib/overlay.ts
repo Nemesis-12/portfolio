@@ -62,8 +62,27 @@ let scrollLockPreviousOverflow = ''
  * incrementing the count, and `style.overflow` is only restored once every
  * lock has been released. This is what makes "two overlays cannot clobber
  * each other's scroll-lock state" true regardless of open/close order.
+ *
+ * The reference count is keyed to a single root at a time (`scrollLockRoot`),
+ * not per-root -- there is currently exactly one scroll-lockable root in
+ * this app (`document.documentElement`), so this has never mattered in
+ * practice. If a second, *different* root is locked while the first is
+ * still held, silently doing nothing to it (while still handing back a
+ * release function that looks like it worked) is exactly the class of
+ * silent failure this module exists to remove, so that case is refused and
+ * surfaced loudly instead of attempted.
  */
 export function lockScroll(root: ScrollLockable): () => void {
+  if (scrollLockCount > 0 && scrollLockRoot !== root) {
+    // Deliberately surfaced: locking a second, different root while one is
+    // already held would otherwise be a silent no-op that hands back a
+    // release function which does nothing visible.
+    console.error(
+      '[lockScroll] A different root is already scroll-locked; locking two different roots at once is not supported. This root will not be locked.',
+    )
+    return () => {}
+  }
+
   if (scrollLockCount === 0) {
     scrollLockRoot = root
     scrollLockPreviousOverflow = root.style.overflow
