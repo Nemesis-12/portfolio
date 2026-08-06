@@ -31,6 +31,12 @@ const FRAME_INTERVAL_MS = 110
  * line 405: `border-top:1px solid var(--line);padding-top:...` is on the
  * row itself, not on the content column), so `rowBorderTop` lets that one
  * row opt in without affecting the others.
+ *
+ * The row's top padding was its own inline `clamp(9px,1.5vh,14px)`;
+ * unified (#359) onto `--space-fit-md`, the same divider treatment now
+ * shared by `ProjectCard.tsx`'s stats footer, Education & Experience's
+ * bullet list divider, and Contact's footer -- four border-t+padding-top
+ * dividers that previously each had a different top padding.
  */
 function PipelineRow({
   label,
@@ -50,7 +56,7 @@ function PipelineRow({
       className={cn(
         'grid grid-cols-[66px_minmax(0,1fr)] gap-x-3',
         align === 'center' ? 'items-center' : 'items-start',
-        rowBorderTop && 'border-t border-line pt-[clamp(9px,1.5vh,14px)]',
+        rowBorderTop && 'border-t border-line pt-[var(--space-fit-md)]',
       )}
     >
       <span

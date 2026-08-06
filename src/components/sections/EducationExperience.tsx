@@ -290,8 +290,19 @@ function TimelineEntryCell({
        * larger, not marginally so, and the marker drops to `text-dim` --
        * quiet enough to read as a list marker instead of competing with
        * the (now brighter, larger) bullet text for attention.
+       *
+       * Divider top padding (#359): was its own inline `clamp(8px,1.4vh,
+       * 12px)`, one of four divider top-paddings in this codebase that all
+       * disagreed (this one, `ProjectCard.tsx`'s stats footer, the
+       * Leviathan pipeline's "move" row, and Contact's footer). Unified
+       * onto `--space-fit-md`, the value `ProjectCardStatsFooter` already
+       * used -- an existing token, not a new one, and the same
+       * "featured card wins ties" precedent this codebase already applies
+       * (see `ProjectCardShell`/`ProjectCardStatsFooter` in
+       * `ProjectCard.tsx`) since that footer sits on the featured
+       * Leviathan card.
        */}
-      <div className="flex flex-col gap-[var(--space-fit-3xs-tight)] border-t border-line pt-[clamp(8px,1.4vh,12px)] text-fit-sm leading-[1.6] text-fg-2">
+      <div className="flex flex-col gap-[var(--space-fit-3xs-tight)] border-t border-line pt-[var(--space-fit-md)] text-fit-sm leading-[1.6] text-fg-2">
         {entry.bullets.map((bullet) => (
           <div key={bullet} className="flex gap-[11px]">
             <span aria-hidden="true" className="text-dim">

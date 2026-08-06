@@ -249,7 +249,15 @@ export function ProjectsFeatured() {
             </ProjectCardStatsFooter>
           </ProjectCardShell>
 
-          <div className="flex min-w-0 flex-col justify-center border-line bg-panel-2 p-[clamp(14px,2.2vh,26px)_clamp(16px,2vw,26px)] panel:border-l">
+          {/*
+           * Vertical padding (`clamp(14px,2.2vh,26px)`) is byte-for-byte
+           * `--space-fit-md` (`src/styles/layout.css`), so it now reads
+           * through that token instead of repeating the same clamp inline
+           * (#359). Horizontal padding (`clamp(16px,2vw,26px)`) stays
+           * inline -- it's a vw-based curve with no width-based space
+           * token matching its bounds.
+           */}
+          <div className="flex min-w-0 flex-col justify-center border-line bg-panel-2 p-[var(--space-fit-md)_clamp(16px,2vw,26px)] panel:border-l">
             <InferencePipeline />
           </div>
         </FitRegion>

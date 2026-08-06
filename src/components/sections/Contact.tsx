@@ -82,7 +82,15 @@ export function Contact() {
         </ul>
       </div>
 
-      <div className="mt-[clamp(30px,5vh,52px)] border-t border-line pt-[20px] text-[9.5px] tracking-[0.18em] text-dim-3">
+      {/*
+       * Divider top padding (#359): was a fixed inline `20px`; unified onto
+       * `--space-fit-md`, the same border-t+padding-top treatment now
+       * shared by `ProjectCard.tsx`'s stats footer, Education &
+       * Experience's bullet list divider, and the Leviathan pipeline's
+       * "move" row -- four dividers that previously each had a different
+       * top padding.
+       */}
+      <div className="mt-[clamp(30px,5vh,52px)] border-t border-line pt-[var(--space-fit-md)] text-[9.5px] tracking-[0.18em] text-dim-3">
         <span>{CONTACT_FOOTER}</span>
       </div>
     </Section>

@@ -106,6 +106,15 @@ export interface ProjectCardStatsFooterProps {
  * shell padding above -- the featured card's declaration (line 353) is
  * the source of truth, and the two smaller cards' hardcoded gaps move to
  * match it.
+ *
+ * The divider's top padding (`--space-fit-md`) is the same "featured card
+ * wins ties" precedent applied a second time (#359): this footer's own
+ * `pt` was already `--space-fit-md`, and three other unrelated
+ * border-t+padding-top dividers elsewhere in the codebase (Education &
+ * Experience's bullet list, the Leviathan pipeline's "move" row, Contact's
+ * footer) each had their own different inline clamp. All four are now
+ * `--space-fit-md`, so the divider reads as one deliberate treatment
+ * instead of four accidental ones.
  */
 export function ProjectCardStatsFooter({ children, className }: ProjectCardStatsFooterProps) {
   return (
