@@ -1,9 +1,9 @@
+import { FitRegion } from '@/components/layout/FitRegion'
 import { Section } from '@/components/layout/Section'
 import { SectionHeading } from '@/components/layout/SectionHeading'
 import { OtherProjectCard } from '@/components/sections/otherProjects/OtherProjectCard'
 import { OTHER_PROJECTS } from '@/data/otherProjects'
 import { getSectionMeta } from '@/data/sections'
-import { useFitToViewport } from '@/lib/useFitToViewport'
 
 const meta = getSectionMeta('more')
 
@@ -28,8 +28,6 @@ const meta = getSectionMeta('more')
  * on their account.
  */
 export function ProjectsOther() {
-  const fitRef = useFitToViewport<HTMLDivElement>()
-
   return (
     <Section id={meta.id} headingId="more-heading">
       <SectionHeading
@@ -203,14 +201,11 @@ export function ProjectsOther() {
          * content size, so both cards end up equal without touching the
          * 880px+ single-row case (a no-op there, same as today).
          */}
-        <div
-          ref={fitRef}
-          className="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] auto-rows-fr gap-[clamp(14px,1.6vw,20px)] panel:min-h-[52dvh]"
-        >
+        <FitRegion className="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] auto-rows-fr gap-[clamp(14px,1.6vw,20px)] panel:min-h-[52dvh]">
           {OTHER_PROJECTS.map((project) => (
             <OtherProjectCard key={project.id} project={project} />
           ))}
-        </div>
+        </FitRegion>
       </div>
     </Section>
   )
