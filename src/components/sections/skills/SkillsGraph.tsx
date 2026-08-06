@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { FitRegion } from '@/components/layout/FitRegion'
 import { HUB_LINKS, SKILL_GROUPS, SKILL_NODES } from '@/data/skills'
 import { cn } from '@/lib/cn'
 import {
@@ -8,7 +9,6 @@ import {
   getNodeVisualState,
   getSkillReadout,
 } from '@/lib/skills/graph'
-import { useFitToViewport } from '@/lib/useFitToViewport'
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 
 /** Computed once — `SKILL_NODES`/`HUB_LINKS` are static imports, not per-render state. */
@@ -67,7 +67,6 @@ const GROUP_DOT_CLASSES: Record<number, { readonly bg: string; readonly border: 
  * and the active node still visually stands out, just without animating.
  */
 export function SkillsGraph() {
-  const fitRef = useFitToViewport<HTMLDivElement>()
   const panelRef = useRef<HTMLDivElement>(null)
   const reducedMotion = usePrefersReducedMotion()
 
@@ -106,11 +105,7 @@ export function SkillsGraph() {
   }, [activeIndex])
 
   return (
-    <div
-      ref={fitRef}
-      data-fit=""
-      className="mt-[var(--space-fit-margin-tight)] grid max-h-[760px] flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto] gap-[14px]"
-    >
+    <FitRegion className="mt-[var(--space-fit-margin-tight)] grid max-h-[760px] flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto] gap-[14px]">
       <div
         ref={panelRef}
         className="relative aspect-square min-h-0 border border-line-2 bg-panel px-[clamp(30px,5vw,60px)] py-[clamp(22px,3.4vh,42px)] panel:aspect-auto"
@@ -220,6 +215,6 @@ export function SkillsGraph() {
         <span className="text-[9.5px] tracking-[0.18em] text-accent">{readout.groupLabel}</span>
         <span className="text-[13px] text-dim [text-wrap:pretty]">{readout.note}</span>
       </div>
-    </div>
+    </FitRegion>
   )
 }

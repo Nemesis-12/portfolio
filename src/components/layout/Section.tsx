@@ -1,5 +1,7 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { SectionFitContext } from '@/components/layout/sectionFitContext'
 import { cn } from '@/lib/cn'
+import { createFitClaim } from '@/lib/fitClaim'
 
 interface SectionProps {
   id: string
@@ -31,15 +33,22 @@ interface SectionProps {
  * (via `headingId`) means there is exactly one place the name is written,
  * instead of a separate `aria-label` string that has to be kept in sync
  * with a heading assistive tech users can already see and hear.
+ *
+ * Also provides the `FitClaim` (`src/lib/fitClaim.ts`) its subtree's
+ * `FitRegion`(s) (`FitRegion.tsx`) contend for -- one instance per
+ * `Section`, stable for its whole lifetime, so at most one `FitRegion`
+ * inside it can ever be active at a time (#356).
  */
 export function Section({ id, headingId, children, className }: SectionProps) {
+  const [fitClaim] = useState(createFitClaim)
+
   return (
     <section
       id={id}
       aria-labelledby={headingId}
       className={cn('section-shell', className)}
     >
-      {children}
+      <SectionFitContext.Provider value={fitClaim}>{children}</SectionFitContext.Provider>
     </section>
   )
 }

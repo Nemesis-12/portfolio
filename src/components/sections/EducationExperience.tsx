@@ -1,9 +1,9 @@
+import { FitRegion } from '@/components/layout/FitRegion'
 import { Section } from '@/components/layout/Section'
 import { SectionHeading } from '@/components/layout/SectionHeading'
 import { EDUCATION_COLUMN, EXPERIENCE_COLUMN, type TimelineColumn, type TimelineEntry } from '@/data/timeline'
 import { getSectionMeta } from '@/data/sections'
 import { cn } from '@/lib/cn'
-import { useFitToViewport } from '@/lib/useFitToViewport'
 
 const meta = getSectionMeta('path')
 
@@ -27,8 +27,6 @@ const meta = getSectionMeta('path')
  * presentation: no dates, titles, or bullets are written here.
  */
 export function EducationExperience() {
-  const fitRef = useFitToViewport<HTMLDivElement>()
-
   return (
     <Section id={meta.id} headingId="path-heading">
       <SectionHeading number={meta.number} title={meta.title} headingId="path-heading" />
@@ -103,15 +101,13 @@ export function EducationExperience() {
        * cells, same mechanism as before, just without the two empty
        * spacer tracks.
        */}
-      <div
-        ref={fitRef}
+      <FitRegion
         data-pathgrid=""
-        data-fit=""
         className="mt-[var(--space-fit-margin-tight)] grid flex-1 grid-flow-col auto-cols-[minmax(0,1fr)] grid-rows-[auto_repeat(2,auto_auto_auto_minmax(0,1fr))] gap-px border border-line-2 bg-line max-h-[720px]"
       >
         <TimelineColumnCells column={EDUCATION_COLUMN} kind="education" />
         <TimelineColumnCells column={EXPERIENCE_COLUMN} kind="experience" />
-      </div>
+      </FitRegion>
     </Section>
   )
 }

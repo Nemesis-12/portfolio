@@ -1,3 +1,4 @@
+import { FitRegion } from '@/components/layout/FitRegion'
 import { Section } from '@/components/layout/Section'
 import { SectionHeading } from '@/components/layout/SectionHeading'
 import { InferencePipeline } from '@/components/sections/leviathan/InferencePipeline'
@@ -14,7 +15,6 @@ import {
   LEVIATHAN_SUMMARY,
 } from '@/data/leviathan'
 import { getSectionMeta } from '@/data/sections'
-import { useFitToViewport } from '@/lib/useFitToViewport'
 
 const meta = getSectionMeta('projects')
 
@@ -45,8 +45,6 @@ const meta = getSectionMeta('projects')
  * themselves.
  */
 export function ProjectsFeatured() {
-  const fitRef = useFitToViewport<HTMLDivElement>()
-
   return (
     <Section id={meta.id} headingId="projects-heading">
       <SectionHeading
@@ -176,10 +174,7 @@ export function ProjectsFeatured() {
          * the container is wide enough, so this is a no-op above that
          * width -- desktop is unaffected.
          */}
-        <div
-          ref={fitRef}
-          className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] border border-line-2 bg-panel panel:min-h-[68dvh]"
-        >
+        <FitRegion className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] border border-line-2 bg-panel panel:min-h-[68dvh]">
           <ProjectCardShell>
             {/*
              * Title row is the shared `ProjectCardTitleRow`
@@ -257,7 +252,7 @@ export function ProjectsFeatured() {
           <div className="flex min-w-0 flex-col justify-center border-line bg-panel-2 p-[clamp(14px,2.2vh,26px)_clamp(16px,2vw,26px)] panel:border-l">
             <InferencePipeline />
           </div>
-        </div>
+        </FitRegion>
       </div>
     </Section>
   )
