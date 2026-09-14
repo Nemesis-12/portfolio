@@ -5,6 +5,7 @@ import { StatCounter } from '@/components/sections/leviathan/StatCounter'
 import { MlaProjectCard } from '@/components/sections/otherProjects/MlaProjectCard'
 import {
   FeaturedProjectCardShell,
+  ProjectCardLink,
   ProjectCardShell,
   ProjectCardStatsFooter,
   ProjectCardTitleRow,
@@ -71,15 +72,7 @@ export function ProjectsFeatured() {
 
                 <div className="ml-auto flex gap-[16px]">
                   {LEVIATHAN_LINKS.map((link) => (
-                    <a
-                      key={link.label}
-                      href={link.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="border-b border-line-2 pb-[2px] text-[12.5px] text-fg-2"
-                    >
-                      {link.label} ↗
-                    </a>
+                    <ProjectCardLink key={link.label} href={link.href} label={link.label} />
                   ))}
                 </div>
               </ProjectCardStatsFooter>

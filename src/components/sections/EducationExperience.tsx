@@ -226,14 +226,6 @@ function TimelineEntryCell({
        * untouched by this change.
        */}
       <div className="flex flex-col items-start gap-[var(--space-fit-3xs-tight)] text-fit-meta font-medium uppercase tracking-[0.18em] text-fg-2 panel:flex-row panel:flex-wrap panel:items-center panel:gap-[12px]">
-        {/*
-         * This `pulse` animation is intentionally mirrored by the active
-         * project card's "RUNNING" tag label (`ProjectTag.tsx`,
-         * mochi/style-match) -- same keyframe, same 1.8s ease-in-out, same
-         * opacity range -- gated there via `usePrefersReducedMotion`
-         * instead of `motion-safe:`. Keep the two in sync if this timing
-         * ever changes.
-         */}
         <span
           className={cn(
             'flex items-center gap-[12px]',

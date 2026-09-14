@@ -129,6 +129,33 @@ export function ProjectCardStatsFooter({ children, className }: ProjectCardStats
   )
 }
 
+export interface ProjectCardLinkProps {
+  readonly href: string
+  readonly label: string
+}
+
+/**
+ * The small underlined external link every card footer uses to point at a
+ * project's outside home (a demo, a package page) -- issue #380. Leviathan
+ * (`ProjectsFeatured.tsx`) and MLA (`MlaProjectCard.tsx`) each wrote out
+ * the same anchor markup by hand; this is the one place that markup now
+ * lives. Layout classes that only matter at the call site (Leviathan's
+ * `ml-auto` cluster wrapper, MLA's `self-end`) stay with the caller since
+ * they position the link within its footer, not the link itself.
+ */
+export function ProjectCardLink({ href, label }: ProjectCardLinkProps) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="border-b border-line-2 pb-[2px] text-[12.5px] text-fg-2"
+    >
+      {label} ↗
+    </a>
+  )
+}
+
 export interface FeaturedProjectCardShellProps {
   /** The card's left column -- title, description, bullets, stats. Fully
    * caller-supplied so a future featured project can use a different mix. */
