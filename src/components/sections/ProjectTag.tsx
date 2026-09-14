@@ -55,7 +55,7 @@ export function ProjectTag({ label, year, blink = false }: ProjectTagProps) {
   const reducedMotion = usePrefersReducedMotion()
 
   return (
-    <span className="shrink-0 whitespace-nowrap border border-line-2 px-2 py-[4px] text-2xs tracking-[0.18em] text-dim">
+    <span className="shrink-0 whitespace-nowrap bg-fg px-2 py-[4px] text-2xs tracking-[0.18em] text-bg">
       {/*
        * Owner: "i wanted the running blinking animation to be similar to
        * the study now and working now animations" (mochi/style-match).
