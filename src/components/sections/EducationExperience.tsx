@@ -227,7 +227,7 @@ function TimelineEntryCell({
        */}
       <div className="flex flex-col items-start gap-[var(--space-fit-3xs-tight)] text-fit-meta font-medium uppercase tracking-[0.18em] text-fg-2 panel:flex-row panel:flex-wrap panel:items-center panel:gap-[12px]">
         {/*
-         * This `pulse` animation is intentionally mirrored by the Thesis
+         * This `pulse` animation is intentionally mirrored by the active
          * project card's "RUNNING" tag label (`ProjectTag.tsx`,
          * mochi/style-match) -- same keyframe, same 1.8s ease-in-out, same
          * opacity range -- gated there via `usePrefersReducedMotion`
@@ -263,8 +263,8 @@ function TimelineEntryCell({
       <div className="font-display text-fit-title leading-[1.45] text-fg">{entry.title}</div>
       {/*
        * Same task-1-second-pass fix as the status/date row above: the
-       * "Thesis track" qualifier was one of the elements the owner
-       * measured as too dim (`text-dim`, 154/147/133) -- lifted to
+       * qualifier was one of the elements the owner measured as too dim
+       * (`text-dim`, 154/147/133) -- lifted to
        * `text-fg-2` + `font-medium` for the same reason and the same
        * numbers (5.7:1 -> 9.21:1 against `--panel`).
        */}
