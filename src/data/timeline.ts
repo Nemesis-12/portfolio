@@ -96,7 +96,7 @@ export const EXPERIENCE_COLUMN: TimelineColumn = {
     {
       id: 'swe-intern',
       status: 'complete',
-      statusLabel: 'Completed',
+      statusLabel: 'Recent Role',
       dateRange: 'Jun 2026 – Aug 2026',
       title: 'Software Engineer Intern',
       qualifier: 'Wichita, KS',
