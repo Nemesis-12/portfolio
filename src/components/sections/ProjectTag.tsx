@@ -22,13 +22,12 @@ export interface ProjectTagProps {
  * The one filled project-status tag every project card now shares (mochi/
  * style-match task 2): Leviathan's `SHIPPED · 2025` pill
  * (`ProjectsFeatured.tsx`, sample line 343) was previously hand-written
- * only there, with the second-screen cards each rendering their own
- * ad-hoc badge markup (MLA: bare `PUBLISHED` text; Thesis: a pulsing dot
- * + `RUNNING`, `OtherProjectCard.tsx`). Factored out so every card,
- * including a future one added purely via `OTHER_PROJECTS`
- * (`src/data/otherProjects.ts`), gets the same `LABEL · YEAR` near-white
- * filled box by supplying `label`/`year`/`blink` data -- no markup change
- * needed here ever again.
+ * only there, with the other cards each rendering their own ad-hoc badge
+ * markup (MLA: bare `PUBLISHED` text; Thesis: a pulsing dot + `RUNNING`).
+ * Factored out so every card, including a future one added purely via
+ * project data (`src/data/otherProjects.ts`), gets the same
+ * `LABEL · YEAR` near-white filled box by supplying `label`/`year`/`blink`
+ * data -- no markup change needed here ever again.
  *
  * Reduced motion: uses `usePrefersReducedMotion` (`src/lib/
  * usePrefersReducedMotion.ts`), the one hook every other timed/animated
