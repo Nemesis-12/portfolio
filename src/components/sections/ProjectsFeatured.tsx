@@ -2,7 +2,7 @@ import { Section } from '@/components/layout/Section'
 import { SectionHeading } from '@/components/layout/SectionHeading'
 import { InferencePipeline } from '@/components/sections/leviathan/InferencePipeline'
 import { StatCounter } from '@/components/sections/leviathan/StatCounter'
-import { OtherProjectCard } from '@/components/sections/otherProjects/OtherProjectCard'
+import { MlaProjectCard } from '@/components/sections/otherProjects/MlaProjectCard'
 import { ProjectCardShell, ProjectCardStatsFooter, ProjectCardTitleRow } from '@/components/sections/ProjectCard'
 import {
   LEVIATHAN_BADGE_LABEL,
@@ -84,9 +84,7 @@ export function ProjectsFeatured() {
           </div>
         </div>
 
-        <div className="grid">
-          <OtherProjectCard project={MLA_PROJECT} />
-        </div>
+        <MlaProjectCard project={MLA_PROJECT} />
       </div>
     </Section>
   )
