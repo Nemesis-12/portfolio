@@ -1,5 +1,6 @@
 import { Section } from '@/components/layout/Section'
 import { SectionHeading } from '@/components/layout/SectionHeading'
+import { BulletList } from '@/components/sections/BulletList'
 import { InferencePipeline } from '@/components/sections/leviathan/InferencePipeline'
 import { StatCounter } from '@/components/sections/leviathan/StatCounter'
 import { MlaProjectCard } from '@/components/sections/otherProjects/MlaProjectCard'
@@ -54,16 +55,12 @@ export function ProjectsFeatured() {
               <p className="text-fit-lg text-accent-2">{LEVIATHAN_HOOK}</p>
               <p className="text-fit-base text-fg-2">{LEVIATHAN_SUMMARY}</p>
 
-              <ul className="flex flex-col gap-[var(--space-fit-3xs)] text-fit-sm text-fg-2">
-                {LEVIATHAN_BULLETS.map((bullet) => (
-                  <li key={bullet} className="flex gap-[12px]">
-                    <span aria-hidden="true" className="text-accent">
-                      →
-                    </span>
-                    <span>{bullet}</span>
-                  </li>
-                ))}
-              </ul>
+              <BulletList
+                items={LEVIATHAN_BULLETS}
+                marker="→"
+                markerClassName="text-accent"
+                className="text-fit-sm text-fg-2"
+              />
 
               <ProjectCardStatsFooter className="mt-auto">
                 {LEVIATHAN_STATS.map((stat) => (

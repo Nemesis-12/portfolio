@@ -1,6 +1,7 @@
 import { FitRegion } from '@/components/layout/FitRegion'
 import { Section } from '@/components/layout/Section'
 import { SectionHeading } from '@/components/layout/SectionHeading'
+import { BulletList } from '@/components/sections/BulletList'
 import { EDUCATION_COLUMN, EXPERIENCE_COLUMN, type TimelineColumn, type TimelineEntry } from '@/data/timeline'
 import { getSectionMeta } from '@/data/sections'
 import { cn } from '@/lib/cn'
@@ -294,16 +295,12 @@ function TimelineEntryCell({
        * `ProjectCard.tsx`) since that footer sits on the featured
        * Leviathan card.
        */}
-      <div className="flex flex-col gap-[var(--space-fit-3xs-tight)] border-t border-line pt-[var(--space-fit-md)] text-fit-sm leading-[1.6] text-fg-2">
-        {entry.bullets.map((bullet) => (
-          <div key={bullet} className="flex gap-[11px]">
-            <span aria-hidden="true" className="text-dim">
-              +
-            </span>
-            <span>{bullet}</span>
-          </div>
-        ))}
-      </div>
+      <BulletList
+        items={entry.bullets}
+        marker="+"
+        markerClassName="text-dim"
+        className="border-t border-line pt-[var(--space-fit-md)] text-fit-sm leading-[1.6] text-fg-2"
+      />
     </article>
   )
 }
