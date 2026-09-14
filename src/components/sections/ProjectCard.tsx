@@ -3,14 +3,14 @@ import { cn } from '@/lib/cn'
 import { ProjectTag, type ProjectTagProps } from '@/components/sections/ProjectTag'
 
 /**
- * The card structure `ProjectsFeatured.tsx` and `OtherProjectCard.tsx`
+ * The card structure the project cards in `ProjectsFeatured.tsx`
  * independently rebuilt (issue #357): the padding shell, the
  * title-with-badge row, and the stats footer. All three had already
- * drifted between the two call sites, and the same defect class -- a long
+ * drifted between call sites, and the same defect class -- a long
  * title colliding with its status badge -- had been patched twice, two
  * different ways (see `ProjectCardTitleRow` below for the mechanism this
  * now converges on). Three named pieces, not one monolithic wrapper: the
- * two call sites' outer elements are structurally different (a two-column
+ * call sites' outer elements are structurally different (a two-column
  * `display:grid` for the featured card vs. a single hoverable `<article>`
  * for the others, `ideas/Portfolio.html` lines 339 and 425/440), so only
  * the parts that were byte-for-byte the same job get pulled out. The body

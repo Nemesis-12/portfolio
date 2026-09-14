@@ -39,7 +39,7 @@ export function EducationExperience() {
        * own `data-fit` attribute on this same element (line 498).
        *
        * `flex-1` is reinstated (mochi/style-match audit, same call as
-       * `ProjectsOther`/`ProjectsFeatured`): a prior revision dropped it,
+       * `ProjectsFeatured`): a prior revision dropped it,
        * reasoning `flex:1` + `max-height:720px` "inflates" this grid past
        * what the four cells need, parking the slack as dead space below
        * each cell's content since the cells are
