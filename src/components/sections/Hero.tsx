@@ -85,7 +85,7 @@ export function Hero() {
     <Section id={meta.id} headingId="top-heading">
       <div className="grid w-full items-center gap-[clamp(26px,4vw,56px)] [grid-template-columns:repeat(auto-fit,minmax(330px,1fr))]">
         <div className="@container min-w-0">
-          <p className="flex items-center gap-[11px] text-[10.5px] tracking-[0.2em] text-dim">
+          <p className="flex items-center gap-[11px] text-[10.5px] tracking-[0.2em] text-dim font-bold">
             <span aria-hidden="true" className="h-[9px] w-[9px] rounded-full bg-accent" />
             {HERO_ROLE}
           </p>
@@ -124,11 +124,11 @@ export function Hero() {
 
           <div className="mt-[clamp(24px,3.4vh,34px)] flex flex-wrap gap-px border border-line bg-line">
             <div className="flex-[1_1_160px] bg-panel px-[16px] py-[14px]">
-              <div className="text-[9.5px] tracking-[0.18em] text-dim-2">{HERO_STAT_CURRENT_LABEL}</div>
+              <div className="text-[9.5px] tracking-[0.18em] text-fg-2 font-bold">{HERO_STAT_CURRENT_LABEL}</div>
               <div className="mt-[6px] text-[14px] text-fg">{HERO_STAT_CURRENT_VALUE}</div>
             </div>
             <div className="flex-[1_1_160px] bg-panel px-[16px] py-[14px]">
-              <div className="text-[9.5px] tracking-[0.18em] text-dim-2">{HERO_STAT_STUDY_LABEL}</div>
+              <div className="text-[9.5px] tracking-[0.18em] text-fg-2 font-bold">{HERO_STAT_STUDY_LABEL}</div>
               <div className="mt-[6px] text-[14px] text-fg">{HERO_STAT_STUDY_VALUE}</div>
             </div>
             <a

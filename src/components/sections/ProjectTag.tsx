@@ -19,16 +19,16 @@ export interface ProjectTagProps {
 }
 
 /**
- * The one boxed project-status tag every project card now shares (mochi/
+ * The one filled project-status tag every project card now shares (mochi/
  * style-match task 2): Leviathan's `SHIPPED · 2025` pill
  * (`ProjectsFeatured.tsx`, sample line 343) was previously hand-written
  * only there, with the second-screen cards each rendering their own
  * ad-hoc badge markup (MLA: bare `PUBLISHED` text; Thesis: a pulsing dot
  * + `RUNNING`, `OtherProjectCard.tsx`). Factored out so every card,
  * including a future one added purely via `OTHER_PROJECTS`
- * (`src/data/otherProjects.ts`), gets the same `LABEL · YEAR` box by
- * supplying `label`/`year`/`blink` data -- no markup change needed here
- * ever again.
+ * (`src/data/otherProjects.ts`), gets the same `LABEL · YEAR` near-white
+ * filled box by supplying `label`/`year`/`blink` data -- no markup change
+ * needed here ever again.
  *
  * Reduced motion: uses `usePrefersReducedMotion` (`src/lib/
  * usePrefersReducedMotion.ts`), the one hook every other timed/animated
@@ -55,7 +55,7 @@ export function ProjectTag({ label, year, blink = false }: ProjectTagProps) {
   const reducedMotion = usePrefersReducedMotion()
 
   return (
-    <span className="shrink-0 whitespace-nowrap border border-line-2 px-2 py-[4px] text-2xs tracking-[0.18em] text-dim">
+    <span className="shrink-0 whitespace-nowrap bg-fg px-2 py-[4px] text-2xs tracking-[0.18em] text-bg">
       {/*
        * Owner: "i wanted the running blinking animation to be similar to
        * the study now and working now animations" (mochi/style-match).

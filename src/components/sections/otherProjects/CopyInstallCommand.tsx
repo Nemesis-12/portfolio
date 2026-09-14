@@ -55,7 +55,7 @@ export function CopyInstallCommand({ command, className }: CopyInstallCommandPro
   return (
     <div
       className={cn(
-        'flex flex-col gap-[9px] bg-panel-2 px-[14px] py-[12px] font-mono text-2xs text-fg-2 panel:flex-row panel:items-center',
+        'flex flex-col gap-[9px] border border-line-2 bg-panel px-[14px] py-[12px] font-mono text-2xs text-fg-2 panel:flex-row panel:items-center',
         className,
       )}
     >

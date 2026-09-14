@@ -142,7 +142,7 @@ export function GoBoardReplay() {
       className="mx-auto flex w-full min-w-0 flex-col gap-[12px] panel:w-[min(100%,58vh)]"
       style={{ opacity: containerOpacity }}
     >
-      <div className="flex min-h-[20px] items-center justify-between gap-[12px] whitespace-nowrap text-[10px] tracking-[0.14em] text-dim">
+      <div className="flex min-h-[20px] items-center justify-between gap-[12px] whitespace-nowrap text-[10px] tracking-[0.14em] text-dim font-bold">
         <span className="flex items-center gap-[7px]">
           <span aria-hidden="true" className="h-[9px] w-[9px] rounded-full bg-fg" />
           {GAME4_WHITE_LABEL}
@@ -158,7 +158,7 @@ export function GoBoardReplay() {
 
       <BoardGrid frame={frame} />
 
-      <div className="flex min-h-[34px] flex-wrap justify-between gap-[12px] text-[9.5px] tracking-[0.16em] text-dim-3">
+      <div className="flex min-h-[34px] flex-wrap justify-between gap-[12px] text-[9.5px] tracking-[0.16em] text-dim font-bold">
         <span>{GAME4_CAPTION}</span>
         <span className="text-dim">{moveLabelFor(moveNumber)}</span>
       </div>

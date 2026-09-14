@@ -11,9 +11,8 @@ export interface NavItem {
 /**
  * The four header nav destinations, in display order (#312).
  *
- * The hero (`top`) and the second projects screen (`more`) are
- * deliberately absent -- the spec reaches those by scrolling only, not
- * via the nav.
+ * The hero (`top`) is deliberately absent. The spec reaches it by
+ * scrolling, not through the nav.
  *
  * Labels are `"{number} {chrome text}"`, matching the reference design's
  * `<nav>` markup verbatim (`ideas/Portfolio.html` lines 270-273) for three
