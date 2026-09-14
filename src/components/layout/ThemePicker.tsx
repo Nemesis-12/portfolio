@@ -92,8 +92,8 @@ export function ThemePicker() {
         onClick={() => setOpen((value) => !value)}
         className={cn(
           'flex h-[30px] w-[30px] shrink-0 items-center justify-center gap-[8px] border-0 bg-transparent p-0',
-          'panel:h-auto panel:w-auto panel:justify-start panel:border panel:border-line-2 panel:px-[10px] panel:py-[7px]',
-          'font-mono text-[10px] tracking-[0.16em] text-dim',
+          'panel:h-auto panel:w-auto panel:justify-start panel:border panel:border-line-2 panel:bg-line-2 panel:px-[10px] panel:py-[7px]',
+          'font-mono text-[10px] tracking-[0.16em] text-dim panel:text-fg-2',
           'transition-[color,border-color] duration-150 hover:border-accent hover:text-fg',
         )}
       >

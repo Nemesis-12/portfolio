@@ -27,3 +27,6 @@ dist-ssr
 ideas/
 HANDOFF.md
 *.tex
+
+# Claude Code local state / worktrees
+.claude/
