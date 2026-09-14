@@ -27,7 +27,7 @@ export function ProjectsFeatured() {
         number={meta.number}
         title={meta.title}
         headingId="projects-heading"
-        label={meta.label2}
+        label={meta.headingLabel}
       />
 
       {/* This wrapper stays at its natural height so both projects scroll without viewport-fit zoom. */}

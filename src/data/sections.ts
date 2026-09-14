@@ -1,71 +1,56 @@
 /**
- * Canonical list of the six top-level sections, in page order.
+ * Canonical list of the five top-level sections, in page order.
  *
  * This is the single source of truth for section identity: `App` renders
  * exactly this list, in this order, and nav targets (#312) resolve against
- * these `id`s. Placeholder copy only -- real content lands in #317-#321.
+ * these `id`s.
  */
 export interface SectionMeta {
   /** DOM id; also the scroll/nav target. */
   id: string
-  /** Accessible name for the section landmark. */
-  label: string
-  /** Small eyebrow shown above the title, e.g. "02 · PROJECTS". */
-  eyebrow: string
-  /** Placeholder heading. */
+  /** Section heading text. For `top` and `contact`, kept for reference even though neither component renders it as its own `<h2>` text. */
   title: string
-  /** Placeholder supporting line. */
-  blurb: string
+  /**
+   * Small chrome line shown above the headline, e.g.
+   * "04 · CONTACT · REPLIES WITHIN A DAY". Only `contact` renders this
+   * (`Contact.tsx`); every other section is omitted rather than carrying
+   * an unused value.
+   */
+  eyebrow?: string
   /**
    * The chrome section number shown next to the title in `SectionHeading`
-   * (`src/components/layout/SectionHeading.tsx`), e.g. "01" -- sample
-   * lines 332-337, 417-422, 461-465, 492-496. Empty for sections that
-   * don't use that heading row (`top`, `contact`).
+   * (`src/components/layout/SectionHeading.tsx`) and in the header nav
+   * (`src/data/nav.ts`), e.g. "01". Omitted for `top`, the only section
+   * that uses neither.
    */
-  number: string
+  number?: string
   /**
-   * The right-hand label in `SectionHeading`'s rule row, e.g. "FEATURED" --
-   * sample lines 336, 421. `undefined` for sections whose sample markup
-   * has no fourth span (`skills`, `path`) as well as those that don't use
-   * the component at all (`top`, `contact`).
+   * The right-hand label in `SectionHeading`'s rule row, e.g. "FEATURED".
+   * Only `projects` uses it (`ProjectsFeatured.tsx`); every other section
+   * is omitted.
    */
-  label2?: string
+  headingLabel?: string
 }
 
 export const sections: SectionMeta[] = [
   {
     id: 'top',
-    label: 'Hero',
-    // The sample's hero (lines 294-328) has no eyebrow row of the
-    // "NN · WORD" shape every other section uses above its heading --
-    // `00 · HELLO` here was invented with no sample counterpart
-    // (mochi/style-match audit). `Hero.tsx` doesn't read this field at
-    // all (its own eyebrow line is `HERO_ROLE` from `src/data/hero.ts`),
-    // but it's cleared so the data doesn't assert a row that was never
-    // real.
-    eyebrow: '',
     title: 'Farhan Mohammed',
-    blurb: 'Placeholder hero copy — the Go board replay lands in #316.',
-    number: '',
   },
   {
     id: 'projects',
-    label: 'Projects',
     eyebrow: '01 · PROJECTS',
     // Chrome heading text for `SectionHeading` (sample lines 332-337) --
     // distinct from `ProjectsFeatured.tsx`'s own hardcoded "Leviathan"
     // project-name heading, which this field is not consumed by.
     title: 'PROJECTS',
-    blurb: 'Selected software and machine learning projects.',
     number: '01',
-    label2: 'FEATURED',
+    headingLabel: 'FEATURED',
   },
   {
     id: 'skills',
-    label: 'Skills',
     eyebrow: '02 · SKILLS',
     title: 'SKILLS',
-    blurb: 'Placeholder skills-graph copy — full content lands in #319.',
     number: '02',
     // No fourth span in the sample's Skills heading row (lines 461-465).
   },
@@ -75,24 +60,15 @@ export const sections: SectionMeta[] = [
     // "Timeline" (owner direction, #330). The design reference's sample
     // (lines 493-494) still says "EDUCATION & EXPERIENCE", but the owner's
     // rename overrides the reference for this section -- do not restore
-    // the reference's wording here again. `eyebrow`/`title`/`label` all
-    // read "TIMELINE"/"Timeline"; `EducationExperience.tsx` renders
-    // `meta.title` directly as its own `<h2>`.
-    label: 'Timeline',
+    // the reference's wording here again. `EducationExperience.tsx`
+    // renders `meta.title` directly as its own `<h2>`.
     eyebrow: '03 · TIMELINE',
     title: 'TIMELINE',
-    // Real content (issue #320) lives in `src/data/timeline.ts` and is
-    // rendered by `EducationExperience.tsx` directly, not through this
-    // `blurb` -- this field is unused by that section now, but is kept
-    // meaningful rather than left as placeholder copy, since `SectionMeta`
-    // still requires it.
-    blurb: 'Education and experience, side by side.',
     number: '03',
     // No fourth span in the sample's heading row (lines 492-496).
   },
   {
     id: 'contact',
-    label: 'Contact',
     // Sample line 562: "04 · CONTACT · REPLIES WITHIN A DAY", not the
     // shorter "04 · CONTACT" this drifted to -- chrome text, taken
     // verbatim (mochi/style-match audit).
@@ -101,12 +77,11 @@ export const sections: SectionMeta[] = [
     // headline (line 563) is "LET'S BUILD / SOMETHING / SMALL AND FAST"
     // split across `<br>`s with the third line highlighted, which doesn't
     // fit this flat string field -- that chrome text is inlined directly
-    // in the component instead. Kept here only because `SectionMeta`
-    // still requires a `title`.
+    // in the component instead. Kept here for reference only.
     title: 'Get in touch',
-    blurb: 'What work is being sought, and direct links to reach out.',
     // Contact doesn't use `SectionHeading` (sample lines 560-564 differ
-    // from the shared row) -- `number`/`label2` are unread here.
+    // from the shared row) -- `number` is unread here, but nav.ts still
+    // reads it for the header nav link ("04 CONTACT").
     number: '04',
   },
 ]
@@ -115,7 +90,7 @@ export const sections: SectionMeta[] = [
  * Looks up a section's metadata by `id`, not by array position.
  *
  * Every section component used to do `sections[N]` -- e.g. `sections[4]`
- * for Timeline -- which silently renders the wrong eyebrow/title/blurb the
+ * for Timeline -- which silently renders the wrong eyebrow/title the
  * moment this array is reordered, with no error anywhere. `getSectionMeta`
  * replaces that: it fails loudly (throws) if `id` doesn't match an entry,
  * instead of failing silently by rendering the wrong section's copy.
