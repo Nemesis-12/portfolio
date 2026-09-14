@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import {
   PIPELINE_CANDIDATE_SETS,
-  PIPELINE_OUTPUT_META,
+  PIPELINE_OUTPUT_CAPTION,
   PIPELINE_POSITION_FEN,
   PIPELINE_TOKEN_IDS,
 } from '@/data/leviathan'
@@ -224,7 +224,7 @@ export function InferencePipeline() {
           >
             {frameModel.moveRevealed ? topCandidate.move : '···'}
           </span>
-          <span className="text-[11.5px] text-dim-2">{frameModel.moveRevealed ? PIPELINE_OUTPUT_META : ''}</span>
+          <span className="text-[11.5px] text-dim-2">{frameModel.moveRevealed ? PIPELINE_OUTPUT_CAPTION : ''}</span>
         </div>
       </PipelineRow>
     </div>
