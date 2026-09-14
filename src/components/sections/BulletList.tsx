@@ -23,12 +23,12 @@ export interface BulletListProps {
  * the glyph and colour as parameters and renders proper `<ul>/<li>`
  * semantics for both (the timeline previously used plain `<div>`s).
  *
- * The container gap converges on `--space-fit-3xs` (the Leviathan value,
- * already labelled as the bullet-list gap in `layout.css`) rather than
- * carrying both it and `--space-fit-3xs-tight` forward -- one of the two
- * near-duplicate tokens #377 targets, now starting to collapse here. The
- * row's internal marker-to-text gap converges the same way, onto the
- * Leviathan value (12px).
+ * The container gap uses `--space-fit-3xs` (the Leviathan value). Issue
+ * #377 removed the near-duplicate `--space-fit-3xs-tight` token that the
+ * timeline entry bullets used to carry separately, since the two differed
+ * by about a pixel across the whole viewport range. The row's internal
+ * marker-to-text gap converges the same way, onto the Leviathan value
+ * (12px).
  */
 export function BulletList({ items, marker, markerClassName, className }: BulletListProps) {
   return (

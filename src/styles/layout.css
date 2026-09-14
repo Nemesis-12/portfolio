@@ -74,14 +74,12 @@
   --text-fit-title: clamp(11.5px, 1.8vh, 16px); /* card/entry titles (timeline) -- raised one step (mochi/style-match audit, defect 4), same +1.5px/+0.2vh/+2px increment task 3 used to raise --text-fit-sm; entry titles were left at the pre-task-3 range and read undersized at 1440x900 next to the (already raised) meta/bullet rows around them */
   --text-fit-xl: clamp(17px, 3.4vh, 34px); /* featured card name (Leviathan) */
 
-  --space-fit-3xs: clamp(5px, 1vh, 9px); /* Leviathan bullet list gap */
-  --space-fit-3xs-tight: clamp(5px, 0.9vh, 8px); /* timeline entry bullet list gap */
+  --space-fit-3xs: clamp(5px, 1vh, 9px); /* bullet list gap (Leviathan and timeline entries, #377) */
   --space-fit-2xs: clamp(7px, 1.1vh, 11px);
   --space-fit-xs: clamp(9px, 1.6vh, 15px);
   --space-fit-sm: clamp(12px, 1.8vh, 22px);
   --space-fit-md: clamp(14px, 2.2vh, 26px);
-  --space-fit-margin: clamp(18px, 2.6vh, 28px); /* projects fit-box margin-top under a section heading */
-  --space-fit-margin-tight: clamp(16px, 2.4vh, 26px); /* skills/timeline fit-box margin-top */
+  --space-fit-margin: clamp(18px, 2.6vh, 28px); /* fit-box margin-top under a section heading (projects, skills, timeline, #377) */
 }
 
 .text-fit-2xs {

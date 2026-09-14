@@ -105,7 +105,7 @@ export function SkillsGraph() {
   }, [activeIndex])
 
   return (
-    <FitRegion className="mt-[var(--space-fit-margin-tight)] grid max-h-[760px] flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto] gap-[14px]">
+    <FitRegion className="mt-[var(--space-fit-margin)] grid max-h-[760px] flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto] gap-[14px]">
       <div
         ref={panelRef}
         className="relative aspect-square min-h-0 border border-line-2 bg-panel px-[clamp(30px,5vw,60px)] py-[clamp(22px,3.4vh,42px)] panel:aspect-auto"

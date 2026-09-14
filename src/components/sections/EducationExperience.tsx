@@ -104,7 +104,7 @@ export function EducationExperience() {
        */}
       <FitRegion
         data-pathgrid=""
-        className="mt-[var(--space-fit-margin-tight)] grid flex-1 grid-flow-col auto-cols-[minmax(0,1fr)] grid-rows-[auto_repeat(2,auto_auto_auto_minmax(0,1fr))] gap-px border border-line-2 bg-line max-h-[720px]"
+        className="mt-[var(--space-fit-margin)] grid flex-1 grid-flow-col auto-cols-[minmax(0,1fr)] grid-rows-[auto_repeat(2,auto_auto_auto_minmax(0,1fr))] gap-px border border-line-2 bg-line max-h-[720px]"
       >
         <TimelineColumnCells column={EDUCATION_COLUMN} kind="education" />
         <TimelineColumnCells column={EXPERIENCE_COLUMN} kind="experience" />
@@ -226,7 +226,7 @@ function TimelineEntryCell({
        * unconditional row + wrap + centered items for desktop, which is
        * untouched by this change.
        */}
-      <div className="flex flex-col items-start gap-[var(--space-fit-3xs-tight)] text-fit-meta font-medium uppercase tracking-[0.18em] text-fg-2 panel:flex-row panel:flex-wrap panel:items-center panel:gap-[12px]">
+      <div className="flex flex-col items-start gap-[var(--space-fit-3xs)] text-fit-meta font-medium uppercase tracking-[0.18em] text-fg-2 panel:flex-row panel:flex-wrap panel:items-center panel:gap-[12px]">
         <span
           className={cn(
             'flex items-center gap-[12px]',
