@@ -50,26 +50,15 @@ export const sections: SectionMeta[] = [
   },
   {
     id: 'projects',
-    label: 'Projects — featured',
+    label: 'Projects',
     eyebrow: '01 · PROJECTS',
     // Chrome heading text for `SectionHeading` (sample lines 332-337) --
     // distinct from `ProjectsFeatured.tsx`'s own hardcoded "Leviathan"
     // project-name heading, which this field is not consumed by.
     title: 'PROJECTS',
-    blurb: 'Placeholder featured-project copy — full content lands in #317.',
+    blurb: 'Selected software and machine learning projects.',
     number: '01',
     label2: 'FEATURED',
-  },
-  {
-    id: 'more',
-    label: 'Projects — other',
-    eyebrow: '',
-    // Sample lines 417-422: the second projects screen repeats "01
-    // PROJECTS" verbatim (same number as `projects`, not a new one).
-    title: 'PROJECTS',
-    blurb: 'Placeholder secondary-projects copy — full content lands in #318.',
-    number: '01',
-    label2: 'THE OTHER STUFF I WORKED ON',
   },
   {
     id: 'skills',

@@ -15,8 +15,8 @@ interface FitRegionProps extends Omit<ComponentPropsWithoutRef<'div'>, 'ref'> {
 
 /**
  * The one place the four sections that need to shrink to fit one viewport
- * (`EducationExperience`, `ProjectsOther`, `ProjectsFeatured`,
- * `SkillsGraph`) get that behaviour, instead of each repeating the same
+ * (`EducationExperience` and `SkillsGraph`) get that behaviour, instead of
+ * each repeating the same
  * `ref`/`data-fit` wiring around `useFitToViewport` directly (#356).
  *
  * Two invariants that used to live only in a comment are now structural:

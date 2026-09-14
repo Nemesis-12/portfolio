@@ -5,19 +5,16 @@ import { Contact } from '@/components/sections/Contact'
 import { EducationExperience } from '@/components/sections/EducationExperience'
 import { Hero } from '@/components/sections/Hero'
 import { ProjectsFeatured } from '@/components/sections/ProjectsFeatured'
-import { ProjectsOther } from '@/components/sections/ProjectsOther'
 import { Skills } from '@/components/sections/Skills'
 import { cn } from '@/lib/cn'
 
 /**
- * The six-section page shell (issue #311), plus the fixed header/nav/
+ * The five-section page shell (issue #311), plus the fixed header/nav/
  * skip-link shell (#312). Sections
- * render in a fixed order -- hero, projects (featured), projects (other),
- * skills, education & experience, contact -- each with placeholder content
- * for now.
+ * render in a fixed order -- hero, projects, skills, timeline, contact.
  *
  * Layout/viewport-fit system: above 880px `.section-shell` (src/styles/
- * layout.css) makes every section exactly one viewport tall, while the
+ * layout.css) gives every section a one-viewport minimum height, while the
  * scroll-snap itself lives on `:root` (the document is the real scroll
  * container, not `<main>`) so sections snap between whole screens; below
  * 880px both release and sections stack as ordinary flow content.
@@ -88,7 +85,6 @@ function App() {
       >
         <Hero />
         <ProjectsFeatured />
-        <ProjectsOther />
         <Skills />
         <EducationExperience />
         <Contact />
