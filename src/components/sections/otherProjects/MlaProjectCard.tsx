@@ -1,4 +1,5 @@
 import {
+  ProjectCardLink,
   ProjectCardShell,
   ProjectCardTitleRow,
   TwoColumnProjectCardShell,
@@ -39,14 +40,9 @@ export function MlaProjectCard({ project }: { project: OtherProject }) {
           <CopyInstallCommand command={project.installCommand} />
 
           {project.extraLink ? (
-            <a
-              href={project.extraLink.href}
-              target="_blank"
-              rel="noreferrer"
-              className="self-end border-b border-line-2 pb-[2px] text-[12.5px] text-fg-2"
-            >
-              {project.extraLink.label} ↗
-            </a>
+            <div className="self-end">
+              <ProjectCardLink href={project.extraLink.href} label={project.extraLink.label} />
+            </div>
           ) : null}
         </>
       }
