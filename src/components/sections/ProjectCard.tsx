@@ -128,3 +128,56 @@ export function ProjectCardStatsFooter({ children, className }: ProjectCardStats
     </div>
   )
 }
+
+export interface FeaturedProjectCardShellProps {
+  /** The card's left column -- title, description, bullets, stats. Fully
+   * caller-supplied so a future featured project can use a different mix. */
+  readonly left: ReactNode
+  /** The right feature panel's content (e.g. `InferencePipeline`). The
+   * shell only supplies the panel's chrome and layout, not what fills it. */
+  readonly right: ReactNode
+}
+
+/**
+ * Layout shell for a featured project card (issue #389): the outer
+ * border, the two-column grid, the one-viewport min-height floor, and a
+ * right feature-panel slot. Everything project-specific -- the inference
+ * pipeline, the stat counters, the bullet list, the links -- stays with
+ * the caller (`ProjectsFeatured.tsx`) so a different featured project can
+ * slot in different content, or none at all, without touching this shell.
+ */
+export function FeaturedProjectCardShell({ left, right }: FeaturedProjectCardShellProps) {
+  return (
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] border border-line-2 bg-panel panel:min-h-[68dvh]">
+      {left}
+      <div className="flex min-w-0 flex-col justify-center border-line bg-panel-2 p-[var(--space-fit-md)_clamp(16px,2vw,26px)] panel:border-l">
+        {right}
+      </div>
+    </div>
+  )
+}
+
+export interface TwoColumnProjectCardShellProps {
+  /** The card's left column -- title, tagline, description. */
+  readonly left: ReactNode
+  /** The right strip's content (e.g. an install command and a link). */
+  readonly right: ReactNode
+}
+
+/**
+ * Layout shell for a plainer two-column project card (issue #389): the
+ * outer border, the two-column grid, and a right strip slot. No
+ * min-height floor -- this card takes its natural content height.
+ * Project-specific content (the install command, the links) stays with
+ * the caller (`MlaProjectCard.tsx`).
+ */
+export function TwoColumnProjectCardShell({ left, right }: TwoColumnProjectCardShellProps) {
+  return (
+    <div className="grid grid-cols-1 border border-line-2 bg-panel panel:grid-cols-[1.5fr_1fr]">
+      {left}
+      <div className="flex min-w-0 flex-col justify-between gap-[var(--space-fit-md)] border-t border-line bg-panel-2 p-[var(--space-fit-md)_clamp(16px,2.2vw,30px)] panel:border-l panel:border-t-0">
+        {right}
+      </div>
+    </div>
+  )
+}
