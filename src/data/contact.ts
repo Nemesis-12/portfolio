@@ -31,9 +31,9 @@
  * NOT copied -- `href` below stays the real mailto/GitHub/LinkedIn/resume
  * targets sourced above.
  *
- * `CONTACT_STATEMENT` is copy, not a resume fact. It stays consistent with
- * `HERO_ROLE` in `src/data/hero.ts` ("ASPIRING ML + SYSTEMS + SOFTWARE
- * ENGINEER") rather than narrowing to ML alone.
+ * `CONTACT_STATEMENT` is copy, not a resume fact. It states the owner's
+ * current focus and stays consistent with `HERO_ROLE` in
+ * `src/data/hero.ts`.
  */
 
 export interface ContactLink {
@@ -56,7 +56,7 @@ export interface ContactLink {
 }
 
 export const CONTACT_STATEMENT =
-  'Looking for ML, systems, or software engineering work — model internals, infrastructure, or anywhere the constraint is one GPU and a deadline.'
+  'Looking for opportunities in AI research and software engineering.'
 
 /**
  * Footer line under the contact links (sample line 574: "FARHAN MOHAMMED ·

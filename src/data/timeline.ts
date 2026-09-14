@@ -14,28 +14,20 @@
  *     reference's own abbreviated "MS/BS COMPUTER SCIENCE".
  *   - GPA and honour: resume — "GPA: 3.66/4.0, Magna Cum Laude".
  *   - Dean's List range: resume — "Dean's List: Spring 2022 – Fall 2025".
- *   - Thesis title: resume — "Thesis: Generative Agent-Based Models for
- *     Insider Threat Detection" (the reference lower-cased and shortened
- *     this).
  *   - Coursework lists reproduce the resume's own course names rather than
  *     the reference's paraphrase ("Machine learning, AI, agents, data
  *     science").
- *   - The NetApp "Software Engineer Intern" role has exactly ONE bullet on
- *     the resume; it is split into two here (endpoints/refactors vs. code
- *     review) rather than inventing a second fact the way the reference
- *     did ("Enough PR reviews to have opinions about naming" appears
- *     nowhere on the resume and is deliberately not reproduced).
- *   - The "Software Engineer in Test" role's four resume bullets are
- *     trimmed to the three most substantive, quantified ones (30% manual
- *     -config reduction, 300+ system configurations, 1M+ database
- *     entries) to fit the ticket's two-or-three-bullet limit; the
- *     dropped telemetry-pipeline bullet is the only one without a
- *     headline figure.
+ *   - The NetApp "Software Engineer Intern" role covers the web platform
+ *     work in one short bullet and Ansible deployment orchestration in a
+ *     second.
+ *   - The "Software Engineer in Test" role covers the storage telemetry
+ *     pipeline, the 30% automation improvement, and analysis of 1M+
+ *     database entries. Ansible belongs to the internship entry.
  *   - Date ranges reuse the resume's own formatting exactly, including
- *     the en dash and "(Expected)"/"Present" qualifiers.
+ *     the en dash and the master's "(Expected)" qualifier.
  *
  * The two resume roles at NetApp Inc. — "Software Engineer Intern" (Jun
- * 2026 – Present) and "Software Engineer in Test" (Jul 2024 – Jun 2026) —
+ * 2026 – Aug 2026) and "Software Engineer in Test" (Jul 2024 – Jun 2026) —
  * are represented as two distinct entries with their own date ranges, not
  * flattened into one.
  */
@@ -77,11 +69,9 @@ export const EDUCATION_COLUMN: TimelineColumn = {
       statusLabel: 'Studying now',
       dateRange: 'Jan 2026 – May 2027 (Expected)',
       title: 'Accelerated MS Computer Science',
-      qualifier: 'Thesis track',
-      bullets: [
-        'Thesis: Generative Agent-Based Models for Insider Threat Detection',
-        'Relevant coursework: NLP, Reinforcement Learning',
-      ],
+      // Keep the shared qualifier row so paired timeline cells stay aligned.
+      qualifier: '',
+      bullets: ['Relevant coursework: NLP, Reinforcement Learning, Intro to Data Analytics'],
     },
     {
       id: 'bs-cs',
@@ -105,14 +95,14 @@ export const EXPERIENCE_COLUMN: TimelineColumn = {
   entries: [
     {
       id: 'swe-intern',
-      status: 'current',
-      statusLabel: 'Working now',
-      dateRange: 'Jun 2026 – Present',
+      status: 'complete',
+      statusLabel: 'Recent Role',
+      dateRange: 'Jun 2026 – Aug 2026',
       title: 'Software Engineer Intern',
       qualifier: 'Wichita, KS',
       bullets: [
-        'API endpoints in TypeScript and PostgreSQL for the web platform',
-        'Code refactors and pull request reviews across the existing codebase',
+        'TypeScript and PostgreSQL web platform development, including API endpoints, code refactors, and pull request reviews',
+        'Ansible deployment orchestration for 300+ system configurations',
       ],
     },
     {
@@ -123,8 +113,8 @@ export const EXPERIENCE_COLUMN: TimelineColumn = {
       title: 'Software Engineer in Test',
       qualifier: 'Wichita, KS',
       bullets: [
+        'Automated analysis pipeline processing terabytes of storage telemetry across distributed RAID systems',
         'Python automation framework reducing manual configuration tasks by 30% across Linux, Windows, and VMware',
-        'Ansible-based deployment orchestration for 300+ system configurations',
         'Interactive visualization dashboard analyzing 1M+ database entries for engineering insights',
       ],
     },
