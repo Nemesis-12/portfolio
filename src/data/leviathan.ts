@@ -152,4 +152,4 @@ export const PIPELINE_CANDIDATE_SETS: readonly (readonly PipelineCandidate[])[] 
 ]
 
 /** Resume: "…19ms per-move latency…" — reused as the pipeline's output caption. */
-export const PIPELINE_OUTPUT_META = '19 ms · one forward pass'
+export const PIPELINE_OUTPUT_CAPTION = '19 ms · one forward pass'
