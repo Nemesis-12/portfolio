@@ -14,7 +14,7 @@ interface FitRegionProps extends Omit<ComponentPropsWithoutRef<'div'>, 'ref'> {
 }
 
 /**
- * The one place the four sections that need to shrink to fit one viewport
+ * The one place the two sections that need to shrink to fit one viewport
  * (`EducationExperience` and `SkillsGraph`) get that behaviour, instead of
  * each repeating the same
  * `ref`/`data-fit` wiring around `useFitToViewport` directly (#356).

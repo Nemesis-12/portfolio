@@ -30,6 +30,7 @@ export function ProjectsFeatured() {
         label={meta.label2}
       />
 
+      {/* This wrapper stays at its natural height so both projects scroll without viewport-fit zoom. */}
       <div className="mt-[var(--space-fit-margin)] flex flex-col gap-[var(--space-md)]">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] border border-line-2 bg-panel panel:min-h-[68dvh]">
           <ProjectCardShell>
