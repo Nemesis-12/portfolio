@@ -21,8 +21,8 @@
  * `aria-hidden`.
  */
 interface SectionHeadingProps {
-  /** Chrome section number, e.g. "01". */
-  number: string
+  /** Chrome section number, e.g. "01". Omitted for sections that don't have one. */
+  number?: string
   /** Chrome section title, e.g. "PROJECTS". Rendered as the section's `<h2>`. */
   title: string
   /** DOM id for the `<h2>`, matched by the parent `Section`'s `headingId`. */
