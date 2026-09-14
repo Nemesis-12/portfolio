@@ -37,7 +37,7 @@ export function MlaProjectCard({ project }: { project: OtherProject }) {
             href={project.extraLink.href}
             target="_blank"
             rel="noreferrer"
-            className="self-start border-b border-line-2 pb-[2px] text-[12.5px] text-fg-2"
+            className="self-end border-b border-line-2 pb-[2px] text-[12.5px] text-fg-2"
           >
             {project.extraLink.label} ↗
           </a>
